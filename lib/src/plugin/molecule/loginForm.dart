@@ -55,7 +55,9 @@ class LoginForm extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  Navigator.of(context).pushNamed('/forgot-password');
+                },
                 child: const Text(
                   'Olvidé mi contraseña',
                   style: TextStyle(
@@ -179,7 +181,9 @@ class LoginForm extends StatelessWidget {
                 ),
               ),
               GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  Navigator.of(context).pushNamed('/register');
+                },
                 child: const Text(
                   'Crear cuenta',
                   style: TextStyle(
