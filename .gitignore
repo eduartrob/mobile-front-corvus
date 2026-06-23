@@ -36,6 +36,8 @@ build/
 bin/
 gen/
 out/
+/android/key.properties
+/android/key.jks
 
 # iOS / macOS
 *.pbxuser
