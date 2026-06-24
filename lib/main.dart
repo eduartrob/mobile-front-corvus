@@ -12,8 +12,8 @@ void main() async {
   // Inicializar inyección de dependencias
   setupDependencies();
   
-  // Crear el AuthProvider
-  final authProvider = AuthProvider(signInWithGoogleUseCase: getIt());
+  // Crear el AuthProvider desde el Service Locator
+  final authProvider = sl<AuthProvider>();
   
   // Verificar el token guardado ANTES de correr la app (este es tu Splash invisible)
   await authProvider.checkAuthStatus();
