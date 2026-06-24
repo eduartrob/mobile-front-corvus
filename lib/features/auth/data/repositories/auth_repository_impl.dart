@@ -11,4 +11,9 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<UserEntity> signInWithGoogle() async {
     return await remoteDataSource.signInWithGoogle();
   }
+
+  @override
+  Future<bool> requestDriveScope() async {
+    return await remoteDataSource.requestDriveScope();
+  }
 }

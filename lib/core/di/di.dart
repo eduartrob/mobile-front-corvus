@@ -3,16 +3,35 @@ import 'package:mobile/features/auth/data/data_source/auth_remote_data_source.da
 import 'package:mobile/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:mobile/features/auth/domain/use_cases/sign_in_with_google_usecase.dart';
+import 'package:mobile/features/auth/domain/use_cases/request_drive_scope_usecase.dart';
+import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 
-final getIt = GetIt.instance;
+final sl = GetIt.instance; // sl = Service Locator
 
 void setupDependencies() {
-  // DataSources
-  getIt.registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceImpl());
+  // 1. Data Sources
+  sl.registerLazySingleton<AuthRemoteDataSource>(
+    () => AuthRemoteDataSourceImpl(),
+  );
 
-  // Repositories
-  getIt.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(remoteDataSource: getIt()));
+  // 2. Repositories
+  sl.registerLazySingleton<AuthRepository>(
+    () => AuthRepositoryImpl(remoteDataSource: sl()),
+  );
 
-  // UseCases
-  getIt.registerLazySingleton(() => SignInWithGoogleUseCase(repository: getIt()));
+  // 3. Use Cases
+  sl.registerLazySingleton(
+    () => SignInWithGoogleUseCase(repository: sl()),
+  );
+  sl.registerLazySingleton(
+    () => RequestDriveScopeUseCase(sl()),
+  );
+
+  // 4. Providers
+  sl.registerFactory(
+    () => AuthProvider(
+      signInWithGoogleUseCase: sl(),
+      requestDriveScopeUseCase: sl(),
+    ),
+  );
 }

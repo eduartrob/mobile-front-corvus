@@ -309,7 +309,22 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
               width: double.infinity,
               height: 55,
               child: OutlinedButton.icon(
-                onPressed: () => _showDriveSyncModal(context),
+                onPressed: () async {
+                  // Solicitar permiso incremental
+                  final granted = await context.read<AuthProvider>().requestDriveAccess();
+                  if (context.mounted) {
+                    if (granted) {
+                      _showDriveSyncModal(context);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('Se requiere acceso a Drive para sincronizar.'),
+                          backgroundColor: colorScheme.error,
+                        ),
+                      );
+                    }
+                  }
+                },
                 icon: const Icon(Icons.add_to_drive, size: 24),
                 label: const Text(
                   'Sincronizar Repositorio de Proyectos',

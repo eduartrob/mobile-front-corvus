@@ -2,14 +2,20 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobile/features/auth/domain/entities/user_entity.dart';
 import 'package:mobile/features/auth/domain/use_cases/sign_in_with_google_usecase.dart';
+import 'package:mobile/features/auth/domain/use_cases/request_drive_scope_usecase.dart';
 
 enum AuthStatus { initial, loading, authenticated, unauthenticated, error }
 
 class AuthProvider extends ChangeNotifier {
   final SignInWithGoogleUseCase signInWithGoogleUseCase;
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  final RequestDriveScopeUseCase requestDriveScopeUseCase;
+  final FlutterSecureStorage _storage;
 
-  AuthProvider({required this.signInWithGoogleUseCase});
+  AuthProvider({
+    required this.signInWithGoogleUseCase,
+    required this.requestDriveScopeUseCase,
+    FlutterSecureStorage? storage,
+  }) : _storage = storage ?? const FlutterSecureStorage();
 
   AuthStatus _status = AuthStatus.initial;
   UserEntity? _currentUser;
@@ -66,6 +72,14 @@ class AuthProvider extends ChangeNotifier {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
       _status = AuthStatus.error;
       notifyListeners();
+    }
+  }
+
+  Future<bool> requestDriveAccess() async {
+    try {
+      return await requestDriveScopeUseCase();
+    } catch (e) {
+      return false;
     }
   }
 

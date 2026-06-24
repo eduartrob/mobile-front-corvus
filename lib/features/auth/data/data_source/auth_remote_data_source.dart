@@ -6,14 +6,20 @@ import 'package:mobile/core/network/api_config.dart';
 
 abstract class AuthRemoteDataSource {
   Future<UserModel> signInWithGoogle();
+  Future<bool> requestDriveScope();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     // En Android, el clientId web se pasa como serverClientId para obtener el idToken
     serverClientId: '191994979620-cg0dsf3h25f07v6ile2tq29nck72cqqt.apps.googleusercontent.com',
-    scopes: ['email', 'profile', 'https://www.googleapis.com/auth/drive.readonly'],
+    scopes: ['email', 'profile'],
   );
+
+  @override
+  Future<bool> requestDriveScope() async {
+    return await _googleSignIn.requestScopes(['https://www.googleapis.com/auth/drive.readonly']);
+  }
 
   @override
   Future<UserModel> signInWithGoogle() async {
