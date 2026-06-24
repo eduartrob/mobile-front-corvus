@@ -1,11 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/features/auth/presentation/pages/login_page.dart';
-import 'package:mobile/features/auth/presentation/widgets/loginOrg.dart';
+import 'package:mobile/features/auth/presentation/widgets/login_form.dart';
+
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const LoginOrg();
+    return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: MediaQuery.of(context).size.height - 
+                         MediaQuery.of(context).padding.top - 
+                         MediaQuery.of(context).padding.bottom,
+            ),
+            child: const Center(
+              child: LoginForm(),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
