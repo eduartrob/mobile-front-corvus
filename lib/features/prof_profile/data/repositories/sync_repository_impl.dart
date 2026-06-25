@@ -7,7 +7,7 @@ class SyncRepositoryImpl implements SyncRepository {
   SyncRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<bool> processFolder(String folderId, String accessToken, String jwtToken) async {
+  Future<Map<String, dynamic>> processFolder(String folderId, String accessToken, String jwtToken) async {
     return await remoteDataSource.processFolder(folderId, accessToken, jwtToken);
   }
 

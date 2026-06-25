@@ -21,6 +21,18 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
   bool course2Enabled = true;
   bool course3Enabled = false;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authProvider = context.read<AuthProvider>();
+      final jwtToken = authProvider.currentUser?.token;
+      if (jwtToken != null) {
+        context.read<LinkedFoldersProvider>().loadFolders(jwtToken);
+      }
+    });
+  }
+
   void _showDriveSyncModal(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final futureFolders = () async {
@@ -228,41 +240,53 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
 
         try {
           final syncUseCase = sl<SyncDriveFolderUseCase>();
-          final accepted = await syncUseCase(folderId, accessToken, jwtToken);
+          final result = await syncUseCase(folderId, accessToken, jwtToken);
           
-          if (accepted) {
-            // Añadir al provider local
-            linkedFolders.addFolder(folderId, folderName);
+          if (result['success'] == true) {
+            final syncSkipped = result['sync_skipped'] == true;
 
-            // Feedback de éxito en la UI
-            scaffoldMessenger.showSnackBar(
-              SnackBar(
-                content: const Text('¡Carpeta vinculada! El procesamiento ha comenzado en segundo plano.'),
-                backgroundColor: Colors.green.shade700,
-                duration: const Duration(seconds: 4),
-              ),
-            );
-            
-            // Mostrar notificación persistente en 0%
-            await NotificationService().showProgressNotification(
-              progress: 0,
-              maxProgress: 100,
-              message: 'Preparando vectorización de $folderName...',
-            );
+            // Añadir al provider local y backend
+            linkedFolders.addFolder(folderId, folderName, jwtToken);
 
-            // SIMULACIÓN PARA EL MVP: Como el servidor no tiene configurado Firebase (FCM), 
-            // simularemos el progreso localmente para que la barra no se quede atorada.
-            Future.delayed(const Duration(seconds: 2), () async {
-              await NotificationService().showProgressNotification(
-                progress: 50,
-                maxProgress: 100,
-                message: 'Vectorizando $folderName...',
+            if (syncSkipped) {
+              scaffoldMessenger.showSnackBar(
+                SnackBar(
+                  content: const Text('Carpeta vinculada (Ya estaba sincronizada previamente en Corvus).'),
+                  backgroundColor: Colors.blue.shade700,
+                  duration: const Duration(seconds: 4),
+                ),
+              );
+            } else {
+              // Feedback de éxito en la UI
+              scaffoldMessenger.showSnackBar(
+                SnackBar(
+                  content: const Text('¡Carpeta vinculada! El procesamiento ha comenzado en segundo plano.'),
+                  backgroundColor: Colors.green.shade700,
+                  duration: const Duration(seconds: 4),
+                ),
               );
               
-              await Future.delayed(const Duration(seconds: 3));
-              
-              await NotificationService().showSuccessNotification('Carpeta vinculada y procesada con éxito en Corvus.');
-            });
+              // Mostrar notificación persistente en 0%
+              await NotificationService().showProgressNotification(
+                progress: 0,
+                maxProgress: 100,
+                message: 'Preparando vectorización de $folderName...',
+              );
+
+              // SIMULACIÓN PARA EL MVP: Como el servidor no tiene configurado Firebase (FCM), 
+              // simularemos el progreso localmente para que la barra no se quede atorada.
+              Future.delayed(const Duration(seconds: 2), () async {
+                await NotificationService().showProgressNotification(
+                  progress: 50,
+                  maxProgress: 100,
+                  message: 'Vectorizando $folderName...',
+                );
+                
+                await Future.delayed(const Duration(seconds: 3));
+                
+                await NotificationService().showSuccessNotification('Carpeta vinculada y procesada con éxito en Corvus.');
+              });
+            }
           }
         } catch (e) {
           scaffoldMessenger.showSnackBar(

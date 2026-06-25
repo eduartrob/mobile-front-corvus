@@ -5,7 +5,7 @@ class SyncDriveFolderUseCase {
 
   SyncDriveFolderUseCase(this.repository);
 
-  Future<bool> call(String folderId, String accessToken, String jwtToken) async {
+  Future<Map<String, dynamic>> call(String folderId, String accessToken, String jwtToken) async {
     return await repository.processFolder(folderId, accessToken, jwtToken);
   }
 }

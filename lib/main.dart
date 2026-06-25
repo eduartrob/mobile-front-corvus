@@ -67,7 +67,10 @@ void main() async {
   
   // Verificar el token guardado y cargar carpetas ANTES de correr la app
   await authProvider.checkAuthStatus();
-  await linkedFoldersProvider.loadFolders();
+  final jwtToken = authProvider.currentUser?.token;
+  if (jwtToken != null) {
+    await linkedFoldersProvider.loadFolders(jwtToken);
+  }
 
   runApp(
     MultiProvider(

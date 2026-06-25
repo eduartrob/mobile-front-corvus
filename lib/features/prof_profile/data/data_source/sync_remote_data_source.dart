@@ -3,13 +3,13 @@ import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/api_config.dart';
 
 abstract class SyncRemoteDataSource {
-  Future<bool> processFolder(String folderId, String accessToken, String jwtToken);
+  Future<Map<String, dynamic>> processFolder(String folderId, String accessToken, String jwtToken);
   Future<List<Map<String, dynamic>>> getDriveFolders(String accessToken);
 }
 
 class SyncRemoteDataSourceImpl implements SyncRemoteDataSource {
   @override
-  Future<bool> processFolder(String folderId, String accessToken, String jwtToken) async {
+  Future<Map<String, dynamic>> processFolder(String folderId, String accessToken, String jwtToken) async {
     try {
       final response = await http.post(
         Uri.parse('http://107.23.55.129:3000/api/v1/clustering/integrator/process-folder'),
@@ -23,8 +23,12 @@ class SyncRemoteDataSourceImpl implements SyncRemoteDataSource {
         }),
       ).timeout(const Duration(seconds: 15));
 
-      if (response.statusCode == 202) {
-        return true;
+      if (response.statusCode == 202 || response.statusCode == 200) {
+        final body = jsonDecode(response.body);
+        return {
+          'success': true,
+          'sync_skipped': body['sync_skipped'] ?? false,
+        };
       } else {
         final error = jsonDecode(response.body)['error'] ?? 'Error desconocido';
         throw Exception(error);
