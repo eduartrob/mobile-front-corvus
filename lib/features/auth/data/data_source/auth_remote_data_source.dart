@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mobile/features/auth/data/models/user_model.dart';
 import 'package:mobile/core/network/api_config.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 abstract class AuthRemoteDataSource {
   Future<UserModel> signInWithGoogle();
@@ -63,9 +64,26 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final jsonResponse = jsonDecode(response.body);
         
-        // Supongamos que tu backend responde con algo como: { user: {...}, token: 'ey...' }
         final userData = jsonResponse['user'] as Map<String, dynamic>;
         final token = jsonResponse['token'] as String?;
+        final userId = userData['id'] ?? userData['id_usuario'];
+
+        try {
+          final fcmToken = await FirebaseMessaging.instance.getToken();
+          if (fcmToken != null && userId != null) {
+            await http.post(
+              Uri.parse('${ApiConfig.apiGatewayUrl}/notifications/device'),
+              headers: {'Content-Type': 'application/json'},
+              body: jsonEncode({
+                'userId': userId.toString(),
+                'fcmToken': fcmToken
+              })
+            );
+            print('✅ FCM Token registrado en el backend de Notificaciones');
+          }
+        } catch(e) {
+          print('❌ Error registrando FCM Token: $e');
+        }
 
         return UserModel.fromJson({
           ...userData,

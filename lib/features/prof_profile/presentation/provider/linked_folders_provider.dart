@@ -52,7 +52,7 @@ class LinkedFoldersProvider extends ChangeNotifier {
   Future<void> addFolder(String id, String name, String jwtToken) async {
     // Evitar duplicados
     if (!_folders.any((f) => f['id'] == id)) {
-      _folders.add({'id': id, 'name': name});
+      _folders.add({'id': id, 'name': name, 'status': 'syncing'});
       await _saveFolders();
       notifyListeners();
 
@@ -86,6 +86,15 @@ class LinkedFoldersProvider extends ChangeNotifier {
     _folders.clear();
     await _storage.delete(key: _storageKey);
     notifyListeners();
+  }
+
+  Future<void> markAsSynced(String id) async {
+    final index = _folders.indexWhere((f) => f['id'] == id);
+    if (index != -1) {
+      _folders[index]['status'] = 'synced';
+      await _saveFolders();
+      notifyListeners();
+    }
   }
 
   Future<void> _saveFolders() async {

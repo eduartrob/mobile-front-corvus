@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/prof_profile/presentation/provider/linked_folders_provider.dart';
 import 'package:mobile/core/widgets/corvus_top_bar.dart';
@@ -239,8 +241,11 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
         );
 
         try {
+          final userId = authProvider.currentUser?.id;
+          if (userId == null) throw Exception('Usuario no autenticado (ID nulo)');
+
           final syncUseCase = sl<SyncDriveFolderUseCase>();
-          final result = await syncUseCase(folderId, accessToken, jwtToken);
+          final result = await syncUseCase(folderId, accessToken, jwtToken, userId);
           
           if (result['success'] == true) {
             final syncSkipped = result['sync_skipped'] == true;
@@ -273,19 +278,61 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                 message: 'Preparando vectorización de $folderName...',
               );
 
-              // SIMULACIÓN PARA EL MVP: Como el servidor no tiene configurado Firebase (FCM), 
-              // simularemos el progreso localmente para que la barra no se quede atorada.
-              Future.delayed(const Duration(seconds: 2), () async {
-                await NotificationService().showProgressNotification(
-                  progress: 50,
-                  maxProgress: 100,
-                  message: 'Vectorizando $folderName...',
-                );
+              // POLLING PARA EL MVP: Consultar el estado real de la vectorización en segundo plano.
+              bool isSyncing = true;
+              while (isSyncing) {
+                await Future.delayed(const Duration(seconds: 2));
+                if (!mounted) break; // Usa mounted del StatefulWidget, NO del modal cerrado
                 
-                await Future.delayed(const Duration(seconds: 3));
-                
-                await NotificationService().showSuccessNotification('Carpeta vinculada y procesada con éxito en Corvus.');
-              });
+                try {
+                  final statusUrl = Uri.parse('http://107.23.55.129:3000/api/v1/clustering/integrator/sync-status/$folderId');
+                  debugPrint('=== POLLING SYNC === Haciendo GET a: $statusUrl');
+                  
+                  final response = await http.get(statusUrl, headers: {
+                    'Authorization': 'Bearer $jwtToken',
+                  }).timeout(const Duration(seconds: 10));
+                  
+                  debugPrint('=== POLLING SYNC === StatusCode: ${response.statusCode}');
+                  debugPrint('=== POLLING SYNC === Body: ${response.body}');
+                  
+                  if (response.statusCode == 200) {
+                    final data = jsonDecode(response.body);
+                    final progress = data['progress'] as int;
+                    final total = data['total'] as int;
+                    final message = data['message'] as String;
+                    
+                    if (progress == -1) {
+                        // Error fatal reportado por el backend
+                        isSyncing = false;
+                        await NotificationService().cancelSyncNotification();
+                        if (mounted) {
+                           ScaffoldMessenger.of(context).showSnackBar(
+                             SnackBar(content: Text('Error en sincronización: $message'), backgroundColor: Colors.red),
+                           );
+                        }
+                        break;
+                    }
+
+                    await NotificationService().showProgressNotification(
+                      progress: progress,
+                      maxProgress: total,
+                      message: message,
+                    );
+                    
+                    if (progress >= total && total > 0) {
+                      isSyncing = false;
+                      // Marcar la carpeta actual como 'synced' localmente
+                      await linkedFolders.markAsSynced(folderId);
+                      // Refrescar lista completa del servidor
+                      await linkedFolders.loadFolders(jwtToken);
+                      await NotificationService().showSuccessNotification('Carpeta vinculada y procesada con éxito en Corvus.');
+                    }
+                  }
+                } catch (e) {
+                  debugPrint('=== POLLING SYNC ERROR === Excepción capturada: $e');
+                  // Continuar intentando si hay fallos temporales de red
+                }
+              }
             }
           }
         } catch (e) {
@@ -549,7 +596,16 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                             color: Colors.green.shade100,
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(Icons.check, color: Colors.green.shade700, size: 20),
+                          child: folder['status'] == 'syncing'
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                                  ),
+                                )
+                              : Icon(Icons.check, color: Colors.green.shade700, size: 20),
                         ),
                         title: Text(
                           folder['name'] ?? 'Carpeta Desconocida',

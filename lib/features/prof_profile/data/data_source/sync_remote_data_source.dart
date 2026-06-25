@@ -3,13 +3,13 @@ import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/api_config.dart';
 
 abstract class SyncRemoteDataSource {
-  Future<Map<String, dynamic>> processFolder(String folderId, String accessToken, String jwtToken);
+  Future<Map<String, dynamic>> processFolder(String folderId, String accessToken, String jwtToken, String userId);
   Future<List<Map<String, dynamic>>> getDriveFolders(String accessToken);
 }
 
 class SyncRemoteDataSourceImpl implements SyncRemoteDataSource {
   @override
-  Future<Map<String, dynamic>> processFolder(String folderId, String accessToken, String jwtToken) async {
+  Future<Map<String, dynamic>> processFolder(String folderId, String accessToken, String jwtToken, String userId) async {
     try {
       final response = await http.post(
         Uri.parse('http://107.23.55.129:3000/api/v1/clustering/integrator/process-folder'),
@@ -20,6 +20,7 @@ class SyncRemoteDataSourceImpl implements SyncRemoteDataSource {
         body: jsonEncode({
           'folder_id': folderId,
           'access_token': accessToken,
+          'user_id': userId,
         }),
       ).timeout(const Duration(seconds: 15));
 

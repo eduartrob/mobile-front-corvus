@@ -43,13 +43,14 @@ class NotificationService {
       progress: progress,
       icon: '@mipmap/ic_launcher',
       ongoing: true, // Hace que la notificación no se pueda descartar deslizándola
+      subText: message, // FORZAR que el mensaje se muestre en OPPO/Xiaomi
     );
 
     final NotificationDetails notificationDetails = NotificationDetails(android: androidNotificationDetails);
 
     await _flutterLocalNotificationsPlugin.show(
       syncNotificationId,
-      'Corvus Sync',
+      'Sincronización de Archivos',
       message,
       notificationDetails,
     );
@@ -63,6 +64,7 @@ class NotificationService {
       importance: Importance.high,
       priority: Priority.high,
       icon: '@mipmap/ic_launcher',
+      timeoutAfter: 6000, // Desaparece sola a los 6 segundos
     );
 
     final NotificationDetails notificationDetails = NotificationDetails(android: androidNotificationDetails);
