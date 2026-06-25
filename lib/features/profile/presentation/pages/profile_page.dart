@@ -32,25 +32,30 @@ class ProfilePage extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 48,
-                    backgroundImage: NetworkImage(
-                      user?.photoUrl ?? 'https://lh3.googleusercontent.com/aida-public/AB6AXuD0wLXmNJdheSLYRV0cyw58WRptbP7Tcpj2DYe6d6sJQiytU6tgetCYTsh4-Ov0geC0LLapbMasxnzTMELIMNsnayUh4N9TGK5De10d2W71dWF73JXTBHyjaWFa07BYB77_vkOYSDrr-SvtGzREIK2cHWLZNpEc3oBxuPIFF5-lfeKEPSrbyfJCy2PIjLahEVgXVyF24D6pU3BzhZ6AQHJgFgzuPc1CohlsoHoMho2D-B73NSq78KXkdfio1LlxfaQz9d9DTHm2BG0',
-                    ),
+                    backgroundImage: (user?.photoUrl != null && user!.photoUrl!.isNotEmpty)
+                        ? NetworkImage(user.photoUrl!)
+                        : null,
+                    child: (user?.photoUrl == null || user!.photoUrl!.isEmpty)
+                        ? const Icon(Icons.person, size: 48)
+                        : null,
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    user?.name ?? 'Alex Marin',
+                    user?.name ?? 'Nombre de Alumno',
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Estudiante de Ingeniería de Software • 6to Semestre',
+                    user?.email ?? 'correo@institucional.edu',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14,
-                      color: colorScheme.onSurfaceVariant,
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -194,9 +199,23 @@ class ProfilePage extends StatelessWidget {
               width: double.infinity,
               height: 50,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  context.read<AuthProvider>().logout();
-                  context.go('/');
+                onPressed: () async {
+                  // Mostrar overlay oscuro de carga
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) => const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                  
+                  // Ejecutar logout que limpiará Google y storage
+                  await context.read<AuthProvider>().logout();
+                  
+                  if (context.mounted) {
+                    Navigator.of(context).pop(); // Cerrar overlay
+                    context.go('/');
+                  }
                 },
                 icon: const Icon(Icons.logout),
                 label: const Text('Cerrar Sesión', style: TextStyle(fontWeight: FontWeight.bold)),

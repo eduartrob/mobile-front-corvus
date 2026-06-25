@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.1.1] - 2026-06-24
+### Changed
+- **UX**: Simulated Google Drive Sync progress bar (`NotificationService`) locally in `prof_profile_page.dart` for the MVP presentation to prevent UI freezes, compensating for the lack of FCM infrastructure in the backend.
+- **Drive API**: Fixed 400 Bad Request error handlers and unhandled exceptions when linking empty Google Drive folders.
+
 ## [1.1.0] - 2026-06-24
 ### Added
 - **Student UI**: Created complete student layouts including My Projects, Teams, and Profile pages.

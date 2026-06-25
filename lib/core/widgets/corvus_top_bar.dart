@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 
 class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
@@ -59,17 +60,35 @@ class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
         if (user != null && user.photoUrl != null && user.photoUrl!.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
-            child: CircleAvatar(
-              backgroundImage: NetworkImage(user.photoUrl!),
-              radius: 18,
+            child: GestureDetector(
+              onTap: () {
+                if (authProvider.role == 'PROFESOR') {
+                  context.push('/prof-profile');
+                } else {
+                  context.push('/profile');
+                }
+              },
+              child: CircleAvatar(
+                backgroundImage: NetworkImage(user.photoUrl!),
+                radius: 18,
+              ),
             ),
           )
         else
-          const Padding(
-            padding: EdgeInsets.only(right: 16.0),
-            child: CircleAvatar(
-              child: Icon(Icons.person),
-              radius: 18,
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: GestureDetector(
+              onTap: () {
+                if (authProvider.role == 'PROFESOR') {
+                  context.push('/prof-profile');
+                } else {
+                  context.push('/profile');
+                }
+              },
+              child: const CircleAvatar(
+                child: Icon(Icons.person),
+                radius: 18,
+              ),
             ),
           ),
       ],

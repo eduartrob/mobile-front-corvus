@@ -143,15 +143,13 @@ class AppRouter extends StatelessWidget {
                 ),
               ],
             ),
-            StatefulShellBranch(
-              routes: [
-                GoRoute(
-                  path: '/prof-profile',
-                  builder: (context, state) => const ProfProfilePage(),
-                ),
-              ],
-            ),
           ],
+        ),
+        
+        // Ruta independiente para el perfil del Profesor
+        GoRoute(
+          path: '/prof-profile',
+          builder: (context, state) => const ProfProfilePage(),
         ),
       ],
     );

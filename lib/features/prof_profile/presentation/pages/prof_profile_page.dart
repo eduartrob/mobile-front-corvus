@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/features/prof_profile/presentation/provider/linked_folders_provider.dart';
 import 'package:mobile/core/widgets/corvus_top_bar.dart';
-
+import 'package:mobile/core/di/di.dart';
+import 'package:mobile/features/prof_profile/domain/use_cases/sync_drive_folder_usecase.dart';
+import 'package:mobile/features/prof_profile/domain/use_cases/get_drive_folders_usecase.dart';
+import 'package:mobile/core/services/notification_service.dart';
 class ProfProfilePage extends StatefulWidget {
   const ProfProfilePage({super.key});
 
@@ -19,82 +23,171 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
 
   void _showDriveSyncModal(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+    final futureFolders = () async {
+      final authProvider = context.read<AuthProvider>();
+      final token = await authProvider.getDriveAccessToken();
+      if (token == null) return <Map<String, dynamic>>[];
+      return await sl<GetDriveFoldersUseCase>().call(token);
+    }();
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (BuildContext context) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.6,
-          decoration: BoxDecoration(
-            color: colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            border: Border(top: BorderSide(color: colorScheme.primary.withOpacity(0.3))),
-          ),
-          child: Column(
-            children: [
-              const SizedBox(height: 12),
-              Container(
-                width: 40,
-                height: 4,
+        String searchQuery = '';
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return DefaultTabController(
+              length: 2,
+              child: Container(
+                height: MediaQuery.of(context).size.height * 0.75,
                 decoration: BoxDecoration(
-                  color: colorScheme.onSurfaceVariant.withOpacity(0.4),
-                  borderRadius: BorderRadius.circular(2),
+                  color: colorScheme.surface,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                  border: Border(top: BorderSide(color: colorScheme.primary.withOpacity(0.3))),
                 ),
-              ),
-              const SizedBox(height: 24),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Row(
-                  children: [
-                    Icon(Icons.add_to_drive, color: colorScheme.primary, size: 28),
-                    const SizedBox(width: 12),
-                    const Expanded(
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 12),
+                      Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: colorScheme.onSurfaceVariant.withOpacity(0.4),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Row(
+                        children: [
+                          Icon(Icons.add_to_drive, color: colorScheme.primary, size: 28),
+                          const SizedBox(width: 12),
+                          const Expanded(
+                            child: Text(
+                              'Google Drive',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Text(
-                        'Google Drive',
+                        'Busca y selecciona la carpeta raíz de tus proyectos históricos.',
                         style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Text(
-                  'Selecciona la carpeta raíz que contiene los proyectos históricos para sincronizar con Corvus RAG.',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              const Divider(),
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  children: [
-                    _buildFolderItem(context, 'Tesis 2023 - Ing. Sistemas'),
-                    _buildFolderItem(context, 'Proyectos Integradores'),
-                    _buildFolderItem(context, 'Documentación de Cursos'),
-                    _buildFolderItem(context, 'Papers y Publicaciones'),
-                    _buildFolderItem(context, 'Investigación IA'),
-                  ],
-                ),
-              ),
-            ],
-          ),
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: TextField(
+                        decoration: InputDecoration(
+                          hintText: 'Buscar carpeta...',
+                          prefixIcon: const Icon(Icons.search),
+                          filled: true,
+                          fillColor: colorScheme.surfaceContainerHighest.withOpacity(0.4),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                        ),
+                        onChanged: (value) {
+                          setState(() {
+                            searchQuery = value.toLowerCase();
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const TabBar(
+                      tabs: [
+                        Tab(text: 'Mi unidad'),
+                        Tab(text: 'Compartidos'),
+                      ],
+                    ),
+                    Expanded(
+                      child: FutureBuilder<List<Map<String, dynamic>>>(
+                        future: futureFolders,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const Center(child: CircularProgressIndicator());
+                          }
+                          if (snapshot.hasError) {
+                            return Center(
+                              child: Text(
+                                'Error: ${snapshot.error}',
+                                style: TextStyle(color: colorScheme.error),
+                                textAlign: TextAlign.center,
+                              ),
+                            );
+                          }
+                          final allFolders = snapshot.data ?? [];
+                          
+                          // Filtrado local
+                          final filteredFolders = allFolders.where((f) {
+                            final name = (f['name'] ?? '').toLowerCase();
+                            return name.contains(searchQuery);
+                          }).toList();
+                          
+                          final myDrive = filteredFolders.where((f) => f['sharedWithMe'] != true).toList();
+                          final sharedWithMe = filteredFolders.where((f) => f['sharedWithMe'] == true).toList();
+                          
+                          Widget buildList(List<Map<String, dynamic>> list) {
+                            if (list.isEmpty) {
+                              return Center(
+                                child: Text(
+                                  searchQuery.isEmpty 
+                                    ? 'No hay carpetas aquí.' 
+                                    : 'No se encontraron resultados.',
+                                  style: TextStyle(color: colorScheme.onSurfaceVariant),
+                                ),
+                              );
+                            }
+                            return ListView.builder(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              itemCount: list.length,
+                              itemBuilder: (context, index) {
+                                final folder = list[index];
+                                return _buildFolderItem(context, folder['name'] ?? 'Sin nombre', folderId: folder['id'] ?? '');
+                              },
+                            );
+                          }
+
+                          return TabBarView(
+                            children: [
+                              buildList(myDrive),
+                              buildList(sharedWithMe),
+                            ],
+                          );
+                        }, // Closes builder
+                      ), // Closes FutureBuilder
+                    ), // Closes Expanded
+                  ], // Closes Column children
+                ), // Closes Column
+              ), // Closes Material
+              ), // Closes Container
+            ); // Closes DefaultTabController
+          },
         );
       },
     );
   }
 
-  Widget _buildFolderItem(BuildContext context, String folderName) {
+  Widget _buildFolderItem(BuildContext context, String folderName, {String folderId = 'MOCK_FOLDER_ID'}) {
     final colorScheme = Theme.of(context).colorScheme;
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
@@ -104,15 +197,82 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
         style: const TextStyle(fontWeight: FontWeight.w500),
       ),
       trailing: const Icon(Icons.chevron_right),
-      onTap: () {
+      onTap: () async {
+        // Capturar referencias antes de cerrar el modal
+        final authProvider = context.read<AuthProvider>();
+        final linkedFolders = context.read<LinkedFoldersProvider>();
+        final scaffoldMessenger = ScaffoldMessenger.of(context);
+
         Navigator.pop(context); // Cierra el bottom sheet
-        ScaffoldMessenger.of(context).showSnackBar(
+
+        final accessToken = await authProvider.getDriveAccessToken();
+        final jwtToken = authProvider.currentUser?.token;
+
+        if (accessToken == null || jwtToken == null) {
+          scaffoldMessenger.showSnackBar(
+            SnackBar(
+              content: const Text('Error: No se pudo obtener las credenciales necesarias (Drive o Corvus).'),
+              backgroundColor: colorScheme.error,
+            ),
+          );
+          return;
+        }
+
+        // Feedback inmediato en la UI
+        scaffoldMessenger.showSnackBar(
           SnackBar(
-            content: Text('Descargando proyectos de "$folderName" en segundo plano...'),
-            backgroundColor: colorScheme.primary,
-            behavior: SnackBarBehavior.floating,
+            content: Text('Conectando con Corvus para procesar "$folderName"...'),
+            duration: const Duration(seconds: 2),
           ),
         );
+
+        try {
+          final syncUseCase = sl<SyncDriveFolderUseCase>();
+          final accepted = await syncUseCase(folderId, accessToken, jwtToken);
+          
+          if (accepted) {
+            // Añadir al provider local
+            linkedFolders.addFolder(folderId, folderName);
+
+            // Feedback de éxito en la UI
+            scaffoldMessenger.showSnackBar(
+              SnackBar(
+                content: const Text('¡Carpeta vinculada! El procesamiento ha comenzado en segundo plano.'),
+                backgroundColor: Colors.green.shade700,
+                duration: const Duration(seconds: 4),
+              ),
+            );
+            
+            // Mostrar notificación persistente en 0%
+            await NotificationService().showProgressNotification(
+              progress: 0,
+              maxProgress: 100,
+              message: 'Preparando vectorización de $folderName...',
+            );
+
+            // SIMULACIÓN PARA EL MVP: Como el servidor no tiene configurado Firebase (FCM), 
+            // simularemos el progreso localmente para que la barra no se quede atorada.
+            Future.delayed(const Duration(seconds: 2), () async {
+              await NotificationService().showProgressNotification(
+                progress: 50,
+                maxProgress: 100,
+                message: 'Vectorizando $folderName...',
+              );
+              
+              await Future.delayed(const Duration(seconds: 3));
+              
+              await NotificationService().showSuccessNotification('Carpeta vinculada y procesada con éxito en Corvus.');
+            });
+          }
+        } catch (e) {
+          scaffoldMessenger.showSnackBar(
+            SnackBar(
+              content: Text(e.toString().replaceAll('Exception: ', '')),
+              backgroundColor: colorScheme.error,
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
       },
     );
   }
@@ -135,9 +295,12 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                 children: [
                   CircleAvatar(
                     radius: 50,
-                    backgroundImage: NetworkImage(
-                      user?.photoUrl ?? 'https://lh3.googleusercontent.com/aida-public/AB6AXuD0wLXmNJdheSLYRV0cyw58WRptbP7Tcpj2DYe6d6sJQiytU6tgetCYTsh4-Ov0geC0LLapbMasxnzTMELIMNsnayUh4N9TGK5De10d2W71dWF73JXTBHyjaWFa07BYB77_vkOYSDrr-SvtGzREIK2cHWLZNpEc3oBxuPIFF5-lfeKEPSrbyfJCy2PIjLahEVgXVyF24D6pU3BzhZ6AQHJgFgzuPc1CohlsoHoMho2D-B73NSq78KXkdfio1LlxfaQz9d9DTHm2BG0',
-                    ),
+                    backgroundImage: (user?.photoUrl != null && user!.photoUrl!.isNotEmpty)
+                        ? NetworkImage(user.photoUrl!)
+                        : null,
+                    child: (user?.photoUrl == null || user!.photoUrl!.isEmpty)
+                        ? const Icon(Icons.person, size: 50)
+                        : null,
                   ),
                   Positioned(
                     bottom: 0,
@@ -157,11 +320,12 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
             ),
             const SizedBox(height: 16),
             Text(
-              user?.name ?? 'Dr. Julian Aranda',
+              user?.name ?? 'Nombre de Profesor',
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Container(
@@ -171,7 +335,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                'ID: FAC-88321',
+                user?.email ?? 'correo@institucional.edu',
                 style: TextStyle(
                   color: colorScheme.primary,
                   fontWeight: FontWeight.bold,
@@ -304,6 +468,104 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
             const Divider(),
             const SizedBox(height: 24),
             
+            // Sección de Carpetas Vinculadas
+            Row(
+              children: [
+                Icon(Icons.folder_shared, color: colorScheme.primary),
+                const SizedBox(width: 8),
+                const Text(
+                  'Directorios Vinculados',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            
+            // Lista dinámica de carpetas
+            Consumer<LinkedFoldersProvider>(
+              builder: (context, linkedProvider, child) {
+                if (linkedProvider.folders.isEmpty) {
+                  return Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surfaceContainerHighest.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'No hay carpetas sincronizadas. Haz clic abajo para añadir tu primer repositorio.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: colorScheme.onSurfaceVariant),
+                      ),
+                    ),
+                  );
+                }
+
+                return ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: linkedProvider.folders.length,
+                  separatorBuilder: (context, index) => const SizedBox(height: 8),
+                  itemBuilder: (context, index) {
+                    final folder = linkedProvider.folders[index];
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: colorScheme.primary.withOpacity(0.05),
+                        border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: ListTile(
+                        leading: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.green.shade100,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(Icons.check, color: Colors.green.shade700, size: 20),
+                        ),
+                        title: Text(
+                          folder['name'] ?? 'Carpeta Desconocida',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: const Text('Activa y Sincronizada', style: TextStyle(fontSize: 12, color: Colors.green)),
+                        trailing: IconButton(
+                          icon: Icon(Icons.delete_outline, color: colorScheme.error),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('¿Quitar acceso?'),
+                                content: Text('¿Deseas dejar de visualizar "${folder['name']}" en Corvus? \n\n(Nota: Los vectores permanecerán en el motor de Corvus hasta que se implemente la eliminación completa en el servidor).'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('Cancelar'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      context.read<LinkedFoldersProvider>().removeFolder(folder['id']!);
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text('Quitar', style: TextStyle(color: colorScheme.error)),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+            
+            const SizedBox(height: 24),
+            
             // Drive Sync Button
             SizedBox(
               width: double.infinity,
@@ -345,9 +607,23 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
               width: double.infinity,
               height: 55,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  context.read<AuthProvider>().logout();
-                  context.go('/');
+                onPressed: () async {
+                  // Mostrar overlay oscuro de carga
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) => const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                  
+                  // Ejecutar logout que limpiará Google y storage
+                  await context.read<AuthProvider>().logout();
+                  
+                  if (context.mounted) {
+                    Navigator.of(context).pop(); // Cerrar overlay
+                    context.go('/');
+                  }
                 },
                 icon: const Icon(Icons.logout, size: 24),
                 label: const Text(

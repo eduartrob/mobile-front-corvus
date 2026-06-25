@@ -55,11 +55,6 @@ class ProfMainLayout extends StatelessWidget {
               activeIcon: Icon(Icons.history),
               label: 'History',
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person),
-              label: 'Profile',
-            ),
           ],
         ),
       ),

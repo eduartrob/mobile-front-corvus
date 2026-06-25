@@ -7,18 +7,34 @@ import 'package:mobile/core/network/api_config.dart';
 abstract class AuthRemoteDataSource {
   Future<UserModel> signInWithGoogle();
   Future<bool> requestDriveScope();
+  Future<String?> getDriveAccessToken();
+  Future<void> signOutFromGoogle();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     // En Android, el clientId web se pasa como serverClientId para obtener el idToken
-    serverClientId: '191994979620-cg0dsf3h25f07v6ile2tq29nck72cqqt.apps.googleusercontent.com',
+    serverClientId: '1078483343139-2fobsjceva5r60i6vrpcg4jbjddmj4uo.apps.googleusercontent.com',
     scopes: ['email', 'profile'],
   );
 
   @override
   Future<bool> requestDriveScope() async {
     return await _googleSignIn.requestScopes(['https://www.googleapis.com/auth/drive.readonly']);
+  }
+
+  @override
+  Future<String?> getDriveAccessToken() async {
+    GoogleSignInAccount? user = _googleSignIn.currentUser;
+    if (user == null) {
+      try {
+        user = await _googleSignIn.signInSilently();
+      } catch (e) {
+        print('Error silent sign in: $e');
+      }
+    }
+    final GoogleSignInAuthentication? auth = await user?.authentication;
+    return auth?.accessToken;
   }
 
   @override
@@ -54,6 +70,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         return UserModel.fromJson({
           ...userData,
           'token': token,
+          'photoUrl': googleUser.photoUrl ?? userData['photoUrl'],
+          'name': googleUser.displayName ?? userData['name'],
         });
       } else {
         final jsonResponse = jsonDecode(response.body);
@@ -64,6 +82,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       // Desconectar al usuario de Google en caso de error interno
       await _googleSignIn.signOut();
       throw Exception('Fallo al iniciar sesión con Google: $e');
+    }
+  }
+
+  @override
+  Future<void> signOutFromGoogle() async {
+    try {
+      await _googleSignIn.disconnect();
+    } catch (e) {
+      // Fallback si falla el disconnect
+      await _googleSignIn.signOut();
     }
   }
 }
