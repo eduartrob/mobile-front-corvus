@@ -189,7 +189,16 @@ class _InspirationPageState extends State<InspirationPage> {
             bottom: 0, // Reducido al mínimo, el margen interno de la tarjeta se encarga del espacio
             left: 0,
             right: 0,
-            child: FloatingAiInput(isVisible: _isFloatingInputVisible),
+            child: FloatingAiInput(
+              isVisible: _isFloatingInputVisible,
+              onExpand: () {
+                if (!_isFloatingInputVisible) {
+                  setState(() {
+                    _isFloatingInputVisible = true;
+                  });
+                }
+              },
+            ),
           ),
         ],
       ),

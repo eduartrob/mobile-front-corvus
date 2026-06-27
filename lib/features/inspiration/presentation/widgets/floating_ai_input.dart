@@ -3,8 +3,9 @@ import 'package:mobile/l10n/app_localizations.dart';
 
 class FloatingAiInput extends StatefulWidget {
   final bool isVisible;
+  final VoidCallback? onExpand;
 
-  const FloatingAiInput({super.key, required this.isVisible});
+  const FloatingAiInput({super.key, required this.isVisible, this.onExpand});
 
   @override
   State<FloatingAiInput> createState() => _FloatingAiInputState();
@@ -58,6 +59,7 @@ class _FloatingAiInputState extends State<FloatingAiInput> {
     return GestureDetector(
       key: const ValueKey("minimized"),
       onTap: () {
+        widget.onExpand?.call();
         setState(() {
           _isMinimized = false;
         });
