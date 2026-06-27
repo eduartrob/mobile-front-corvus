@@ -81,21 +81,24 @@ class _CustomNavItemState extends State<CustomNavItem> with TickerProviderStateM
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 500),
+      reverseDuration: const Duration(milliseconds: 150),
     );
 
-    // Animación de rebote doble suave para el icono
+    // Animación de rebote doble MÁS suave para el icono
     _bounceAnimation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0.0, end: -8.0).chain(CurveTween(curve: Curves.easeOut)), weight: 20),
-      TweenSequenceItem(tween: Tween(begin: -8.0, end: 0.0).chain(CurveTween(curve: Curves.easeIn)), weight: 20),
-      TweenSequenceItem(tween: Tween(begin: 0.0, end: -4.0).chain(CurveTween(curve: Curves.easeOut)), weight: 15),
-      TweenSequenceItem(tween: Tween(begin: -4.0, end: 0.0).chain(CurveTween(curve: Curves.easeIn)), weight: 15),
-      TweenSequenceItem(tween: ConstantTween(0.0), weight: 30),
-    ]).animate(_controller);
+      TweenSequenceItem(tween: Tween(begin: 0.0, end: -6.0).chain(CurveTween(curve: Curves.easeOutQuad)), weight: 30),
+      TweenSequenceItem(tween: Tween(begin: -6.0, end: 0.0).chain(CurveTween(curve: Curves.easeInQuad)), weight: 30),
+      TweenSequenceItem(tween: Tween(begin: 0.0, end: -2.0).chain(CurveTween(curve: Curves.easeOutQuad)), weight: 20),
+      TweenSequenceItem(tween: Tween(begin: -2.0, end: 0.0).chain(CurveTween(curve: Curves.easeInQuad)), weight: 20),
+    ]).animate(CurvedAnimation(
+      parent: _controller, 
+      curve: const Interval(0.0, 0.8),
+    ));
 
-    // Animación de giro para el rombo (de 0 a 45 grados en radianes = pi/4)
+    // Animación de giro para el rombo (de 0 a 45 grados)
     _rotateAnimation = Tween<double>(begin: 0.0, end: math.pi / 4).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
     );
 
     // Animación de aparición (escala) para el rombo
