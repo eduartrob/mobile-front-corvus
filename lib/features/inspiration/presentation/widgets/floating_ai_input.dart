@@ -18,30 +18,36 @@ class _FloatingAiInputState extends State<FloatingAiInput> {
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
 
+    // We make sure it doesn't hide if it's minimized
+    final bool shouldShow = widget.isVisible || _isMinimized;
+
     return AnimatedSlide(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOutCubic,
-      offset: (widget.isVisible || _isMinimized) ? Offset.zero : const Offset(0, 0.2),
+      offset: shouldShow ? Offset.zero : const Offset(0, 0.2),
       child: AnimatedOpacity(
         duration: const Duration(milliseconds: 300),
-        opacity: (widget.isVisible || _isMinimized) ? 1.0 : 0.0,
-        child: AnimatedAlign(
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeInOutCubic,
-          alignment: _isMinimized ? Alignment.centerLeft : Alignment.bottomCenter,
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
-            transitionBuilder: (Widget child, Animation<double> animation) {
-              return SizeTransition(
-                sizeFactor: animation,
-                axis: Axis.horizontal,
-                axisAlignment: -1.0,
-                child: FadeTransition(opacity: animation, child: child),
-              );
-            },
-            child: _isMinimized
-                ? _buildMinimizedState(colorScheme)
-                : _buildExpandedState(colorScheme, l10n),
+        opacity: shouldShow ? 1.0 : 0.0,
+        child: IgnorePointer(
+          ignoring: !shouldShow,
+          child: AnimatedAlign(
+            duration: const Duration(milliseconds: 400),
+            curve: Curves.easeInOutCubic,
+            alignment: _isMinimized ? Alignment.centerLeft : Alignment.bottomCenter,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return SizeTransition(
+                  sizeFactor: animation,
+                  axis: Axis.horizontal,
+                  axisAlignment: -1.0,
+                  child: FadeTransition(opacity: animation, child: child),
+                );
+              },
+              child: _isMinimized
+                  ? _buildMinimizedState(colorScheme)
+                  : _buildExpandedState(colorScheme, l10n),
+            ),
           ),
         ),
       ),
@@ -138,6 +144,8 @@ class _FloatingAiInputState extends State<FloatingAiInput> {
               ),
               InkWell(
                 onTap: () {
+                  // Cerrar el teclado si está abierto
+                  FocusScope.of(context).unfocus();
                   setState(() {
                     _isMinimized = true;
                   });
