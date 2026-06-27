@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile/features/inspiration/domain/entities/project_entity.dart';
-import 'package:mobile/features/inspiration/data/data_source/inspiration_local_data_source.dart';
+import 'package:mobile/features/inspiration/data/data_source/inspiration_remote_data_source.dart';
+import 'package:http/http.dart' as http;
 
 class InspirationProvider extends ChangeNotifier {
-  final InspirationLocalDataSource _dataSource;
+  final InspirationRemoteDataSource _dataSource;
   
   List<ProjectEntity> _projects = [];
   List<ProjectEntity> get projects => _projects;
@@ -15,8 +16,8 @@ class InspirationProvider extends ChangeNotifier {
   bool _showWelcome = true;
   bool get showWelcome => _showWelcome;
 
-  InspirationProvider({InspirationLocalDataSource? dataSource}) 
-      : _dataSource = dataSource ?? InspirationLocalDataSource() {
+  InspirationProvider({InspirationRemoteDataSource? dataSource}) 
+      : _dataSource = dataSource ?? InspirationRemoteDataSource(client: http.Client()) {
     _init();
   }
 
