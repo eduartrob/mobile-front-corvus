@@ -21,10 +21,10 @@ class _FloatingAiInputState extends State<FloatingAiInput> {
     return AnimatedSlide(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOutCubic,
-      offset: widget.isVisible ? Offset.zero : const Offset(0, 0.2),
+      offset: (widget.isVisible || _isMinimized) ? Offset.zero : const Offset(0, 0.2),
       child: AnimatedOpacity(
         duration: const Duration(milliseconds: 300),
-        opacity: widget.isVisible ? 1.0 : 0.0,
+        opacity: (widget.isVisible || _isMinimized) ? 1.0 : 0.0,
         child: AnimatedAlign(
           duration: const Duration(milliseconds: 400),
           curve: Curves.easeInOutCubic,
