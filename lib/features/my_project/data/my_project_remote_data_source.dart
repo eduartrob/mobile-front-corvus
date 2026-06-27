@@ -16,14 +16,19 @@ class MyProjectRemoteDataSource {
     try {
       var request = http.MultipartRequest('POST', url);
       request.files.add(await http.MultipartFile.fromPath('file', filePath));
-      request.fields['user_id'] = userId; // Añadimos el ID del usuario como campo del formulario
+      request.fields['user_id'] = userId;
       request.headers.addAll(ApiConfig.defaultHeaders);
       
-      final token = await _storage.read(key: 'auth_token');
-      if (token != null) {
-        request.headers['Authorization'] = 'Bearer $token';
+      // Reintento: el Keystore de Android puede fallar al volver de FilePicker
+      var token = await _storage.read(key: 'auth_token');
+      if (token == null) {
+        await Future.delayed(const Duration(milliseconds: 600));
+        token = await _storage.read(key: 'auth_token');
       }
-      
+      if (token == null) {
+        throw Exception('Sesión no encontrada. Por favor cierra y abre la app nuevamente.');
+      }
+      request.headers['Authorization'] = 'Bearer $token';
       request.headers.remove('Content-Type');
 
       final streamedResponse = await request.send();
