@@ -182,6 +182,7 @@ class _InspirationPageState extends State<InspirationPage> {
               ],
             ),
           ),
+        ),
 
           // Floating AI Input
           Positioned(
