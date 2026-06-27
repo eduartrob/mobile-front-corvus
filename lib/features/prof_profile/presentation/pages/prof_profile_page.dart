@@ -10,6 +10,8 @@ import 'package:mobile/core/di/di.dart';
 import 'package:mobile/features/prof_profile/domain/use_cases/sync_drive_folder_usecase.dart';
 import 'package:mobile/features/prof_profile/domain/use_cases/get_drive_folders_usecase.dart';
 import 'package:mobile/core/services/notification_service.dart';
+import 'package:mobile/core/network/api_config.dart';
+
 class ProfProfilePage extends StatefulWidget {
   const ProfProfilePage({super.key});
 
@@ -251,7 +253,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
             final syncSkipped = result['sync_skipped'] == true;
 
             // Añadir al provider local y backend
-            linkedFolders.addFolder(folderId, folderName, jwtToken);
+            linkedFolders.addFolder(folderId, folderName, jwtToken, isSynced: syncSkipped);
 
             if (syncSkipped) {
               scaffoldMessenger.showSnackBar(
@@ -278,61 +280,9 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                 message: 'Preparando vectorización de $folderName...',
               );
 
-              // POLLING PARA EL MVP: Consultar el estado real de la vectorización en segundo plano.
-              bool isSyncing = true;
-              while (isSyncing) {
-                await Future.delayed(const Duration(seconds: 2));
-                if (!mounted) break; // Usa mounted del StatefulWidget, NO del modal cerrado
-                
-                try {
-                  final statusUrl = Uri.parse('http://107.23.55.129:3000/api/v1/clustering/integrator/sync-status/$folderId');
-                  debugPrint('=== POLLING SYNC === Haciendo GET a: $statusUrl');
-                  
-                  final response = await http.get(statusUrl, headers: {
-                    'Authorization': 'Bearer $jwtToken',
-                  }).timeout(const Duration(seconds: 10));
-                  
-                  debugPrint('=== POLLING SYNC === StatusCode: ${response.statusCode}');
-                  debugPrint('=== POLLING SYNC === Body: ${response.body}');
-                  
-                  if (response.statusCode == 200) {
-                    final data = jsonDecode(response.body);
-                    final progress = data['progress'] as int;
-                    final total = data['total'] as int;
-                    final message = data['message'] as String;
-                    
-                    if (progress == -1) {
-                        // Error fatal reportado por el backend
-                        isSyncing = false;
-                        await NotificationService().cancelSyncNotification();
-                        if (mounted) {
-                           ScaffoldMessenger.of(context).showSnackBar(
-                             SnackBar(content: Text('Error en sincronización: $message'), backgroundColor: Colors.red),
-                           );
-                        }
-                        break;
-                    }
-
-                    await NotificationService().showProgressNotification(
-                      progress: progress,
-                      maxProgress: total,
-                      message: message,
-                    );
-                    
-                    if (progress >= total && total > 0) {
-                      isSyncing = false;
-                      // Marcar la carpeta actual como 'synced' localmente
-                      await linkedFolders.markAsSynced(folderId);
-                      // Refrescar lista completa del servidor
-                      await linkedFolders.loadFolders(jwtToken);
-                      await NotificationService().showSuccessNotification('Carpeta vinculada y procesada con éxito en Corvus.');
-                    }
-                  }
-                } catch (e) {
-                  debugPrint('=== POLLING SYNC ERROR === Excepción capturada: $e');
-                  // Continuar intentando si hay fallos temporales de red
-                }
-              }
+              // Nota: El polling de progreso (la actualización en segundo plano)
+              // ahora es manejado automáticamente por LinkedFoldersProvider
+              // de manera resiliente, incluso si el usuario navega a otra pantalla.
             }
           }
         } catch (e) {
@@ -611,7 +561,22 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                           folder['name'] ?? 'Carpeta Desconocida',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        subtitle: const Text('Activa y Sincronizada', style: TextStyle(fontSize: 12, color: Colors.green)),
+                        subtitle: folder['status'] == 'syncing'
+                            ? StreamBuilder<int>(
+                                stream: Stream.periodic(const Duration(milliseconds: 500), (i) => i),
+                                builder: (context, snapshot) {
+                                  final count = (snapshot.data ?? 0) % 4;
+                                  final dots = List.generate(count, (_) => '.').join(' ');
+                                  return Text(
+                                    'Sincronizando $dots',
+                                    style: TextStyle(fontSize: 12, color: Colors.blue.shade700, fontWeight: FontWeight.w500),
+                                  );
+                                },
+                              )
+                            : const Text(
+                                'Activa y Sincronizada',
+                                style: TextStyle(fontSize: 12, color: Colors.green),
+                              ),
                         trailing: IconButton(
                           icon: Icon(Icons.delete_outline, color: colorScheme.error),
                           onPressed: () {

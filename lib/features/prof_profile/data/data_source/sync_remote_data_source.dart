@@ -12,7 +12,7 @@ class SyncRemoteDataSourceImpl implements SyncRemoteDataSource {
   Future<Map<String, dynamic>> processFolder(String folderId, String accessToken, String jwtToken, String userId) async {
     try {
       final response = await http.post(
-        Uri.parse('http://107.23.55.129:3000/api/v1/clustering/integrator/process-folder'),
+        Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/process-folder'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $jwtToken',

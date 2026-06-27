@@ -46,6 +46,7 @@ class InspirationProvider extends ChangeNotifier {
     try {
       _projects = await _dataSource.getUnexploredProjects();
     } catch (e) {
+      print("Error detallado en loadProjects: $e");
       _projects = [];
     } finally {
       _isLoading = false;

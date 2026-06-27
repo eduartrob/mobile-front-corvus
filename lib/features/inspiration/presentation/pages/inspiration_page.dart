@@ -69,9 +69,11 @@ class _InspirationPageState extends State<InspirationPage> {
           // Main Scroll View
           SafeArea(
             bottom: false,
-            child: CustomScrollView(
-              controller: _scrollController,
-              slivers: [
+            child: RefreshIndicator(
+              onRefresh: () => provider.loadProjects(),
+              child: CustomScrollView(
+                controller: _scrollController,
+                slivers: [
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   sliver: SliverList(

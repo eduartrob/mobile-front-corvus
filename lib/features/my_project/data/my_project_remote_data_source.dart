@@ -19,7 +19,7 @@ class MyProjectRemoteDataSource {
       request.fields['user_id'] = userId; // Añadimos el ID del usuario como campo del formulario
       request.headers.addAll(ApiConfig.defaultHeaders);
       
-      final token = await _storage.read(key: 'jwt_token');
+      final token = await _storage.read(key: 'auth_token');
       if (token != null) {
         request.headers['Authorization'] = 'Bearer $token';
       }
@@ -44,7 +44,7 @@ class MyProjectRemoteDataSource {
 
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
-      final token = await _storage.read(key: 'jwt_token');
+      final token = await _storage.read(key: 'auth_token');
       if (token != null) {
         headers['Authorization'] = 'Bearer $token';
       }
@@ -73,7 +73,7 @@ class MyProjectRemoteDataSource {
       request.fields['user_id'] = userId;
       request.headers.addAll(ApiConfig.defaultHeaders);
       
-      final token = await _storage.read(key: 'jwt_token');
+      final token = await _storage.read(key: 'auth_token');
       if (token != null) {
         request.headers['Authorization'] = 'Bearer $token';
       }

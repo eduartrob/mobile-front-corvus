@@ -43,9 +43,6 @@ void _handleFCMMessage(RemoteMessage message) {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Inicializar Notificaciones
-  await NotificationService().init();
 
   // Inicializar Firebase (Requiere flutterfire configure previo)
   try {
@@ -58,20 +55,14 @@ void main() async {
     debugPrint('Firebase no inicializado: Ejecuta flutterfire configure');
   }
 
-  // Inicializar inyección de dependencias
+  // Inicializar inyección de dependencias (síncrono, rápido)
   setupDependencies();
-  
+
   // Crear providers globales
   final authProvider = sl<AuthProvider>();
   final linkedFoldersProvider = LinkedFoldersProvider();
-  
-  // Verificar el token guardado y cargar carpetas ANTES de correr la app
-  await authProvider.checkAuthStatus();
-  final jwtToken = authProvider.currentUser?.token;
-  if (jwtToken != null) {
-    await linkedFoldersProvider.loadFolders(jwtToken);
-  }
 
+  // ARRANCAR LA APP DE INMEDIATO — sin esperar red ni storage
   runApp(
     MultiProvider(
       providers: [
@@ -82,4 +73,17 @@ void main() async {
       child: const MyApp(),
     ),
   );
+
+  // Inicializar Notificaciones y Auth EN SEGUNDO PLANO (no bloquea el primer frame)
+  NotificationService().init().then((_) {
+    NotificationService().requestPermission();
+  });
+
+  // Verificar sesión guardada de forma asíncrona — la UI maneja el estado loading
+  authProvider.checkAuthStatus().then((_) {
+    final jwtToken = authProvider.currentUser?.token;
+    if (jwtToken != null) {
+      linkedFoldersProvider.loadFolders(jwtToken);
+    }
+  });
 }

@@ -73,7 +73,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           if (fcmToken != null && userId != null) {
             await http.post(
               Uri.parse('${ApiConfig.apiGatewayUrl}/notifications/device'),
-              headers: {'Content-Type': 'application/json'},
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer $token',
+              },
               body: jsonEncode({
                 'userId': userId.toString(),
                 'fcmToken': fcmToken

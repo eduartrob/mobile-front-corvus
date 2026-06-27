@@ -56,6 +56,55 @@ class NotificationService {
     );
   }
 
+  Future<void> showIndeterminateProgressNotification({required String title, required String message}) async {
+    final AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
+      channelId,
+      channelName,
+      channelDescription: channelDescription,
+      channelShowBadge: false,
+      importance: Importance.max,
+      priority: Priority.high,
+      onlyAlertOnce: true,
+      showProgress: true,
+      indeterminate: true,
+      icon: '@mipmap/ic_launcher',
+      ongoing: true,
+      subText: message,
+    );
+
+    final NotificationDetails notificationDetails = NotificationDetails(android: androidNotificationDetails);
+
+    await _flutterLocalNotificationsPlugin.show(
+      syncNotificationId,
+      title,
+      message,
+      notificationDetails,
+    );
+  }
+
+  Future<void> showResultNotification(String title, String message) async {
+    final AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
+      channelId,
+      channelName,
+      channelDescription: channelDescription,
+      importance: Importance.high,
+      priority: Priority.high,
+      icon: '@mipmap/ic_launcher',
+      timeoutAfter: 6000,
+    );
+
+    final NotificationDetails notificationDetails = NotificationDetails(android: androidNotificationDetails);
+
+    await _flutterLocalNotificationsPlugin.cancel(syncNotificationId);
+
+    await _flutterLocalNotificationsPlugin.show(
+      syncNotificationId + 2,
+      title,
+      message,
+      notificationDetails,
+    );
+  }
+
   Future<void> showSuccessNotification(String message) async {
     final AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
       channelId,

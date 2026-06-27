@@ -16,7 +16,7 @@ class InspirationRemoteDataSource {
 
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
-      final token = await _storage.read(key: 'jwt_token');
+      final token = await _storage.read(key: 'auth_token');
       if (token != null) {
         headers['Authorization'] = 'Bearer $token';
       }
