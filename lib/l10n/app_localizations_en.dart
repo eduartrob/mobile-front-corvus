@@ -307,6 +307,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'A temporary server error occurred. Please try again in a moment or contact support at digitalengineers01+soporte@gmail.com';
 
   @override
+  String get loginErrorNotAllowedEmail =>
+      'Login failed: Email not allowed. Only university institutional emails are accepted.';
+
+  @override
   String get invalidDocumentTitle => 'Invalid Document';
 
   @override
@@ -315,6 +319,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get invalidDocumentAction => 'Upload another document';
+
+  @override
+  String get blueOceanGenericCategory => 'ACADEMIC INNOVATION';
+
+  @override
+  String get blueOceanGenericTag => 'Real Blue Ocean';
+
+  @override
+  String get blueOceanGenericDesc =>
+      'This project has been classified as a high-variance semantic anomaly, indicating a unique and unexplored approach compared to all other works in the database.';
 
   @override
   String get notifUploadTitle => 'Uploading proposal';

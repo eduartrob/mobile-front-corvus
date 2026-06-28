@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http;
 class InspirationProvider extends ChangeNotifier {
   final InspirationRemoteDataSource _dataSource;
   
+  final GlobalKey<RefreshIndicatorState> refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
+  
   List<ProjectEntity> _projects = [];
   List<ProjectEntity> get projects => _projects;
 
@@ -57,7 +59,7 @@ class InspirationProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> trackNicheView(String nicheId, String? userAvatar) async {
+  Future<ProjectEntity?> trackNicheView(String nicheId, String? userAvatar) async {
     try {
       final updatedProject = await _dataSource.trackNicheView(nicheId, userAvatar);
       if (updatedProject != null) {
@@ -66,9 +68,11 @@ class InspirationProvider extends ChangeNotifier {
           _projects[index] = updatedProject;
           notifyListeners();
         }
+        return updatedProject;
       }
     } catch (e) {
       debugPrint("Error en trackNicheView: $e");
     }
+    return null;
   }
 }

@@ -1,6 +1,31 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.2.4] - 2026-06-28
+### Added
+- **Resiliencia de Flujo RAG (Backend)**: El archivo `draft` del proyecto ya no se borra prematuramente al finalizar el análisis exhaustivo en el servidor. Ahora persiste hasta que el cliente (la app móvil) descarga exitosamente el resultado final.
+- **Recuperación de Fase 9 (Frontend)**: La lógica de inicialización en `MyProjectProvider` ahora intercepta la fase 9 (análisis completado en background) para recuperar el resultado si el usuario cerró la aplicación durante la generación del análisis.
+
+### Changed
+- **Version**: Bumped from `1.2.3+5` to `1.2.4+6`.
+
+## [1.2.3] - 2026-06-28
+### Added
+- **UI UX — Floating Input**: El estado del input flotante de Inteligencia Artificial (minimizado o expandido) ahora se persiste usando `SharedPreferences`, y se hidrata de forma síncrona en el primer frame (usando una bandera `_isInitialized`) para evitar el parpadeo (flicker) visual al iniciar la aplicación.
+- **UI UX — Pull to Refresh Nativo**: Integración del motor nativo `RefreshIndicator` en la barra de navegación inferior. Al tocar el ícono de la pestaña "Inspiración" estando ya en ella, la aplicación lanza la flecha de recarga nativa de Android sin destruir la lista de elementos en pantalla.
+- **Infraestructura — Límite de Subida**: Aumentado `client_max_body_size` a `50M` en Nginx (`administration-front-corvus`) para permitir la carga de propuestas PDF pesadas con imágenes y diagramas matemáticos sin arrojar el error `413 Request Entity Too Large`.
+
+### Changed
+- **Arquitectura de Navegación**: Se refactorizó la lógica asíncrona del widget `ProjectCard`. Ahora captura el `NavigatorState` raíz local antes de realizar llamadas asíncronas para prevenir el fallo del framework de Flutter `Use of unmounted BuildContext` durante las reconstrucciones del SliverList generadas por `notifyListeners()`.
+- **Manejo de Estados de Validación**: La lógica de `MyProjectProvider` fue actualizada. Si ocurre un fallo de red o error de servidor durante la sumisión para el análisis exhaustivo, la app retiene el estado `ProjectState.preValidated` en lugar de borrar la vista forzando `ProjectState.error`. Esto evita que el usuario pierda su análisis RAG visual.
+- **Version**: Bumped from `1.2.2+4` to `1.2.3+5`.
+- **API Gateway Version**: Bumped from `1.0.0` to `1.0.1`.
+
+### Fixed
+- Fixed **"Token expirado o inválido"** (401 Unauthorized) del API Gateway que ocurría debido a un error de interpolación de variables en Dart (`\$token` enviaba literalmente el símbolo de dólar en lugar de la firma JWT) dentro de `my_project_remote_data_source.dart`.
+- Fixed la visibilidad condicional conflictiva en `my_project_page.dart` que superponía la vista de carga sobre la vista de resultados de pre-validación tras cerrar el cuadro de error.
+- Fixed el renderizado redundante del error en JSON dentro del componente `InvalidDocumentWidget`.
+
 ## [1.2.2] - 2026-06-28
 ### Added
 - **Real-Time Progress Polling**: Refactored `AnimatedLoadingTextWidget` from a static timer-based widget to a real-time polling component. It now reads from `MyProjectProvider.serverPhase` (updated every 2s via `/analysis-status/{user_id}`) and reflects the exact backend processing stage (phases 1–8).

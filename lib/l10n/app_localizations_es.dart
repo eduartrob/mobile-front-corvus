@@ -312,6 +312,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'Ocurrió un inconveniente temporal en el servidor. Por favor reintenta en un momento o contacta a soporte: digitalengineers01+soporte@gmail.com';
 
   @override
+  String get loginErrorNotAllowedEmail =>
+      'Fallo al iniciar sesión: El correo no está permitido. Solo se aceptan correos institucionales de la universidad.';
+
+  @override
   String get invalidDocumentTitle => 'Documento no válido';
 
   @override
@@ -320,6 +324,16 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get invalidDocumentAction => 'Cargar otro documento';
+
+  @override
+  String get blueOceanGenericCategory => 'INNOVACIÓN ACADÉMICA';
+
+  @override
+  String get blueOceanGenericTag => 'Océano Azul Real';
+
+  @override
+  String get blueOceanGenericDesc =>
+      'Este proyecto ha sido clasificado como una anomalía semántica de alta varianza, indicando un enfoque único e inexplorado respecto a todos los demás trabajos en la base de datos.';
 
   @override
   String get notifUploadTitle => 'Subiendo propuesta';

@@ -54,24 +54,8 @@ class InvalidDocumentWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          // Mostramos la nota específica del servidor (ej. "Score: 10/100")
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: colorScheme.errorContainer.withOpacity(0.5),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              specificError,
-              style: TextStyle(
-                fontSize: 12,
-                color: colorScheme.onErrorContainer,
-                fontStyle: FontStyle.italic,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          const SizedBox(height: 24),
+          // Eliminamos el mensaje técnico redundante.
+          const SizedBox(height: 12),
           ElevatedButton.icon(
             onPressed: () => provider.reset(userId),
             icon: const Icon(Icons.upload_file),

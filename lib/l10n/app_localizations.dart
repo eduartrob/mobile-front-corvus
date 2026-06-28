@@ -656,6 +656,12 @@ abstract class AppLocalizations {
   /// **'Ocurrió un inconveniente temporal en el servidor. Por favor reintenta en un momento o contacta a soporte: digitalengineers01+soporte@gmail.com'**
   String get serverErrorContactSupport;
 
+  /// No description provided for @loginErrorNotAllowedEmail.
+  ///
+  /// In es, this message translates to:
+  /// **'Fallo al iniciar sesión: El correo no está permitido. Solo se aceptan correos institucionales de la universidad.'**
+  String get loginErrorNotAllowedEmail;
+
   /// No description provided for @invalidDocumentTitle.
   ///
   /// In es, this message translates to:
@@ -673,6 +679,24 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Cargar otro documento'**
   String get invalidDocumentAction;
+
+  /// No description provided for @blueOceanGenericCategory.
+  ///
+  /// In es, this message translates to:
+  /// **'INNOVACIÓN ACADÉMICA'**
+  String get blueOceanGenericCategory;
+
+  /// No description provided for @blueOceanGenericTag.
+  ///
+  /// In es, this message translates to:
+  /// **'Océano Azul Real'**
+  String get blueOceanGenericTag;
+
+  /// No description provided for @blueOceanGenericDesc.
+  ///
+  /// In es, this message translates to:
+  /// **'Este proyecto ha sido clasificado como una anomalía semántica de alta varianza, indicando un enfoque único e inexplorado respecto a todos los demás trabajos en la base de datos.'**
+  String get blueOceanGenericDesc;
 
   /// No description provided for @notifUploadTitle.
   ///

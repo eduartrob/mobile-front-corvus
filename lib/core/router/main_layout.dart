@@ -2,13 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/shared/widgets/corvus_bottom_nav_bar.dart';
+import 'package:provider/provider.dart';
+import 'package:mobile/features/inspiration/presentation/provider/inspiration_provider.dart';
 
 class MainLayout extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
   const MainLayout({super.key, required this.navigationShell});
 
-  void _onItemTapped(int index) {
+  void _onItemTapped(BuildContext context, int index) {
+    if (index == navigationShell.currentIndex) {
+      if (index == 0) {
+        // Si ya está en Inspiración, disparamos el RefreshIndicator nativo
+        context.read<InspirationProvider>().refreshIndicatorKey.currentState?.show();
+      }
+      // TODO: Añadir scroll to top cuando implementemos controladores globales si se desea.
+      return;
+    }
+
     navigationShell.goBranch(
       index,
       initialLocation: index == navigationShell.currentIndex,
@@ -23,7 +34,7 @@ class MainLayout extends StatelessWidget {
       body: navigationShell,
       bottomNavigationBar: CustomAnimatedBottomNavBar(
         currentIndex: navigationShell.currentIndex,
-        onTap: _onItemTapped,
+        onTap: (index) => _onItemTapped(context, index),
         items: [
           CustomNavItemData(
             icon: Icons.lightbulb_outline,

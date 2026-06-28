@@ -102,7 +102,7 @@ class MyProjectRemoteDataSource {
 
       final token = await _storage.read(key: 'auth_token');
       if (token != null) {
-        request.headers['Authorization'] = 'Bearer \$token';
+        request.headers['Authorization'] = 'Bearer $token';
       }
       request.headers.remove('Content-Type');
 
@@ -128,13 +128,13 @@ class MyProjectRemoteDataSource {
 
   /// Recupera el resultado final del análisis cuando el polling detecta phase==9.
   Future<Map<String, dynamic>> getAnalysisResult(String userId) async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/analysis-result/\$userId');
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/analysis-result/$userId');
 
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
       final token = await _storage.read(key: 'auth_token');
       if (token != null) {
-        headers['Authorization'] = 'Bearer \$token';
+        headers['Authorization'] = 'Bearer $token';
       }
 
       final response = await client.get(url, headers: headers);
@@ -147,13 +147,13 @@ class MyProjectRemoteDataSource {
 
   /// Cancela un análisis exhaustivo en curso en el servidor.
   Future<void> cancelAnalysis(String userId) async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/cancel-analysis/\$userId');
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/cancel-analysis/$userId');
 
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
       final token = await _storage.read(key: 'auth_token');
       if (token != null) {
-        headers['Authorization'] = 'Bearer \$token';
+        headers['Authorization'] = 'Bearer $token';
       }
 
       await client.post(url, headers: headers);

@@ -13,16 +13,26 @@ class BlueOceanDetailPage extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
     
+    final isEn = Localizations.localeOf(context).languageCode == 'en';
+
     // Extraer datos del análisis (si los hay)
     final analysis = project.analysisData ?? {};
-    final hallazgo = analysis['hallazgo_principal'] ?? 'No se pudo cargar el hallazgo principal.';
-    final sugerencias = (analysis['sugerencias'] as List<dynamic>?) ?? [];
+    
+    // Lógica de fallback para JSON anterior (solo 'hallazgo_principal') y JSON bilingüe
+    final hallazgo = isEn 
+        ? (analysis['hallazgo_principal_en'] ?? analysis['hallazgo_principal'] ?? 'Could not load the main finding.')
+        : (analysis['hallazgo_principal_es'] ?? analysis['hallazgo_principal'] ?? 'No se pudo cargar el hallazgo principal.');
+        
+    final sugerencias = isEn
+        ? ((analysis['sugerencias_en'] as List<dynamic>?) ?? (analysis['sugerencias'] as List<dynamic>?) ?? [])
+        : ((analysis['sugerencias_es'] as List<dynamic>?) ?? (analysis['sugerencias'] as List<dynamic>?) ?? []);
+        
     final metricas = (analysis['metricas'] as Map<String, dynamic>?) ?? {};
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        title: Text('Análisis de Océano Azul', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+        title: Text(isEn ? 'Blue Ocean Analysis' : 'Análisis de Océano Azul', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
         backgroundColor: colorScheme.surface,
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -38,7 +48,7 @@ class BlueOceanDetailPage extends StatelessWidget {
               children: [
                 const Icon(Icons.auto_awesome, size: 14, color: Colors.orange),
                 const SizedBox(width: 4),
-                Text('AI Generado', style: TextStyle(fontSize: 12, color: Colors.orange.shade800, fontWeight: FontWeight.w600)),
+                Text(isEn ? 'AI Generated' : 'AI Generado', style: TextStyle(fontSize: 12, color: Colors.orange.shade800, fontWeight: FontWeight.w600)),
               ],
             ),
           )
@@ -56,13 +66,15 @@ class BlueOceanDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'Evaluación estratégica de viabilidad y originalidad para un potencial tema de tesis o proyecto de investigación basado en ${project.category.toLowerCase()}.',
+              isEn 
+                ? 'Strategic evaluation of feasibility and originality for a potential thesis topic or research project based on ${project.category.toLowerCase()}.'
+                : 'Evaluación estratégica de viabilidad y originalidad para un potencial tema de tesis o proyecto de investigación basado en ${project.category.toLowerCase()}.',
               style: TextStyle(fontSize: 15, color: colorScheme.onSurfaceVariant, height: 1.5),
             ),
             const SizedBox(height: 24),
 
             // ── 1. Hallazgo Principal ──
-            _SectionTitle(title: 'Hallazgo Principal', icon: Icons.insights, color: Colors.orange),
+            _SectionTitle(title: isEn ? 'Main Finding' : 'Hallazgo Principal', icon: Icons.insights, color: Colors.orange),
             GlassContainer(
               blur: 0,
               opacity: 0.5,
@@ -75,9 +87,9 @@ class BlueOceanDetailPage extends StatelessWidget {
             const SizedBox(height: 24),
 
             // ── 2. Sugerencias Metodológicas ──
-            _SectionTitle(title: 'Sugerencias de Abordaje Metodológico', icon: Icons.schema_outlined, color: Colors.blue),
+            _SectionTitle(title: isEn ? 'Methodological Suggestions' : 'Sugerencias de Abordaje Metodológico', icon: Icons.schema_outlined, color: Colors.blue),
             if (sugerencias.isEmpty)
-              const Text('Sin sugerencias disponibles.')
+              Text(isEn ? 'No suggestions available.' : 'Sin sugerencias disponibles.')
             else
               ...sugerencias.map((s) => _SugerenciaCard(sugerencia: s)),
             
@@ -92,24 +104,24 @@ class BlueOceanDetailPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'MÉTRICAS DE VIABILIDAD',
+                    isEn ? 'FEASIBILITY METRICS' : 'MÉTRICAS DE VIABILIDAD',
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant, letterSpacing: 1.2),
                   ),
                   const SizedBox(height: 20),
                   _MetricBar(
-                    label: 'Originalidad',
+                    label: isEn ? 'Originality' : 'Originalidad',
                     value: metricas['originalidad'] ?? 0,
                     color: Colors.blue,
                   ),
                   const SizedBox(height: 16),
                   _MetricBar(
-                    label: 'Disponibilidad de Datos',
+                    label: isEn ? 'Data Availability' : 'Disponibilidad de Datos',
                     value: metricas['disponibilidad_datos'] ?? 0,
                     color: Colors.brown,
                   ),
                   const SizedBox(height: 16),
                   _MetricBar(
-                    label: 'Relevancia Académica',
+                    label: isEn ? 'Academic Relevance' : 'Relevancia Académica',
                     value: metricas['relevancia_academica'] ?? 0,
                     color: Colors.black87,
                   ),
@@ -124,7 +136,7 @@ class BlueOceanDetailPage extends StatelessWidget {
               child: ElevatedButton.icon(
                 onPressed: () => _showComingSoon(context, l10n),
                 icon: const Icon(Icons.rocket_launch, color: Colors.white),
-                label: const Text('Usar esta idea', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                label: Text(isEn ? 'Use this idea' : 'Usar esta idea', style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colorScheme.primary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -138,7 +150,7 @@ class BlueOceanDetailPage extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: () => _showComingSoon(context, l10n),
                 icon: Icon(Icons.bookmark_border, color: colorScheme.primary),
-                label: Text('Guardar para después', style: TextStyle(color: colorScheme.primary, fontSize: 16, fontWeight: FontWeight.w600)),
+                label: Text(isEn ? 'Save for later' : 'Guardar para después', style: TextStyle(color: colorScheme.primary, fontSize: 16, fontWeight: FontWeight.w600)),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   side: BorderSide(color: colorScheme.primary.withOpacity(0.5)),

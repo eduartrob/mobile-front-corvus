@@ -136,11 +136,20 @@ class LoginForm extends StatelessWidget {
                   builder: (context, authProvider, child) {
                     final isLoading = authProvider.status == AuthStatus.loading;
                     
+                    String getLocalizedError() {
+                      if (authProvider.errorMessage == 'AUTH_NOT_ALLOWED') {
+                        return l10n.loginErrorNotAllowedEmail;
+                      } else if (authProvider.errorMessage == 'AUTH_CANCELED') {
+                        return 'Canceled'; // Esto generalmente no se muestra como error visual, pero por si acaso.
+                      }
+                      return authProvider.errorMessage ?? l10n.serverErrorContactSupport;
+                    }
+
                     return Column(
                       children: [
-                        if (authProvider.errorMessage != null) ...[
+                        if (authProvider.errorMessage != null && authProvider.errorMessage != 'AUTH_CANCELED') ...[
                           Text(
-                            l10n.serverErrorContactSupport,
+                            getLocalizedError(),
                             style: TextStyle(color: colors.error, fontSize: 12),
                             textAlign: TextAlign.center,
                           ),
@@ -152,7 +161,7 @@ class LoginForm extends StatelessWidget {
                               : () async {
                                   await authProvider.signInWithGoogle();
                                   
-                                  if (authProvider.status == AuthStatus.error && context.mounted) {
+                                  if (authProvider.status == AuthStatus.error && context.mounted && authProvider.errorMessage != 'AUTH_CANCELED') {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Row(
@@ -161,7 +170,7 @@ class LoginForm extends StatelessWidget {
                                             const SizedBox(width: 12),
                                             Expanded(
                                               child: Text(
-                                                l10n.serverErrorContactSupport,
+                                                getLocalizedError(),
                                                 style: TextStyle(color: colors.onError),
                                               ),
                                             ),

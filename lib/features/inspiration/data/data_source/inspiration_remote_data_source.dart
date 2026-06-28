@@ -53,90 +53,21 @@ class InspirationRemoteDataSource {
         final data = json.decode(utf8.decode(response.bodyBytes));
         final List<dynamic> nichesJson = data['niches'] ?? [];
 
-        if (nichesJson.isNotEmpty) {
-          final models = nichesJson.map((niche) => ProjectModel.fromJson(niche)).toList();
-          
-          // Guardamos en caché
-          prefs.setString(_cacheKey, json.encode(models.map((m) => m.toJson()).toList()));
-          
-          return models;
-        }
+        // Siempre mapeamos lo que venga, incluso si está vacío.
+        final models = nichesJson.map((niche) => ProjectModel.fromJson(niche)).toList();
+        
+        // Guardamos en caché solo si hay datos, o sobreescribimos con vacío si queremos
+        prefs.setString(_cacheKey, json.encode(models.map((m) => m.toJson()).toList()));
+        
+        return models;
       }
-      debugPrint('InspirationRemoteDataSource: ${response.statusCode}. Usando fallback.');
+      debugPrint('InspirationRemoteDataSource: HTTP ${response.statusCode}. Falló petición.');
     } catch (e) {
-      debugPrint('InspirationRemoteDataSource Error: $e. Usando fallback.');
+      debugPrint('InspirationRemoteDataSource Error: $e');
     }
 
-    // Fallback con datos de demostración (viewCounts variados para probar la UI)
-    final fallback = [
-      ProjectModel(
-        id: '1',
-        category: 'BIOMEDICINA + IA',
-        categoryIcon: 'biotech',
-        title: 'Diagnóstico Temprano mediante Análisis Espectral',
-        description: 'Combinación de visión por computadora y espectroscopía de bajo costo para detectar patologías cutáneas en áreas rurales.',
-        status: 'Alto Potencial',
-        viewCount: 8,
-        userAvatars: const ['https://ui-avatars.com/api/?name=Bio+AI&background=0D8ABC&color=fff'],
-        recentViewers: const [
-          'https://ui-avatars.com/api/?name=Ana+L&background=7B61FF&color=fff',
-          'https://ui-avatars.com/api/?name=Carlos+M&background=FF6B35&color=fff',
-        ],
-        analysisStatus: 'pending',
-      ),
-      ProjectModel(
-        id: '2',
-        category: 'ENERGÍA RENOVABLE',
-        categoryIcon: 'auto_awesome',
-        title: 'Optimización de Micro-redes Solares Urbanas',
-        description: 'Algoritmos de aprendizaje reforzado para predecir la demanda energética comunitaria y redistribuir flujo eléctrico.',
-        status: 'Inexplorado',
-        viewCount: 3,
-        userAvatars: const ['https://ui-avatars.com/api/?name=Solar+Net&background=2E7D32&color=fff'],
-        recentViewers: const [
-          'https://ui-avatars.com/api/?name=Sofia+R&background=E91E63&color=fff',
-        ],
-        analysisStatus: 'completed',
-        analysisData: {
-          'hallazgo_principal': 'Existe un vacío importante en algoritmos de refuerzo aplicados específicamente a micro-redes en climas tropicales con alta variabilidad de nubes.',
-          'sugerencias': [
-            {'titulo': 'Simulación Híbrida', 'descripcion': 'Combinar datos meteorológicos en tiempo real con modelos de consumo estocástico.', 'tipo': 'Recomendado'},
-            {'titulo': 'Estudio Comparativo', 'descripcion': 'Comparar eficiencia frente a controladores PID tradicionales.', 'tipo': 'Alternativo'}
-          ],
-          'metricas': {'originalidad': 92, 'disponibilidad_datos': 65, 'relevancia_academica': 88}
-        }
-      ),
-      ProjectModel(
-        id: '3',
-        category: 'SEGURIDAD + RAG',
-        categoryIcon: 'auto_awesome',
-        title: 'Auditoría Automática de Contratos Inteligentes',
-        description: 'Sistema RAG especializado en detectar vulnerabilidades reentrantes en código Solidity antes del despliegue en mainnet.',
-        status: 'Tendencia',
-        viewCount: 97,
-        userAvatars: const ['https://ui-avatars.com/api/?name=Sec+RAG&background=D32F2F&color=fff'],
-        recentViewers: const [
-          'https://ui-avatars.com/api/?name=Luis+G&background=FF5722&color=fff',
-          'https://ui-avatars.com/api/?name=Maria+V&background=9C27B0&color=fff',
-          'https://ui-avatars.com/api/?name=Pedro+K&background=00BCD4&color=fff',
-        ],
-        analysisStatus: 'completed',
-        analysisData: {
-          'hallazgo_principal': 'Casi no hay implementaciones de RAG puro para contratos inteligentes que incluyan bases de datos actualizadas con los exploits de 2024.',
-          'sugerencias': [
-            {'titulo': 'Framework Evaluación de Seguridad', 'descripcion': 'Crear un benchmark de contratos vulnerables para medir el modelo RAG.', 'tipo': 'Recomendado'}
-          ],
-          'metricas': {'originalidad': 75, 'disponibilidad_datos': 95, 'relevancia_academica': 90}
-        }
-      ),
-    ];
-
-    fallback.sort((a, b) => a.viewCount.compareTo(b.viewCount));
-    
-    // Guardamos fallback en caché
-    prefs.setString(_cacheKey, json.encode(fallback.map((m) => m.toJson()).toList()));
-    
-    return fallback;
+    // Si hubo error, retornamos vacío en lugar de fallback falso.
+    return [];
   }
 
   /// Registra una vista en el backend y devuelve la data actualizada (incluyendo el análisis)

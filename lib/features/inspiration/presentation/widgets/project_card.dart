@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/inspiration/domain/entities/project_entity.dart';
 import 'package:mobile/features/inspiration/presentation/provider/inspiration_provider.dart';
 import 'package:mobile/features/inspiration/presentation/widgets/glass_container.dart';
@@ -66,23 +66,31 @@ class ProjectCard extends StatelessWidget {
                           Icon(_getIconData(project.categoryIcon), size: 14, color: colorScheme.secondary),
                           const SizedBox(width: 4),
                           Text(
-                            project.category,
+                            project.category == 'INNOVACIÓN ACADÉMICA' ? l10n.blueOceanGenericCategory : project.category,
                             style: TextStyle(fontSize: 12, color: colorScheme.secondary, fontWeight: FontWeight.w500),
                           ),
                         ],
                       ),
                     ),
-                    // Chip estado
+                    
+                    // Chip estado / trending
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: colorScheme.surfaceContainerHighest,
+                        color: isTrending ? Colors.orange.withOpacity(0.15) : colorScheme.tertiaryContainer.withOpacity(0.3),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+                        border: Border.all(color: isTrending ? Colors.orange.withOpacity(0.5) : colorScheme.tertiaryContainer.withOpacity(0.5)),
                       ),
-                      child: Text(
-                        project.status,
-                        style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(isTrending ? Icons.local_fire_department : Icons.insights, size: 14, color: isTrending ? Colors.orange.shade600 : colorScheme.tertiary),
+                          const SizedBox(width: 4),
+                          Text(
+                            isTrending ? 'Trending' : (project.status == 'Océano Azul Real' ? l10n.blueOceanGenericTag : project.status),
+                            style: TextStyle(fontSize: 12, color: isTrending ? Colors.orange.shade800 : colorScheme.tertiary, fontWeight: FontWeight.bold),
+                          ),
+                        ],
                       ),
                     ),
                     // Badge de vistas (poco explorado = distintivo especial)
@@ -120,8 +128,10 @@ class ProjectCard extends StatelessWidget {
 
                 // ── Descripción ──
                 Text(
-                  project.description,
-                  maxLines: 2,
+                  project.description.startsWith('Este proyecto ha sido clasificado') 
+                      ? l10n.blueOceanGenericDesc 
+                      : project.description,
+                  maxLines: 4,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: 14, color: colorScheme.onSurfaceVariant),
                 ),
@@ -130,60 +140,20 @@ class ProjectCard extends StatelessWidget {
                 const Divider(height: 1, thickness: 0.5),
                 const SizedBox(height: 12),
 
-                // ── Fila inferior: vistos recientemente + contador + explorar ──
+                // ── Fila inferior: avatares y conteo ──
                 Row(
                   children: [
-                    // Avatares de vistos recientemente
-                    if (project.recentViewers.isNotEmpty)
-                      _RecentViewersRow(viewers: project.recentViewers),
-                    if (project.recentViewers.isEmpty)
-                      Text(
-                        '¡Sé el primero en explorar!',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.teal.shade600,
-                          fontStyle: FontStyle.italic,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                    _ViewersAndCountRow(
+                      viewers: project.recentViewers, 
+                      totalViews: project.viewCount,
+                      isTrending: isTrending,
+                    ),
 
                     const Spacer(),
 
-                    // Contador de vistas
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: isTrending
-                            ? Colors.orange.withOpacity(0.1)
-                            : colorScheme.surfaceContainerHighest.withOpacity(0.5),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.visibility_outlined,
-                            size: 13,
-                            color: _viewCountColor(context),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${project.viewCount}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: _viewCountColor(context),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(width: 8),
-
                     // Botón explorar / Generando
                     InkWell(
-                      onTap: () {
+                      onTap: () async {
                         if (project.analysisStatus == 'pending') {
                           ScaffoldMessenger.of(context).hideCurrentSnackBar();
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -196,18 +166,55 @@ class ProjectCard extends StatelessWidget {
                           return;
                         }
 
-                        // Status completed -> Registrar vista y Navegar
                         final authProvider = context.read<AuthProvider>();
                         final avatarUrl = authProvider.currentUser?.photoUrl;
+                        final provider = context.read<InspirationProvider>();
                         
-                        context.read<InspirationProvider>().trackNicheView(project.id, avatarUrl);
+                        // Capturar los estados antes de cualquier await para evitar problemas de unmount
+                        final rootNavigator = Navigator.of(context, rootNavigator: true);
+                        final localNavigator = Navigator.of(context);
+                        final scaffoldMessenger = ScaffoldMessenger.of(context);
                         
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => BlueOceanDetailPage(project: project),
-                          ),
-                        );
+                        ProjectEntity? projectToNav = project;
+
+                        // Si no tenemos los datos cacheados, bloqueamos la UI y mostramos un loader
+                        if (project.analysisData == null) {
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            useRootNavigator: true,
+                            builder: (c) => Center(
+                              child: Container(
+                                padding: const EdgeInsets.all(24),
+                                decoration: BoxDecoration(
+                                  color: colorScheme.surface,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: const CircularProgressIndicator(),
+                              ),
+                            ),
+                          );
+                          
+                          projectToNav = await provider.trackNicheView(project.id, avatarUrl);
+                          
+                          // Cierra el loader usando el rootNavigator que siempre está montado
+                          rootNavigator.pop();
+                        } else {
+                          // Ya están cacheados, mandamos la vista en background silenciosamente
+                          provider.trackNicheView(project.id, avatarUrl);
+                        }
+
+                        if (projectToNav != null) {
+                          localNavigator.push(
+                            MaterialPageRoute(
+                              builder: (context) => BlueOceanDetailPage(project: projectToNav!),
+                            ),
+                          );
+                        } else {
+                          scaffoldMessenger.showSnackBar(
+                            const SnackBar(content: Text('Error al cargar los detalles. Intenta de nuevo.')),
+                          );
+                        }
                       },
                       borderRadius: BorderRadius.circular(8),
                       child: Padding(
@@ -310,54 +317,117 @@ class _TrendingBadge extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// RECENT VIEWERS ROW — avatares apilados de los últimos que revisaron el nicho
+// VIEWERS AND COUNT ROW — avatares apilados y círculo con el sobrante de vistas
 // ─────────────────────────────────────────────────────────────────────────────
-class _RecentViewersRow extends StatelessWidget {
+class _ViewersAndCountRow extends StatelessWidget {
   final List<String> viewers;
-  const _RecentViewersRow({required this.viewers});
+  final int totalViews;
+  final bool isTrending;
+  
+  const _ViewersAndCountRow({
+    required this.viewers,
+    required this.totalViews,
+    required this.isTrending,
+  });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    
+    if (totalViews == 0) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.visibility_off_outlined, size: 16, color: colorScheme.onSurfaceVariant.withOpacity(0.5)),
+          const SizedBox(width: 6),
+          Text(
+            '0',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: colorScheme.onSurfaceVariant.withOpacity(0.6),
+            ),
+          ),
+        ],
+      );
+    }
+
     final displayViewers = viewers.take(3).toList();
-    const avatarSize = 22.0;
-    const overlap = 14.0;
-    final rowWidth = avatarSize + (displayViewers.length - 1) * overlap;
+    final remainingViews = totalViews - displayViewers.length;
+    final showRemaining = remainingViews > 0;
+    
+    const avatarSize = 24.0;
+    const overlap = 16.0;
+    
+    // Ancho total del stack: cada elemento añade "overlap" px, más el tamaño completo del último
+    final totalElements = displayViewers.length + (showRemaining ? 1 : 0);
+    final rowWidth = avatarSize + (totalElements > 0 ? (totalElements - 1) * overlap : 0);
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(
-          width: rowWidth + 4,
+          width: rowWidth,
           height: avatarSize,
           child: Stack(
+            clipBehavior: Clip.none,
             children: [
               for (int i = 0; i < displayViewers.length; i++)
                 Positioned(
                   left: i * overlap,
                   child: Container(
+                    width: avatarSize,
+                    height: avatarSize,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: colorScheme.surface, width: 1.5),
+                      border: Border.all(color: colorScheme.surface, width: 2),
+                      image: DecorationImage(
+                        image: NetworkImage(displayViewers[i]),
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                    child: CircleAvatar(
-                      radius: avatarSize / 2,
-                      backgroundImage: NetworkImage(displayViewers[i]),
+                  ),
+                ),
+                
+              if (showRemaining)
+                Positioned(
+                  left: displayViewers.length * overlap,
+                  child: Container(
+                    width: avatarSize,
+                    height: avatarSize,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: isTrending ? Colors.orange.shade50 : colorScheme.surfaceContainerHigh,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: colorScheme.surface, width: 2),
+                    ),
+                    child: Text(
+                      '+$remainingViews',
+                      style: TextStyle(
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                        color: isTrending ? Colors.orange.shade800 : colorScheme.onSurface,
+                      ),
                     ),
                   ),
                 ),
             ],
           ),
         ),
-        const SizedBox(width: 6),
-        Text(
-          viewers.length == 1 ? 'Lo vio recientemente' : 'Lo vieron recientemente',
-          style: TextStyle(
-            fontSize: 11,
-            color: colorScheme.onSurfaceVariant,
-            fontStyle: FontStyle.italic,
+        
+        if (isTrending) ...[
+          const SizedBox(width: 8),
+          const Text('🔥', style: TextStyle(fontSize: 14)),
+          const SizedBox(width: 2),
+          Text(
+            'Trending',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              color: Colors.orange.shade800,
+            ),
           ),
-        ),
+        ]
       ],
     );
   }

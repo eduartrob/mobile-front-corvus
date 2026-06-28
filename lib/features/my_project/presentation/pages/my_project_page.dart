@@ -134,28 +134,24 @@ class _ProjectPageBody extends StatelessWidget {
 
     return Column(
       children: [
-        // Banner de error genérico
+        // Error temporal del servidor
         if (provider.errorMessage != null && provider.documentTypeError == null)
           Container(
-            margin: const EdgeInsets.only(bottom: 24),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: colorScheme.errorContainer,
-              borderRadius: BorderRadius.circular(8),
-            ),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(color: colorScheme.errorContainer, borderRadius: BorderRadius.circular(12)),
             child: Row(
               children: [
                 Icon(Icons.error_outline, color: colorScheme.onErrorContainer),
-                const SizedBox(width: 8),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    l10n.serverErrorContactSupport,
+                    provider.errorMessage!,
                     style: TextStyle(color: colorScheme.onErrorContainer),
                   ),
                 ),
                 IconButton(
                   icon: Icon(Icons.close, color: colorScheme.onErrorContainer),
-                  onPressed: () => provider.reset(userId),
+                  onPressed: () => provider.clearError(),
                 )
               ],
             ),

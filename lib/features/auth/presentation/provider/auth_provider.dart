@@ -101,7 +101,16 @@ class AuthProvider extends ChangeNotifier {
       _status = AuthStatus.authenticated;
       notifyListeners();
     } catch (e) {
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      String errorStr = e.toString();
+      // Detectar error de dominio/403 desde el backend
+      if (errorStr.contains('403') || errorStr.toLowerCase().contains('upchiapas') || errorStr.toLowerCase().contains('domain') || errorStr.toLowerCase().contains('permitido')) {
+        _errorMessage = 'AUTH_NOT_ALLOWED';
+      } else if (errorStr.toLowerCase().contains('canceled') || errorStr.toLowerCase().contains('cancelado')) {
+        _errorMessage = 'AUTH_CANCELED';
+      } else {
+        _errorMessage = errorStr.replaceAll('Exception: ', '');
+      }
+      
       _status = AuthStatus.error;
       notifyListeners();
     }

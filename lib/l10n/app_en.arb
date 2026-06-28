@@ -93,10 +93,15 @@
   "uploadZoneSubtitle": "Maximum size: 10MB. Formats: PDF.",
   "uploadedToday": "Uploaded today",
   "serverErrorContactSupport": "A temporary server error occurred. Please try again in a moment or contact support at digitalengineers01+soporte@gmail.com",
+  "loginErrorNotAllowedEmail": "Login failed: Email not allowed. Only university institutional emails are accepted.",
   "invalidDocumentTitle": "Invalid Document",
   "invalidDocumentDesc": "The file you uploaded does not appear to be an integrative project proposal. Make sure to upload your proposal with sections like Objective, Methodology, and Technologies.",
   "invalidDocumentAction": "Upload another document",
   
+  "blueOceanGenericCategory": "ACADEMIC INNOVATION",
+  "blueOceanGenericTag": "Real Blue Ocean",
+  "blueOceanGenericDesc": "This project has been classified as a high-variance semantic anomaly, indicating a unique and unexplored approach compared to all other works in the database.",
+
   "notifUploadTitle": "Uploading proposal",
   "notifUploadBody": "Analyzing quick RAG structure...",
   "notifPreValidReadyTitle": "Pre-validation ready",

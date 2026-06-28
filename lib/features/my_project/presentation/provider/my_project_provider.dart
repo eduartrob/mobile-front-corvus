@@ -85,6 +85,13 @@ class MyProjectProvider extends ChangeNotifier {
         _startPolling(userId, null); // Reanuda el polling (l10n null indica background/restore)
         notifyListeners();
         return;
+      } else if (phase == 9) {
+        // El análisis terminó mientras la app estaba cerrada. Recuperamos el resultado.
+        final result = await _dataSource.getAnalysisResult(userId);
+        if (result['status'] != 'pending' && result['status'] != 'error') {
+          await _applyAnalysisResult(userId, result, null);
+          return;
+        }
       }
 
       final draft = await _dataSource.checkDraft(userId);
@@ -159,6 +166,14 @@ class MyProjectProvider extends ChangeNotifier {
     }
   }
 
+  void clearError() {
+    _errorMessage = null;
+    if (_state == ProjectState.error) {
+      _state = ProjectState.initial;
+    }
+    notifyListeners();
+  }
+
   Future<void> submitForReview(String userId, AppLocalizations l10n) async {
     _state = ProjectState.analyzing;
     _serverPhase = 5;
@@ -181,7 +196,7 @@ class MyProjectProvider extends ChangeNotifier {
       await _notificationService.showResultNotification(
           l10n.notifAnalysisErrorTitle, cleanMsg);
       _errorMessage = cleanMsg;
-      _state = ProjectState.error;
+      _state = ProjectState.preValidated;
       notifyListeners();
       return;
     }
@@ -253,7 +268,7 @@ class MyProjectProvider extends ChangeNotifier {
         await _notificationService.showResultNotification(
             l10n?.notifAnalysisFailedTitle ?? 'Error', errMsg);
         _errorMessage = errMsg.replaceAll('Error en el análisis: ', '');
-        _state = ProjectState.error;
+        _state = ProjectState.preValidated;
         notifyListeners();
       }
     });
@@ -268,7 +283,7 @@ class MyProjectProvider extends ChangeNotifier {
       await _notificationService.showResultNotification(
           l10n?.notifAnalysisFailedTitle ?? 'Error', msg);
       _errorMessage = msg;
-      _state = ProjectState.error;
+      _state = ProjectState.preValidated;
       notifyListeners();
       return;
     }
@@ -277,8 +292,8 @@ class MyProjectProvider extends ChangeNotifier {
     _state = ProjectState.detailedAnalysis;
     await _localDataSource.saveDetailedAnalysis(userId, result);
     await _notificationService.showAnalysisCompleteNotification(
-      title: l10n.notifAnalysisCompleteTitle,
-      message: l10n.notifAnalysisCompleteBody,
+      title: l10n?.notifAnalysisCompleteTitle ?? 'Análisis Completado',
+      message: l10n?.notifAnalysisCompleteBody ?? 'Tu propuesta ha sido validada por la IA',
     );
     notifyListeners();
   }

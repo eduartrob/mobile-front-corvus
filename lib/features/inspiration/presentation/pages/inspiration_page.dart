@@ -64,6 +64,7 @@ class _InspirationPageState extends State<InspirationPage> {
             child: SafeArea(
               bottom: false,
               child: RefreshIndicator(
+                key: context.read<InspirationProvider>().refreshIndicatorKey,
                 onRefresh: () => context.read<InspirationProvider>().loadProjects(forceRefresh: true),
                 child: CustomScrollView(
                   controller: _scrollController,
@@ -87,7 +88,7 @@ class _InspirationPageState extends State<InspirationPage> {
                     // Lista de tarjetas — lazy building con SliverChildBuilderDelegate
                     SliverPadding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      sliver: isLoading
+                      sliver: (isLoading && projectCount == 0)
                           ? const SliverToBoxAdapter(
                               child: Padding(
                                 padding: EdgeInsets.all(32.0),

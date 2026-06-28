@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FloatingAiInput extends StatefulWidget {
   final bool isVisible;
@@ -13,9 +14,26 @@ class FloatingAiInput extends StatefulWidget {
 
 class _FloatingAiInputState extends State<FloatingAiInput> {
   bool _isMinimized = false;
+  bool _isInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadState();
+  }
+
+  Future<void> _loadState() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isMinimized = prefs.getBool('floating_ai_minimized') ?? false;
+      _isInitialized = true;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (!_isInitialized) return const SizedBox.shrink();
+
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -58,11 +76,13 @@ class _FloatingAiInputState extends State<FloatingAiInput> {
   Widget _buildMinimizedState(ColorScheme colorScheme) {
     return GestureDetector(
       key: const ValueKey("minimized"),
-      onTap: () {
+      onTap: () async {
         widget.onExpand?.call();
         setState(() {
           _isMinimized = false;
         });
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('floating_ai_minimized', false);
       },
       child: Container(
         margin: const EdgeInsets.only(left: 0, bottom: 24),
@@ -145,12 +165,14 @@ class _FloatingAiInputState extends State<FloatingAiInput> {
                 ],
               ),
               InkWell(
-                onTap: () {
+                onTap: () async {
                   // Cerrar el teclado si está abierto
                   FocusScope.of(context).unfocus();
                   setState(() {
                     _isMinimized = true;
                   });
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setBool('floating_ai_minimized', true);
                 },
                 borderRadius: BorderRadius.circular(20),
                 child: Padding(
