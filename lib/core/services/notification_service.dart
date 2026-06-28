@@ -12,6 +12,11 @@ class NotificationService {
   static const String channelName = 'Sincronización de Corvus';
   static const String channelDescription = 'Notificaciones sobre la vectorización de PDFs en segundo plano';
 
+  static const int analysisNotificationId = 999;
+  static const String analysisChannelId = 'corvus_analysis_channel';
+  static const String analysisChannelName = 'Análisis de Propuestas';
+  static const String analysisChannelDescription = 'Notificaciones sobre el análisis exhaustivo de proyectos';
+
   Future<void> init() async {
     const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
     // Para iOS y otras plataformas se configura aquí (se omite por brevedad para centrarse en Android)
@@ -29,7 +34,12 @@ class NotificationService {
     await androidPlatform?.requestNotificationsPermission();
   }
 
-  Future<void> showProgressNotification({required int progress, required int maxProgress, String message = 'Procesando...'}) async {
+  Future<void> showProgressNotification({
+    required int progress,
+    required int maxProgress,
+    required String title,
+    required String message,
+  }) async {
     final AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
       channelId,
       channelName,
@@ -50,7 +60,7 @@ class NotificationService {
 
     await _flutterLocalNotificationsPlugin.show(
       syncNotificationId,
-      'Sincronización de Archivos',
+      title,
       message,
       notificationDetails,
     );
@@ -105,7 +115,10 @@ class NotificationService {
     );
   }
 
-  Future<void> showSuccessNotification(String message) async {
+  Future<void> showSuccessNotification({
+    required String title,
+    required String message,
+  }) async {
     final AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
       channelId,
       channelName,
@@ -124,7 +137,7 @@ class NotificationService {
     // Mostrar el éxito con un ID diferente para que se quede un rato
     await _flutterLocalNotificationsPlugin.show(
       syncNotificationId + 1,
-      '¡Sincronización Completada!',
+      title,
       message,
       notificationDetails,
     );
@@ -132,5 +145,69 @@ class NotificationService {
 
   Future<void> cancelSyncNotification() async {
     await _flutterLocalNotificationsPlugin.cancel(syncNotificationId);
+  }
+
+  // ─── Métodos para el Análisis Exhaustivo ───
+
+  Future<void> showAnalysisProgressNotification({
+    required String title,
+    required String message,
+    required String phase,
+  }) async {
+    final AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
+      analysisChannelId,
+      analysisChannelName,
+      channelDescription: analysisChannelDescription,
+      channelShowBadge: false,
+      importance: Importance.low, // Low importance para no interrumpir al usuario repetidamente
+      priority: Priority.low,
+      onlyAlertOnce: true,
+      showProgress: true,
+      indeterminate: true,
+      icon: '@mipmap/ic_launcher',
+      ongoing: true, // Persistente
+      subText: phase,
+    );
+
+    final NotificationDetails notificationDetails = NotificationDetails(android: androidNotificationDetails);
+
+    await _flutterLocalNotificationsPlugin.show(
+      analysisNotificationId,
+      title,
+      message,
+      notificationDetails,
+    );
+  }
+
+  Future<void> showAnalysisCompleteNotification({
+    required String title,
+    required String message,
+  }) async {
+    final AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
+      analysisChannelId,
+      analysisChannelName,
+      channelDescription: analysisChannelDescription,
+      importance: Importance.high,
+      priority: Priority.high,
+      icon: '@mipmap/ic_launcher',
+      timeoutAfter: 10000, // Desaparece sola a los 10 segundos
+    );
+
+    final NotificationDetails notificationDetails = NotificationDetails(android: androidNotificationDetails);
+
+    // Cancelar la barra de progreso persistente
+    await _flutterLocalNotificationsPlugin.cancel(analysisNotificationId);
+
+    // Mostrar el éxito con un ID diferente
+    await _flutterLocalNotificationsPlugin.show(
+      analysisNotificationId + 1,
+      title,
+      message,
+      notificationDetails,
+    );
+  }
+
+  Future<void> cancelAnalysisNotification() async {
+    await _flutterLocalNotificationsPlugin.cancel(analysisNotificationId);
   }
 }

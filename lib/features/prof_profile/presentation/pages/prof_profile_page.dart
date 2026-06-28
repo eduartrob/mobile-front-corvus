@@ -5,13 +5,16 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/prof_profile/presentation/provider/linked_folders_provider.dart';
-import 'package:mobile/core/widgets/corvus_top_bar.dart';
+import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/core/di/di.dart';
 import 'package:mobile/features/prof_profile/domain/use_cases/sync_drive_folder_usecase.dart';
 import 'package:mobile/features/prof_profile/domain/use_cases/get_drive_folders_usecase.dart';
 import 'package:mobile/core/services/notification_service.dart';
 import 'package:mobile/core/network/api_config.dart';
 import 'package:mobile/core/theme/theme_provider.dart';
+import 'package:mobile/l10n/app_localizations.dart';
+import 'package:mobile/shared/widgets/syncing_dots_text.dart';
+
 class ProfProfilePage extends StatefulWidget {
   const ProfProfilePage({super.key});
 
@@ -24,6 +27,18 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
   bool course1Enabled = true;
   bool course2Enabled = true;
   bool course3Enabled = false;
+
+  void _showUpcomingFeature(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.featureUpcoming),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -277,6 +292,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
               await NotificationService().showProgressNotification(
                 progress: 0,
                 maxProgress: 100,
+                title: 'Sincronización de Archivos',
                 message: 'Preparando vectorización de $folderName...',
               );
 
@@ -301,6 +317,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
     final authProvider = context.watch<AuthProvider>();
     final user = authProvider.currentUser;
 
@@ -312,31 +329,14 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
           children: [
             // Cabecera Perfil
             Center(
-              child: Stack(
-                children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundImage: (user?.photoUrl != null && user!.photoUrl!.isNotEmpty)
-                        ? NetworkImage(user.photoUrl!)
-                        : null,
-                    child: (user?.photoUrl == null || user!.photoUrl!.isEmpty)
-                        ? const Icon(Icons.person, size: 50)
-                        : null,
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: colorScheme.primary,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: colorScheme.surface, width: 2),
-                      ),
-                      child: Icon(Icons.edit, size: 16, color: colorScheme.onPrimary),
-                    ),
-                  ),
-                ],
+              child: CircleAvatar(
+                radius: 50,
+                backgroundImage: (user?.photoUrl != null && user!.photoUrl!.isNotEmpty)
+                    ? NetworkImage(user.photoUrl!)
+                    : null,
+                child: (user?.photoUrl == null || user!.photoUrl!.isEmpty)
+                    ? const Icon(Icons.person, size: 50)
+                    : null,
               ),
             ),
             const SizedBox(height: 16),
@@ -412,20 +412,24 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                     height: 1.2,
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: colorScheme.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    'Permissions\nManagement',
-                    textAlign: TextAlign.right,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: colorScheme.primary,
-                      height: 1.2,
+                InkWell(
+                  onTap: () => _showUpcomingFeature(context),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      'Permissions\nManagement',
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: colorScheme.primary,
+                        height: 1.2,
+                      ),
                     ),
                   ),
                 ),
@@ -449,7 +453,10 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                     title: 'Software Engineering I',
                     subtitle: 'Undergraduate Core | 84 Students',
                     value: course1Enabled,
-                    onChanged: (val) => setState(() => course1Enabled = val),
+                    onChanged: (val) {
+                      setState(() => course1Enabled = val);
+                      _showUpcomingFeature(context);
+                    },
                   ),
                   Divider(height: 1, color: colorScheme.outlineVariant.withOpacity(0.3)),
                   _buildCourseToggle(
@@ -459,7 +466,10 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                     subtitle: 'Graduate Level | 42 Students',
                     value: course2Enabled,
                     iconColor: Colors.orange,
-                    onChanged: (val) => setState(() => course2Enabled = val),
+                    onChanged: (val) {
+                      setState(() => course2Enabled = val);
+                      _showUpcomingFeature(context);
+                    },
                   ),
                   Divider(height: 1, color: colorScheme.outlineVariant.withOpacity(0.3)),
                   _buildCourseToggle(
@@ -469,7 +479,10 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                     subtitle: 'Elective Seminar | 116 Students',
                     value: course3Enabled,
                     iconColor: Colors.lightBlue,
-                    onChanged: (val) => setState(() => course3Enabled = val),
+                    onChanged: (val) {
+                      setState(() => course3Enabled = val);
+                      _showUpcomingFeature(context);
+                    },
                   ),
                 ],
               ),
@@ -503,9 +516,9 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                     children: [
                       Icon(Icons.palette, color: colorScheme.primary),
                       const SizedBox(width: 8),
-                      const Text(
-                        'Apariencia',
-                        style: TextStyle(
+                      Text(
+                        l10n.appearance,
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -516,21 +529,21 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                   SizedBox(
                     width: double.infinity,
                     child: SegmentedButton<ThemeMode>(
-                      segments: const [
+                      segments: [
                         ButtonSegment(
                           value: ThemeMode.system,
-                          icon: Icon(Icons.settings),
-                          label: Text('Sistema'),
+                          icon: const Icon(Icons.settings),
+                          label: Text(l10n.themeSystem),
                         ),
                         ButtonSegment(
                           value: ThemeMode.light,
-                          icon: Icon(Icons.wb_sunny),
-                          label: Text('Claro'),
+                          icon: const Icon(Icons.wb_sunny),
+                          label: Text(l10n.themeLight),
                         ),
                         ButtonSegment(
                           value: ThemeMode.dark,
-                          icon: Icon(Icons.nightlight_round),
-                          label: Text('Oscuro'),
+                          icon: const Icon(Icons.nightlight_round),
+                          label: Text(l10n.themeDark),
                         ),
                       ],
                       selected: {context.watch<ThemeProvider>().themeMode},
@@ -623,16 +636,13 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         subtitle: folder['status'] == 'syncing'
-                            ? StreamBuilder<int>(
-                                stream: Stream.periodic(const Duration(milliseconds: 500), (i) => i),
-                                builder: (context, snapshot) {
-                                  final count = (snapshot.data ?? 0) % 4;
-                                  final dots = List.generate(count, (_) => '.').join(' ');
-                                  return Text(
-                                    'Sincronizando $dots',
-                                    style: TextStyle(fontSize: 12, color: Colors.blue.shade700, fontWeight: FontWeight.w500),
-                                  );
-                                },
+                            ? SyncingDotsText(
+                                label: 'Sincronizando',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.blue.shade700,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               )
                             : const Text(
                                 'Activa y Sincronizada',
@@ -774,9 +784,9 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                   }
                 },
                 icon: const Icon(Icons.logout, size: 24),
-                label: const Text(
-                  'Cerrar Sesión',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                label: Text(
+                  l10n.logout,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colorScheme.errorContainer,

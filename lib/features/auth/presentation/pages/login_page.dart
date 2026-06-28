@@ -6,22 +6,24 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: isDark ? const Color(0xFF090E1A) : const Color(0xFFF1F5F9),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height - 
-                         MediaQuery.of(context).padding.top - 
-                         MediaQuery.of(context).padding.bottom,
-            ),
-            child: const Center(
-              child: LoginForm(),
+          child: SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: MediaQuery.of(context).size.height - 
+                           MediaQuery.of(context).padding.top - 
+                           MediaQuery.of(context).padding.bottom,
+              ),
+              child: const Center(
+                child: LoginForm(),
+              ),
             ),
           ),
         ),
-      ),
     );
   }
 }

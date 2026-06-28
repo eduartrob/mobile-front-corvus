@@ -116,6 +116,18 @@ abstract class AppLocalizations {
   /// **'Continuar con Google'**
   String get continueWithGoogle;
 
+  /// No description provided for @signingIn.
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciando sesión...'**
+  String get signingIn;
+
+  /// No description provided for @unknownError.
+  ///
+  /// In es, this message translates to:
+  /// **'Ocurrió un error desconocido'**
+  String get unknownError;
+
   /// No description provided for @exclusiveAccessInfo.
   ///
   /// In es, this message translates to:
@@ -229,6 +241,552 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Ej: Energía + Sociología...'**
   String get searchPlaceholder;
+
+  /// No description provided for @profNavDash.
+  ///
+  /// In es, this message translates to:
+  /// **'Tablero'**
+  String get profNavDash;
+
+  /// No description provided for @profNavReviews.
+  ///
+  /// In es, this message translates to:
+  /// **'Revisiones'**
+  String get profNavReviews;
+
+  /// No description provided for @profNavRules.
+  ///
+  /// In es, this message translates to:
+  /// **'Reglas'**
+  String get profNavRules;
+
+  /// No description provided for @profNavHistory.
+  ///
+  /// In es, this message translates to:
+  /// **'Historial'**
+  String get profNavHistory;
+
+  /// No description provided for @featureUpcoming.
+  ///
+  /// In es, this message translates to:
+  /// **'Función disponible en el próximo release académico.'**
+  String get featureUpcoming;
+
+  /// No description provided for @manage.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestionar'**
+  String get manage;
+
+  /// No description provided for @generateWorkPlan.
+  ///
+  /// In es, this message translates to:
+  /// **'Generar Plan de Trabajo'**
+  String get generateWorkPlan;
+
+  /// No description provided for @leaveTeam.
+  ///
+  /// In es, this message translates to:
+  /// **'Salir del equipo'**
+  String get leaveTeam;
+
+  /// No description provided for @teamManagementTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestión de Equipo'**
+  String get teamManagementTitle;
+
+  /// No description provided for @teamManagementDesc.
+  ///
+  /// In es, this message translates to:
+  /// **'Proyecto Final: \"Implementación de RAG para Análisis Documental\". Administra los miembros de tu grupo de investigación.'**
+  String get teamManagementDesc;
+
+  /// No description provided for @teamFull.
+  ///
+  /// In es, this message translates to:
+  /// **'Equipo Completo'**
+  String get teamFull;
+
+  /// No description provided for @members.
+  ///
+  /// In es, this message translates to:
+  /// **'Integrantes'**
+  String get members;
+
+  /// No description provided for @pendingInvitations.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitaciones Pendientes'**
+  String get pendingInvitations;
+
+  /// No description provided for @twoDaysAgo.
+  ///
+  /// In es, this message translates to:
+  /// **'Hace 2 días'**
+  String get twoDaysAgo;
+
+  /// No description provided for @teamFullInviteNotice.
+  ///
+  /// In es, this message translates to:
+  /// **'El equipo está lleno. Cancela una invitación para invitar a alguien más.'**
+  String get teamFullInviteNotice;
+
+  /// No description provided for @aiAssistantTeamSuggestionSpan1.
+  ///
+  /// In es, this message translates to:
+  /// **'Basado en los perfiles de tu equipo, tienen una '**
+  String get aiAssistantTeamSuggestionSpan1;
+
+  /// No description provided for @aiAssistantTeamSuggestionSpan2.
+  ///
+  /// In es, this message translates to:
+  /// **'fuerte cobertura'**
+  String get aiAssistantTeamSuggestionSpan2;
+
+  /// No description provided for @aiAssistantTeamSuggestionSpan3.
+  ///
+  /// In es, this message translates to:
+  /// **' en Backend y Frontend. Se sugiere asignar tareas de '**
+  String get aiAssistantTeamSuggestionSpan3;
+
+  /// No description provided for @aiAssistantTeamSuggestionSpan4.
+  ///
+  /// In es, this message translates to:
+  /// **'documentación y pruebas unitarias'**
+  String get aiAssistantTeamSuggestionSpan4;
+
+  /// No description provided for @aiAssistantTeamSuggestionSpan5.
+  ///
+  /// In es, this message translates to:
+  /// **' equitativamente para el próximo sprint.'**
+  String get aiAssistantTeamSuggestionSpan5;
+
+  /// No description provided for @youLeader.
+  ///
+  /// In es, this message translates to:
+  /// **'TÚ (LÍDER)'**
+  String get youLeader;
+
+  /// No description provided for @registerRule.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrar Regla'**
+  String get registerRule;
+
+  /// No description provided for @viewReports.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver todos los reportes'**
+  String get viewReports;
+
+  /// No description provided for @citeTeam.
+  ///
+  /// In es, this message translates to:
+  /// **'Citar Equipo'**
+  String get citeTeam;
+
+  /// No description provided for @approve.
+  ///
+  /// In es, this message translates to:
+  /// **'Aprobar'**
+  String get approve;
+
+  /// No description provided for @reject.
+  ///
+  /// In es, this message translates to:
+  /// **'Rechazar'**
+  String get reject;
+
+  /// No description provided for @gpa.
+  ///
+  /// In es, this message translates to:
+  /// **'PROMEDIO'**
+  String get gpa;
+
+  /// No description provided for @projects.
+  ///
+  /// In es, this message translates to:
+  /// **'PROYECTOS'**
+  String get projects;
+
+  /// No description provided for @technicalSkills.
+  ///
+  /// In es, this message translates to:
+  /// **'Habilidades Técnicas'**
+  String get technicalSkills;
+
+  /// No description provided for @recentActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'Actividad Reciente'**
+  String get recentActivity;
+
+  /// No description provided for @ragEngineUpdate.
+  ///
+  /// In es, this message translates to:
+  /// **'Actualización en RAG Core Engine'**
+  String get ragEngineUpdate;
+
+  /// No description provided for @timeTwoHoursAgo.
+  ///
+  /// In es, this message translates to:
+  /// **'Hace 2h'**
+  String get timeTwoHoursAgo;
+
+  /// No description provided for @readingCompleted.
+  ///
+  /// In es, this message translates to:
+  /// **'Lectura Completada:\nArquitecturas Transformer'**
+  String get readingCompleted;
+
+  /// No description provided for @timeYesterday.
+  ///
+  /// In es, this message translates to:
+  /// **'Ayer'**
+  String get timeYesterday;
+
+  /// No description provided for @appearance.
+  ///
+  /// In es, this message translates to:
+  /// **'Apariencia'**
+  String get appearance;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In es, this message translates to:
+  /// **'Sistema'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In es, this message translates to:
+  /// **'Claro'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In es, this message translates to:
+  /// **'Oscuro'**
+  String get themeDark;
+
+  /// No description provided for @logout.
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrar Sesión'**
+  String get logout;
+
+  /// No description provided for @errorCredentialsDriveCorvus.
+  ///
+  /// In es, this message translates to:
+  /// **'Error: No se pudo obtener las credenciales necesarias (Drive o Corvus).'**
+  String get errorCredentialsDriveCorvus;
+
+  /// No description provided for @folderAlreadyLinked.
+  ///
+  /// In es, this message translates to:
+  /// **'Carpeta vinculada (Ya estaba sincronizada previamente en Corvus).'**
+  String get folderAlreadyLinked;
+
+  /// No description provided for @folderLinkedProcessingStarted.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Carpeta vinculada! El procesamiento ha comenzado en segundo plano.'**
+  String get folderLinkedProcessingStarted;
+
+  /// No description provided for @removeAccessTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Quitar acceso?'**
+  String get removeAccessTitle;
+
+  /// No description provided for @cancel.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelar'**
+  String get cancel;
+
+  /// No description provided for @remove.
+  ///
+  /// In es, this message translates to:
+  /// **'Quitar'**
+  String get remove;
+
+  /// No description provided for @driveAccessRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Se requiere acceso a Drive para sincronizar.'**
+  String get driveAccessRequired;
+
+  /// No description provided for @sendForReview.
+  ///
+  /// In es, this message translates to:
+  /// **'Enviar para Revisión'**
+  String get sendForReview;
+
+  /// No description provided for @browseFiles.
+  ///
+  /// In es, this message translates to:
+  /// **'Explorar Archivos'**
+  String get browseFiles;
+
+  /// No description provided for @understood.
+  ///
+  /// In es, this message translates to:
+  /// **'Entendido'**
+  String get understood;
+
+  /// No description provided for @detailedAnalysisTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Análisis Detallado'**
+  String get detailedAnalysisTitle;
+
+  /// No description provided for @preValidationTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Pre-validación de Propuesta'**
+  String get preValidationTitle;
+
+  /// No description provided for @detailedAnalysisDesc.
+  ///
+  /// In es, this message translates to:
+  /// **'La IA ha evaluado tu documento. Revisa las métricas clave y las recomendaciones para elevar la calidad de tu proyecto antes de la entrega final.'**
+  String get detailedAnalysisDesc;
+
+  /// No description provided for @preValidationDesc.
+  ///
+  /// In es, this message translates to:
+  /// **'Sube tu documento PDF. Nuestro motor de IA analizará tu propuesta contra los requerimientos académicos antes de la entrega final.'**
+  String get preValidationDesc;
+
+  /// No description provided for @analyzingStructure.
+  ///
+  /// In es, this message translates to:
+  /// **'Analizando estructura...'**
+  String get analyzingStructure;
+
+  /// No description provided for @deleteDraft.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar Borrador'**
+  String get deleteDraft;
+
+  /// No description provided for @uploadAnotherProposal.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargar otra propuesta'**
+  String get uploadAnotherProposal;
+
+  /// No description provided for @analysisEstimatedTime.
+  ///
+  /// In es, this message translates to:
+  /// **'El análisis puede tardar entre 30 y 90 segundos\ndependiendo del modelo de IA del servidor.'**
+  String get analysisEstimatedTime;
+
+  /// No description provided for @loadingPhase1.
+  ///
+  /// In es, this message translates to:
+  /// **'Analizando el contenido de tu documento...'**
+  String get loadingPhase1;
+
+  /// No description provided for @loadingPhase2.
+  ///
+  /// In es, this message translates to:
+  /// **'Limpiando y anonimizando el texto...'**
+  String get loadingPhase2;
+
+  /// No description provided for @loadingPhase3.
+  ///
+  /// In es, this message translates to:
+  /// **'Vectorizando el contenido con IA semántica...'**
+  String get loadingPhase3;
+
+  /// No description provided for @loadingPhase4.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscando proyectos similares en el repositorio histórico...'**
+  String get loadingPhase4;
+
+  /// No description provided for @loadingPhase5.
+  ///
+  /// In es, this message translates to:
+  /// **'Calculando el riesgo de colisión semántica...'**
+  String get loadingPhase5;
+
+  /// No description provided for @loadingPhase6.
+  ///
+  /// In es, this message translates to:
+  /// **'El comité académico está redactando el dictamen...'**
+  String get loadingPhase6;
+
+  /// No description provided for @loadingPhase7.
+  ///
+  /// In es, this message translates to:
+  /// **'Generando recomendaciones técnicas personalizadas...'**
+  String get loadingPhase7;
+
+  /// No description provided for @loadingPhase8.
+  ///
+  /// In es, this message translates to:
+  /// **'Afinando el veredicto final, casi listo...'**
+  String get loadingPhase8;
+
+  /// No description provided for @uploadZoneTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Arrastra tu propuesta PDF aquí'**
+  String get uploadZoneTitle;
+
+  /// No description provided for @uploadZoneSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Tamaño máximo: 10MB. Formatos: PDF.'**
+  String get uploadZoneSubtitle;
+
+  /// No description provided for @uploadedToday.
+  ///
+  /// In es, this message translates to:
+  /// **'Subido hoy'**
+  String get uploadedToday;
+
+  /// No description provided for @serverErrorContactSupport.
+  ///
+  /// In es, this message translates to:
+  /// **'Ocurrió un inconveniente temporal en el servidor. Por favor reintenta en un momento o contacta a soporte: digitalengineers01+soporte@gmail.com'**
+  String get serverErrorContactSupport;
+
+  /// No description provided for @invalidDocumentTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Documento no válido'**
+  String get invalidDocumentTitle;
+
+  /// No description provided for @invalidDocumentDesc.
+  ///
+  /// In es, this message translates to:
+  /// **'El archivo que subiste no parece ser una propuesta de proyecto integrador. Asegúrate de subir tu propuesta con secciones como Objetivo, Metodología y Tecnologías.'**
+  String get invalidDocumentDesc;
+
+  /// No description provided for @invalidDocumentAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargar otro documento'**
+  String get invalidDocumentAction;
+
+  /// No description provided for @notifUploadTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Subiendo propuesta'**
+  String get notifUploadTitle;
+
+  /// No description provided for @notifUploadBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Analizando estructura RAG rápida...'**
+  String get notifUploadBody;
+
+  /// No description provided for @notifPreValidReadyTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Pre-validación lista'**
+  String get notifPreValidReadyTitle;
+
+  /// No description provided for @notifPreValidReadyBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Puedes revisar las heurísticas iniciales.'**
+  String get notifPreValidReadyBody;
+
+  /// No description provided for @notifErrorTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Error'**
+  String get notifErrorTitle;
+
+  /// No description provided for @notifPreValidFailed.
+  ///
+  /// In es, this message translates to:
+  /// **'Falló la pre-validación.'**
+  String get notifPreValidFailed;
+
+  /// No description provided for @notifAnalysisStartTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Análisis Detallado'**
+  String get notifAnalysisStartTitle;
+
+  /// No description provided for @notifAnalysisStartBody.
+  ///
+  /// In es, this message translates to:
+  /// **'La IA está evaluando rigurosidad y originalidad...'**
+  String get notifAnalysisStartBody;
+
+  /// No description provided for @notifAnalysisErrorTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al iniciar análisis'**
+  String get notifAnalysisErrorTitle;
+
+  /// No description provided for @notifAnalysisProgressTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Corvus IA'**
+  String get notifAnalysisProgressTitle;
+
+  /// No description provided for @notifAnalysisProgressBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Analizando tu propuesta de proyecto...'**
+  String get notifAnalysisProgressBody;
+
+  /// No description provided for @notifAnalysisCompleteTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Análisis Completado!'**
+  String get notifAnalysisCompleteTitle;
+
+  /// No description provided for @notifAnalysisCompleteBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu dictamen técnico está listo. Abre la app para revisarlo.'**
+  String get notifAnalysisCompleteBody;
+
+  /// No description provided for @notifAnalysisFailedTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Análisis no completado'**
+  String get notifAnalysisFailedTitle;
+
+  /// No description provided for @notifAnalysisFailedBody.
+  ///
+  /// In es, this message translates to:
+  /// **'El servidor encontró un error.'**
+  String get notifAnalysisFailedBody;
+
+  /// No description provided for @searchPlaceholderResult.
+  ///
+  /// In es, this message translates to:
+  /// **'Resultados para: {query}\n(Pronto conectado a la IA)'**
+  String searchPlaceholderResult(String query);
+
+  /// No description provided for @searchFieldLabelHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar proyectos o temas...'**
+  String get searchFieldLabelHint;
+
+  /// No description provided for @searchEmptyState.
+  ///
+  /// In es, this message translates to:
+  /// **'Escribe un tema de investigación'**
+  String get searchEmptyState;
+
+  /// No description provided for @searchSuggestion.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar \"{query}\" en todos los repositorios'**
+  String searchSuggestion(String query);
 }
 
 class _AppLocalizationsDelegate

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/core/widgets/corvus_top_bar.dart';
+import 'package:mobile/shared/widgets/corvus_top_bar.dart';
+import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/shared/widgets/corvus_metric_card.dart';
 import 'package:mobile/shared/widgets/corvus_progress_item.dart';
 import 'package:mobile/shared/widgets/corvus_alert_item.dart';
@@ -7,9 +8,21 @@ import 'package:mobile/shared/widgets/corvus_alert_item.dart';
 class ProfDashPage extends StatelessWidget {
   const ProfDashPage({super.key});
 
+  void _showUpcomingFeature(BuildContext context, AppLocalizations l10n) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.featureUpcoming),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: const CorvusTopBar(),
@@ -126,7 +139,7 @@ class ProfDashPage extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () => _showUpcomingFeature(context, l10n),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: colorScheme.primary,
                         foregroundColor: colorScheme.onPrimary,
@@ -134,7 +147,7 @@ class ProfDashPage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: const Text('Ver todos los reportes'),
+                      child: Text(l10n.viewReports),
                     ),
                   ),
                 ],

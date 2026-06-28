@@ -161,7 +161,7 @@ class AppRouter extends StatelessWidget {
       title: 'Corvus',
       theme: appTheme ?? ThemeData.light(),
       darkTheme: darkTheme ?? ThemeData.dark(),
-      themeMode: themeMode ?? ThemeMode.system,
+      themeMode: themeMode ?? ThemeMode.light,
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,

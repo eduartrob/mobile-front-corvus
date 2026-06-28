@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/my_project/presentation/provider/my_project_provider.dart';
 
@@ -14,6 +15,8 @@ class UploadZoneWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       width: double.infinity,
       constraints: const BoxConstraints(minHeight: 250),
@@ -27,7 +30,7 @@ class UploadZoneWidget extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           )
@@ -50,7 +53,7 @@ class UploadZoneWidget extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Arrastra tu propuesta PDF aquí',
+            l10n.uploadZoneTitle,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -60,7 +63,7 @@ class UploadZoneWidget extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Tamaño máximo: 10MB. Formatos: PDF.',
+            l10n.uploadZoneSubtitle,
             style: TextStyle(
               fontSize: 14,
               color: colorScheme.onSurfaceVariant,
@@ -68,13 +71,13 @@ class UploadZoneWidget extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           OutlinedButton.icon(
-            onPressed: () => provider.pickFile(context.read<AuthProvider>().currentUser?.id ?? ''),
+            onPressed: () => provider.pickFile(context.read<AuthProvider>().currentUser?.id ?? '', l10n),
             icon: const Icon(Icons.folder_open),
-            label: const Text('Explorar Archivos'),
+            label: Text(l10n.browseFiles),
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               foregroundColor: colorScheme.onSurface,
-              backgroundColor: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+              backgroundColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
               side: BorderSide(color: colorScheme.outlineVariant),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),

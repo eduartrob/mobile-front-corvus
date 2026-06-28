@@ -11,35 +11,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:mobile/core/services/notification_service.dart';
 import 'package:mobile/firebase_options.dart';
 import 'package:mobile/core/theme/theme_provider.dart';
-@pragma('vm:entry-point')
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // Inicialización básica para el background
-  try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    _handleFCMMessage(message);
-  } catch (e) {
-    // Ignorar si no está configurado
-  }
-}
-
-void _handleFCMMessage(RemoteMessage message) {
-  final data = message.data;
-  if (data['type'] == 'sync_progress') {
-    final progress = int.tryParse(data['progress']?.toString() ?? '0') ?? 0;
-    final total = int.tryParse(data['total']?.toString() ?? '100') ?? 100;
-    final msg = data['message'] ?? 'Procesando...';
-    
-    NotificationService().showProgressNotification(
-      progress: progress, 
-      maxProgress: total, 
-      message: msg
-    );
-  } else if (data['type'] == 'sync_complete') {
-    NotificationService().showSuccessNotification(data['message'] ?? 'Los archivos fueron vectorizados correctamente.');
-  }
-}
+import 'package:mobile/core/services/firebase_messaging_handler.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,8 +21,8 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-    FirebaseMessaging.onMessage.listen(_handleFCMMessage);
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    FirebaseMessaging.onMessage.listen(handleFCMMessage);
   } catch (e) {
     debugPrint('Firebase no inicializado: Ejecuta flutterfire configure');
   }

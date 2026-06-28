@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/core/theme/util.dart';
-import 'package:mobile/core/theme/theme.dart';
 
-class Button extends StatelessWidget {
+class CorvusButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
 
-  const Button({
+  const CorvusButton({
     super.key,
     required this.text,
     required this.onPressed,
@@ -14,13 +12,18 @@ class Button extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: onPressed,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          gradient: MaterialTheme.purpleGradient,
+          gradient: LinearGradient(
+            colors: [colorScheme.primary, colorScheme.secondary],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

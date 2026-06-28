@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/core/widgets/corvus_top_bar.dart';
+import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 
 class ProfHistoryPage extends StatelessWidget {
   const ProfHistoryPage({super.key});

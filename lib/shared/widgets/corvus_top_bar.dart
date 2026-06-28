@@ -3,15 +3,17 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/l10n/app_localizations.dart';
 
 class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
   const CorvusTopBar({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = context.watch<AuthProvider>();
-    final user = authProvider.currentUser;
-
+    // Solo escuchamos los dos campos que este widget necesita.
+    // Cualquier otro cambio en AuthProvider (token, estado de carga, etc.) no dispara un rebuild.
+    final photoUrl = context.select<AuthProvider, String?>((a) => a.currentUser?.photoUrl);
+    final role = context.select<AuthProvider, String?>((a) => a.role);
     return AppBar(
       backgroundColor: Theme.of(context).colorScheme.surfaceContainer.withOpacity(0.7),
       elevation: 0,
@@ -52,24 +54,24 @@ class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
           onPressed: () {
             showSearch(
               context: context,
-              delegate: CorvusSearchDelegate(),
+              delegate: CorvusSearchDelegate(l10n: AppLocalizations.of(context)!),
             );
           },
           icon: const Icon(Icons.search),
         ),
-        if (user != null && user.photoUrl != null && user.photoUrl!.isNotEmpty)
+        if (photoUrl != null && photoUrl.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: GestureDetector(
               onTap: () {
-                if (authProvider.role == 'PROFESOR') {
+                if (role == 'PROFESOR') {
                   if (GoRouterState.of(context).matchedLocation != '/prof-profile') {
                     context.push('/prof-profile');
                   }
                 }
               },
               child: CircleAvatar(
-                backgroundImage: NetworkImage(user.photoUrl!),
+                backgroundImage: NetworkImage(photoUrl),
                 radius: 18,
               ),
             ),
@@ -79,7 +81,7 @@ class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
             padding: const EdgeInsets.only(right: 16.0),
             child: GestureDetector(
               onTap: () {
-                if (authProvider.role == 'PROFESOR') {
+                if (role == 'PROFESOR') {
                   if (GoRouterState.of(context).matchedLocation != '/prof-profile') {
                     context.push('/prof-profile');
                   }
@@ -100,6 +102,10 @@ class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class CorvusSearchDelegate extends SearchDelegate<String> {
+  final AppLocalizations l10n;
+
+  CorvusSearchDelegate({required this.l10n});
+
   @override
   ThemeData appBarTheme(BuildContext context) {
     final theme = Theme.of(context);
@@ -115,7 +121,7 @@ class CorvusSearchDelegate extends SearchDelegate<String> {
   }
 
   @override
-  String get searchFieldLabel => 'Buscar proyectos o temas...';
+  String get searchFieldLabel => l10n.searchFieldLabelHint;
 
   @override
   List<Widget>? buildActions(BuildContext context) {
@@ -144,7 +150,7 @@ class CorvusSearchDelegate extends SearchDelegate<String> {
   Widget buildResults(BuildContext context) {
     return Center(
       child: Text(
-        'Resultados para: $query\n(Pronto conectado a la IA)',
+        l10n.searchPlaceholderResult(query),
         textAlign: TextAlign.center,
         style: TextStyle(
           color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -158,7 +164,7 @@ class CorvusSearchDelegate extends SearchDelegate<String> {
     if (query.isEmpty) {
       return Center(
         child: Text(
-          'Escribe un tema de investigación',
+          l10n.searchEmptyState,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
@@ -168,7 +174,7 @@ class CorvusSearchDelegate extends SearchDelegate<String> {
 
     return ListTile(
       leading: const Icon(Icons.search),
-      title: Text('Buscar "$query" en todos los repositorios'),
+      title: Text(l10n.searchSuggestion(query)),
       onTap: () {
         showResults(context);
       },

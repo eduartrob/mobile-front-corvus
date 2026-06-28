@@ -209,7 +209,17 @@ class _FloatingAiInputState extends State<FloatingAiInput> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: InkWell(
-                    onTap: () {},
+                    onTap: () {
+                      FocusScope.of(context).unfocus();
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(l10n.featureUpcoming),
+                          behavior: SnackBarBehavior.floating,
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    },
                     borderRadius: BorderRadius.circular(8),
                     child: Container(
                       padding: const EdgeInsets.all(8),

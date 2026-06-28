@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/my_project/presentation/provider/my_project_provider.dart';
 
@@ -14,16 +15,18 @@ class UploadedFileItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.5)),
+        border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           )
@@ -35,7 +38,7 @@ class UploadedFileItemWidget extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: colorScheme.errorContainer.withOpacity(0.5),
+              color: colorScheme.errorContainer.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(Icons.picture_as_pdf, color: colorScheme.error),
@@ -57,7 +60,7 @@ class UploadedFileItemWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${provider.fileSize} • Subido hoy',
+                  '${provider.fileSize} • ${l10n.uploadedToday}',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,

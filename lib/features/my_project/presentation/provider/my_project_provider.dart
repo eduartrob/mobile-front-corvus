@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
@@ -5,6 +6,7 @@ import 'package:mobile/features/my_project/data/my_project_remote_data_source.da
 import 'package:mobile/features/my_project/data/my_project_local_data_source.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/services/notification_service.dart';
+import 'package:mobile/l10n/app_localizations.dart';
 
 enum ProjectState {
   initial,
@@ -46,6 +48,16 @@ class MyProjectProvider extends ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
   
+  String? _documentTypeError;
+  String? get documentTypeError => _documentTypeError;
+  
+  int _serverPhase = 5;
+  int get serverPhase => _serverPhase;
+
+  String _serverPhaseMessage = '';
+  String get serverPhaseMessage => _serverPhaseMessage;
+
+  Timer? _statusTimer;
   bool _initialized = false;
   
   Future<void> init(String userId) async {
@@ -53,16 +65,28 @@ class MyProjectProvider extends ChangeNotifier {
     _initialized = true;
     
     try {
-      // 1. Primero intentar cargar el análisis final de memoria local
       final localAnalysis = await _localDataSource.getDetailedAnalysis(userId);
       if (localAnalysis != null) {
         _detailedAnalysis = localAnalysis;
         _state = ProjectState.detailedAnalysis;
         notifyListeners();
-        return; // Si ya hay análisis final, no buscamos el borrador rápido
+        return;
       }
 
-      // 2. Si no hay análisis final, buscar el borrador rápido
+      // ── RESTAURACIÓN DE ESTADO SI HAY ANÁLISIS EN CURSO ──
+      final status = await _dataSource.getAnalysisStatus(userId);
+      final phase = (status['phase'] as num?)?.toInt() ?? 0;
+      
+      if (phase >= 5 && phase <= 8) {
+        // Hay un análisis exhaustivo procesándose en el servidor
+        _state = ProjectState.analyzing;
+        _serverPhase = phase;
+        _serverPhaseMessage = status['message'] ?? '';
+        _startPolling(userId, null); // Reanuda el polling (l10n null indica background/restore)
+        notifyListeners();
+        return;
+      }
+
       final draft = await _dataSource.checkDraft(userId);
       if (draft.isNotEmpty && draft['status'] != 'not_found') {
         _quickAnalysis = draft;
@@ -72,11 +96,11 @@ class MyProjectProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print("Error inicializando: $e");
+      debugPrint("Error inicializando MyProjectProvider: $e");
     }
   }
 
-  Future<void> pickFile(String userId) async {
+  Future<void> pickFile(String userId, AppLocalizations l10n) async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -93,7 +117,7 @@ class MyProjectProvider extends ChangeNotifier {
         _state = ProjectState.uploading;
         notifyListeners();
 
-        await _preValidate(userId);
+        await _preValidate(userId, l10n);
       }
     } catch (e) {
       _errorMessage = 'Error seleccionando archivo: $e';
@@ -102,13 +126,13 @@ class MyProjectProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> _preValidate(String userId) async {
+  Future<void> _preValidate(String userId, AppLocalizations l10n) async {
     try {
       if (_selectedFile == null) return;
       
       await _notificationService.showIndeterminateProgressNotification(
-        title: 'Subiendo propuesta', 
-        message: 'Analizando estructura RAG rápida...'
+        title: l10n.notifUploadTitle, 
+        message: l10n.notifUploadBody
       );
 
       final response = await _dataSource.preValidateProposal(_selectedFile!.path, userId);
@@ -116,51 +140,159 @@ class MyProjectProvider extends ChangeNotifier {
       _quickAnalysis = response;
       _state = ProjectState.preValidated;
       
-      await _notificationService.showResultNotification('Pre-validación lista', 'Puedes revisar las heurísticas iniciales.');
+      await _notificationService.showResultNotification(l10n.notifPreValidReadyTitle, l10n.notifPreValidReadyBody);
       notifyListeners();
       
     } catch (e) {
-      await _notificationService.showResultNotification('Error', 'Falló la pre-validación.');
-      _errorMessage = 'Error en validación rápida: $e';
+      final errorStr = e.toString();
+      await _notificationService.showResultNotification(l10n.notifErrorTitle, l10n.notifPreValidFailed);
+      
+      // ── MANEJO DEL ERROR DE DOCUMENTO INVÁLIDO ──
+      if (errorStr.contains('no parece ser una propuesta')) {
+        _documentTypeError = errorStr.replaceAll('Exception: ', '');
+      } else {
+        _errorMessage = 'Error en validación rápida: $errorStr';
+      }
+      
       _state = ProjectState.error;
       notifyListeners();
     }
   }
 
-  Future<void> submitForReview(String userId) async {
+  Future<void> submitForReview(String userId, AppLocalizations l10n) async {
     _state = ProjectState.analyzing;
+    _serverPhase = 5;
+    _serverPhaseMessage = '';
     notifyListeners();
 
     try {
-      await _notificationService.showIndeterminateProgressNotification(
-        title: 'Análisis Detallado', 
-        message: 'Ollama está evaluando rigurosidad y originalidad...'
+      await _notificationService.showAnalysisProgressNotification(
+        title: l10n.notifAnalysisProgressTitle,
+        message: l10n.notifAnalysisProgressBody,
+        phase: l10n.notifAnalysisStartBody
       );
-      
-      final response = await _dataSource.analyzeDraftDetailed(userId);
-      
-      if (response['status'] == 'warning') {
-        throw Exception(response['message'] ?? 'Error de IA (Ollama no disponible)');
-      }
-      
-      _detailedAnalysis = response;
-      _state = ProjectState.detailedAnalysis;
-      
-      // Guardar localmente para persistencia
-      await _localDataSource.saveDetailedAnalysis(userId, response);
-      
-      await _notificationService.showResultNotification('Análisis Finalizado', 'Los resultados de Ollama están listos.');
-      notifyListeners();
-      
+
+      // Dispara el análisis en el servidor (responde < 1s con "queued")
+      await _dataSource.analyzeDraftDetailed(userId);
     } catch (e) {
-      await _notificationService.showResultNotification('Error', 'Falló el análisis de Ollama.');
-      _errorMessage = 'Error en análisis detallado: $e';
+      _statusTimer?.cancel();
+      _notificationService.cancelAnalysisNotification();
+      final cleanMsg = e.toString().replaceAll('Exception: ', '');
+      await _notificationService.showResultNotification(
+          l10n.notifAnalysisErrorTitle, cleanMsg);
+      _errorMessage = cleanMsg;
       _state = ProjectState.error;
       notifyListeners();
+      return;
     }
+
+    _startPolling(userId, l10n);
+  }
+
+  void _startPolling(String userId, AppLocalizations? l10n) {
+    _statusTimer?.cancel();
+    _statusTimer = Timer.periodic(const Duration(seconds: 2), (_) async {
+      if (_state != ProjectState.analyzing) {
+        _statusTimer?.cancel();
+        return;
+      }
+
+      final status = await _dataSource.getAnalysisStatus(userId);
+      
+      // Prevenir condición de carrera: si el usuario canceló mientras hacíamos el request
+      if (_state != ProjectState.analyzing) return;
+      
+      final phase = (status['phase'] as num?)?.toInt() ?? 5;
+      _serverPhase = phase;
+      _serverPhaseMessage = status['message'] ?? '';
+      
+      if (_serverPhase == 6) {
+        _notificationService.showAnalysisProgressNotification(
+          title: l10n?.notifAnalysisProgressTitle ?? 'Análisis en curso',
+          message: l10n?.notifAnalysisProgressBody ?? 'Procesando...',
+          phase: 'Buscando áreas de mejora...',
+        );
+      } else if (_serverPhase == 7) {
+        _notificationService.showAnalysisProgressNotification(
+          title: l10n?.notifAnalysisProgressTitle ?? 'Análisis en curso',
+          message: l10n?.notifAnalysisProgressBody ?? 'Procesando...',
+          phase: 'Generando recomendaciones...',
+        );
+      } else if (_serverPhase == 8) {
+        _notificationService.showAnalysisProgressNotification(
+          title: l10n?.notifAnalysisProgressTitle ?? 'Análisis en curso',
+          message: l10n?.notifAnalysisProgressBody ?? 'Procesando...',
+          phase: 'Finalizando reporte...',
+        );
+      }
+      
+      notifyListeners();
+
+      // ✅ Fase 9 — Análisis completado: recuperar resultado
+      if (phase == 9) {
+        _statusTimer?.cancel();
+        final result = await _dataSource.getAnalysisResult(userId);
+        if (_state != ProjectState.analyzing) return;
+
+        if (result['status'] == 'pending') {
+          // Servidor aún no puso el resultado (raro pero posible por race condition)
+          await Future.delayed(const Duration(seconds: 2));
+          if (_state != ProjectState.analyzing) return;
+          final retryResult = await _dataSource.getAnalysisResult(userId);
+          _applyAnalysisResult(userId, retryResult, l10n);
+        } else {
+          _applyAnalysisResult(userId, result, l10n);
+        }
+      }
+
+      // ❌ Fase -1 — Error en el servidor
+      if (phase == -1) {
+        _statusTimer?.cancel();
+        _notificationService.cancelAnalysisNotification();
+        final errMsg = status['message'] ?? l10n?.notifAnalysisFailedBody ?? 'Error en el servidor';
+        await _notificationService.showResultNotification(
+            l10n?.notifAnalysisFailedTitle ?? 'Error', errMsg);
+        _errorMessage = errMsg.replaceAll('Error en el análisis: ', '');
+        _state = ProjectState.error;
+        notifyListeners();
+      }
+    });
+  }
+
+  /// Aplica el resultado final del análisis y cambia el estado de la UI.
+  Future<void> _applyAnalysisResult(String userId, Map<String, dynamic> result, AppLocalizations? l10n) async {
+    _notificationService.cancelAnalysisNotification();
+    
+    if (result['status'] == 'error' || result['status'] == 'warning') {
+      final msg = result['message'] ?? l10n?.notifAnalysisFailedBody ?? 'Error desconocido';
+      await _notificationService.showResultNotification(
+          l10n?.notifAnalysisFailedTitle ?? 'Error', msg);
+      _errorMessage = msg;
+      _state = ProjectState.error;
+      notifyListeners();
+      return;
+    }
+
+    _detailedAnalysis = result;
+    _state = ProjectState.detailedAnalysis;
+    await _localDataSource.saveDetailedAnalysis(userId, result);
+    await _notificationService.showAnalysisCompleteNotification(
+      title: l10n.notifAnalysisCompleteTitle,
+      message: l10n.notifAnalysisCompleteBody,
+    );
+    notifyListeners();
+  }
+
+  Future<void> cancelAnalysis(String userId) async {
+    _statusTimer?.cancel();
+    await _notificationService.cancelAnalysisNotification();
+    await _notificationService.cancelSyncNotification();
+    await _dataSource.cancelAnalysis(userId);
+    reset(userId);
   }
   
   void reset(String userId) {
+    _statusTimer?.cancel();
     _state = ProjectState.initial;
     _selectedFile = null;
     _fileName = null;
@@ -168,7 +300,14 @@ class MyProjectProvider extends ChangeNotifier {
     _quickAnalysis = null;
     _detailedAnalysis = null;
     _errorMessage = null;
+    _documentTypeError = null;
     _localDataSource.clearDetailedAnalysis(userId);
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _statusTimer?.cancel();
+    super.dispose();
   }
 }

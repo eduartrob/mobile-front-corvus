@@ -39,18 +39,36 @@ class InspirationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> loadProjects() async {
-    _isLoading = true;
-    notifyListeners();
+  Future<void> loadProjects({bool forceRefresh = false}) async {
+    // Si no es un refresco forzado y ya tenemos datos, no hacemos show loading total
+    if (_projects.isEmpty) {
+      _isLoading = true;
+      notifyListeners();
+    }
 
     try {
-      _projects = await _dataSource.getUnexploredProjects();
+      _projects = await _dataSource.getUnexploredProjects(forceRefresh: forceRefresh);
     } catch (e) {
       print("Error detallado en loadProjects: $e");
-      _projects = [];
+      if (_projects.isEmpty) _projects = [];
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  Future<void> trackNicheView(String nicheId, String? userAvatar) async {
+    try {
+      final updatedProject = await _dataSource.trackNicheView(nicheId, userAvatar);
+      if (updatedProject != null) {
+        final index = _projects.indexWhere((p) => p.id == nicheId);
+        if (index != -1) {
+          _projects[index] = updatedProject;
+          notifyListeners();
+        }
+      }
+    } catch (e) {
+      debugPrint("Error en trackNicheView: $e");
     }
   }
 }

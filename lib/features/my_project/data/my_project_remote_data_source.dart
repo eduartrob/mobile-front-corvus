@@ -40,7 +40,8 @@ class MyProjectRemoteDataSource {
         throw Exception('Error en la pre-validación: ${response.body}');
       }
     } catch (e) {
-      throw Exception('Error de conexión: $e');
+      final msg = e.toString().replaceAll('Exception: ', '');
+      throw Exception(msg);
     }
   }
 
@@ -70,31 +71,94 @@ class MyProjectRemoteDataSource {
     }
   }
 
-  Future<Map<String, dynamic>> analyzeDraftDetailed(String userId) async {
+  Future<Map<String, dynamic>> getAnalysisStatus(String userId) async {
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/analysis-status/$userId');
+
+    try {
+      final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
+      final token = await _storage.read(key: 'auth_token');
+      if (token != null) {
+        headers['Authorization'] = 'Bearer $token';
+      }
+
+      final response = await client.get(url, headers: headers);
+      if (response.statusCode == 200) {
+        return json.decode(utf8.decode(response.bodyBytes));
+      }
+    } catch (_) {}
+    return {'phase': 5, 'message': 'Procesando propuesta...'};
+  }
+
+  /// Dispara el análisis exhaustivo en el servidor (no-bloqueante).
+  /// El servidor responde inmediatamente con {"status":"queued"}.
+  /// Usa [getAnalysisStatus] para el polling y [getAnalysisResult] cuando phase==9.
+  Future<void> analyzeDraftDetailed(String userId) async {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/analyze-draft-proposal');
 
     try {
       var request = http.MultipartRequest('POST', url);
       request.fields['user_id'] = userId;
       request.headers.addAll(ApiConfig.defaultHeaders);
-      
+
       final token = await _storage.read(key: 'auth_token');
       if (token != null) {
-        request.headers['Authorization'] = 'Bearer $token';
+        request.headers['Authorization'] = 'Bearer \$token';
       }
-      
       request.headers.remove('Content-Type');
 
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return json.decode(utf8.decode(response.bodyBytes));
-      } else {
-        throw Exception('Error en el análisis detallado del borrador: ${response.body}');
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        final bodyText = utf8.decode(response.bodyBytes);
+        // Extraer el mensaje de error del JSON del gateway si lo hay
+        try {
+          final errorJson = json.decode(bodyText);
+          throw Exception(errorJson['detail'] ?? bodyText);
+        } catch (_) {
+          throw Exception(bodyText);
+        }
       }
+      // Si llega aquí, el servidor confirmó {"status":"queued"} — el polling hará el resto.
     } catch (e) {
-      throw Exception('Error de conexión: $e');
+      final msg = e.toString().replaceAll('Exception: ', '');
+      throw Exception(msg);
+    }
+  }
+
+  /// Recupera el resultado final del análisis cuando el polling detecta phase==9.
+  Future<Map<String, dynamic>> getAnalysisResult(String userId) async {
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/analysis-result/\$userId');
+
+    try {
+      final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
+      final token = await _storage.read(key: 'auth_token');
+      if (token != null) {
+        headers['Authorization'] = 'Bearer \$token';
+      }
+
+      final response = await client.get(url, headers: headers);
+      if (response.statusCode == 200) {
+        return json.decode(utf8.decode(response.bodyBytes));
+      }
+    } catch (_) {}
+    return {'status': 'pending'};
+  }
+
+  /// Cancela un análisis exhaustivo en curso en el servidor.
+  Future<void> cancelAnalysis(String userId) async {
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/cancel-analysis/\$userId');
+
+    try {
+      final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
+      final token = await _storage.read(key: 'auth_token');
+      if (token != null) {
+        headers['Authorization'] = 'Bearer \$token';
+      }
+
+      await client.post(url, headers: headers);
+    } catch (_) {
+      // Ignorar errores en la cancelación, es un "best effort"
     }
   }
 }

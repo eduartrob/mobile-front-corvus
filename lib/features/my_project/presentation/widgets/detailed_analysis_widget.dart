@@ -72,10 +72,10 @@ class DetailedAnalysisWidget extends StatelessWidget {
                 children: [
                   Text(
                     'Índice de Innovación',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: colorScheme.onSurface),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: colorScheme.onSurface),
                   ),
                   const SizedBox(width: 8),
-                  Icon(Icons.auto_awesome, color: colorScheme.secondary.withOpacity(0.5)),
+                  Icon(Icons.auto_awesome, size: 18, color: colorScheme.secondary.withOpacity(0.8)),
                 ],
               ),
               const SizedBox(height: 24),
@@ -149,17 +149,17 @@ class DetailedAnalysisWidget extends StatelessWidget {
               Row(
                 children: [
                   Container(
-                    width: 40,
-                    height: 40,
+                    width: 32,
+                    height: 32,
                     decoration: BoxDecoration(
-                      color: colorScheme.surfaceContainer,
+                      color: colorScheme.primary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+                      border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
                     ),
-                    child: Icon(Icons.bar_chart, size: 24, color: colorScheme.primary),
+                    child: Icon(Icons.bar_chart, size: 18, color: colorScheme.primary),
                   ),
                   const SizedBox(width: 12),
-                  Text('Métricas de Calidad', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: colorScheme.onSurface)),
+                  Text('Métricas de Calidad', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: colorScheme.onSurface)),
                 ],
               ),
               const SizedBox(height: 24),
@@ -187,13 +187,13 @@ class DetailedAnalysisWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 48,
-                height: 48,
+                width: 36,
+                height: 36,
                 decoration: BoxDecoration(
                   color: riskBgColor,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(riskIcon, color: riskColor),
+                child: Icon(riskIcon, size: 20, color: riskColor),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -202,13 +202,13 @@ class DetailedAnalysisWidget extends StatelessWidget {
                   children: [
                     Text(
                       'Riesgo: $collisionRisk',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: riskColor),
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: riskColor),
                     ),
                     if (collisionExplanation.isNotEmpty) ...[
                       const SizedBox(height: 8),
                       Text(
                         collisionExplanation,
-                        style: TextStyle(fontSize: 14, color: colorScheme.onSurfaceVariant, height: 1.5),
+                        style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant, height: 1.5),
                       ),
                     ]
                   ],
@@ -224,7 +224,7 @@ class DetailedAnalysisWidget extends StatelessWidget {
         if (recommendations.isNotEmpty)
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.only(top: 20, bottom: 12),
             decoration: BoxDecoration(
               color: colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
@@ -240,36 +240,37 @@ class DetailedAnalysisWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Row(
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
                         children: [
-                          Icon(Icons.psychology, color: colorScheme.primaryContainer, size: 28),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text('Recomendaciones de la IA', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600, color: colorScheme.onSurface), overflow: TextOverflow.ellipsis),
+                          Icon(Icons.psychology, color: colorScheme.primary, size: 22),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Recomendaciones IA', 
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: colorScheme.onSurface),
                           ),
                         ],
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: colorScheme.surfaceContainer,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: colorScheme.primary.withOpacity(0.3)),
+                        ),
+                        child: Text(
+                          '${recommendations.length} Acciones',
+                          style: TextStyle(fontSize: 12, color: colorScheme.primary, fontWeight: FontWeight.bold),
+                        ),
                       ),
-                      child: Text(
-                        '${recommendations.length} Acciones',
-                        style: TextStyle(fontSize: 12, color: colorScheme.primaryContainer, fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
                 ...List.generate(recommendations.length, (index) {
                   final rec = recommendations[index];
                   IconData iconData = Icons.tips_and_updates;
@@ -279,29 +280,33 @@ class DetailedAnalysisWidget extends StatelessWidget {
                   if (rec['icon'] == 'account_tree') iconData = Icons.account_tree;
 
                   return Container(
-                    margin: const EdgeInsets.only(bottom: 16.0),
-                    padding: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
+                      color: colorScheme.surfaceContainerLow,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.transparent),
+                      border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(iconData, size: 24, color: colorScheme.primary),
-                        const SizedBox(width: 16),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2.0),
+                          child: Icon(iconData, size: 22, color: colorScheme.primary),
+                        ),
+                        const SizedBox(width: 14),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 rec['title'] ?? '',
-                                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: colorScheme.onSurface),
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: colorScheme.onSurface),
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 6),
                               Text(
                                 rec['description'] ?? '',
-                                style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14, height: 1.4),
+                                style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13, height: 1.45),
                               ),
                             ],
                           ),

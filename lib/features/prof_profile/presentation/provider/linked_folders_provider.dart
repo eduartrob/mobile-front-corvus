@@ -180,6 +180,7 @@ class LinkedFoldersProvider extends ChangeNotifier {
           NotificationService().showProgressNotification(
             progress: progress,
             maxProgress: total,
+            title: 'Sincronización de Archivos',
             message: msg,
           );
           
