@@ -20,8 +20,10 @@ import 'package:mobile/core/router/prof_main_layout.dart';
 
 class AppRouter extends StatelessWidget {
   final ThemeData? appTheme;
+  final ThemeData? darkTheme;
+  final ThemeMode? themeMode;
 
-  const AppRouter({super.key, this.appTheme});
+  const AppRouter({super.key, this.appTheme, this.darkTheme, this.themeMode});
 
   @override
   Widget build(BuildContext context) {
@@ -158,6 +160,8 @@ class AppRouter extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Corvus',
       theme: appTheme ?? ThemeData.light(),
+      darkTheme: darkTheme ?? ThemeData.dark(),
+      themeMode: themeMode ?? ThemeMode.system,
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,

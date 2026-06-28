@@ -11,7 +11,7 @@ import 'package:mobile/features/prof_profile/domain/use_cases/sync_drive_folder_
 import 'package:mobile/features/prof_profile/domain/use_cases/get_drive_folders_usecase.dart';
 import 'package:mobile/core/services/notification_service.dart';
 import 'package:mobile/core/network/api_config.dart';
-
+import 'package:mobile/core/theme/theme_provider.dart';
 class ProfProfilePage extends StatefulWidget {
   const ProfProfilePage({super.key});
 
@@ -486,6 +486,67 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
             ),
             
             const SizedBox(height: 32),
+            
+            // Selector de Apariencia
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.palette, color: colorScheme.primary),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Apariencia',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: SegmentedButton<ThemeMode>(
+                      segments: const [
+                        ButtonSegment(
+                          value: ThemeMode.system,
+                          icon: Icon(Icons.settings),
+                          label: Text('Sistema'),
+                        ),
+                        ButtonSegment(
+                          value: ThemeMode.light,
+                          icon: Icon(Icons.wb_sunny),
+                          label: Text('Claro'),
+                        ),
+                        ButtonSegment(
+                          value: ThemeMode.dark,
+                          icon: Icon(Icons.nightlight_round),
+                          label: Text('Oscuro'),
+                        ),
+                      ],
+                      selected: {context.watch<ThemeProvider>().themeMode},
+                      onSelectionChanged: (Set<ThemeMode> newSelection) {
+                        context.read<ThemeProvider>().setThemeMode(newSelection.first);
+                      },
+                      style: ButtonStyle(
+                        side: MaterialStateProperty.all(BorderSide(color: colorScheme.outlineVariant.withOpacity(0.5))),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            const SizedBox(height: 32),
             const Divider(),
             const SizedBox(height: 24),
             
@@ -645,8 +706,50 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
               ),
             ),
             
-            const SizedBox(height: 24),
+            const SizedBox(height: 12),
             
+            // Privacy Notice
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.2)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.shield_outlined, color: colorScheme.primary, size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Aviso de Privacidad y Uso Limitado',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.primary,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Corvus solicita acceso a Google Drive únicamente en modo lectura para extraer y vectorizar los documentos de tus repositorios históricos. La información procesada sirve exclusivamente para generar reportes analíticos de prevención de riesgo de colisión. NO se comparte con terceros ni se utiliza para publicidad, cumpliendo estrictamente con la Política de Uso Limitado (Google API Services User Data Policy).',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: colorScheme.onSurfaceVariant,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            const SizedBox(height: 24),            
             // Logout Button
             SizedBox(
               width: double.infinity,

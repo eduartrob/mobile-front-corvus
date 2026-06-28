@@ -4,6 +4,7 @@ import 'package:mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginForm extends StatelessWidget {
   const LoginForm({super.key});
@@ -226,19 +227,50 @@ class LoginForm extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                l10n.terms,
-                style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
+              InkWell(
+                onTap: () async {
+                  final url = Uri.parse('https://eduartrob.github.io/CORVUS/pages/terminos.html');
+                  if (await canLaunchUrl(url)) {
+                    await launchUrl(url);
+                  }
+                },
+                child: Text(
+                  l10n.terms,
+                  style: TextStyle(
+                    fontSize: 12, 
+                    color: colors.primary,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
               ),
               const SizedBox(width: 24),
-              Text(
-                l10n.privacy,
-                style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
+              InkWell(
+                onTap: () async {
+                  final url = Uri.parse('https://eduartrob.github.io/CORVUS/pages/privacidad.html');
+                  if (await canLaunchUrl(url)) {
+                    await launchUrl(url);
+                  }
+                },
+                child: Text(
+                  l10n.privacy,
+                  style: TextStyle(
+                    fontSize: 12, 
+                    color: colors.primary,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
               ),
               const SizedBox(width: 24),
-              Text(
-                l10n.help,
-                style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
+              InkWell(
+                onTap: () {},
+                child: Text(
+                  l10n.help,
+                  style: TextStyle(
+                    fontSize: 12, 
+                    color: colors.primary,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
               ),
             ],
           ),

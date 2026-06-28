@@ -10,7 +10,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:mobile/core/services/notification_service.dart';
 import 'package:mobile/firebase_options.dart';
-
+import 'package:mobile/core/theme/theme_provider.dart';
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // Inicialización básica para el background
@@ -61,6 +61,9 @@ void main() async {
   // Crear providers globales
   final authProvider = sl<AuthProvider>();
   final linkedFoldersProvider = LinkedFoldersProvider();
+  
+  final themeProvider = ThemeProvider();
+  await themeProvider.init();
 
   // ARRANCAR LA APP DE INMEDIATO — sin esperar red ni storage
   runApp(
@@ -68,6 +71,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider.value(value: authProvider),
         ChangeNotifierProvider.value(value: linkedFoldersProvider),
+        ChangeNotifierProvider.value(value: themeProvider),
         ChangeNotifierProvider(create: (_) => InspirationProvider()),
       ],
       child: const MyApp(),

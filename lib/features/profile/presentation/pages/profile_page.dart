@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/core/widgets/corvus_top_bar.dart';
+import 'package:mobile/core/theme/theme_provider.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -187,6 +188,67 @@ class ProfilePage extends StatelessWidget {
                     icon: Icons.menu_book,
                     title: 'Lectura Completada:\nArquitecturas Transformer',
                     time: 'Ayer',
+                  ),
+                ],
+              ),
+            ),
+            
+            const SizedBox(height: 24),
+            
+            // Selector de Apariencia
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.palette, color: colorScheme.primary),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Apariencia',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: SegmentedButton<ThemeMode>(
+                      segments: const [
+                        ButtonSegment(
+                          value: ThemeMode.system,
+                          icon: Icon(Icons.settings),
+                          label: Text('Sistema'),
+                        ),
+                        ButtonSegment(
+                          value: ThemeMode.light,
+                          icon: Icon(Icons.wb_sunny),
+                          label: Text('Claro'),
+                        ),
+                        ButtonSegment(
+                          value: ThemeMode.dark,
+                          icon: Icon(Icons.nightlight_round),
+                          label: Text('Oscuro'),
+                        ),
+                      ],
+                      selected: {context.watch<ThemeProvider>().themeMode},
+                      onSelectionChanged: (Set<ThemeMode> newSelection) {
+                        context.read<ThemeProvider>().setThemeMode(newSelection.first);
+                      },
+                      style: ButtonStyle(
+                        side: MaterialStateProperty.all(BorderSide(color: colorScheme.outlineVariant.withOpacity(0.5))),
+                      ),
+                    ),
                   ),
                 ],
               ),

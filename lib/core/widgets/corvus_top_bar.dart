@@ -63,9 +63,9 @@ class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
             child: GestureDetector(
               onTap: () {
                 if (authProvider.role == 'PROFESOR') {
-                  context.push('/prof-profile');
-                } else {
-                  context.push('/profile');
+                  if (GoRouterState.of(context).matchedLocation != '/prof-profile') {
+                    context.push('/prof-profile');
+                  }
                 }
               },
               child: CircleAvatar(
@@ -80,9 +80,9 @@ class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
             child: GestureDetector(
               onTap: () {
                 if (authProvider.role == 'PROFESOR') {
-                  context.push('/prof-profile');
-                } else {
-                  context.push('/profile');
+                  if (GoRouterState.of(context).matchedLocation != '/prof-profile') {
+                    context.push('/prof-profile');
+                  }
                 }
               },
               child: const CircleAvatar(
