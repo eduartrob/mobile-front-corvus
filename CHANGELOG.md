@@ -1,6 +1,15 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2026-06-27
+### Added
+- **Compliance**: Added INAI compliance (Derechos ARCO) and Google OAuth Limited Use policy to the Landing Page legal agreements to unblock Google App Verification.
+- **UI Metrics**: Implemented dynamic colors and detailed explanations for semantic collision risk alerts (e.g., green UI for "Falsa Alarma") in `DetailedAnalysisWidget`.
+
+### Changed
+- **Architecture**: Modularized monolithic pages (specifically `my_project_page.dart`) by extracting massive builder methods into localized feature widgets following Clean Architecture principles (`pages/`, `widgets/`, `providers/`).
+- **Security**: Renamed production Keystore alias from `upload` to `corvus` in `key.properties` for production release signing.
+
 ## [1.1.1] - 2026-06-24
 ### Changed
 - **UX**: Simulated Google Drive Sync progress bar (`NotificationService`) locally in `prof_profile_page.dart` for the MVP presentation to prevent UI freezes, compensating for the lack of FCM infrastructure in the backend.

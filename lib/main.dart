@@ -74,10 +74,8 @@ void main() async {
     ),
   );
 
-  // Inicializar Notificaciones y Auth EN SEGUNDO PLANO (no bloquea el primer frame)
-  NotificationService().init().then((_) {
-    NotificationService().requestPermission();
-  });
+  // Inicializar Notificaciones EN SEGUNDO PLANO (no bloquea el primer frame)
+  NotificationService().init();
 
   // Verificar sesión guardada de forma asíncrona — la UI maneja el estado loading
   authProvider.checkAuthStatus().then((_) {
