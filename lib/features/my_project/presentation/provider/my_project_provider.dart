@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
@@ -148,9 +149,16 @@ class MyProjectProvider extends ChangeNotifier {
       notifyListeners();
       
     } catch (e) {
-      final errorStr = e.toString().replaceAll('Exception: ', '').replaceAll('Exception ', '');
+      String errorStr = e.toString().replaceAll('Exception: ', '').replaceAll('Exception ', '');
       
-      if (errorStr.contains('no parece ser') || errorStr.contains('Tu propuesta es válida')) {
+      try {
+        final decoded = jsonDecode(errorStr);
+        if (decoded is Map && decoded.containsKey('detail')) {
+          errorStr = decoded['detail'];
+        }
+      } catch (_) {}
+      
+      if (errorStr.contains('no parece ser') || errorStr.contains('Tu propuesta es válida') || errorStr.contains('Faltan secciones obligatorias')) {
         _documentTypeError = errorStr;
         await _notificationService.showResultNotification(l10n.notifErrorTitle, errorStr);
       } else {
