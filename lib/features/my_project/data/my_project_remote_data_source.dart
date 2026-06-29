@@ -37,7 +37,13 @@ class MyProjectRemoteDataSource {
       if (response.statusCode == 200 || response.statusCode == 201) {
         return json.decode(utf8.decode(response.bodyBytes));
       } else {
-        throw Exception('Error en la pre-validación: ${response.body}');
+        final bodyText = utf8.decode(response.bodyBytes);
+        try {
+          final errorJson = json.decode(bodyText);
+          throw Exception(errorJson['detail'] ?? errorJson['message'] ?? bodyText);
+        } catch (_) {
+          throw Exception(bodyText);
+        }
       }
     } catch (e) {
       final msg = e.toString().replaceAll('Exception: ', '');
@@ -64,7 +70,13 @@ class MyProjectRemoteDataSource {
         }
         return data;
       } else {
-        throw Exception('Error al consultar borrador: ${response.body}');
+        final bodyText = utf8.decode(response.bodyBytes);
+        try {
+          final errorJson = json.decode(bodyText);
+          throw Exception(errorJson['detail'] ?? errorJson['message'] ?? 'Error al consultar borrador');
+        } catch (_) {
+          throw Exception('Error al consultar borrador');
+        }
       }
     } catch (e) {
       throw Exception('Error de conexión: $e');

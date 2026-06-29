@@ -92,12 +92,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         });
       } else {
         final jsonResponse = jsonDecode(response.body);
-        final error = jsonResponse['error'] ?? 'Error del servidor';
-        throw Exception('Error del backend: $error');
+        var error = jsonResponse['error'] ?? jsonResponse['message'] ?? jsonResponse['detail'] ?? 'Error del servidor';
+        if (error is Map) {
+          error = error['message'] ?? error['detail'] ?? error.toString();
+        }
+        throw Exception(error.toString());
       }
     } catch (e) {
       await _googleSignIn.signOut();
-      throw Exception('Fallo al iniciar sesión con Google: $e');
+      final msg = e.toString().replaceAll('Exception: ', '');
+      throw Exception(msg);
     }
   }
 

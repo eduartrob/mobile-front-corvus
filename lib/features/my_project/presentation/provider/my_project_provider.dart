@@ -124,7 +124,7 @@ class MyProjectProvider extends ChangeNotifier {
         await _preValidate(userId, l10n);
       }
     } catch (e) {
-      _errorMessage = 'Error seleccionando archivo: $e';
+      _errorMessage = 'Error seleccionando archivo: ${e.toString().replaceAll('Exception: ', '')}';
       _state = ProjectState.error;
       notifyListeners();
     }
@@ -148,13 +148,14 @@ class MyProjectProvider extends ChangeNotifier {
       notifyListeners();
       
     } catch (e) {
-      final errorStr = e.toString();
-      await _notificationService.showResultNotification(l10n.notifErrorTitle, l10n.notifPreValidFailed);
+      final errorStr = e.toString().replaceAll('Exception: ', '').replaceAll('Exception ', '');
       
-      if (errorStr.contains('no parece ser una propuesta')) {
-        _documentTypeError = errorStr.replaceAll('Exception: ', '');
+      if (errorStr.contains('no parece ser') || errorStr.contains('Tu propuesta es válida')) {
+        _documentTypeError = errorStr;
+        await _notificationService.showResultNotification(l10n.notifErrorTitle, errorStr);
       } else {
         _errorMessage = 'Error en validación rápida: $errorStr';
+        await _notificationService.showResultNotification(l10n.notifErrorTitle, l10n.notifPreValidFailed);
       }
       
       _state = ProjectState.error;
