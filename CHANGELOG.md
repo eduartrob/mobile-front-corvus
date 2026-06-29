@@ -2,12 +2,7 @@
 All notable changes to this project will be documented in this file.
 ## [1.2.7] - 2026-06-29
 ### Changed
-- **Arquitectura — Refactorización UI (Feature-First)**: Se extrajeron los componentes pesados (*God Classes*) de la capa de presentación hacia widgets atómicos `const` independientes para mejorar el rendimiento de renderizado en Flutter y facilitar la escalabilidad del código.
-- Se refactorizó `prof_profile_page.dart` (Perfil del Profesor): Extracción de `ProfHeaderInfo`, `ProfStatsCard` y `DriveSyncModal`.
-- Se refactorizó `profile_page.dart` (Perfil del Alumno): Extracción de `StudentHeaderInfo`, `StudentStatsCard` y `TechnicalSkillsSection`.
-- Se refactorizó `teams_page.dart` (Equipos): Extracción de `TeamMembersList` y `TeamAiAssistantCard`.
-- Se refactorizó `detailed_analysis_widget.dart` (Análisis de Proyecto): Extracción de `InnovationCard`, `MetricsCard` y `RiskCard`.
-- Se refactorizó `blue_ocean_detail_page.dart` (Océano Azul): Extracción de componentes privados hacia `SugerenciasCard` y `BlueOceanHeader`.
+- **Arquitectura y Rendimiento**: Se modularizó toda la capa de presentación (Perfiles, Equipos, Análisis de Proyecto y Océano Azul) dividiendo clases pesadas en componentes atómicos. Esto optimiza el consumo de batería y la velocidad de renderizado de la app.
 - **Version**: Bumped from `1.2.6+9` to `1.2.7+10`.
 
 
