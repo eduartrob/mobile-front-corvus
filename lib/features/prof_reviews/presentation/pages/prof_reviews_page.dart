@@ -1,12 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/core/widgets/corvus_top_bar.dart';
+import 'package:mobile/shared/widgets/corvus_top_bar.dart';
+import 'package:mobile/l10n/app_localizations.dart';
 
 class ProfReviewsPage extends StatelessWidget {
   const ProfReviewsPage({super.key});
 
+  void _showUpcomingFeature(BuildContext context, AppLocalizations l10n) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.featureUpcoming),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: const CorvusTopBar(),
@@ -63,7 +76,6 @@ class ProfReviewsPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 
-                // Resumen de IA Card
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
@@ -155,12 +167,11 @@ class ProfReviewsPage extends StatelessWidget {
                   ),
                 ),
                 
-                const SizedBox(height: 150), // Espacio para los botones flotantes
+                const SizedBox(height: 150),
               ],
             ),
           ),
           
-          // Botones inferiores flotantes (pegados abajo como en la captura)
           Positioned(
             bottom: 0,
             left: 0,
@@ -187,9 +198,9 @@ class ProfReviewsPage extends StatelessWidget {
                     width: double.infinity,
                     height: 45,
                     child: OutlinedButton.icon(
-                      onPressed: () {},
+                      onPressed: () => _showUpcomingFeature(context, l10n),
                       icon: const Icon(Icons.person_add_alt_1),
-                      label: const Text('Citar Equipo'),
+                      label: Text(l10n.citeTeam),
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(color: colorScheme.outlineVariant),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -203,9 +214,9 @@ class ProfReviewsPage extends StatelessWidget {
                         child: SizedBox(
                           height: 45,
                           child: ElevatedButton.icon(
-                            onPressed: () {},
+                            onPressed: () => _showUpcomingFeature(context, l10n),
                             icon: const Icon(Icons.close),
-                            label: const Text('Rechazar'),
+                            label: Text(l10n.reject),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: colorScheme.error,
                               foregroundColor: colorScheme.onError,
@@ -219,9 +230,9 @@ class ProfReviewsPage extends StatelessWidget {
                         child: SizedBox(
                           height: 45,
                           child: ElevatedButton.icon(
-                            onPressed: () {},
+                            onPressed: () => _showUpcomingFeature(context, l10n),
                             icon: const Icon(Icons.check),
-                            label: const Text('Aprobar'),
+                            label: Text(l10n.approve),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: colorScheme.primary,
                               foregroundColor: colorScheme.onPrimary,

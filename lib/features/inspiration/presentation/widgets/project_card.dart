@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/inspiration/domain/entities/project_entity.dart';
+import 'package:mobile/features/inspiration/presentation/provider/inspiration_provider.dart';
 import 'package:mobile/features/inspiration/presentation/widgets/glass_container.dart';
+import 'package:mobile/features/inspiration/presentation/pages/blue_ocean_detail_page.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 
 class ProjectCard extends StatelessWidget {
@@ -17,174 +21,394 @@ class ProjectCard extends StatelessWidget {
     }
   }
 
+  Color _viewCountColor(BuildContext context) {
+    if (project.isTrending) return Colors.orange.shade600;
+    if (project.viewCount < 10) return Colors.teal.shade600;
+    return Theme.of(context).colorScheme.onSurfaceVariant;
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
+    final bool isTrending = project.isTrending;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
-      child: GlassContainer(
-        blur: 0, // Desactivar el blur pesado para cada tarjeta
-        opacity: 0.5,
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          GlassContainer(
+            blur: 0,
+            opacity: 0.5,
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: colorScheme.secondaryContainer.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: colorScheme.secondaryContainer.withOpacity(0.5)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        _getIconData(project.categoryIcon),
-                        size: 14,
-                        color: colorScheme.secondary,
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: colorScheme.secondaryContainer.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: colorScheme.secondaryContainer.withOpacity(0.5)),
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        project.category,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: colorScheme.secondary,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
-                  ),
-                  child: Text(
-                    project.status,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: colorScheme.onSurfaceVariant,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              project.title,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                height: 1.2,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              project.description,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 14,
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                SizedBox(
-                  width: 100,
-                  height: 32,
-                  child: Stack(
-                    children: [
-                      for (int i = 0; i < project.userAvatars.length; i++)
-                        Positioned(
-                          left: i * 20.0,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(color: colorScheme.surfaceContainerHigh, width: 2),
-                            ),
-                            child: CircleAvatar(
-                              radius: 14,
-                              backgroundImage: NetworkImage(project.userAvatars[i]),
-                            ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(_getIconData(project.categoryIcon), size: 14, color: colorScheme.secondary),
+                          const SizedBox(width: 4),
+                          Text(
+                            project.category == 'INNOVACIÓN ACADÉMICA' ? l10n.blueOceanGenericCategory : project.category,
+                            style: TextStyle(fontSize: 12, color: colorScheme.secondary, fontWeight: FontWeight.w500),
                           ),
-                        ),
-                      Positioned(
-                        left: project.userAvatars.length * 20.0,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: colorScheme.surfaceContainerHigh, width: 2),
-                          ),
-                          child: CircleAvatar(
-                            radius: 14,
-                            backgroundColor: colorScheme.surfaceContainerHighest,
-                            child: Text(
-                              '+${(project.id == '1') ? 3 : (project.id == '2') ? 1 : 2}',
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                InkWell(
-                  onTap: () {},
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          colorScheme.secondaryContainer,
-                          colorScheme.primary,
                         ],
                       ),
-                      borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          l10n.explore,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 14,
+                    
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: isTrending ? Colors.orange.withOpacity(0.15) : colorScheme.tertiaryContainer.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: isTrending ? Colors.orange.withOpacity(0.5) : colorScheme.tertiaryContainer.withOpacity(0.5)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(isTrending ? Icons.local_fire_department : Icons.insights, size: 14, color: isTrending ? Colors.orange.shade600 : colorScheme.tertiary),
+                          const SizedBox(width: 4),
+                          Text(
+                            isTrending ? 'Trending' : (project.status == 'Océano Azul Real' ? l10n.blueOceanGenericTag : project.status),
+                            style: TextStyle(fontSize: 12, color: isTrending ? Colors.orange.shade800 : colorScheme.tertiary, fontWeight: FontWeight.bold),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        const Icon(
-                          Icons.arrow_forward,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
+                    if (!isTrending && project.viewCount < 10)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.teal.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.teal.withOpacity(0.4)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text('🌊', style: TextStyle(fontSize: 11)),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Océano Virgen',
+                              style: TextStyle(fontSize: 11, color: Colors.teal.shade700, fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+
+                const SizedBox(height: 16),
+
+                Text(
+                  project.title,
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, height: 1.2),
+                ),
+                const SizedBox(height: 8),
+
+                Text(
+                  project.description.startsWith('Este proyecto ha sido clasificado') 
+                      ? l10n.blueOceanGenericDesc 
+                      : project.description,
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 14, color: colorScheme.onSurfaceVariant),
+                ),
+
+                const SizedBox(height: 16),
+                const Divider(height: 1, thickness: 0.5),
+                const SizedBox(height: 12),
+
+                Row(
+                  children: [
+                    _ViewersAndCountRow(
+                      viewers: project.recentViewers, 
+                      totalViews: project.viewCount,
+                      isTrending: isTrending,
+                    ),
+
+                    const Spacer(),
+
+                    InkWell(
+                      onTap: () async {
+                        if (project.analysisStatus == 'pending') {
+                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text('La IA está generando el análisis detallado. Vuelve en un momento.'),
+                              behavior: SnackBarBehavior.floating,
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                          return;
+                        }
+
+                        final authProvider = context.read<AuthProvider>();
+                        final avatarUrl = authProvider.currentUser?.photoUrl;
+                        final provider = context.read<InspirationProvider>();
+                        
+                        final rootNavigator = Navigator.of(context, rootNavigator: true);
+                        final localNavigator = Navigator.of(context);
+                        final scaffoldMessenger = ScaffoldMessenger.of(context);
+                        
+                        ProjectEntity? projectToNav = project;
+
+                        if (project.analysisData == null) {
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            useRootNavigator: true,
+                            builder: (c) => Center(
+                              child: Container(
+                                padding: const EdgeInsets.all(24),
+                                decoration: BoxDecoration(
+                                  color: colorScheme.surface,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: const CircularProgressIndicator(),
+                              ),
+                            ),
+                          );
+                          
+                          projectToNav = await provider.trackNicheView(project.id, avatarUrl);
+                          
+                          rootNavigator.pop();
+                        } else {
+                          provider.trackNicheView(project.id, avatarUrl);
+                        }
+
+                        if (projectToNav != null) {
+                          localNavigator.push(
+                            MaterialPageRoute(
+                              builder: (context) => BlueOceanDetailPage(project: projectToNav!),
+                            ),
+                          );
+                        } else {
+                          scaffoldMessenger.showSnackBar(
+                            const SnackBar(content: Text('Error al cargar los detalles. Intenta de nuevo.')),
+                          );
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(8),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (project.analysisStatus == 'pending') ...[
+                              Text(
+                                'Generando...',
+                                style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13, fontStyle: FontStyle.italic),
+                              ),
+                              const SizedBox(width: 4),
+                              SizedBox(
+                                width: 12, height: 12,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: colorScheme.onSurfaceVariant),
+                              )
+                            ] else ...[
+                              Text(
+                                l10n.explore,
+                                style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 0.5),
+                              ),
+                              const SizedBox(width: 4),
+                              Icon(Icons.arrow_forward, color: colorScheme.primary, size: 16),
+                            ]
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
+            ),
+          ),
+
+          if (isTrending)
+            Positioned(
+              top: -10,
+              right: 12,
+              child: _TrendingBadge(viewCount: project.viewCount),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// -# 
+class _TrendingBadge extends StatelessWidget {
+  final int viewCount;
+  const _TrendingBadge({required this.viewCount});
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.8, end: 1.0),
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.elasticOut,
+      builder: (context, scale, child) => Transform.scale(scale: scale, child: child),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.orange.shade700, Colors.deepOrange.shade500],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.orange.withOpacity(0.4),
+              blurRadius: 8,
+              spreadRadius: 1,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('🔥', style: TextStyle(fontSize: 13)),
+            const SizedBox(width: 4),
+            Text(
+              'Trending · $viewCount vistas',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.3,
+              ),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+// -# 
+class _ViewersAndCountRow extends StatelessWidget {
+  final List<String> viewers;
+  final int totalViews;
+  final bool isTrending;
+  
+  const _ViewersAndCountRow({
+    required this.viewers,
+    required this.totalViews,
+    required this.isTrending,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
+    if (totalViews == 0) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.visibility_off_outlined, size: 16, color: colorScheme.onSurfaceVariant.withOpacity(0.5)),
+          const SizedBox(width: 6),
+          Text(
+            '0',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: colorScheme.onSurfaceVariant.withOpacity(0.6),
+            ),
+          ),
+        ],
+      );
+    }
+
+    final displayViewers = viewers.take(3).toList();
+    final remainingViews = totalViews - displayViewers.length;
+    final showRemaining = remainingViews > 0;
+    
+    const avatarSize = 24.0;
+    const overlap = 16.0;
+    
+    final totalElements = displayViewers.length + (showRemaining ? 1 : 0);
+    final rowWidth = avatarSize + (totalElements > 0 ? (totalElements - 1) * overlap : 0);
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          width: rowWidth,
+          height: avatarSize,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              for (int i = 0; i < displayViewers.length; i++)
+                Positioned(
+                  left: i * overlap,
+                  child: Container(
+                    width: avatarSize,
+                    height: avatarSize,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: colorScheme.surface, width: 2),
+                      image: DecorationImage(
+                        image: NetworkImage(displayViewers[i]),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+                
+              if (showRemaining)
+                Positioned(
+                  left: displayViewers.length * overlap,
+                  child: Container(
+                    width: avatarSize,
+                    height: avatarSize,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: isTrending ? Colors.orange.shade50 : colorScheme.surfaceContainerHigh,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: colorScheme.surface, width: 2),
+                    ),
+                    child: Text(
+                      '+$remainingViews',
+                      style: TextStyle(
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                        color: isTrending ? Colors.orange.shade800 : colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        
+        if (isTrending) ...[
+          const SizedBox(width: 8),
+          const Text('🔥', style: TextStyle(fontSize: 14)),
+          const SizedBox(width: 2),
+          Text(
+            'Trending',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              color: Colors.orange.shade800,
+            ),
+          ),
+        ]
+      ],
     );
   }
 }

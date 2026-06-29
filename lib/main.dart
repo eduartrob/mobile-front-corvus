@@ -4,27 +4,54 @@ import 'package:mobile/app.dart';
 import 'package:mobile/core/di/di.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/features/prof_profile/presentation/provider/linked_folders_provider.dart';
 import 'package:mobile/features/inspiration/presentation/provider/inspiration_provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:mobile/core/services/notification_service.dart';
+import 'package:mobile/firebase_options.dart';
+import 'package:mobile/core/theme/theme_provider.dart';
+import 'package:mobile/core/services/firebase_messaging_handler.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Inicializar inyección de dependencias
+
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    FirebaseMessaging.onMessage.listen(handleFCMMessage);
+  } catch (e) {
+    debugPrint('Firebase no inicializado: Ejecuta flutterfire configure');
+  }
+
   setupDependencies();
-  
-  // Crear el AuthProvider desde el Service Locator
+
   final authProvider = sl<AuthProvider>();
+  final linkedFoldersProvider = LinkedFoldersProvider();
   
-  // Verificar el token guardado ANTES de correr la app (este es tu Splash invisible)
-  await authProvider.checkAuthStatus();
+  final themeProvider = ThemeProvider();
+  await themeProvider.init();
 
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: authProvider),
+        ChangeNotifierProvider.value(value: linkedFoldersProvider),
+        ChangeNotifierProvider.value(value: themeProvider),
         ChangeNotifierProvider(create: (_) => InspirationProvider()),
       ],
       child: const MyApp(),
     ),
   );
+
+  NotificationService().init();
+
+  authProvider.checkAuthStatus().then((_) {
+    final jwtToken = authProvider.currentUser?.token;
+    if (jwtToken != null) {
+      linkedFoldersProvider.loadFolders(jwtToken);
+    }
+  });
 }

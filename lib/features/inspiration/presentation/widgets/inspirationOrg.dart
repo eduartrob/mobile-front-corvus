@@ -1,10 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/l10n/app_localizations.dart';
 
 class InspirationOrg extends StatelessWidget {
   const InspirationOrg({super.key});
 
+  void _showUpcomingFeature(BuildContext context, AppLocalizations l10n) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.featureUpcoming),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: const Color(0xFF121827),
       appBar: AppBar(
@@ -27,7 +41,7 @@ class InspirationOrg extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.search, color: Colors.white70),
-            onPressed: () {},
+            onPressed: () => _showUpcomingFeature(context, l10n),
           ),
         ],
         bottom: PreferredSize(
@@ -44,7 +58,6 @@ class InspirationOrg extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Badges
               Row(
                 children: [
                   Container(
@@ -87,7 +100,7 @@ class InspirationOrg extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
-              // Big Title
+              // -# big title
               const Text(
                 'Análisis de Innovación',
                 style: TextStyle(
@@ -98,7 +111,7 @@ class InspirationOrg extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              // Subtitle
+              // -# subtitle
               const Text(
                 'Evaluación estratégica de viabilidad y originalidad para un potencial tema de tesis o proyecto de investigación en la región sureste de México.',
                 style: TextStyle(
@@ -109,7 +122,6 @@ class InspirationOrg extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               
-              // Hallazgo Principal
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
@@ -179,7 +191,6 @@ class InspirationOrg extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // Sugerencias de Abordaje Metodológico
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
@@ -293,7 +304,6 @@ class InspirationOrg extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // Métricas de Viabilidad
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
@@ -322,11 +332,10 @@ class InspirationOrg extends StatelessWidget {
                     _buildMetricBar('Relevancia Académica', 0.88, '88%', const Color(0xFF10B981)),
                     
                     const SizedBox(height: 24),
-                    // Botones
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () => _showUpcomingFeature(context, l10n),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF6A00FF),
                           padding: const EdgeInsets.symmetric(vertical: 14),
@@ -351,7 +360,7 @@ class InspirationOrg extends StatelessWidget {
                     SizedBox(
                       width: double.infinity,
                       child: OutlinedButton(
-                        onPressed: () {},
+                        onPressed: () => _showUpcomingFeature(context, l10n),
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: Color(0xFF6A00FF)),
                           padding: const EdgeInsets.symmetric(vertical: 14),

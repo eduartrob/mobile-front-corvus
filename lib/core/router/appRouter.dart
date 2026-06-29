@@ -20,8 +20,10 @@ import 'package:mobile/core/router/prof_main_layout.dart';
 
 class AppRouter extends StatelessWidget {
   final ThemeData? appTheme;
+  final ThemeData? darkTheme;
+  final ThemeMode? themeMode;
 
-  const AppRouter({super.key, this.appTheme});
+  const AppRouter({super.key, this.appTheme, this.darkTheme, this.themeMode});
 
   @override
   Widget build(BuildContext context) {
@@ -31,8 +33,6 @@ class AppRouter extends StatelessWidget {
       initialLocation: '/',
       debugLogDiagnostics: true,
       
-      // RefreshListenable hace que GoRouter reevalúe el redirect 
-      // cada vez que AuthProvider notifica un cambio (notifyListeners)
       refreshListenable: authProvider,
 
       redirect: (context, state) {
@@ -47,12 +47,11 @@ class AppRouter extends StatelessWidget {
           return '/';
         }
 
-        // Si SI está autenticado y está intentando ir al Login, lo mandamos a la ruta según su rol.
         if (authStatus == AuthStatus.authenticated && isGoingToLogin) {
           if (authProvider.role == 'PROFESOR') {
             return '/prof-dash';
           }
-          return '/inspiration'; // Por defecto o ALUMNO
+          return '/inspiration';
         }
 
         return null;
@@ -103,9 +102,6 @@ class AppRouter extends StatelessWidget {
           ],
         ),
 
-        // -----------------------------------------
-        // RUTAS DEL PROFESOR (ProfMainLayout)
-        // -----------------------------------------
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) {
             return ProfMainLayout(navigationShell: navigationShell);
@@ -143,15 +139,12 @@ class AppRouter extends StatelessWidget {
                 ),
               ],
             ),
-            StatefulShellBranch(
-              routes: [
-                GoRoute(
-                  path: '/prof-profile',
-                  builder: (context, state) => const ProfProfilePage(),
-                ),
-              ],
-            ),
           ],
+        ),
+        
+        GoRoute(
+          path: '/prof-profile',
+          builder: (context, state) => const ProfProfilePage(),
         ),
       ],
     );
@@ -160,6 +153,8 @@ class AppRouter extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Corvus',
       theme: appTheme ?? ThemeData.light(),
+      darkTheme: darkTheme ?? ThemeData.dark(),
+      themeMode: themeMode ?? ThemeMode.light,
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,

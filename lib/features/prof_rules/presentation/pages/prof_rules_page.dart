@@ -1,12 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/core/widgets/corvus_top_bar.dart';
+import 'package:mobile/shared/widgets/corvus_top_bar.dart';
+import 'package:mobile/l10n/app_localizations.dart';
 
 class ProfRulesPage extends StatelessWidget {
   const ProfRulesPage({super.key});
 
+  void _showUpcomingFeature(BuildContext context, AppLocalizations l10n) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.featureUpcoming),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: const CorvusTopBar(),
@@ -42,7 +55,6 @@ class ProfRulesPage extends StatelessWidget {
             ),
             const SizedBox(height: 32),
             
-            // Añadir Regla Form
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
@@ -121,9 +133,9 @@ class ProfRulesPage extends StatelessWidget {
                     width: double.infinity,
                     height: 45,
                     child: ElevatedButton.icon(
-                      onPressed: () {},
+                      onPressed: () => _showUpcomingFeature(context, l10n),
                       icon: const Icon(Icons.save),
-                      label: const Text('Registrar Regla', style: TextStyle(fontWeight: FontWeight.bold)),
+                      label: Text(l10n.registerRule, style: const TextStyle(fontWeight: FontWeight.bold)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: colorScheme.primary,
                         foregroundColor: colorScheme.onPrimary,
@@ -139,7 +151,6 @@ class ProfRulesPage extends StatelessWidget {
             
             const SizedBox(height: 24),
             
-            // Info Card
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -180,7 +191,7 @@ class ProfRulesPage extends StatelessWidget {
               ),
             ),
             
-            const SizedBox(height: 100), // Spacing for bottom nav
+            const SizedBox(height: 100),
           ],
         ),
       ),

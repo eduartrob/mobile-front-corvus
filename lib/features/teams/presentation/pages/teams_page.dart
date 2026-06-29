@@ -1,14 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/core/widgets/corvus_top_bar.dart';
+import 'package:mobile/shared/widgets/corvus_top_bar.dart';
+import 'package:mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/features/teams/presentation/widgets/team_member_card.dart';
 
 class TeamsPage extends StatelessWidget {
   const TeamsPage({super.key});
 
+  void _showUpcomingFeature(BuildContext context, AppLocalizations l10n) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.featureUpcoming),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
     final user = context.watch<AuthProvider>().currentUser;
     final myAvatarUrl = user?.photoUrl ?? 'https://lh3.googleusercontent.com/aida-public/AB6AXuD0wLXmNJdheSLYRV0cyw58WRptbP7Tcpj2DYe6d6sJQiytU6tgetCYTsh4-Ov0geC0LLapbMasxnzTMELIMNsnayUh4N9TGK5De10d2W71dWF73JXTBHyjaWFa07BYB77_vkOYSDrr-SvtGzREIK2cHWLZNpEc3oBxuPIFF5-lfeKEPSrbyfJCy2PIjLahEVgXVyF24D6pU3BzhZ6AQHJgFgzuPc1CohlsoHoMho2D-B73NSq78KXkdfio1LlxfaQz9d9DTHm2BG0';
 
@@ -20,7 +34,7 @@ class TeamsPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Gestión de Equipo',
+              l10n.teamManagementTitle,
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -29,7 +43,7 @@ class TeamsPage extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'Proyecto Final: "Implementación de RAG para Análisis Documental". Administra los miembros de tu grupo de investigación.',
+              l10n.teamManagementDesc,
               style: TextStyle(
                 fontSize: 14,
                 color: colorScheme.onSurfaceVariant,
@@ -38,11 +52,10 @@ class TeamsPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             
-            // Badge Equipo Completo
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: colorScheme.primary.withOpacity(0.15),
+                color: colorScheme.primary.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Row(
@@ -58,7 +71,7 @@ class TeamsPage extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Equipo Completo',
+                    l10n.teamFull,
                     style: TextStyle(
                       color: colorScheme.primary,
                       fontWeight: FontWeight.w500,
@@ -78,23 +91,22 @@ class TeamsPage extends StatelessWidget {
             
             const SizedBox(height: 32),
             
-            // Header Integrantes
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Integrantes',
-                  style: TextStyle(
+                Text(
+                  l10n.members,
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 TextButton.icon(
-                  onPressed: () {},
+                  onPressed: () => _showUpcomingFeature(context, l10n),
                   icon: const Icon(Icons.person_add_alt_1, size: 18),
-                  label: const Text('Gestionar'),
+                  label: Text(l10n.manage),
                   style: TextButton.styleFrom(
-                    backgroundColor: colorScheme.primary.withOpacity(0.1),
+                    backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
                     foregroundColor: colorScheme.primary,
                   ),
                 ),
@@ -102,9 +114,7 @@ class TeamsPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             
-            // Lista de Integrantes
-            _buildMemberCard(
-              context,
+            TeamMemberCard(
               avatarUrl: myAvatarUrl,
               name: user?.name ?? 'Alex Rivera',
               email: user?.email ?? 'arivera@university.edu',
@@ -112,15 +122,13 @@ class TeamsPage extends StatelessWidget {
               isMe: true,
             ),
             const SizedBox(height: 12),
-            _buildMemberCard(
-              context,
+            TeamMemberCard(
               avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBXgTC4DnAYNbbZqJiR2_eXQVjVBBU9UAfGrdGXOt0kuaQU0pB6NC2VA430rwd4RXjZ_hC5Hfq92mwXe2lxvfwHF5PEWKa6lPQkYXOsjQVHelRTzu19Dvk4rGSpIO4madR4j--BNrWFv3pXGHVjKPbA1Gwxzy-16impgeDJrVMZ3ur9i2TBCFnRgU_T3BSzAWjaze7feR8wzo2PmgLdiKJ29z5fHVKDnAVOwtf1F07fAyiIjCOTBsgAtrbB2A7g3j41-3bOoHBHjQM',
               name: 'Elena Morales',
               email: 'emorales@university.edu',
             ),
             const SizedBox(height: 12),
-            _buildMemberCard(
-              context,
+            TeamMemberCard(
               avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCrL7ehJPOSPFx9kjB2ZvERwzM3OMH8QIwIepB1EPeDn4nneI-XG4DzjJS4U4PbpYTnR-4eZt0JNAZodSqDIh8ddQ5DaGmmlhQ0oR-bgeevIdAUyjzJPhUB5ensFdryjBeIM5P_3kvP1jO2wq1hVCHPr6ZEuQzqa2_Vs_MnF2jOpDPQtSSBSbCbNl7YS_wCAsLGUTPVjepr0lY4VoAGE3GAa5EdTE-XhuxekDzHw7L5qtKjFrupUbS_x0d3pjJUISMHWC_oG_ayC_8',
               name: 'David Chen',
               email: 'dchen@university.edu',
@@ -128,13 +136,12 @@ class TeamsPage extends StatelessWidget {
             
             const SizedBox(height: 32),
             
-            // Invitaciones Pendientes
             Row(
               children: [
                 Icon(Icons.mail_outline, size: 20, color: colorScheme.onSurfaceVariant),
                 const SizedBox(width: 8),
                 Text(
-                  'Invitaciones Pendientes',
+                  l10n.pendingInvitations,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -147,9 +154,9 @@ class TeamsPage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+                border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -163,7 +170,7 @@ class TeamsPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Hace 2 días',
+                        l10n.twoDaysAgo,
                         style: TextStyle(
                           fontSize: 12,
                           color: colorScheme.onSurfaceVariant,
@@ -172,7 +179,7 @@ class TeamsPage extends StatelessWidget {
                     ],
                   ),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () => _showUpcomingFeature(context, l10n),
                     icon: Icon(Icons.close, color: colorScheme.onSurfaceVariant),
                   ),
                 ],
@@ -180,7 +187,7 @@ class TeamsPage extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'El equipo está lleno. Cancela una invitación para invitar a alguien más.',
+              l10n.teamFullInviteNotice,
               style: TextStyle(
                 fontSize: 12,
                 color: colorScheme.onSurfaceVariant,
@@ -190,7 +197,6 @@ class TeamsPage extends StatelessWidget {
             
             const SizedBox(height: 32),
             
-            // AI Assistant Card
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
@@ -198,15 +204,15 @@ class TeamsPage extends StatelessWidget {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    colorScheme.surfaceContainerHigh.withOpacity(0.8),
-                    colorScheme.surface.withOpacity(0.9),
+                    colorScheme.surfaceContainerHigh.withValues(alpha: 0.8),
+                    colorScheme.surface.withValues(alpha: 0.9),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: colorScheme.primary.withOpacity(0.3)),
+                border: Border.all(color: colorScheme.primary.withValues(alpha: 0.3)),
                 boxShadow: [
                   BoxShadow(
-                    color: colorScheme.primary.withOpacity(0.05),
+                    color: colorScheme.primary.withValues(alpha: 0.05),
                     blurRadius: 20,
                     spreadRadius: 5,
                   ),
@@ -236,12 +242,12 @@ class TeamsPage extends StatelessWidget {
                         color: colorScheme.onSurface,
                         height: 1.5,
                       ),
-                      children: const [
-                        TextSpan(text: 'Basado en los perfiles de tu equipo, tienen una '),
-                        TextSpan(text: 'fuerte cobertura', style: TextStyle(fontWeight: FontWeight.bold)),
-                        TextSpan(text: ' en Backend y Frontend. Se sugiere asignar tareas de '),
-                        TextSpan(text: 'documentación y pruebas unitarias', style: TextStyle(fontWeight: FontWeight.bold)),
-                        TextSpan(text: ' equitativamente para el próximo sprint.'),
+                      children: [
+                        TextSpan(text: l10n.aiAssistantTeamSuggestionSpan1),
+                        TextSpan(text: l10n.aiAssistantTeamSuggestionSpan2, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(text: l10n.aiAssistantTeamSuggestionSpan3),
+                        TextSpan(text: l10n.aiAssistantTeamSuggestionSpan4, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(text: l10n.aiAssistantTeamSuggestionSpan5),
                       ],
                     ),
                   ),
@@ -250,9 +256,9 @@ class TeamsPage extends StatelessWidget {
                     width: double.infinity,
                     height: 45,
                     child: ElevatedButton.icon(
-                      onPressed: () {},
+                      onPressed: () => _showUpcomingFeature(context, l10n),
                       icon: const Icon(Icons.arrow_forward, size: 18),
-                      label: const Text('Generar Plan de Trabajo'),
+                      label: Text(l10n.generateWorkPlan),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: colorScheme.primary,
                         foregroundColor: colorScheme.onPrimary,
@@ -268,17 +274,16 @@ class TeamsPage extends StatelessWidget {
             
             const SizedBox(height: 40),
             
-            // Salir del equipo
             SizedBox(
               width: double.infinity,
               height: 50,
               child: OutlinedButton.icon(
-                onPressed: () {},
+                onPressed: () => _showUpcomingFeature(context, l10n),
                 icon: const Icon(Icons.logout),
-                label: const Text('Salir del equipo'),
+                label: Text(l10n.leaveTeam),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: colorScheme.error,
-                  side: BorderSide(color: colorScheme.error.withOpacity(0.5)),
+                  side: BorderSide(color: colorScheme.error.withValues(alpha: 0.5)),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -286,106 +291,9 @@ class TeamsPage extends StatelessWidget {
               ),
             ),
             
-            const SizedBox(height: 100), // Spacing for bottom nav
+            const SizedBox(height: 100),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildMemberCard(
-    BuildContext context, {
-    required String avatarUrl,
-    required String name,
-    required String email,
-    bool isLeader = false,
-    bool isMe = false,
-  }) {
-    final colorScheme = Theme.of(context).colorScheme;
-    
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: isMe ? colorScheme.primary.withOpacity(0.05) : colorScheme.surfaceContainerHighest.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isMe ? colorScheme.primary.withOpacity(0.5) : colorScheme.outlineVariant.withOpacity(0.3),
-        ),
-      ),
-      child: Row(
-        children: [
-          Stack(
-            children: [
-              CircleAvatar(
-                radius: 24,
-                backgroundImage: NetworkImage(avatarUrl),
-              ),
-              if (isLeader)
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      color: colorScheme.surface,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.star,
-                      size: 14,
-                      color: colorScheme.primary,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      name,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    if (isMe)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: colorScheme.primary.withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            'TÚ (LÍDER)',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: colorScheme.primary,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  email,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }

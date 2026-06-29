@@ -5,7 +5,7 @@ import 'package:mobile/l10n/app_localizations.dart';
 
 import 'package:mobile/features/inspiration/presentation/provider/inspiration_provider.dart';
 import 'package:mobile/features/inspiration/presentation/widgets/glass_container.dart';
-import 'package:mobile/core/widgets/corvus_top_bar.dart';
+import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/features/inspiration/presentation/widgets/project_card.dart';
 import 'package:mobile/features/inspiration/presentation/widgets/floating_ai_input.dart';
 
@@ -28,18 +28,11 @@ class _InspirationPageState extends State<InspirationPage> {
   }
 
   void _scrollListener() {
-    if (_scrollController.position.userScrollDirection == ScrollDirection.reverse) {
-      if (_isFloatingInputVisible) {
-        setState(() {
-          _isFloatingInputVisible = false;
-        });
-      }
-    } else if (_scrollController.position.userScrollDirection == ScrollDirection.forward) {
-      if (!_isFloatingInputVisible) {
-        setState(() {
-          _isFloatingInputVisible = true;
-        });
-      }
+    final direction = _scrollController.position.userScrollDirection;
+    if (direction == ScrollDirection.reverse && _isFloatingInputVisible) {
+      setState(() => _isFloatingInputVisible = false);
+    } else if (direction == ScrollDirection.forward && !_isFloatingInputVisible) {
+      setState(() => _isFloatingInputVisible = true);
     }
   }
 
@@ -52,144 +45,165 @@ class _InspirationPageState extends State<InspirationPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final colorScheme = Theme.of(context).colorScheme;
-    final provider = context.watch<InspirationProvider>();
+    final isLoading = context.select<InspirationProvider, bool>((p) => p.isLoading);
+    final showWelcome = context.select<InspirationProvider, bool>((p) => p.showWelcome);
+    final projectCount = context.select<InspirationProvider, int>((p) => p.projects.length);
 
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: const CorvusTopBar(),
       body: Stack(
         children: [
-          // Background Base (Deep dark blue)
-          Container(
-            color: colorScheme.surface,
-          ),
-          
-          // Main Scroll View
-          SafeArea(
-            bottom: false,
-            child: CustomScrollView(
-              controller: _scrollController,
-              slivers: [
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  sliver: SliverList(
-                    delegate: SliverChildListDelegate([
-                      const SizedBox(height: 16),
-                      
-                      // Welcome Card (Only shown if showWelcome is true)
-                      if (provider.showWelcome)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 24.0),
-                          child: GlassContainer(
-                            blur: 0, // Disable blur to avoid lag
-                            opacity: 0.5,
-                            padding: const EdgeInsets.all(24),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.insights,
-                                      color: colorScheme.secondary,
-                                      size: 24,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      l10n.welcomeToCorvus,
-                                      style: const TextStyle(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  l10n.welcomeCorvusDesc,
-                                  style: TextStyle(
-                                    color: colorScheme.onSurfaceVariant,
-                                    fontSize: 16,
-                                    height: 1.5,
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: TextButton(
-                                    onPressed: () {
-                                      provider.dismissWelcome();
-                                    },
-                                    child: const Text('Entendido'),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      
-                      // Section Header
-                      Text(
-                        l10n.unexploredProjects,
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w600,
+          Container(color: Theme.of(context).colorScheme.surface),
+
+          RepaintBoundary(
+            child: SafeArea(
+              bottom: false,
+              child: RefreshIndicator(
+                key: context.read<InspirationProvider>().refreshIndicatorKey,
+                onRefresh: () => context.read<InspirationProvider>().loadProjects(forceRefresh: true),
+                child: CustomScrollView(
+                  controller: _scrollController,
+                  slivers: [
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      sliver: SliverToBoxAdapter(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 16),
+                            if (showWelcome)
+                              _WelcomeCard(onDismiss: () => context.read<InspirationProvider>().dismissWelcome()),
+                            const _SectionHeader(),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        l10n.unexploredProjectsDesc,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                    ]),
-                  ),
-                ),
-                
-                // Projects List
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  sliver: provider.isLoading
-                      ? const SliverToBoxAdapter(
-                          child: Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(32.0),
-                              child: CircularProgressIndicator(),
+                    ),
+
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      sliver: (isLoading && projectCount == 0)
+                          ? const SliverToBoxAdapter(
+                              child: Padding(
+                                padding: EdgeInsets.all(32.0),
+                                child: Center(child: CircularProgressIndicator()),
+                              ),
+                            )
+                          : SliverList(
+                              delegate: SliverChildBuilderDelegate(
+                                (context, index) {
+                                  final project = context.read<InspirationProvider>().projects[index];
+                                  return RepaintBoundary(
+                                    child: ProjectCard(project: project),
+                                  );
+                                },
+                                childCount: projectCount,
+                              ),
                             ),
-                          ),
-                        )
-                      : SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                            (context, index) {
-                              return ProjectCard(project: provider.projects[index]);
-                            },
-                            childCount: provider.projects.length,
-                          ),
-                        ),
+                    ),
+
+                    const SliverToBoxAdapter(child: SizedBox(height: 160)),
+                  ],
                 ),
-                
-                // Bottom Padding for the floating input and bottom nav bar
-                const SliverToBoxAdapter(
-                  child: SizedBox(height: 160),
-                ),
-              ],
+              ),
             ),
           ),
 
-          // Floating AI Input
           Positioned(
-            bottom: 0, // Reducido al mínimo, el margen interno de la tarjeta se encarga del espacio
+            bottom: 0,
             left: 0,
             right: 0,
-            child: FloatingAiInput(isVisible: _isFloatingInputVisible),
+            child: RepaintBoundary(
+              child: FloatingAiInput(
+                isVisible: _isFloatingInputVisible,
+                onExpand: () {
+                  if (!_isFloatingInputVisible) {
+                    setState(() => _isFloatingInputVisible = true);
+                  }
+                },
+              ),
+            ),
           ),
         ],
       ),
+    );
+  }
+}
+
+// -# 
+class _WelcomeCard extends StatelessWidget {
+  final VoidCallback onDismiss;
+  const _WelcomeCard({required this.onDismiss});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 24.0),
+      child: GlassContainer(
+        blur: 0,
+        opacity: 0.5,
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.insights, color: colorScheme.secondary, size: 24),
+                const SizedBox(width: 8),
+                Text(
+                  l10n.welcomeToCorvus,
+                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              l10n.welcomeCorvusDesc,
+              style: TextStyle(
+                color: colorScheme.onSurfaceVariant,
+                fontSize: 16,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: onDismiss,
+                child: const Text('Entendido'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// -# 
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.unexploredProjects,
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          l10n.unexploredProjectsDesc,
+          style: TextStyle(fontSize: 14, color: colorScheme.onSurfaceVariant),
+        ),
+        const SizedBox(height: 16),
+      ],
     );
   }
 }

@@ -8,59 +8,6 @@ import 'package:intl/intl.dart' as intl;
 import 'app_localizations_en.dart';
 import 'app_localizations_es.dart';
 
-// ignore_for_file: type=lint
-
-/// Callers can lookup localized strings with an instance of AppLocalizations
-/// returned by `AppLocalizations.of(context)`.
-///
-/// Applications need to include `AppLocalizations.delegate()` in their app's
-/// `localizationDelegates` list, and the locales they support in the app's
-/// `supportedLocales` list. For example:
-///
-/// ```dart
-/// import 'l10n/app_localizations.dart';
-///
-/// return MaterialApp(
-///   localizationsDelegates: AppLocalizations.localizationsDelegates,
-///   supportedLocales: AppLocalizations.supportedLocales,
-///   home: MyApplicationHome(),
-/// );
-/// ```
-///
-/// ## Update pubspec.yaml
-///
-/// Please make sure to update your pubspec.yaml to include the following
-/// packages:
-///
-/// ```yaml
-/// dependencies:
-///   # Internationalization support.
-///   flutter_localizations:
-///     sdk: flutter
-///   intl: any # Use the pinned version from flutter_localizations
-///
-///   # Rest of dependencies
-/// ```
-///
-/// ## iOS Applications
-///
-/// iOS applications define key application metadata, including supported
-/// locales, in an Info.plist file that is built into the application bundle.
-/// To configure the locales supported by your app, you’ll need to edit this
-/// file.
-///
-/// First, open your project’s ios/Runner.xcworkspace Xcode workspace file.
-/// Then, in the Project Navigator, open the Info.plist file under the Runner
-/// project’s Runner folder.
-///
-/// Next, select the Information Property List item, select Add Item from the
-/// Editor menu, then select Localizations from the pop-up menu.
-///
-/// Select and expand the newly-created Localizations item then, for each
-/// locale your application supports, add a new item and select the locale
-/// you wish to add from the pop-up menu in the Value field. This list should
-/// be consistent with the languages listed in the AppLocalizations.supportedLocales
-/// property.
 abstract class AppLocalizations {
   AppLocalizations(String locale)
     : localeName = intl.Intl.canonicalizedLocale(locale.toString());
@@ -74,16 +21,6 @@ abstract class AppLocalizations {
   static const LocalizationsDelegate<AppLocalizations> delegate =
       _AppLocalizationsDelegate();
 
-  /// A list of this localizations delegate along with the default localizations
-  /// delegates.
-  ///
-  /// Returns a list of localizations delegates containing this delegate along with
-  /// GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate,
-  /// and GlobalWidgetsLocalizations.delegate.
-  ///
-  /// Additional delegates can be added by appending to this list in
-  /// MaterialApp. This list does not have to be used at all if a custom list
-  /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
         delegate,
@@ -92,143 +29,248 @@ abstract class AppLocalizations {
         GlobalWidgetsLocalizations.delegate,
       ];
 
-  /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
     Locale('es'),
   ];
 
-  /// No description provided for @welcomeBack.
-  ///
-  /// In es, this message translates to:
-  /// **'Bienvenido de nuevo'**
   String get welcomeBack;
 
-  /// No description provided for @loginSubtitle.
-  ///
-  /// In es, this message translates to:
-  /// **'Inicia sesión con tu cuenta universitaria para acceder.'**
   String get loginSubtitle;
 
-  /// No description provided for @continueWithGoogle.
-  ///
-  /// In es, this message translates to:
-  /// **'Continuar con Google'**
   String get continueWithGoogle;
 
-  /// No description provided for @exclusiveAccessInfo.
-  ///
-  /// In es, this message translates to:
-  /// **'Acceso exclusivo para alumnos con dominio institucional activo.'**
+  String get signingIn;
+
+  String get unknownError;
+
   String get exclusiveAccessInfo;
 
-  /// No description provided for @terms.
-  ///
-  /// In es, this message translates to:
-  /// **'Términos'**
   String get terms;
 
-  /// No description provided for @privacy.
-  ///
-  /// In es, this message translates to:
-  /// **'Privacidad'**
   String get privacy;
 
-  /// No description provided for @help.
-  ///
-  /// In es, this message translates to:
-  /// **'Ayuda'**
   String get help;
 
-  /// No description provided for @appTitle.
-  ///
-  /// In es, this message translates to:
-  /// **'Corvus'**
   String get appTitle;
 
-  /// No description provided for @navInspiration.
-  ///
-  /// In es, this message translates to:
-  /// **'Inspiración'**
   String get navInspiration;
 
-  /// No description provided for @navMyProject.
-  ///
-  /// In es, this message translates to:
-  /// **'Mi Proyecto'**
   String get navMyProject;
 
-  /// No description provided for @navTeams.
-  ///
-  /// In es, this message translates to:
-  /// **'Equipos'**
   String get navTeams;
 
-  /// No description provided for @navProfile.
-  ///
-  /// In es, this message translates to:
-  /// **'Perfil'**
   String get navProfile;
 
-  /// No description provided for @welcomeToCorvus.
-  ///
-  /// In es, this message translates to:
-  /// **'Bienvenido a Corvus'**
   String get welcomeToCorvus;
 
-  /// No description provided for @welcomeCorvusDesc.
-  ///
-  /// In es, this message translates to:
-  /// **'Corvus analiza y agrupa repositorios académicos para revelar áreas de investigación inexploradas. Descubre oportunidades únicas para tu próximo gran proyecto.'**
   String get welcomeCorvusDesc;
 
-  /// No description provided for @unexploredProjects.
-  ///
-  /// In es, this message translates to:
-  /// **'Proyectos Inexplorados'**
   String get unexploredProjects;
 
-  /// No description provided for @unexploredProjectsDesc.
-  ///
-  /// In es, this message translates to:
-  /// **'Basado en el análisis de +10,000 tesis recientes.'**
   String get unexploredProjectsDesc;
 
-  /// No description provided for @highPotential.
-  ///
-  /// In es, this message translates to:
-  /// **'Alto Potencial'**
   String get highPotential;
 
-  /// No description provided for @explore.
-  ///
-  /// In es, this message translates to:
-  /// **'Explorar'**
   String get explore;
 
-  /// No description provided for @generateIdeas.
-  ///
-  /// In es, this message translates to:
-  /// **'Generar Ideas'**
   String get generateIdeas;
 
-  /// No description provided for @lookingForSomethingDifferent.
-  ///
-  /// In es, this message translates to:
-  /// **'¿Buscas algo diferente?'**
   String get lookingForSomethingDifferent;
 
-  /// No description provided for @lookingForSomethingDifferentDesc.
-  ///
-  /// In es, this message translates to:
-  /// **'Escribe tus temas de interés y nuestra Inteligencia Artificial creará propuestas de investigación únicas y a tu medida.'**
   String get lookingForSomethingDifferentDesc;
 
-  /// No description provided for @searchPlaceholder.
-  ///
-  /// In es, this message translates to:
-  /// **'Ej: Energía + Sociología...'**
   String get searchPlaceholder;
+
+  String get profNavDash;
+
+  String get profNavReviews;
+
+  String get profNavRules;
+
+  String get profNavHistory;
+
+  String get featureUpcoming;
+
+  String get manage;
+
+  String get generateWorkPlan;
+
+  String get leaveTeam;
+
+  String get teamManagementTitle;
+
+  String get teamManagementDesc;
+
+  String get teamFull;
+
+  String get members;
+
+  String get pendingInvitations;
+
+  String get twoDaysAgo;
+
+  String get teamFullInviteNotice;
+
+  String get aiAssistantTeamSuggestionSpan1;
+
+  String get aiAssistantTeamSuggestionSpan2;
+
+  String get aiAssistantTeamSuggestionSpan3;
+
+  String get aiAssistantTeamSuggestionSpan4;
+
+  String get aiAssistantTeamSuggestionSpan5;
+
+  String get youLeader;
+
+  String get registerRule;
+
+  String get viewReports;
+
+  String get citeTeam;
+
+  String get approve;
+
+  String get reject;
+
+  String get gpa;
+
+  String get projects;
+
+  String get technicalSkills;
+
+  String get recentActivity;
+
+  String get ragEngineUpdate;
+
+  String get timeTwoHoursAgo;
+
+  String get readingCompleted;
+
+  String get timeYesterday;
+
+  String get appearance;
+
+  String get themeSystem;
+
+  String get themeLight;
+
+  String get themeDark;
+
+  String get logout;
+
+  String get errorCredentialsDriveCorvus;
+
+  String get folderAlreadyLinked;
+
+  String get folderLinkedProcessingStarted;
+
+  String get removeAccessTitle;
+
+  String get cancel;
+
+  String get remove;
+
+  String get driveAccessRequired;
+
+  String get sendForReview;
+
+  String get browseFiles;
+
+  String get understood;
+
+  String get detailedAnalysisTitle;
+
+  String get preValidationTitle;
+
+  String get detailedAnalysisDesc;
+
+  String get preValidationDesc;
+
+  String get analyzingStructure;
+
+  String get deleteDraft;
+
+  String get uploadAnotherProposal;
+
+  String get analysisEstimatedTime;
+
+  String get loadingPhase1;
+
+  String get loadingPhase2;
+
+  String get loadingPhase3;
+
+  String get loadingPhase4;
+
+  String get loadingPhase5;
+
+  String get loadingPhase6;
+
+  String get loadingPhase7;
+
+  String get loadingPhase8;
+
+  String get uploadZoneTitle;
+
+  String get uploadZoneSubtitle;
+
+  String get uploadedToday;
+
+  String get serverErrorContactSupport;
+
+  String get loginErrorNotAllowedEmail;
+
+  String get invalidDocumentTitle;
+
+  String get invalidDocumentDesc;
+
+  String get invalidDocumentAction;
+
+  String get blueOceanGenericCategory;
+
+  String get blueOceanGenericTag;
+
+  String get blueOceanGenericDesc;
+
+  String get notifUploadTitle;
+
+  String get notifUploadBody;
+
+  String get notifPreValidReadyTitle;
+
+  String get notifPreValidReadyBody;
+
+  String get notifErrorTitle;
+
+  String get notifPreValidFailed;
+
+  String get notifAnalysisStartTitle;
+
+  String get notifAnalysisStartBody;
+
+  String get notifAnalysisErrorTitle;
+
+  String get notifAnalysisProgressTitle;
+
+  String get notifAnalysisProgressBody;
+
+  String get notifAnalysisCompleteTitle;
+
+  String get notifAnalysisCompleteBody;
+
+  String get notifAnalysisFailedTitle;
+
+  String get notifAnalysisFailedBody;
+
+  String searchPlaceholderResult(String query);
+
+  String get searchFieldLabelHint;
+
+  String get searchEmptyState;
+
+  String searchSuggestion(String query);
 }
 
 class _AppLocalizationsDelegate
@@ -249,7 +291,6 @@ class _AppLocalizationsDelegate
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
-  // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
     case 'en':
       return AppLocalizationsEn();

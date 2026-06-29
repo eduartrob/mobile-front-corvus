@@ -1,0 +1,79 @@
+import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, kIsWeb, TargetPlatform;
+
+// -# 
+class DefaultFirebaseOptions {
+  static FirebaseOptions get currentPlatform {
+    if (kIsWeb) {
+      return web;
+    }
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.android:
+        return android;
+      case TargetPlatform.iOS:
+        return ios;
+      case TargetPlatform.macOS:
+        return macos;
+      case TargetPlatform.windows:
+        return windows;
+      case TargetPlatform.linux:
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for linux - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
+      default:
+        throw UnsupportedError(
+          'DefaultFirebaseOptions are not supported for this platform.',
+        );
+    }
+  }
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyD7y9TOb6SzLFQoQKnWzBr-G3-0_8AaNvM',
+    appId: '1:1078483343139:web:eacec0370df0c562b4de96',
+    messagingSenderId: '1078483343139',
+    projectId: 'corvus-376d3',
+    authDomain: 'corvus-376d3.firebaseapp.com',
+    storageBucket: 'corvus-376d3.firebasestorage.app',
+    measurementId: 'G-MFC7DEXC28',
+  );
+
+  static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'AIzaSyC7NzTnw4gHa5qZvdzpjXnBsRfG6k93_uI',
+    appId: '1:1078483343139:android:604d9b2c8ce30c19b4de96',
+    messagingSenderId: '1078483343139',
+    projectId: 'corvus-376d3',
+    storageBucket: 'corvus-376d3.firebasestorage.app',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyAcDWdyQGMW7U7gbsiBY5UynSrpFVHoSO0',
+    appId: '1:1078483343139:ios:29b352dd0b8142eeb4de96',
+    messagingSenderId: '1078483343139',
+    projectId: 'corvus-376d3',
+    storageBucket: 'corvus-376d3.firebasestorage.app',
+    iosClientId: '1078483343139-rbirckmh4vjqncqrm6b23vngfk8ernmv.apps.googleusercontent.com',
+    iosBundleId: 'com.example.mobile',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyAcDWdyQGMW7U7gbsiBY5UynSrpFVHoSO0',
+    appId: '1:1078483343139:ios:29b352dd0b8142eeb4de96',
+    messagingSenderId: '1078483343139',
+    projectId: 'corvus-376d3',
+    storageBucket: 'corvus-376d3.firebasestorage.app',
+    iosClientId: '1078483343139-rbirckmh4vjqncqrm6b23vngfk8ernmv.apps.googleusercontent.com',
+    iosBundleId: 'com.example.mobile',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyD7y9TOb6SzLFQoQKnWzBr-G3-0_8AaNvM',
+    appId: '1:1078483343139:web:7cd1108aaa6dcc8ab4de96',
+    messagingSenderId: '1078483343139',
+    projectId: 'corvus-376d3',
+    authDomain: 'corvus-376d3.firebaseapp.com',
+    storageBucket: 'corvus-376d3.firebasestorage.app',
+    measurementId: 'G-6YHXF1SMNQ',
+  );
+}

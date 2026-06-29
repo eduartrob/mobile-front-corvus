@@ -2,14 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
-import 'package:mobile/core/widgets/corvus_top_bar.dart';
+import 'package:mobile/shared/widgets/corvus_top_bar.dart';
+import 'package:mobile/core/theme/theme_provider.dart';
+import 'package:mobile/l10n/app_localizations.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
+  void _showUpcomingFeature(BuildContext context, AppLocalizations l10n) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.featureUpcoming),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
     final authProvider = context.watch<AuthProvider>();
     final user = authProvider.currentUser;
 
@@ -19,7 +33,6 @@ class ProfilePage extends StatelessWidget {
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
-            // Header Profile
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
@@ -32,39 +45,30 @@ class ProfilePage extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 48,
-                    backgroundImage: NetworkImage(
-                      user?.photoUrl ?? 'https://lh3.googleusercontent.com/aida-public/AB6AXuD0wLXmNJdheSLYRV0cyw58WRptbP7Tcpj2DYe6d6sJQiytU6tgetCYTsh4-Ov0geC0LLapbMasxnzTMELIMNsnayUh4N9TGK5De10d2W71dWF73JXTBHyjaWFa07BYB77_vkOYSDrr-SvtGzREIK2cHWLZNpEc3oBxuPIFF5-lfeKEPSrbyfJCy2PIjLahEVgXVyF24D6pU3BzhZ6AQHJgFgzuPc1CohlsoHoMho2D-B73NSq78KXkdfio1LlxfaQz9d9DTHm2BG0',
-                    ),
+                    backgroundImage: (user?.photoUrl != null && user!.photoUrl!.isNotEmpty)
+                        ? NetworkImage(user.photoUrl!)
+                        : null,
+                    child: (user?.photoUrl == null || user!.photoUrl!.isEmpty)
+                        ? const Icon(Icons.person, size: 48)
+                        : null,
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    user?.name ?? 'Alex Marin',
+                    user?.name ?? 'Nombre de Alumno',
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Estudiante de Ingeniería de Software • 6to Semestre',
+                    user?.email ?? 'correo@institucional.edu',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.edit, size: 16),
-                    label: const Text('Editar Perfil'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: colorScheme.primary,
-                      foregroundColor: colorScheme.onPrimary,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -73,7 +77,6 @@ class ProfilePage extends StatelessWidget {
             
             const SizedBox(height: 20),
             
-            // Stats Row
             Row(
               children: [
                 Expanded(
@@ -81,7 +84,7 @@ class ProfilePage extends StatelessWidget {
                     context,
                     icon: Icons.school_outlined,
                     value: '4.8',
-                    label: 'PROMEDIO',
+                    label: l10n.gpa,
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -90,7 +93,7 @@ class ProfilePage extends StatelessWidget {
                     context,
                     icon: Icons.account_tree_outlined,
                     value: '12',
-                    label: 'PROYECTOS',
+                    label: l10n.projects,
                   ),
                 ),
               ],
@@ -98,7 +101,6 @@ class ProfilePage extends StatelessWidget {
             
             const SizedBox(height: 20),
             
-            // Habilidades Técnicas
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -114,9 +116,9 @@ class ProfilePage extends StatelessWidget {
                     children: [
                       Icon(Icons.code, color: colorScheme.primary),
                       const SizedBox(width: 8),
-                      const Text(
-                        'Habilidades Técnicas',
-                        style: TextStyle(
+                      Text(
+                        l10n.technicalSkills,
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -141,7 +143,6 @@ class ProfilePage extends StatelessWidget {
             
             const SizedBox(height: 20),
             
-            // Actividad Reciente
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -157,9 +158,9 @@ class ProfilePage extends StatelessWidget {
                     children: [
                       Icon(Icons.history, color: colorScheme.primary),
                       const SizedBox(width: 8),
-                      const Text(
-                        'Actividad Reciente',
-                        style: TextStyle(
+                      Text(
+                        l10n.recentActivity,
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -170,8 +171,8 @@ class ProfilePage extends StatelessWidget {
                   _buildActivityItem(
                     context,
                     icon: Icons.update,
-                    title: 'Actualización en RAG Core Engine',
-                    time: 'Hace 2h',
+                    title: l10n.ragEngineUpdate,
+                    time: l10n.timeTwoHoursAgo,
                   ),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 12),
@@ -180,8 +181,68 @@ class ProfilePage extends StatelessWidget {
                   _buildActivityItem(
                     context,
                     icon: Icons.menu_book,
-                    title: 'Lectura Completada:\nArquitecturas Transformer',
-                    time: 'Ayer',
+                    title: l10n.readingCompleted,
+                    time: l10n.timeYesterday,
+                  ),
+                ],
+              ),
+            ),
+            
+            const SizedBox(height: 24),
+            
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.palette, color: colorScheme.primary),
+                      const SizedBox(width: 8),
+                      Text(
+                        l10n.appearance,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: SegmentedButton<ThemeMode>(
+                      segments: [
+                        ButtonSegment(
+                          value: ThemeMode.system,
+                          icon: const Icon(Icons.settings),
+                          label: Text(l10n.themeSystem),
+                        ),
+                        ButtonSegment(
+                          value: ThemeMode.light,
+                          icon: const Icon(Icons.wb_sunny),
+                          label: Text(l10n.themeLight),
+                        ),
+                        ButtonSegment(
+                          value: ThemeMode.dark,
+                          icon: const Icon(Icons.nightlight_round),
+                          label: Text(l10n.themeDark),
+                        ),
+                      ],
+                      selected: {context.watch<ThemeProvider>().themeMode},
+                      onSelectionChanged: (Set<ThemeMode> newSelection) {
+                        context.read<ThemeProvider>().setThemeMode(newSelection.first);
+                      },
+                      style: ButtonStyle(
+                        side: MaterialStateProperty.all(BorderSide(color: colorScheme.outlineVariant.withOpacity(0.5))),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -189,17 +250,28 @@ class ProfilePage extends StatelessWidget {
             
             const SizedBox(height: 40),
             
-            // Cerrar Sesión
             SizedBox(
               width: double.infinity,
               height: 50,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  context.read<AuthProvider>().logout();
-                  context.go('/');
+                onPressed: () async {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) => const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                  
+                  await context.read<AuthProvider>().logout();
+                  
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                    context.go('/');
+                  }
                 },
                 icon: const Icon(Icons.logout),
-                label: const Text('Cerrar Sesión', style: TextStyle(fontWeight: FontWeight.bold)),
+                label: Text(l10n.logout, style: const TextStyle(fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colorScheme.errorContainer,
                   foregroundColor: colorScheme.error,
@@ -211,7 +283,7 @@ class ProfilePage extends StatelessWidget {
               ),
             ),
             
-            const SizedBox(height: 100), // Spacing for bottom nav
+            const SizedBox(height: 100),
           ],
         ),
       ),
