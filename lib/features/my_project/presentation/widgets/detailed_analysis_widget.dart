@@ -51,17 +51,8 @@ class DetailedAnalysisWidget extends StatelessWidget {
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: colorScheme.surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
-            boxShadow: [
-              BoxShadow(
-                color: colorScheme.primary.withOpacity(0.05),
-                blurRadius: 20,
-                spreadRadius: 0,
-              )
-            ],
+          decoration: const BoxDecoration(
+            color: Colors.transparent,
           ),
           child: Column(
             children: [
@@ -128,17 +119,8 @@ class DetailedAnalysisWidget extends StatelessWidget {
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: colorScheme.surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.5)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 16,
-                offset: const Offset(0, 4),
-              )
-            ],
+          decoration: const BoxDecoration(
+            color: Colors.transparent,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,39 +159,38 @@ class DetailedAnalysisWidget extends StatelessWidget {
           decoration: BoxDecoration(
             color: riskBgColor.withOpacity(0.3),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: riskColor.withOpacity(0.2)),
           ),
-          child: Row(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: riskBgColor,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(riskIcon, size: 20, color: riskColor),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: riskBgColor,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(riskIcon, size: 20, color: riskColor),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Text(
                       'Riesgo: $collisionRisk',
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: riskColor),
                     ),
-                    if (collisionExplanation.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        collisionExplanation,
-                        style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant, height: 1.5),
-                      ),
-                    ]
-                  ],
-                ),
+                  ),
+                ],
               ),
+              if (collisionExplanation.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Text(
+                  collisionExplanation,
+                  style: TextStyle(fontSize: 14, color: colorScheme.onSurfaceVariant, height: 1.5),
+                ),
+              ]
             ],
           ),
         ),
@@ -221,16 +202,7 @@ class DetailedAnalysisWidget extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.only(top: 20, bottom: 12),
             decoration: BoxDecoration(
-              color: colorScheme.surface,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.5)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 16,
-                  offset: const Offset(0, 4),
-                )
-              ],
+              color: Colors.transparent,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -240,22 +212,27 @@ class DetailedAnalysisWidget extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          Icon(Icons.psychology, color: colorScheme.primary, size: 22),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Recomendaciones IA', 
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: colorScheme.onSurface),
-                          ),
-                        ],
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Icon(Icons.psychology, color: colorScheme.primary, size: 22),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Recomendaciones IA', 
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: colorScheme.onSurface),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
+                      const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
                           color: colorScheme.primary.withOpacity(0.12),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: colorScheme.primary.withOpacity(0.3)),
                         ),
                         child: Text(
                           '${recommendations.length} Acciones',
@@ -278,9 +255,8 @@ class DetailedAnalysisWidget extends StatelessWidget {
                     margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: colorScheme.surfaceContainerLow,
+                      color: colorScheme.surfaceContainerHighest.withOpacity(0.4),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
