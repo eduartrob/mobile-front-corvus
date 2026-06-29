@@ -88,16 +88,16 @@ class AppRouter extends StatelessWidget {
             StatefulShellBranch(
               routes: [
                 GoRoute(
-                  path: '/teams',
-                  builder: (context, state) => const TeamsPage(),
+                  path: '/search',
+                  builder: (context, state) => const SearchPage(),
                 ),
               ],
             ),
             StatefulShellBranch(
               routes: [
                 GoRoute(
-                  path: '/search',
-                  builder: (context, state) => const SearchPage(),
+                  path: '/teams',
+                  builder: (context, state) => const TeamsPage(),
                 ),
               ],
             ),
