@@ -15,10 +15,8 @@ class BlueOceanDetailPage extends StatelessWidget {
     
     final isEn = Localizations.localeOf(context).languageCode == 'en';
 
-    // Extraer datos del análisis (si los hay)
     final analysis = project.analysisData ?? {};
     
-    // Lógica de fallback para JSON anterior (solo 'hallazgo_principal') y JSON bilingüe
     final hallazgo = isEn 
         ? (analysis['hallazgo_principal_en'] ?? analysis['hallazgo_principal'] ?? 'Could not load the main finding.')
         : (analysis['hallazgo_principal_es'] ?? analysis['hallazgo_principal'] ?? 'No se pudo cargar el hallazgo principal.');
@@ -59,7 +57,6 @@ class BlueOceanDetailPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Título Principal ──
             Text(
               project.title,
               style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, height: 1.2),
@@ -73,7 +70,6 @@ class BlueOceanDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // ── 1. Hallazgo Principal ──
             _SectionTitle(title: isEn ? 'Main Finding' : 'Hallazgo Principal', icon: Icons.insights, color: Colors.orange),
             GlassContainer(
               blur: 0,
@@ -86,7 +82,6 @@ class BlueOceanDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // ── 2. Sugerencias Metodológicas ──
             _SectionTitle(title: isEn ? 'Methodological Suggestions' : 'Sugerencias de Abordaje Metodológico', icon: Icons.schema_outlined, color: Colors.blue),
             if (sugerencias.isEmpty)
               Text(isEn ? 'No suggestions available.' : 'Sin sugerencias disponibles.')
@@ -95,7 +90,6 @@ class BlueOceanDetailPage extends StatelessWidget {
             
             const SizedBox(height: 24),
 
-            // ── 3. Métricas de Viabilidad ──
             GlassContainer(
               blur: 0,
               opacity: 0.5,
@@ -130,7 +124,6 @@ class BlueOceanDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 32),
 
-            // ── 4. Botones de Acción ──
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
@@ -177,9 +170,7 @@ class BlueOceanDetailPage extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// WIDGETS AUXILIARES
-// ─────────────────────────────────────────────────────────────────────────────
+// -# 
 
 class _SectionTitle extends StatelessWidget {
   final String title;

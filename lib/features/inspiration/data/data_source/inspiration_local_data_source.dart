@@ -2,7 +2,6 @@ import 'package:mobile/features/inspiration/data/models/project_model.dart';
 
 class InspirationLocalDataSource {
   Future<List<ProjectModel>> getUnexploredProjects() async {
-    // Simulando retraso de red
     await Future.delayed(const Duration(milliseconds: 500));
     
     return [

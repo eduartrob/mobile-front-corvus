@@ -27,7 +27,7 @@ class CorvusProgressItem extends StatelessWidget {
         LinearProgressIndicator(
           value: percentage / 100,
           backgroundColor: colorScheme.outlineVariant.withOpacity(0.3),
-          color: Colors.amber, // Using amber as per the UI design for progress bars
+          color: Colors.amber,
           borderRadius: BorderRadius.circular(4),
           minHeight: 8,
         ),

@@ -52,7 +52,6 @@ class TeamsPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             
-            // Badge Equipo Completo
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
@@ -92,7 +91,6 @@ class TeamsPage extends StatelessWidget {
             
             const SizedBox(height: 32),
             
-            // Header Integrantes
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -116,7 +114,6 @@ class TeamsPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             
-            // Lista de Integrantes
             TeamMemberCard(
               avatarUrl: myAvatarUrl,
               name: user?.name ?? 'Alex Rivera',
@@ -139,7 +136,6 @@ class TeamsPage extends StatelessWidget {
             
             const SizedBox(height: 32),
             
-            // Invitaciones Pendientes
             Row(
               children: [
                 Icon(Icons.mail_outline, size: 20, color: colorScheme.onSurfaceVariant),
@@ -201,7 +197,6 @@ class TeamsPage extends StatelessWidget {
             
             const SizedBox(height: 32),
             
-            // AI Assistant Card
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
@@ -279,7 +274,6 @@ class TeamsPage extends StatelessWidget {
             
             const SizedBox(height: 40),
             
-            // Salir del equipo
             SizedBox(
               width: double.infinity,
               height: 50,
@@ -297,7 +291,7 @@ class TeamsPage extends StatelessWidget {
               ),
             ),
             
-            const SizedBox(height: 100), // Spacing for bottom nav
+            const SizedBox(height: 100),
           ],
         ),
       ),

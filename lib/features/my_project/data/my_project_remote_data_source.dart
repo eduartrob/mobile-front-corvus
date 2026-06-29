@@ -19,7 +19,7 @@ class MyProjectRemoteDataSource {
       request.fields['user_id'] = userId;
       request.headers.addAll(ApiConfig.defaultHeaders);
       
-      // Reintento: el Keystore de Android puede fallar al volver de FilePicker
+      // -# reintento el keystore de android puede fallar al volver de filepicker
       var token = await _storage.read(key: 'auth_token');
       if (token == null) {
         await Future.delayed(const Duration(milliseconds: 600));
@@ -60,9 +60,9 @@ class MyProjectRemoteDataSource {
       if (response.statusCode == 200) {
         final data = json.decode(utf8.decode(response.bodyBytes));
         if (data['status'] == 'not_found') {
-          return {}; // No hay borrador
+          return {};
         }
-        return data; // Retorna el quick_analysis
+        return data;
       } else {
         throw Exception('Error al consultar borrador: ${response.body}');
       }
@@ -89,9 +89,6 @@ class MyProjectRemoteDataSource {
     return {'phase': 5, 'message': 'Procesando propuesta...'};
   }
 
-  /// Dispara el análisis exhaustivo en el servidor (no-bloqueante).
-  /// El servidor responde inmediatamente con {"status":"queued"}.
-  /// Usa [getAnalysisStatus] para el polling y [getAnalysisResult] cuando phase==9.
   Future<void> analyzeDraftDetailed(String userId) async {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/analyze-draft-proposal');
 
@@ -111,7 +108,6 @@ class MyProjectRemoteDataSource {
 
       if (response.statusCode != 200 && response.statusCode != 201) {
         final bodyText = utf8.decode(response.bodyBytes);
-        // Extraer el mensaje de error del JSON del gateway si lo hay
         try {
           final errorJson = json.decode(bodyText);
           throw Exception(errorJson['detail'] ?? bodyText);
@@ -119,14 +115,12 @@ class MyProjectRemoteDataSource {
           throw Exception(bodyText);
         }
       }
-      // Si llega aquí, el servidor confirmó {"status":"queued"} — el polling hará el resto.
     } catch (e) {
       final msg = e.toString().replaceAll('Exception: ', '');
       throw Exception(msg);
     }
   }
 
-  /// Recupera el resultado final del análisis cuando el polling detecta phase==9.
   Future<Map<String, dynamic>> getAnalysisResult(String userId) async {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/analysis-result/$userId');
 
@@ -145,7 +139,6 @@ class MyProjectRemoteDataSource {
     return {'status': 'pending'};
   }
 
-  /// Cancela un análisis exhaustivo en curso en el servidor.
   Future<void> cancelAnalysis(String userId) async {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/cancel-analysis/$userId');
 
@@ -158,7 +151,6 @@ class MyProjectRemoteDataSource {
 
       await client.post(url, headers: headers);
     } catch (_) {
-      // Ignorar errores en la cancelación, es un "best effort"
     }
   }
 }

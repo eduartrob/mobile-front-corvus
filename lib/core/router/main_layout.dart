@@ -13,10 +13,8 @@ class MainLayout extends StatelessWidget {
   void _onItemTapped(BuildContext context, int index) {
     if (index == navigationShell.currentIndex) {
       if (index == 0) {
-        // Si ya está en Inspiración, disparamos el RefreshIndicator nativo
         context.read<InspirationProvider>().refreshIndicatorKey.currentState?.show();
       }
-      // TODO: Añadir scroll to top cuando implementemos controladores globales si se desea.
       return;
     }
 

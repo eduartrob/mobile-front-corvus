@@ -55,7 +55,6 @@ class ProfRulesPage extends StatelessWidget {
             ),
             const SizedBox(height: 32),
             
-            // Añadir Regla Form
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
@@ -152,7 +151,6 @@ class ProfRulesPage extends StatelessWidget {
             
             const SizedBox(height: 24),
             
-            // Info Card
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -193,7 +191,7 @@ class ProfRulesPage extends StatelessWidget {
               ),
             ),
             
-            const SizedBox(height: 100), // Spacing for bottom nav
+            const SizedBox(height: 100),
           ],
         ),
       ),

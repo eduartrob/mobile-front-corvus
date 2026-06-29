@@ -42,7 +42,6 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> {
 
   @override
   Widget build(BuildContext context) {
-    // Solo leemos el userId — no escuchamos todo AuthProvider en cada rebuild
     final userId = context.select<AuthProvider, String>(
       (a) => a.currentUser?.id ?? 'default_user',
     );
@@ -54,12 +53,10 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // HEADER: solo reacciona a cambios de ProjectState (no a fase/mensaje del server)
             _ProjectPageHeader(userId: userId),
 
             const SizedBox(height: 24),
 
-            // CUERPO: RepaintBoundary aisla esta zona del header y el scroll
             RepaintBoundary(
               child: _ProjectPageBody(userId: userId),
             ),
@@ -72,11 +69,7 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// HEADER
-// Solo reacciona a cambios de ProjectState. Cuando el polling cambia la
-// fase (cada 2s) este widget NO se reconstruye.
-// ─────────────────────────────────────────────────────────────────────────────
+// -# 
 class _ProjectPageHeader extends StatelessWidget {
   final String userId;
   const _ProjectPageHeader({required this.userId});
@@ -85,7 +78,6 @@ class _ProjectPageHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
-    // context.select solo escucha el campo 'state'
     final state = context.select<MyProjectProvider, ProjectState>((p) => p.state);
 
     return Column(
@@ -117,11 +109,7 @@ class _ProjectPageHeader extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// BODY
-// Reacciona al provider completo porque necesita todos sus campos.
-// Está aislado con RepaintBoundary: sus repaints no propagan hacia arriba.
-// ─────────────────────────────────────────────────────────────────────────────
+// -# 
 class _ProjectPageBody extends StatelessWidget {
   final String userId;
   const _ProjectPageBody({required this.userId});
@@ -134,7 +122,6 @@ class _ProjectPageBody extends StatelessWidget {
 
     return Column(
       children: [
-        // Error temporal del servidor
         if (provider.errorMessage != null && provider.documentTypeError == null)
           Container(
             padding: const EdgeInsets.all(16),
@@ -157,7 +144,6 @@ class _ProjectPageBody extends StatelessWidget {
             ),
           ),
 
-        // Documento Inválido (Heurística)
         if (provider.documentTypeError != null)
           InvalidDocumentWidget(
             provider: provider,
@@ -165,19 +151,16 @@ class _ProjectPageBody extends StatelessWidget {
             specificError: provider.documentTypeError!,
           ),
 
-        // Módulo de Carga (Estado Inicial o Error de servidor)
         if (provider.state == ProjectState.initial ||
             (provider.state == ProjectState.error && provider.documentTypeError == null))
           UploadZoneWidget(provider: provider),
 
-        // Archivo Cargado (Pre-validado o Analizando)
         if (provider.state != ProjectState.initial &&
             provider.state != ProjectState.error &&
             provider.selectedFile != null &&
             provider.state != ProjectState.detailedAnalysis)
           UploadedFileItemWidget(provider: provider),
 
-        // Spinner de subida (pre-validación)
         if (provider.state == ProjectState.uploading)
           Padding(
             padding: const EdgeInsets.all(32.0),
@@ -200,13 +183,9 @@ class _ProjectPageBody extends StatelessWidget {
             ),
           ),
 
-        // Resultado de pre-validación
         if (provider.state == ProjectState.preValidated && provider.quickAnalysis != null)
           FastRagAnalysisWidget(data: provider.quickAnalysis!),
 
-        // Análisis exhaustivo en curso
-        // AnimatedLoadingTextWidget tiene su propio RepaintBoundary para aislar
-        // sus repaints (que ocurren cada 2s) del botón de cancelar.
         if (provider.state == ProjectState.analyzing)
           Padding(
             padding: const EdgeInsets.all(32.0),
@@ -229,13 +208,11 @@ class _ProjectPageBody extends StatelessWidget {
             ),
           ),
 
-        // Resultado final del análisis
         if (provider.state == ProjectState.detailedAnalysis && provider.detailedAnalysis != null)
           DetailedAnalysisWidget(data: provider.detailedAnalysis!['ollama_analysis'] ?? {}),
 
         const SizedBox(height: 32),
 
-        // Acciones inferiores (pre-validado)
         if (provider.state == ProjectState.preValidated) ...[
           SizedBox(
             width: double.infinity,
@@ -269,7 +246,6 @@ class _ProjectPageBody extends StatelessWidget {
           ),
         ],
 
-        // Acción: subir otra propuesta (análisis completado)
         if (provider.state == ProjectState.detailedAnalysis)
           SizedBox(
             width: double.infinity,

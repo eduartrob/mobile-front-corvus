@@ -36,7 +36,6 @@ class ProfHistoryPage extends StatelessWidget {
             
             const SizedBox(height: 32),
             
-            // Filtros
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -123,7 +122,6 @@ class ProfHistoryPage extends StatelessWidget {
             
             const SizedBox(height: 32),
             
-            // Lista de Historial
             _buildHistoryCard(
               context,
               title: 'Blockchain Inventory System',
@@ -146,7 +144,7 @@ class ProfHistoryPage extends StatelessWidget {
               isRejected: false,
             ),
             
-            const SizedBox(height: 100), // Spacing for bottom nav
+            const SizedBox(height: 100),
           ],
         ),
       ),

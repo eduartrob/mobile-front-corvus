@@ -14,10 +14,9 @@ import 'package:mobile/features/prof_profile/domain/repositories/sync_repository
 import 'package:mobile/features/prof_profile/domain/use_cases/sync_drive_folder_usecase.dart';
 import 'package:mobile/features/prof_profile/domain/use_cases/get_drive_folders_usecase.dart';
 
-final sl = GetIt.instance; // sl = Service Locator
+final sl = GetIt.instance;
 
 void setupDependencies() {
-  // 1. Data Sources
   sl.registerLazySingleton<AuthRemoteDataSource>(
     () => AuthRemoteDataSourceImpl(),
   );
@@ -25,7 +24,6 @@ void setupDependencies() {
     () => SyncRemoteDataSourceImpl(),
   );
 
-  // 2. Repositories
   sl.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(remoteDataSource: sl()),
   );
@@ -33,7 +31,6 @@ void setupDependencies() {
     () => SyncRepositoryImpl(remoteDataSource: sl()),
   );
 
-  // 3. Use Cases
   sl.registerLazySingleton(
     () => SignInWithGoogleUseCase(repository: sl()),
   );
@@ -53,7 +50,6 @@ void setupDependencies() {
     () => GetDriveFoldersUseCase(sl()),
   );
 
-  // 4. Providers
   sl.registerFactory(
     () => AuthProvider(
       signInWithGoogleUseCase: sl(),

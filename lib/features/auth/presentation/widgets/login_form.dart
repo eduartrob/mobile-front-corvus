@@ -22,7 +22,6 @@ class LoginForm extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Top Logo
           Container(
             width: 64,
             height: 64,
@@ -39,7 +38,6 @@ class LoginForm extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           
-          // App Title
           Text(
             l10n.appTitle,
             style: TextStyle(
@@ -50,7 +48,6 @@ class LoginForm extends StatelessWidget {
             ),
           ),
           
-          // Underline decoration
           Container(
             margin: const EdgeInsets.only(top: 8, bottom: 40),
             height: 4,
@@ -61,7 +58,6 @@ class LoginForm extends StatelessWidget {
             ),
           ),
           
-          // Main Card
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(32),
@@ -131,7 +127,6 @@ class LoginForm extends StatelessWidget {
                 ),
                 const SizedBox(height: 32),
                 
-                // Google Button
                 Consumer<AuthProvider>(
                   builder: (context, authProvider, child) {
                     final isLoading = authProvider.status == AuthStatus.loading;
@@ -140,7 +135,7 @@ class LoginForm extends StatelessWidget {
                       if (authProvider.errorMessage == 'AUTH_NOT_ALLOWED') {
                         return l10n.loginErrorNotAllowedEmail;
                       } else if (authProvider.errorMessage == 'AUTH_CANCELED') {
-                        return 'Canceled'; // Esto generalmente no se muestra como error visual, pero por si acaso.
+                        return 'Canceled';
                       }
                       return authProvider.errorMessage ?? l10n.serverErrorContactSupport;
                     }
@@ -238,7 +233,6 @@ class LoginForm extends StatelessWidget {
                 Divider(color: colors.outlineVariant.withOpacity(0.2)),
                 const SizedBox(height: 24),
                 
-                // Info footer in card
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -266,7 +260,6 @@ class LoginForm extends StatelessWidget {
           
           const SizedBox(height: 48),
           
-          // Bottom Footer Links
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

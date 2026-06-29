@@ -31,7 +31,6 @@ class ProfDashPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top Metrics
             Row(
               children: [
                 Expanded(
@@ -57,7 +56,6 @@ class ProfDashPage extends StatelessWidget {
             
             const SizedBox(height: 24),
             
-            // Avance General
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -102,7 +100,6 @@ class ProfDashPage extends StatelessWidget {
             
             const SizedBox(height: 24),
             
-            // Atención Requerida
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -154,7 +151,7 @@ class ProfDashPage extends StatelessWidget {
               ),
             ),
             
-            const SizedBox(height: 100), // Spacing for bottom nav
+            const SizedBox(height: 100),
           ],
         ),
       ),

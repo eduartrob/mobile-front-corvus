@@ -73,20 +73,17 @@ class MyProjectProvider extends ChangeNotifier {
         return;
       }
 
-      // ── RESTAURACIÓN DE ESTADO SI HAY ANÁLISIS EN CURSO ──
       final status = await _dataSource.getAnalysisStatus(userId);
       final phase = (status['phase'] as num?)?.toInt() ?? 0;
       
       if (phase >= 5 && phase <= 8) {
-        // Hay un análisis exhaustivo procesándose en el servidor
         _state = ProjectState.analyzing;
         _serverPhase = phase;
         _serverPhaseMessage = status['message'] ?? '';
-        _startPolling(userId, null); // Reanuda el polling (l10n null indica background/restore)
+        _startPolling(userId, null);
         notifyListeners();
         return;
       } else if (phase == 9) {
-        // El análisis terminó mientras la app estaba cerrada. Recuperamos el resultado.
         final result = await _dataSource.getAnalysisResult(userId);
         if (result['status'] != 'pending' && result['status'] != 'error') {
           await _applyAnalysisResult(userId, result, null);
@@ -154,7 +151,6 @@ class MyProjectProvider extends ChangeNotifier {
       final errorStr = e.toString();
       await _notificationService.showResultNotification(l10n.notifErrorTitle, l10n.notifPreValidFailed);
       
-      // ── MANEJO DEL ERROR DE DOCUMENTO INVÁLIDO ──
       if (errorStr.contains('no parece ser una propuesta')) {
         _documentTypeError = errorStr.replaceAll('Exception: ', '');
       } else {
@@ -187,7 +183,6 @@ class MyProjectProvider extends ChangeNotifier {
         phase: l10n.notifAnalysisStartBody
       );
 
-      // Dispara el análisis en el servidor (responde < 1s con "queued")
       await _dataSource.analyzeDraftDetailed(userId);
     } catch (e) {
       _statusTimer?.cancel();
@@ -214,7 +209,6 @@ class MyProjectProvider extends ChangeNotifier {
 
       final status = await _dataSource.getAnalysisStatus(userId);
       
-      // Prevenir condición de carrera: si el usuario canceló mientras hacíamos el request
       if (_state != ProjectState.analyzing) return;
       
       final phase = (status['phase'] as num?)?.toInt() ?? 5;
@@ -243,14 +237,12 @@ class MyProjectProvider extends ChangeNotifier {
       
       notifyListeners();
 
-      // ✅ Fase 9 — Análisis completado: recuperar resultado
       if (phase == 9) {
         _statusTimer?.cancel();
         final result = await _dataSource.getAnalysisResult(userId);
         if (_state != ProjectState.analyzing) return;
 
         if (result['status'] == 'pending') {
-          // Servidor aún no puso el resultado (raro pero posible por race condition)
           await Future.delayed(const Duration(seconds: 2));
           if (_state != ProjectState.analyzing) return;
           final retryResult = await _dataSource.getAnalysisResult(userId);
@@ -260,7 +252,6 @@ class MyProjectProvider extends ChangeNotifier {
         }
       }
 
-      // ❌ Fase -1 — Error en el servidor
       if (phase == -1) {
         _statusTimer?.cancel();
         _notificationService.cancelAnalysisNotification();
@@ -274,7 +265,6 @@ class MyProjectProvider extends ChangeNotifier {
     });
   }
 
-  /// Aplica el resultado final del análisis y cambia el estado de la UI.
   Future<void> _applyAnalysisResult(String userId, Map<String, dynamic> result, AppLocalizations? l10n) async {
     _notificationService.cancelAnalysisNotification();
     

@@ -17,7 +17,6 @@ class LinkedFoldersProvider extends ChangeNotifier {
       : _storage = storage ?? const FlutterSecureStorage();
 
   Future<void> loadFolders(String jwtToken) async {
-    // 1. Cargar caché local primero para respuesta inmediata
     try {
       final data = await _storage.read(key: _storageKey);
       if (data != null) {
@@ -29,7 +28,6 @@ class LinkedFoldersProvider extends ChangeNotifier {
       debugPrint('Error loading linked folders from cache: $e');
     }
 
-    // 2. Obtener estado real del backend
     try {
       final url = Uri.parse('${ApiConfig.apiGatewayUrl}/auth/folders');
       final response = await http.get(url, headers: {
@@ -69,13 +67,11 @@ class LinkedFoldersProvider extends ChangeNotifier {
   }
 
   Future<void> addFolder(String id, String name, String jwtToken, {bool isSynced = false}) async {
-    // Evitar duplicados
     if (!_folders.any((f) => f['id'] == id)) {
       _folders.add({'id': id, 'name': name, 'status': isSynced ? 'synced' : 'syncing'});
       await _saveFolders();
       notifyListeners();
 
-      // Guardar en el backend
       try {
         final url = Uri.parse('${ApiConfig.apiGatewayUrl}/auth/folders');
         await http.post(
@@ -94,7 +90,6 @@ class LinkedFoldersProvider extends ChangeNotifier {
       }
       
       if (!isSynced) {
-        // Iniciar el polling en background solo si se está sincronizando
         _startPollingLoop(id, jwtToken);
       }
     }
@@ -143,8 +138,6 @@ class LinkedFoldersProvider extends ChangeNotifier {
         final total = data['total'] as int? ?? 1;
         
         if (progress >= total && total > 0) {
-          // Ya terminó mientras la app estaba cerrada. 
-          // Omitimos notificacion local porque FCM ya debió haberla enviado.
           await markAsSynced(id);
         } else {
           _startPollingLoop(id, jwtToken);
@@ -162,7 +155,7 @@ class LinkedFoldersProvider extends ChangeNotifier {
     while (isSyncing) {
       final currentFolder = _folders.firstWhere((f) => f['id'] == id, orElse: () => {});
       if (currentFolder.isEmpty || currentFolder['status'] != 'syncing') {
-        break; // Detener si se eliminó o ya se marcó como synced
+        break;
       }
       
       try {
@@ -187,8 +180,6 @@ class LinkedFoldersProvider extends ChangeNotifier {
           if (progress >= total && total > 0) {
             isSyncing = false;
             await markAsSynced(id);
-            // Nota: NO enviamos showSuccessNotification aquí,
-            // ya que Firebase (FCM) enviará la notificación final a main.dart.
           }
         } else if (response.statusCode == 404) {
           isSyncing = false;

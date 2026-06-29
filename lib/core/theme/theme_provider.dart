@@ -36,10 +36,9 @@ class ThemeProvider with ChangeNotifier {
       } else if (mode == ThemeMode.dark) {
         await _storage.write(key: _storageKey, value: 'dark');
       } else {
-        await _storage.delete(key: _storageKey); // system
+        await _storage.delete(key: _storageKey);
       }
     } catch (e) {
-      // Ignorar error de almacenamiento
     }
   }
 }

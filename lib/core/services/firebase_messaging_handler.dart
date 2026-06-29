@@ -5,14 +5,12 @@ import 'package:mobile/firebase_options.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // Inicialización básica para el background
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
     handleFCMMessage(message);
   } catch (e) {
-    // Ignorar si no está configurado
   }
 }
 

@@ -10,7 +10,6 @@ class DetailedAnalysisWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Imprimir el JSON para debug
     debugPrint("--- JSON DEL LLM ---");
     debugPrint(data.toString());
     debugPrint("--------------------");
@@ -49,7 +48,6 @@ class DetailedAnalysisWidget extends StatelessWidget {
 
     return Column(
       children: [
-        // Índice de Innovación
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(24),
@@ -127,7 +125,6 @@ class DetailedAnalysisWidget extends StatelessWidget {
         
         const SizedBox(height: 24),
         
-        // Métricas de Calidad
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(24),
@@ -174,7 +171,6 @@ class DetailedAnalysisWidget extends StatelessWidget {
         
         const SizedBox(height: 24),
         
-        // Riesgo de colisión
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(24),
@@ -220,7 +216,6 @@ class DetailedAnalysisWidget extends StatelessWidget {
         
         const SizedBox(height: 24),
         
-        // Recomendaciones
         if (recommendations.isNotEmpty)
           Container(
             width: double.infinity,

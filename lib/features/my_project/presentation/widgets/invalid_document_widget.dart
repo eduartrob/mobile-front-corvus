@@ -54,7 +54,7 @@ class InvalidDocumentWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          // Eliminamos el mensaje técnico redundante.
+          // -# eliminamos el mensaje tecnico redundante
           const SizedBox(height: 12),
           ElevatedButton.icon(
             onPressed: () => provider.reset(userId),

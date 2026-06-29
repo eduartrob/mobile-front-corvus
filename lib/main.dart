@@ -16,7 +16,6 @@ import 'package:mobile/core/services/firebase_messaging_handler.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inicializar Firebase (Requiere flutterfire configure previo)
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -27,17 +26,14 @@ void main() async {
     debugPrint('Firebase no inicializado: Ejecuta flutterfire configure');
   }
 
-  // Inicializar inyección de dependencias (síncrono, rápido)
   setupDependencies();
 
-  // Crear providers globales
   final authProvider = sl<AuthProvider>();
   final linkedFoldersProvider = LinkedFoldersProvider();
   
   final themeProvider = ThemeProvider();
   await themeProvider.init();
 
-  // ARRANCAR LA APP DE INMEDIATO — sin esperar red ni storage
   runApp(
     MultiProvider(
       providers: [
@@ -50,10 +46,8 @@ void main() async {
     ),
   );
 
-  // Inicializar Notificaciones EN SEGUNDO PLANO (no bloquea el primer frame)
   NotificationService().init();
 
-  // Verificar sesión guardada de forma asíncrona — la UI maneja el estado loading
   authProvider.checkAuthStatus().then((_) {
     final jwtToken = authProvider.currentUser?.token;
     if (jwtToken != null) {

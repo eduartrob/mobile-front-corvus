@@ -23,19 +23,16 @@ class AnimatedLoadingTextWidget extends StatelessWidget {
       {'icon': '🏁', 'text': l10n.loadingPhase8},
     ];
 
-    // La fase reportada por el servidor (entre 1 y 8)
     final serverPhase = provider.serverPhase;
     final index = (serverPhase - 1).clamp(0, defaultPhases.length - 1);
     final phaseData = defaultPhases[index];
 
-    // Si el servidor envía un mensaje personalizado (ej. "En cola de espera..."), lo mostramos
     final displayText = provider.serverPhaseMessage.isNotEmpty 
         ? provider.serverPhaseMessage 
         : phaseData['text']!;
 
     return Column(
       children: [
-        // Indicador de fase (puntos sincronizados con el servidor)
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(defaultPhases.length, (i) => AnimatedContainer(

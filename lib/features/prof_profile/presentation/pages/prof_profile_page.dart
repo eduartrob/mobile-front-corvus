@@ -23,7 +23,6 @@ class ProfProfilePage extends StatefulWidget {
 }
 
 class _ProfProfilePageState extends State<ProfProfilePage> {
-  // Estados para los switches de cursos
   bool course1Enabled = true;
   bool course2Enabled = true;
   bool course3Enabled = false;
@@ -168,7 +167,6 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                           }
                           final allFolders = snapshot.data ?? [];
                           
-                          // Filtrado local
                           final filteredFolders = allFolders.where((f) {
                             final name = (f['name'] ?? '').toLowerCase();
                             return name.contains(searchQuery);
@@ -204,14 +202,14 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                               buildList(sharedWithMe),
                             ],
                           );
-                        }, // Closes builder
-                      ), // Closes FutureBuilder
-                    ), // Closes Expanded
-                  ], // Closes Column children
-                ), // Closes Column
-              ), // Closes Material
-              ), // Closes Container
-            ); // Closes DefaultTabController
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              ),
+            );
           },
         );
       },
@@ -229,12 +227,11 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
       ),
       trailing: const Icon(Icons.chevron_right),
       onTap: () async {
-        // Capturar referencias antes de cerrar el modal
         final authProvider = context.read<AuthProvider>();
         final linkedFolders = context.read<LinkedFoldersProvider>();
         final scaffoldMessenger = ScaffoldMessenger.of(context);
 
-        Navigator.pop(context); // Cierra el bottom sheet
+        Navigator.pop(context);
 
         final accessToken = await authProvider.getDriveAccessToken();
         final jwtToken = authProvider.currentUser?.token;
@@ -249,7 +246,6 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
           return;
         }
 
-        // Feedback inmediato en la UI
         scaffoldMessenger.showSnackBar(
           SnackBar(
             content: Text('Conectando con Corvus para procesar "$folderName"...'),
@@ -267,7 +263,6 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
           if (result['success'] == true) {
             final syncSkipped = result['sync_skipped'] == true;
 
-            // Añadir al provider local y backend
             linkedFolders.addFolder(folderId, folderName, jwtToken, isSynced: syncSkipped);
 
             if (syncSkipped) {
@@ -279,7 +274,6 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                 ),
               );
             } else {
-              // Feedback de éxito en la UI
               scaffoldMessenger.showSnackBar(
                 SnackBar(
                   content: const Text('¡Carpeta vinculada! El procesamiento ha comenzado en segundo plano.'),
@@ -288,7 +282,6 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                 ),
               );
               
-              // Mostrar notificación persistente en 0%
               await NotificationService().showProgressNotification(
                 progress: 0,
                 maxProgress: 100,
@@ -296,9 +289,6 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                 message: 'Preparando vectorización de $folderName...',
               );
 
-              // Nota: El polling de progreso (la actualización en segundo plano)
-              // ahora es manejado automáticamente por LinkedFoldersProvider
-              // de manera resiliente, incluso si el usuario navega a otra pantalla.
             }
           }
         } catch (e) {
@@ -327,7 +317,6 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
-            // Cabecera Perfil
             Center(
               child: CircleAvatar(
                 radius: 50,
@@ -381,7 +370,6 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
             
             const SizedBox(height: 32),
             
-            // Tarjetas de Métricas (2x2 Grid)
             Row(
               children: [
                 Expanded(child: _buildMetricCard(context, label: 'COURSES', value: '06')),
@@ -400,7 +388,6 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
             
             const SizedBox(height: 32),
             
-            // Sección Course Access
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -438,7 +425,6 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
             
             const SizedBox(height: 16),
             
-            // Cursos Switches
             Container(
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
@@ -500,7 +486,6 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
             
             const SizedBox(height: 32),
             
-            // Selector de Apariencia
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -563,7 +548,6 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
             const Divider(),
             const SizedBox(height: 24),
             
-            // Sección de Carpetas Vinculadas
             Row(
               children: [
                 Icon(Icons.folder_shared, color: colorScheme.primary),
@@ -579,7 +563,6 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
             ),
             const SizedBox(height: 16),
             
-            // Lista dinámica de carpetas
             Consumer<LinkedFoldersProvider>(
               builder: (context, linkedProvider, child) {
                 if (linkedProvider.folders.isEmpty) {
@@ -682,13 +665,11 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
             
             const SizedBox(height: 24),
             
-            // Drive Sync Button
             SizedBox(
               width: double.infinity,
               height: 55,
               child: OutlinedButton.icon(
                 onPressed: () async {
-                  // Solicitar permiso incremental
                   final granted = await context.read<AuthProvider>().requestDriveAccess();
                   if (context.mounted) {
                     if (granted) {
@@ -718,7 +699,6 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
             
             const SizedBox(height: 12),
             
-            // Privacy Notice
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -760,13 +740,11 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
             ),
             
             const SizedBox(height: 24),            
-            // Logout Button
             SizedBox(
               width: double.infinity,
               height: 55,
               child: ElevatedButton.icon(
                 onPressed: () async {
-                  // Mostrar overlay oscuro de carga
                   showDialog(
                     context: context,
                     barrierDismissible: false,
@@ -775,11 +753,10 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                     ),
                   );
                   
-                  // Ejecutar logout que limpiará Google y storage
                   await context.read<AuthProvider>().logout();
                   
                   if (context.mounted) {
-                    Navigator.of(context).pop(); // Cerrar overlay
+                    Navigator.of(context).pop();
                     context.go('/');
                   }
                 },
@@ -799,7 +776,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
               ),
             ),
             
-            const SizedBox(height: 100), // Spacing for bottom nav
+            const SizedBox(height: 100),
           ],
         ),
       ),

@@ -38,21 +38,17 @@ class ProjectCard extends StatelessWidget {
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          // ── Tarjeta principal ──
           GlassContainer(
             blur: 0,
             opacity: 0.5,
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-            // Borde sutil naranja si es trending
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── Chips de categoría y estado ──
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
                   children: [
-                    // Chip categoría
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
@@ -73,7 +69,6 @@ class ProjectCard extends StatelessWidget {
                       ),
                     ),
                     
-                    // Chip estado / trending
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
@@ -93,7 +88,6 @@ class ProjectCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    // Badge de vistas (poco explorado = distintivo especial)
                     if (!isTrending && project.viewCount < 10)
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -119,14 +113,12 @@ class ProjectCard extends StatelessWidget {
 
                 const SizedBox(height: 16),
 
-                // ── Título ──
                 Text(
                   project.title,
                   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, height: 1.2),
                 ),
                 const SizedBox(height: 8),
 
-                // ── Descripción ──
                 Text(
                   project.description.startsWith('Este proyecto ha sido clasificado') 
                       ? l10n.blueOceanGenericDesc 
@@ -140,7 +132,6 @@ class ProjectCard extends StatelessWidget {
                 const Divider(height: 1, thickness: 0.5),
                 const SizedBox(height: 12),
 
-                // ── Fila inferior: avatares y conteo ──
                 Row(
                   children: [
                     _ViewersAndCountRow(
@@ -151,7 +142,6 @@ class ProjectCard extends StatelessWidget {
 
                     const Spacer(),
 
-                    // Botón explorar / Generando
                     InkWell(
                       onTap: () async {
                         if (project.analysisStatus == 'pending') {
@@ -170,14 +160,12 @@ class ProjectCard extends StatelessWidget {
                         final avatarUrl = authProvider.currentUser?.photoUrl;
                         final provider = context.read<InspirationProvider>();
                         
-                        // Capturar los estados antes de cualquier await para evitar problemas de unmount
                         final rootNavigator = Navigator.of(context, rootNavigator: true);
                         final localNavigator = Navigator.of(context);
                         final scaffoldMessenger = ScaffoldMessenger.of(context);
                         
                         ProjectEntity? projectToNav = project;
 
-                        // Si no tenemos los datos cacheados, bloqueamos la UI y mostramos un loader
                         if (project.analysisData == null) {
                           showDialog(
                             context: context,
@@ -197,10 +185,8 @@ class ProjectCard extends StatelessWidget {
                           
                           projectToNav = await provider.trackNicheView(project.id, avatarUrl);
                           
-                          // Cierra el loader usando el rootNavigator que siempre está montado
                           rootNavigator.pop();
                         } else {
-                          // Ya están cacheados, mandamos la vista en background silenciosamente
                           provider.trackNicheView(project.id, avatarUrl);
                         }
 
@@ -250,7 +236,6 @@ class ProjectCard extends StatelessWidget {
             ),
           ),
 
-          // ── Badge 🔥 TRENDING (esquina superior derecha, fuera de la tarjeta) ──
           if (isTrending)
             Positioned(
               top: -10,
@@ -263,9 +248,7 @@ class ProjectCard extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// TRENDING BADGE — aparece cuando viewCount >= 50
-// ─────────────────────────────────────────────────────────────────────────────
+// -# 
 class _TrendingBadge extends StatelessWidget {
   final int viewCount;
   const _TrendingBadge({required this.viewCount});
@@ -316,9 +299,7 @@ class _TrendingBadge extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// VIEWERS AND COUNT ROW — avatares apilados y círculo con el sobrante de vistas
-// ─────────────────────────────────────────────────────────────────────────────
+// -# 
 class _ViewersAndCountRow extends StatelessWidget {
   final List<String> viewers;
   final int totalViews;
@@ -359,7 +340,6 @@ class _ViewersAndCountRow extends StatelessWidget {
     const avatarSize = 24.0;
     const overlap = 16.0;
     
-    // Ancho total del stack: cada elemento añade "overlap" px, más el tamaño completo del último
     final totalElements = displayViewers.length + (showRemaining ? 1 : 0);
     final rowWidth = avatarSize + (totalElements > 0 ? (totalElements - 1) * overlap : 0);
 

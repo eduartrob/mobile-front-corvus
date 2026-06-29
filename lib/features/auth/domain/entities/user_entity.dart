@@ -3,8 +3,8 @@ class UserEntity {
   final String email;
   final String name;
   final String? photoUrl;
-  final String? token; // JWT token from Corvus backend
-  final String? role; // ALUMNO or PROFESOR
+  final String? token;
+  final String? role;
 
   UserEntity({
     required this.id,

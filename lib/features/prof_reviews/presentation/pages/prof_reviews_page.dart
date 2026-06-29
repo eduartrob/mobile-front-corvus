@@ -76,7 +76,6 @@ class ProfReviewsPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 
-                // Resumen de IA Card
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
@@ -168,12 +167,11 @@ class ProfReviewsPage extends StatelessWidget {
                   ),
                 ),
                 
-                const SizedBox(height: 150), // Espacio para los botones flotantes
+                const SizedBox(height: 150),
               ],
             ),
           ),
           
-          // Botones inferiores flotantes (pegados abajo como en la captura)
           Positioned(
             bottom: 0,
             left: 0,

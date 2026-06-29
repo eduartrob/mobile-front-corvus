@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Widget de animación de puntos suspensivos tipo "Sincronizando..."
-/// Reemplaza el Stream.periodic anterior. Usa AnimationController
-/// interno — no crea ningún Stream, no genera tráfico de eventos externos.
+// -# interno  no crea ningun stream no genera trafico de eventos externos
 class SyncingDotsText extends StatefulWidget {
   final String label;
   final TextStyle? style;

@@ -42,7 +42,6 @@ class InspirationProvider extends ChangeNotifier {
   }
 
   Future<void> loadProjects({bool forceRefresh = false}) async {
-    // Si no es un refresco forzado y ya tenemos datos, no hacemos show loading total
     if (_projects.isEmpty) {
       _isLoading = true;
       notifyListeners();

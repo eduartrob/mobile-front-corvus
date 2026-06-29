@@ -45,8 +45,6 @@ class _InspirationPageState extends State<InspirationPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Leemos solo los dos booleans que necesita la página raíz.
-    // Los proyectos los consume directamente cada SliverList item.
     final isLoading = context.select<InspirationProvider, bool>((p) => p.isLoading);
     final showWelcome = context.select<InspirationProvider, bool>((p) => p.showWelcome);
     final projectCount = context.select<InspirationProvider, int>((p) => p.projects.length);
@@ -56,10 +54,8 @@ class _InspirationPageState extends State<InspirationPage> {
       appBar: const CorvusTopBar(),
       body: Stack(
         children: [
-          // Fondo
           Container(color: Theme.of(context).colorScheme.surface),
 
-          // Lista principal — aislada con RepaintBoundary del floating button
           RepaintBoundary(
             child: SafeArea(
               bottom: false,
@@ -69,7 +65,6 @@ class _InspirationPageState extends State<InspirationPage> {
                 child: CustomScrollView(
                   controller: _scrollController,
                   slivers: [
-                    // Header estático (bienvenida + título)
                     SliverPadding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       sliver: SliverToBoxAdapter(
@@ -85,7 +80,6 @@ class _InspirationPageState extends State<InspirationPage> {
                       ),
                     ),
 
-                    // Lista de tarjetas — lazy building con SliverChildBuilderDelegate
                     SliverPadding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       sliver: (isLoading && projectCount == 0)
@@ -98,10 +92,7 @@ class _InspirationPageState extends State<InspirationPage> {
                           : SliverList(
                               delegate: SliverChildBuilderDelegate(
                                 (context, index) {
-                                  // Cada tarjeta obtiene su propio dato del provider directamente
-                                  // para no depender de que la página raíz pase listas completas
                                   final project = context.read<InspirationProvider>().projects[index];
-                                  // RepaintBoundary por tarjeta: el scroll de una no re-pinta las demás
                                   return RepaintBoundary(
                                     child: ProjectCard(project: project),
                                   );
@@ -118,7 +109,6 @@ class _InspirationPageState extends State<InspirationPage> {
             ),
           ),
 
-          // Floating Input — aislado del scroll con su propio RepaintBoundary
           Positioned(
             bottom: 0,
             left: 0,
@@ -140,9 +130,7 @@ class _InspirationPageState extends State<InspirationPage> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// WELCOME CARD — widget const-friendly separado para evitar reconstruir el header
-// ─────────────────────────────────────────────────────────────────────────────
+// -# 
 class _WelcomeCard extends StatelessWidget {
   final VoidCallback onDismiss;
   const _WelcomeCard({required this.onDismiss});
@@ -194,9 +182,7 @@ class _WelcomeCard extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// SECTION HEADER — completamente estático, nunca se reconstruye
-// ─────────────────────────────────────────────────────────────────────────────
+// -# 
 class _SectionHeader extends StatelessWidget {
   const _SectionHeader();
 

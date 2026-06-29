@@ -58,7 +58,6 @@ class InspirationOrg extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Badges
               Row(
                 children: [
                   Container(
@@ -101,7 +100,7 @@ class InspirationOrg extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
-              // Big Title
+              // -# big title
               const Text(
                 'Análisis de Innovación',
                 style: TextStyle(
@@ -112,7 +111,7 @@ class InspirationOrg extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              // Subtitle
+              // -# subtitle
               const Text(
                 'Evaluación estratégica de viabilidad y originalidad para un potencial tema de tesis o proyecto de investigación en la región sureste de México.',
                 style: TextStyle(
@@ -123,7 +122,6 @@ class InspirationOrg extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               
-              // Hallazgo Principal
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
@@ -193,7 +191,6 @@ class InspirationOrg extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // Sugerencias de Abordaje Metodológico
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
@@ -307,7 +304,6 @@ class InspirationOrg extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // Métricas de Viabilidad
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
@@ -336,7 +332,6 @@ class InspirationOrg extends StatelessWidget {
                     _buildMetricBar('Relevancia Académica', 0.88, '88%', const Color(0xFF10B981)),
                     
                     const SizedBox(height: 24),
-                    // Botones
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(

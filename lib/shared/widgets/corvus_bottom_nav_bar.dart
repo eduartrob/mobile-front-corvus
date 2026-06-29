@@ -85,7 +85,6 @@ class _CustomNavItemState extends State<CustomNavItem> with TickerProviderStateM
       reverseDuration: const Duration(milliseconds: 150),
     );
 
-    // Animación de rebote doble MÁS suave para el icono
     _bounceAnimation = TweenSequence<double>([
       TweenSequenceItem(tween: Tween(begin: 0.0, end: -6.0).chain(CurveTween(curve: Curves.easeOutQuad)), weight: 30),
       TweenSequenceItem(tween: Tween(begin: -6.0, end: 0.0).chain(CurveTween(curve: Curves.easeInQuad)), weight: 30),
@@ -96,12 +95,10 @@ class _CustomNavItemState extends State<CustomNavItem> with TickerProviderStateM
       curve: const Interval(0.0, 0.8),
     ));
 
-    // Animación de giro para el rombo (de 0 a 45 grados)
     _rotateAnimation = Tween<double>(begin: 0.0, end: math.pi / 4).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
     );
 
-    // Animación de aparición (escala) para el rombo
     _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.5, curve: Curves.easeOutBack)),
     );
@@ -148,7 +145,6 @@ class _CustomNavItemState extends State<CustomNavItem> with TickerProviderStateM
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      // Rombo que gira (Fondo)
                       if (_scaleAnimation.value > 0)
                         Transform.scale(
                           scale: _scaleAnimation.value,
@@ -164,7 +160,6 @@ class _CustomNavItemState extends State<CustomNavItem> with TickerProviderStateM
                             ),
                           ),
                         ),
-                      // Icono que rebota
                       Transform.translate(
                         offset: Offset(0, _bounceAnimation.value),
                         child: Icon(

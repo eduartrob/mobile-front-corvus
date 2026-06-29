@@ -37,7 +37,6 @@ class _FloatingAiInputState extends State<FloatingAiInput> {
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
 
-    // We make sure it doesn't hide if it's minimized
     final bool shouldShow = widget.isVisible || _isMinimized;
 
     return AnimatedSlide(
@@ -166,7 +165,6 @@ class _FloatingAiInputState extends State<FloatingAiInput> {
               ),
               InkWell(
                 onTap: () async {
-                  // Cerrar el teclado si está abierto
                   FocusScope.of(context).unfocus();
                   setState(() {
                     _isMinimized = true;

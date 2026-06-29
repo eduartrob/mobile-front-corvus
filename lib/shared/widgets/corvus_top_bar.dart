@@ -10,8 +10,6 @@ class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Solo escuchamos los dos campos que este widget necesita.
-    // Cualquier otro cambio en AuthProvider (token, estado de carga, etc.) no dispara un rebuild.
     final photoUrl = context.select<AuthProvider, String?>((a) => a.currentUser?.photoUrl);
     final role = context.select<AuthProvider, String?>((a) => a.role);
     return AppBar(

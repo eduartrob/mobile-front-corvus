@@ -42,7 +42,6 @@ class SyncRemoteDataSourceImpl implements SyncRemoteDataSource {
   @override
   Future<List<Map<String, dynamic>>> getDriveFolders(String accessToken) async {
     try {
-      // DEBUG: verificar que el token no sea null/vacío
       print('🔑 [DRIVE] accessToken length: ${accessToken.length}');
       print('🔑 [DRIVE] accessToken prefix: ${accessToken.substring(0, accessToken.length > 20 ? 20 : accessToken.length)}...');
 

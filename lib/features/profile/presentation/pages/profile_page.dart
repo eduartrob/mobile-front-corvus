@@ -33,7 +33,6 @@ class ProfilePage extends StatelessWidget {
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
-            // Header Profile
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
@@ -78,7 +77,6 @@ class ProfilePage extends StatelessWidget {
             
             const SizedBox(height: 20),
             
-            // Stats Row
             Row(
               children: [
                 Expanded(
@@ -103,7 +101,6 @@ class ProfilePage extends StatelessWidget {
             
             const SizedBox(height: 20),
             
-            // Habilidades Técnicas
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -146,7 +143,6 @@ class ProfilePage extends StatelessWidget {
             
             const SizedBox(height: 20),
             
-            // Actividad Reciente
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -194,7 +190,6 @@ class ProfilePage extends StatelessWidget {
             
             const SizedBox(height: 24),
             
-            // Selector de Apariencia
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -255,13 +250,11 @@ class ProfilePage extends StatelessWidget {
             
             const SizedBox(height: 40),
             
-            // Cerrar Sesión
             SizedBox(
               width: double.infinity,
               height: 50,
               child: ElevatedButton.icon(
                 onPressed: () async {
-                  // Mostrar overlay oscuro de carga
                   showDialog(
                     context: context,
                     barrierDismissible: false,
@@ -270,11 +263,10 @@ class ProfilePage extends StatelessWidget {
                     ),
                   );
                   
-                  // Ejecutar logout que limpiará Google y storage
                   await context.read<AuthProvider>().logout();
                   
                   if (context.mounted) {
-                    Navigator.of(context).pop(); // Cerrar overlay
+                    Navigator.of(context).pop();
                     context.go('/');
                   }
                 },
@@ -291,7 +283,7 @@ class ProfilePage extends StatelessWidget {
               ),
             ),
             
-            const SizedBox(height: 100), // Spacing for bottom nav
+            const SizedBox(height: 100),
           ],
         ),
       ),

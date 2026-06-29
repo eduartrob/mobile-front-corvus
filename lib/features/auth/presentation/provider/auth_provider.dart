@@ -34,7 +34,6 @@ class AuthProvider extends ChangeNotifier {
   String? get role => _currentUser?.role ?? _cachedRole;
   String? get errorMessage => _errorMessage;
 
-  // Verifica si hay un token guardado al iniciar la app
   Future<void> checkAuthStatus() async {
     _status = AuthStatus.loading;
     notifyListeners();
@@ -46,7 +45,6 @@ class AuthProvider extends ChangeNotifier {
       if (token != null) {
         _cachedRole = savedRole;
         
-        // Reconstruir el usuario con datos locales cacheados
         final savedId = await _storage.read(key: 'auth_id') ?? '';
         final savedEmail = await _storage.read(key: 'auth_email') ?? '';
         final savedName = await _storage.read(key: 'auth_name') ?? '';
@@ -81,7 +79,6 @@ class AuthProvider extends ChangeNotifier {
       _currentUser = user;
       _cachedRole = user.role;
       
-      // Guardar el token y datos de perfil de forma segura
       if (user.token != null) {
         await _storage.write(key: 'auth_token', value: user.token);
       }
@@ -95,14 +92,12 @@ class AuthProvider extends ChangeNotifier {
         await _storage.write(key: 'auth_photo', value: user.photoUrl);
       }
 
-      // Pedir permisos de notificación al usuario exitosamente logueado
       await NotificationService().requestPermission();
 
       _status = AuthStatus.authenticated;
       notifyListeners();
     } catch (e) {
       String errorStr = e.toString();
-      // Detectar error de dominio/403 desde el backend
       if (errorStr.contains('403') || errorStr.toLowerCase().contains('upchiapas') || errorStr.toLowerCase().contains('domain') || errorStr.toLowerCase().contains('permitido')) {
         _errorMessage = 'AUTH_NOT_ALLOWED';
       } else if (errorStr.toLowerCase().contains('canceled') || errorStr.toLowerCase().contains('cancelado')) {
@@ -139,7 +134,6 @@ class AuthProvider extends ChangeNotifier {
     try {
       await signOutFromGoogleUseCase();
     } catch (e) {
-      // Ignorar si falla el logout de google, lo importante es limpiar localmente
     }
 
     await _storage.delete(key: 'auth_token');

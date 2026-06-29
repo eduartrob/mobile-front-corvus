@@ -6,13 +6,9 @@ class ProjectEntity {
   final String description;
   final String status;
   final List<String> userAvatars;
-  /// Número de veces que se ha consultado este nicho
   final int viewCount;
-  /// Avatares de los últimos usuarios que revisaron este proyecto
   final List<String> recentViewers;
-  /// Estado del análisis: "pending" o "completed"
   final String analysisStatus;
-  /// Datos del análisis (hallazgo_principal, sugerencias, metricas)
   final Map<String, dynamic>? analysisData;
 
   ProjectEntity({
@@ -29,7 +25,5 @@ class ProjectEntity {
     this.analysisData,
   });
 
-  /// Un nicho se considera "trending" si supera las 50 vistas.
-  /// Estos se muestran con el badge 🔥 (son los que "rompieron" el océano azul).
   bool get isTrending => viewCount >= 50;
 }

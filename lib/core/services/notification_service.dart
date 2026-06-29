@@ -19,7 +19,7 @@ class NotificationService {
 
   Future<void> init() async {
     const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
-    // Para iOS y otras plataformas se configura aquí (se omite por brevedad para centrarse en Android)
+    // -# para ios y otras plataformas se configura aqui se omite por brevedad para centrarse en android
     const InitializationSettings initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
     );
@@ -52,8 +52,8 @@ class NotificationService {
       maxProgress: maxProgress,
       progress: progress,
       icon: '@mipmap/ic_launcher',
-      ongoing: true, // Hace que la notificación no se pueda descartar deslizándola
-      subText: message, // FORZAR que el mensaje se muestre en OPPO/Xiaomi
+      ongoing: true,
+      subText: message,
     );
 
     final NotificationDetails notificationDetails = NotificationDetails(android: androidNotificationDetails);
@@ -126,15 +126,13 @@ class NotificationService {
       importance: Importance.high,
       priority: Priority.high,
       icon: '@mipmap/ic_launcher',
-      timeoutAfter: 6000, // Desaparece sola a los 6 segundos
+      timeoutAfter: 6000,
     );
 
     final NotificationDetails notificationDetails = NotificationDetails(android: androidNotificationDetails);
 
-    // Cancelar la barra de progreso
     await _flutterLocalNotificationsPlugin.cancel(syncNotificationId);
 
-    // Mostrar el éxito con un ID diferente para que se quede un rato
     await _flutterLocalNotificationsPlugin.show(
       syncNotificationId + 1,
       title,
@@ -147,8 +145,6 @@ class NotificationService {
     await _flutterLocalNotificationsPlugin.cancel(syncNotificationId);
   }
 
-  // ─── Métodos para el Análisis Exhaustivo ───
-
   Future<void> showAnalysisProgressNotification({
     required String title,
     required String message,
@@ -159,13 +155,13 @@ class NotificationService {
       analysisChannelName,
       channelDescription: analysisChannelDescription,
       channelShowBadge: false,
-      importance: Importance.low, // Low importance para no interrumpir al usuario repetidamente
+      importance: Importance.low,
       priority: Priority.low,
       onlyAlertOnce: true,
       showProgress: true,
       indeterminate: true,
       icon: '@mipmap/ic_launcher',
-      ongoing: true, // Persistente
+      ongoing: true,
       subText: phase,
     );
 
@@ -190,15 +186,13 @@ class NotificationService {
       importance: Importance.high,
       priority: Priority.high,
       icon: '@mipmap/ic_launcher',
-      timeoutAfter: 10000, // Desaparece sola a los 10 segundos
+      timeoutAfter: 10000,
     );
 
     final NotificationDetails notificationDetails = NotificationDetails(android: androidNotificationDetails);
 
-    // Cancelar la barra de progreso persistente
     await _flutterLocalNotificationsPlugin.cancel(analysisNotificationId);
 
-    // Mostrar el éxito con un ID diferente
     await _flutterLocalNotificationsPlugin.show(
       analysisNotificationId + 1,
       title,

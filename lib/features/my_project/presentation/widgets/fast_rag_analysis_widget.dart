@@ -84,7 +84,6 @@ class FastRagAnalysisWidget extends StatelessWidget {
             child: Divider(color: colorScheme.outlineVariant.withOpacity(0.5)),
           ),
           
-          // Alineación Académica
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -120,7 +119,6 @@ class FastRagAnalysisWidget extends StatelessWidget {
           
           const SizedBox(height: 24),
           
-          // Riesgo de Colisión
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -157,7 +155,6 @@ class FastRagAnalysisWidget extends StatelessWidget {
           
           const SizedBox(height: 24),
           
-          // Áreas de Mejora
           if (data['areas_of_improvement'] != null && (data['areas_of_improvement'] as List).isNotEmpty)
             Container(
               padding: const EdgeInsets.all(16),

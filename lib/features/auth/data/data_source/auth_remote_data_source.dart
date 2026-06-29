@@ -14,7 +14,6 @@ abstract class AuthRemoteDataSource {
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    // En Android, el clientId web se pasa como serverClientId para obtener el idToken
     serverClientId: '1078483343139-2fobsjceva5r60i6vrpcg4jbjddmj4uo.apps.googleusercontent.com',
     scopes: ['email', 'profile'],
   );
@@ -41,20 +40,17 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<UserModel> signInWithGoogle() async {
     try {
-      // 1. Iniciar sesión con Google SDK
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
         throw Exception('Inicio de sesión cancelado por el usuario');
       }
 
-      // 2. Obtener los detalles de autenticación de Google
       final String? serverAuthCode = googleUser.serverAuthCode;
 
       if (serverAuthCode == null) {
         throw Exception('No se pudo obtener el serverAuthCode de Google');
       }
 
-      // 3. Enviar el authCode al backend (API Gateway -> Auth Service)
       final response = await http.post(
         Uri.parse('${ApiConfig.apiGatewayUrl}${ApiConfig.authGoogleEndpoint}'),
         headers: ApiConfig.defaultHeaders,
@@ -100,7 +96,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw Exception('Error del backend: $error');
       }
     } catch (e) {
-      // Desconectar al usuario de Google en caso de error interno
       await _googleSignIn.signOut();
       throw Exception('Fallo al iniciar sesión con Google: $e');
     }
@@ -111,7 +106,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       await _googleSignIn.disconnect();
     } catch (e) {
-      // Fallback si falla el disconnect
       await _googleSignIn.signOut();
     }
   }

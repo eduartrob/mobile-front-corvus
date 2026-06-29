@@ -18,7 +18,6 @@ class InspirationRemoteDataSource {
   Future<List<ProjectModel>> getUnexploredProjects({bool forceRefresh = false}) async {
     final prefs = await SharedPreferences.getInstance();
     
-    // Retornar caché si existe y no forzamos refresh
     if (!forceRefresh) {
       final cachedStr = prefs.getString(_cacheKey);
       if (cachedStr != null) {
@@ -53,10 +52,8 @@ class InspirationRemoteDataSource {
         final data = json.decode(utf8.decode(response.bodyBytes));
         final List<dynamic> nichesJson = data['niches'] ?? [];
 
-        // Siempre mapeamos lo que venga, incluso si está vacío.
         final models = nichesJson.map((niche) => ProjectModel.fromJson(niche)).toList();
         
-        // Guardamos en caché solo si hay datos, o sobreescribimos con vacío si queremos
         prefs.setString(_cacheKey, json.encode(models.map((m) => m.toJson()).toList()));
         
         return models;
@@ -66,11 +63,9 @@ class InspirationRemoteDataSource {
       debugPrint('InspirationRemoteDataSource Error: $e');
     }
 
-    // Si hubo error, retornamos vacío en lugar de fallback falso.
     return [];
   }
 
-  /// Registra una vista en el backend y devuelve la data actualizada (incluyendo el análisis)
   Future<ProjectModel?> trackNicheView(String nicheId, String? userAvatar) async {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/blue-ocean-niches/$nicheId/view');
     
@@ -90,7 +85,6 @@ class InspirationRemoteDataSource {
       if (response.statusCode == 200) {
         final data = json.decode(utf8.decode(response.bodyBytes));
         if (data['status'] == 'success') {
-          // Actualizamos la caché local modificando el item específico
           final prefs = await SharedPreferences.getInstance();
           final cachedStr = prefs.getString(_cacheKey);
           
@@ -102,7 +96,6 @@ class InspirationRemoteDataSource {
             if (index != -1) {
               final model = cachedModels[index];
               
-              // Evitar duplicados en la lista de viewers
               final newViewers = List<String>.from(model.recentViewers);
               if (userAvatar != null) {
                 newViewers.remove(userAvatar);
@@ -138,8 +131,6 @@ class InspirationRemoteDataSource {
     return null;
   }
 
-
-  /// Genera avatares de "vistos recientemente" basados en el número de vistas
   static List<String> _generateRecentViewers(int viewCount) {
     if (viewCount == 0) return [];
     final names = ['Ana L', 'Carlos M', 'Sofia R', 'Luis G', 'Maria V', 'Pedro K', 'Diana F'];
