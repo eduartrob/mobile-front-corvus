@@ -52,6 +52,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navProfile => 'Profile';
 
   @override
+  String get navSearch => 'Search';
+
+  @override
   String get welcomeToCorvus => 'Welcome to Corvus';
 
   @override

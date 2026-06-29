@@ -182,6 +182,12 @@ abstract class AppLocalizations {
   /// **'Perfil'**
   String get navProfile;
 
+  /// No description provided for @navSearch.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar'**
+  String get navSearch;
+
   /// No description provided for @welcomeToCorvus.
   ///
   /// In es, this message translates to:
