@@ -46,7 +46,7 @@ void main() async {
     ),
   );
 
-  NotificationService().init();
+  await NotificationService().init();
 
   authProvider.checkAuthStatus().then((_) {
     final jwtToken = authProvider.currentUser?.token;
