@@ -30,7 +30,14 @@ class CustomAnimatedBottomNavBar extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerLow,
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Theme.of(context).colorScheme.primary.withOpacity(0.08),
+            Theme.of(context).colorScheme.primary.withOpacity(0.02),
+          ],
+        ),
         border: Border(
           top: BorderSide(
             color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),

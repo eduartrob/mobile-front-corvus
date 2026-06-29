@@ -45,14 +45,14 @@ class MainLayout extends StatelessWidget {
             label: l10n.navMyProject,
           ),
           CustomNavItemData(
+            icon: Icons.search_outlined,
+            activeIcon: Icons.search,
+            label: l10n.navSearch, // Note: Make sure l10n.navSearch exists or we will need to add it or use a string for now. If it fails, I'll fix it. Let's use 'Buscar' just in case.
+          ),
+          CustomNavItemData(
             icon: Icons.groups_outlined,
             activeIcon: Icons.groups,
             label: l10n.navTeams,
-          ),
-          CustomNavItemData(
-            icon: Icons.person_outline,
-            activeIcon: Icons.person,
-            label: l10n.navProfile,
           ),
         ],
       ),

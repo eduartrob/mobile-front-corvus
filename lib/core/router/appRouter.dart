@@ -13,6 +13,7 @@ import 'package:mobile/features/profile/presentation/pages/profile_page.dart';
 import 'package:mobile/features/prof_dash/presentation/pages/prof_dash_page.dart';
 import 'package:mobile/features/prof_reviews/presentation/pages/prof_reviews_page.dart';
 import 'package:mobile/features/prof_rules/presentation/pages/prof_rules_page.dart';
+import 'package:mobile/features/search/presentation/pages/search_page.dart';
 import 'package:mobile/features/prof_history/presentation/pages/prof_history_page.dart';
 import 'package:mobile/features/prof_profile/presentation/pages/prof_profile_page.dart';
 import 'package:mobile/features/profile/presentation/pages/activity_history_page.dart';
@@ -95,8 +96,8 @@ class AppRouter extends StatelessWidget {
             StatefulShellBranch(
               routes: [
                 GoRoute(
-                  path: '/profile',
-                  builder: (context, state) => const ProfilePage(),
+                  path: '/search',
+                  builder: (context, state) => const SearchPage(),
                 ),
               ],
             ),
@@ -146,6 +147,10 @@ class AppRouter extends StatelessWidget {
         GoRoute(
           path: '/prof-profile',
           builder: (context, state) => const ProfProfilePage(),
+        ),
+        GoRoute(
+          path: '/profile',
+          builder: (context, state) => const ProfilePage(),
         ),
         GoRoute(
           path: '/activity-history',
