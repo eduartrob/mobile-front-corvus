@@ -4,8 +4,8 @@ import 'package:mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/teams/presentation/widgets/team_member_card.dart';
-import 'widgets/team_members_list.dart';
-import 'widgets/team_ai_assistant_card.dart';
+import '../widgets/team_members_list.dart';
+import '../widgets/team_ai_assistant_card.dart';
 class TeamsPage extends StatelessWidget {
   const TeamsPage({super.key});
 

@@ -10,6 +10,8 @@ class StudentHeaderInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
+    final currentUser = user;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
@@ -20,10 +22,10 @@ class StudentHeaderInfo extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 48,
-            backgroundImage: (user?.photoUrl != null && user!.photoUrl!.isNotEmpty)
-                ? NetworkImage(user.photoUrl!)
+            backgroundImage: (currentUser?.photoUrl != null && currentUser!.photoUrl!.isNotEmpty)
+                ? NetworkImage(currentUser.photoUrl!)
                 : null,
-            child: (user?.photoUrl == null || user!.photoUrl!.isEmpty)
+            child: (currentUser?.photoUrl == null || currentUser!.photoUrl!.isEmpty)
                 ? const Icon(Icons.person, size: 48)
                 : null,
           ),

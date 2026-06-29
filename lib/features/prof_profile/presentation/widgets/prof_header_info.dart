@@ -10,15 +10,17 @@ class ProfHeaderInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
+    final currentUser = user;
+
     return Column(
       children: [
         Center(
           child: CircleAvatar(
             radius: 50,
-            backgroundImage: (user?.photoUrl != null && user!.photoUrl!.isNotEmpty)
-                ? NetworkImage(user.photoUrl!)
+            backgroundImage: (currentUser?.photoUrl != null && currentUser!.photoUrl!.isNotEmpty)
+                ? NetworkImage(currentUser.photoUrl!)
                 : null,
-            child: (user?.photoUrl == null || user!.photoUrl!.isEmpty)
+            child: (currentUser?.photoUrl == null || currentUser!.photoUrl!.isEmpty)
                 ? const Icon(Icons.person, size: 50)
                 : null,
           ),
