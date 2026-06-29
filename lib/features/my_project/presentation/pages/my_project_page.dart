@@ -157,8 +157,7 @@ class _ProjectPageBody extends StatelessWidget {
 
         if (provider.state != ProjectState.initial &&
             provider.state != ProjectState.error &&
-            provider.selectedFile != null &&
-            provider.state != ProjectState.detailedAnalysis)
+            provider.fileName != null)
           UploadedFileItemWidget(provider: provider),
 
         if (provider.state == ProjectState.uploading)
@@ -211,7 +210,7 @@ class _ProjectPageBody extends StatelessWidget {
         if (provider.state == ProjectState.detailedAnalysis && provider.detailedAnalysis != null)
           DetailedAnalysisWidget(data: provider.detailedAnalysis!['ollama_analysis'] ?? {}),
 
-        const SizedBox(height: 32),
+        const SizedBox(height: 12),
 
         if (provider.state == ProjectState.preValidated) ...[
           SizedBox(

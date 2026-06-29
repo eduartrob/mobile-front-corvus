@@ -69,6 +69,8 @@ class MyProjectProvider extends ChangeNotifier {
       final localAnalysis = await _localDataSource.getDetailedAnalysis(userId);
       if (localAnalysis != null) {
         _detailedAnalysis = localAnalysis;
+        _fileName = localAnalysis['original_file_name'] ?? 'documento_analizado.pdf';
+        _fileSize = localAnalysis['original_file_size'] ?? 'Local';
         _state = ProjectState.detailedAnalysis;
         notifyListeners();
         return;
@@ -287,6 +289,9 @@ class MyProjectProvider extends ChangeNotifier {
       return;
     }
 
+    if (_fileName != null) result['original_file_name'] = _fileName;
+    if (_fileSize != null) result['original_file_size'] = _fileSize;
+    
     _detailedAnalysis = result;
     _state = ProjectState.detailedAnalysis;
     await _localDataSource.saveDetailedAnalysis(userId, result);

@@ -35,15 +35,15 @@ class DetailedAnalysisWidget extends StatelessWidget {
       children: [
         InnovationCard(innovationIndex: innovationIndex),
         
-        const SizedBox(height: 24),
+        const SizedBox(height: 12),
         
         MetricsCard(metrics: metrics),
         
-        const SizedBox(height: 24),
+        const SizedBox(height: 12),
         
         RiskCard(collisionRisk: collisionRisk, collisionExplanation: collisionExplanation),
         
-        const SizedBox(height: 24),
+        const SizedBox(height: 12),
         
         if (recommendations.isNotEmpty)
           Container(
