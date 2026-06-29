@@ -9,6 +9,7 @@ import 'package:mobile/l10n/app_localizations.dart';
 import '../widgets/student_header_info.dart';
 import '../widgets/student_stats_card.dart';
 import '../widgets/technical_skills_section.dart';
+import '../widgets/recent_activity_section.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -49,48 +50,7 @@ class ProfilePage extends StatelessWidget {
             
             const SizedBox(height: 20),
             
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                color: Colors.transparent,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.history, color: colorScheme.primary),
-                      const SizedBox(width: 8),
-                      Text(
-                        l10n.recentActivity,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  _buildActivityItem(
-                    context,
-                    icon: Icons.update,
-                    title: l10n.ragEngineUpdate,
-                    time: l10n.timeTwoHoursAgo,
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    child: Divider(),
-                  ),
-                  _buildActivityItem(
-                    context,
-                    icon: Icons.menu_book,
-                    title: l10n.readingCompleted,
-                    time: l10n.timeYesterday,
-                  ),
-                ],
-              ),
-            ),
+            const RecentActivitySection(),
             
             const SizedBox(height: 24),
             
@@ -192,46 +152,4 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  // _buildStatCard and _buildChip were extracted to external widgets
 
-  Widget _buildActivityItem(BuildContext context, {required IconData icon, required String title, required String time}) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: colorScheme.primary.withOpacity(0.1),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(icon, color: colorScheme.primary, size: 20),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  height: 1.3,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                time,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}

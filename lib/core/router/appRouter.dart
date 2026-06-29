@@ -15,6 +15,7 @@ import 'package:mobile/features/prof_reviews/presentation/pages/prof_reviews_pag
 import 'package:mobile/features/prof_rules/presentation/pages/prof_rules_page.dart';
 import 'package:mobile/features/prof_history/presentation/pages/prof_history_page.dart';
 import 'package:mobile/features/prof_profile/presentation/pages/prof_profile_page.dart';
+import 'package:mobile/features/profile/presentation/pages/activity_history_page.dart';
 import 'package:mobile/core/router/main_layout.dart';
 import 'package:mobile/core/router/prof_main_layout.dart';
 
@@ -145,6 +146,10 @@ class AppRouter extends StatelessWidget {
         GoRoute(
           path: '/prof-profile',
           builder: (context, state) => const ProfProfilePage(),
+        ),
+        GoRoute(
+          path: '/activity-history',
+          builder: (context, state) => const ActivityHistoryPage(),
         ),
       ],
     );
