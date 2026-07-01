@@ -48,7 +48,7 @@ class DetailedAnalysisWidget extends StatelessWidget {
         if (recommendations.isNotEmpty)
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.only(top: 20, bottom: 12),
+            padding: const EdgeInsets.only(top: 10, bottom: 12),
             decoration: BoxDecoration(
               color: Colors.transparent,
             ),
@@ -56,7 +56,7 @@ class DetailedAnalysisWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  padding: EdgeInsets.zero,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -100,7 +100,7 @@ class DetailedAnalysisWidget extends StatelessWidget {
                   if (rec['icon'] == 'account_tree') iconData = Icons.account_tree;
 
                   return Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+                    margin: const EdgeInsets.symmetric(vertical: 6.0),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: colorScheme.surfaceContainerHighest.withOpacity(0.4),

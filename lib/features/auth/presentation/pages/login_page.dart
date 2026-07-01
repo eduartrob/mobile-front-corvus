@@ -9,7 +9,6 @@ class LoginPage extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF090E1A) : const Color(0xFFF1F5F9),
       body: SafeArea(
           child: SingleChildScrollView(
             child: ConstrainedBox(

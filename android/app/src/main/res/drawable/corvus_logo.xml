@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Corvus logo: converted from assets/icons/logo.svg (viewBox 512x512) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+
+    <!-- Central circle -->
+    <path
+        android:fillColor="#1E40AF"
+        android:pathData="M256,208 A48,48 0 1,1 256,304 A48,48 0 1,1 256,208 Z" />
+
+    <!-- Line to top node -->
+    <path
+        android:strokeColor="#1E40AF"
+        android:strokeWidth="24"
+        android:strokeLineCap="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M256,256 L256,112" />
+
+    <!-- Line to right-top node -->
+    <path
+        android:strokeColor="#1E40AF"
+        android:strokeWidth="24"
+        android:strokeLineCap="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M256,256 L384,192" />
+
+    <!-- Line to right-bottom node -->
+    <path
+        android:strokeColor="#1E40AF"
+        android:strokeWidth="24"
+        android:strokeLineCap="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M256,256 L368,368" />
+
+    <!-- Line to left-bottom node -->
+    <path
+        android:strokeColor="#1E40AF"
+        android:strokeWidth="24"
+        android:strokeLineCap="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M256,256 L144,336" />
+
+    <!-- Top node circle -->
+    <path
+        android:fillColor="#1E40AF"
+        android:pathData="M256,80 A32,32 0 1,1 256,144 A32,32 0 1,1 256,80 Z" />
+
+    <!-- Right-top node circle -->
+    <path
+        android:fillColor="#1E40AF"
+        android:pathData="M384,160 A32,32 0 1,1 384,224 A32,32 0 1,1 384,160 Z" />
+
+    <!-- Right-bottom node circle -->
+    <path
+        android:fillColor="#1E40AF"
+        android:pathData="M368,336 A32,32 0 1,1 368,400 A32,32 0 1,1 368,336 Z" />
+
+    <!-- Left-bottom node circle -->
+    <path
+        android:fillColor="#1E40AF"
+        android:pathData="M144,304 A32,32 0 1,1 144,368 A32,32 0 1,1 144,304 Z" />
+
+</vector>

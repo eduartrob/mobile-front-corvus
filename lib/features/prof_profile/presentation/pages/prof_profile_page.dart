@@ -14,6 +14,7 @@ import 'package:mobile/core/network/api_config.dart';
 import 'package:mobile/core/theme/theme_provider.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/shared/widgets/syncing_dots_text.dart';
+import 'package:mobile/core/theme/app_dimens.dart';
 
 import '../widgets/prof_header_info.dart';
 import '../widgets/prof_stats_card.dart';
@@ -66,9 +67,13 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
     final user = authProvider.currentUser;
 
     return Scaffold(
-      appBar: const CorvusTopBar(),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+      ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(AppDimens.screenMargin),
         child: Column(
           children: [
             ProfHeaderInfo(user: user),

@@ -4,6 +4,7 @@ import 'package:mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/teams/presentation/widgets/team_member_card.dart';
+import 'package:mobile/core/theme/app_dimens.dart';
 import '../widgets/team_members_list.dart';
 import '../widgets/team_ai_assistant_card.dart';
 class TeamsPage extends StatelessWidget {
@@ -30,16 +31,16 @@ class TeamsPage extends StatelessWidget {
     return Scaffold(
       appBar: const CorvusTopBar(),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(AppDimens.screenMargin),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               l10n.teamManagementTitle,
               style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: colorScheme.primary,
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurface.withOpacity(0.85),
               ),
             ),
             const SizedBox(height: 12),

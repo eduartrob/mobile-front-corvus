@@ -41,8 +41,11 @@ class AppRouter extends StatelessWidget {
         final authStatus = authProvider.status;
         final isGoingToLogin = state.matchedLocation == '/';
 
+        // During active login (user pressed "Continuar con Google"), stay on login page.
+        // At startup, checkAuthStatus() is awaited before runApp() so initial/loading
+        // should not appear — but if it does, returning null is safe (stays where it is).
         if (authStatus == AuthStatus.initial || authStatus == AuthStatus.loading) {
-          return null; 
+          return null;
         }
 
         if (authStatus != AuthStatus.authenticated && !isGoingToLogin) {

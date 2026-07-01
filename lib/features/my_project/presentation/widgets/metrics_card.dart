@@ -14,7 +14,7 @@ class MetricsCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(vertical: 24),
       decoration: const BoxDecoration(
         color: Colors.transparent,
       ),
@@ -38,11 +38,11 @@ class MetricsCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 24),
-          _buildMetricBar('Rigor Académico', (metrics['academic_rigor'] ?? metrics['academic_rigor_score'] ?? 0) as int, colorScheme.primary, colorScheme),
+          _buildMetricBar('Rigor Académico', ((metrics['academic_rigor'] ?? metrics['academic_rigor_score'] ?? 0) as num).toInt(), colorScheme.primary, colorScheme),
           const SizedBox(height: 24),
-          _buildMetricBar('Relevancia Técnica', (metrics['technical_relevance'] ?? metrics['technical_relevance_score'] ?? 0) as int, colorScheme.secondary, colorScheme),
+          _buildMetricBar('Relevancia Técnica', ((metrics['technical_relevance'] ?? metrics['technical_relevance_score'] ?? 0) as num).toInt(), colorScheme.secondary, colorScheme),
           const SizedBox(height: 24),
-          _buildMetricBar('Claridad Estructural', (metrics['structural_clarity'] ?? metrics['structural_clarity_score'] ?? 0) as int, colorScheme.tertiary, colorScheme),
+          _buildMetricBar('Claridad Estructural', ((metrics['structural_clarity'] ?? metrics['structural_clarity_score'] ?? 0) as num).toInt(), colorScheme.tertiary, colorScheme),
         ],
       ),
     );

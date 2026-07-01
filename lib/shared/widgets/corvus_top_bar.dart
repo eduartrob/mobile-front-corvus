@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 
 class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
-  const CorvusTopBar({super.key});
+  final bool showLogo;
+  final Widget? titleWidget;
+
+  const CorvusTopBar({
+    super.key,
+    this.showLogo = true,
+    this.titleWidget,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -12,17 +20,19 @@ class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
     final role = context.select<AuthProvider, String?>((a) => a.role);
     return AppBar(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      elevation: 0,
       scrolledUnderElevation: 0,
-      flexibleSpace: ClipRect(
-        child: BackdropFilter(
-          filter: ColorFilter.mode(
-            Theme.of(context).colorScheme.surface,
-            BlendMode.srcIn,
-          ),
-          child: Container(color: Colors.transparent),
-        ),
-      ),
+      titleSpacing: showLogo && titleWidget == null ? 16.0 : 0.0,
+      title: titleWidget ?? (showLogo 
+          ? SvgPicture.asset(
+              'assets/icons/logo.svg',
+              height: 32,
+              width: 32,
+              colorFilter: ColorFilter.mode(
+                Theme.of(context).colorScheme.primary,
+                BlendMode.srcIn,
+              ),
+            ) 
+          : null),
       actions: [
         if (photoUrl != null && photoUrl.isNotEmpty)
           Padding(
