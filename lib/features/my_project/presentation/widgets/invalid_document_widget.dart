@@ -46,7 +46,7 @@ class InvalidDocumentWidget extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            l10n.invalidDocumentDesc,
+            specificError,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: colorScheme.onSurfaceVariant,

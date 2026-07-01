@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mobile/features/inspiration/domain/entities/project_entity.dart';
 import 'package:mobile/features/inspiration/presentation/widgets/glass_container.dart';
 import 'package:mobile/l10n/app_localizations.dart';
+import 'package:mobile/features/inspiration/presentation/widgets/sugerencias_card.dart';
+import 'package:mobile/features/inspiration/presentation/widgets/blue_ocean_header.dart';
 
 class BlueOceanDetailPage extends StatelessWidget {
   final ProjectEntity project;
@@ -70,7 +72,7 @@ class BlueOceanDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            _SectionTitle(title: isEn ? 'Main Finding' : 'Hallazgo Principal', icon: Icons.insights, color: Colors.orange),
+            BlueOceanSectionTitle(title: isEn ? 'Main Finding' : 'Hallazgo Principal', icon: Icons.insights, color: Colors.orange),
             GlassContainer(
               blur: 0,
               opacity: 0.5,
@@ -82,11 +84,11 @@ class BlueOceanDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            _SectionTitle(title: isEn ? 'Methodological Suggestions' : 'Sugerencias de Abordaje Metodológico', icon: Icons.schema_outlined, color: Colors.blue),
+            BlueOceanSectionTitle(title: isEn ? 'Methodological Suggestions' : 'Sugerencias de Abordaje Metodológico', icon: Icons.schema_outlined, color: Colors.blue),
             if (sugerencias.isEmpty)
               Text(isEn ? 'No suggestions available.' : 'Sin sugerencias disponibles.')
             else
-              ...sugerencias.map((s) => _SugerenciaCard(sugerencia: s)),
+              ...sugerencias.map((s) => SugerenciaCard(sugerencia: s)),
             
             const SizedBox(height: 24),
 
@@ -102,19 +104,19 @@ class BlueOceanDetailPage extends StatelessWidget {
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant, letterSpacing: 1.2),
                   ),
                   const SizedBox(height: 20),
-                  _MetricBar(
+                  FeasibilityMetricBar(
                     label: isEn ? 'Originality' : 'Originalidad',
                     value: metricas['originalidad'] ?? 0,
                     color: Colors.blue,
                   ),
                   const SizedBox(height: 16),
-                  _MetricBar(
+                  FeasibilityMetricBar(
                     label: isEn ? 'Data Availability' : 'Disponibilidad de Datos',
                     value: metricas['disponibilidad_datos'] ?? 0,
                     color: Colors.brown,
                   ),
                   const SizedBox(height: 16),
-                  _MetricBar(
+                  FeasibilityMetricBar(
                     label: isEn ? 'Academic Relevance' : 'Relevancia Académica',
                     value: metricas['relevancia_academica'] ?? 0,
                     color: Colors.black87,
@@ -170,144 +172,4 @@ class BlueOceanDetailPage extends StatelessWidget {
   }
 }
 
-// -# 
 
-class _SectionTitle extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  final Color color;
-
-  const _SectionTitle({required this.title, required this.icon, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, color: color, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SugerenciaCard extends StatelessWidget {
-  final Map<String, dynamic> sugerencia;
-
-  const _SugerenciaCard({required this.sugerencia});
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final isRecomendado = sugerencia['tipo'] == 'Recomendado';
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: GlassContainer(
-        blur: 0,
-        opacity: 0.3,
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    sugerencia['titulo'] ?? '',
-                    style: TextStyle(
-                      fontSize: 15, 
-                      fontWeight: FontWeight.bold,
-                      color: isRecomendado ? colorScheme.primary : colorScheme.onSurface,
-                    ),
-                  ),
-                ),
-                if (isRecomendado)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: colorScheme.primary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      'Recomendado',
-                      style: TextStyle(fontSize: 10, color: colorScheme.primary, fontWeight: FontWeight.w600),
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              sugerencia['descripcion'] ?? '',
-              style: TextStyle(fontSize: 14, color: colorScheme.onSurfaceVariant, height: 1.4),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _MetricBar extends StatelessWidget {
-  final String label;
-  final int value;
-  final Color color;
-
-  const _MetricBar({required this.label, required this.value, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-            Text('$value%', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: color)),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Stack(
-          children: [
-            Container(
-              height: 6,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: colorScheme.outlineVariant.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(3),
-              ),
-            ),
-            FractionallySizedBox(
-              widthFactor: (value / 100).clamp(0.0, 1.0),
-              child: Container(
-                height: 6,
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(3),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}

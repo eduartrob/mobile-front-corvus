@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
@@ -68,6 +69,8 @@ class MyProjectProvider extends ChangeNotifier {
       final localAnalysis = await _localDataSource.getDetailedAnalysis(userId);
       if (localAnalysis != null) {
         _detailedAnalysis = localAnalysis;
+        _fileName = localAnalysis['original_file_name'] ?? 'documento_analizado.pdf';
+        _fileSize = localAnalysis['original_file_size'] ?? 'Local';
         _state = ProjectState.detailedAnalysis;
         notifyListeners();
         return;
@@ -98,9 +101,15 @@ class MyProjectProvider extends ChangeNotifier {
         _fileSize = 'Local';
         _state = ProjectState.preValidated;
         notifyListeners();
+      } else {
+        // No local analysis, no draft, no server analysis → user needs to upload
+        _state = ProjectState.error;
+        notifyListeners();
       }
     } catch (e) {
       debugPrint("Error inicializando MyProjectProvider: $e");
+      _state = ProjectState.error;
+      notifyListeners();
     }
   }
 
@@ -124,7 +133,7 @@ class MyProjectProvider extends ChangeNotifier {
         await _preValidate(userId, l10n);
       }
     } catch (e) {
-      _errorMessage = 'Error seleccionando archivo: $e';
+      _errorMessage = 'Error seleccionando archivo: ${e.toString().replaceAll('Exception: ', '')}';
       _state = ProjectState.error;
       notifyListeners();
     }
@@ -148,13 +157,21 @@ class MyProjectProvider extends ChangeNotifier {
       notifyListeners();
       
     } catch (e) {
-      final errorStr = e.toString();
-      await _notificationService.showResultNotification(l10n.notifErrorTitle, l10n.notifPreValidFailed);
+      String errorStr = e.toString().replaceAll('Exception: ', '').replaceAll('Exception ', '');
       
-      if (errorStr.contains('no parece ser una propuesta')) {
-        _documentTypeError = errorStr.replaceAll('Exception: ', '');
+      try {
+        final decoded = jsonDecode(errorStr);
+        if (decoded is Map && decoded.containsKey('detail')) {
+          errorStr = decoded['detail'];
+        }
+      } catch (_) {}
+      
+      if (errorStr.contains('no parece ser') || errorStr.contains('Tu propuesta es válida') || errorStr.contains('Faltan secciones obligatorias')) {
+        _documentTypeError = errorStr;
+        await _notificationService.showResultNotification(l10n.notifErrorTitle, errorStr);
       } else {
         _errorMessage = 'Error en validación rápida: $errorStr';
+        await _notificationService.showResultNotification(l10n.notifErrorTitle, l10n.notifPreValidFailed);
       }
       
       _state = ProjectState.error;
@@ -278,6 +295,9 @@ class MyProjectProvider extends ChangeNotifier {
       return;
     }
 
+    if (_fileName != null) result['original_file_name'] = _fileName;
+    if (_fileSize != null) result['original_file_size'] = _fileSize;
+    
     _detailedAnalysis = result;
     _state = ProjectState.detailedAnalysis;
     await _localDataSource.saveDetailedAnalysis(userId, result);
@@ -298,6 +318,7 @@ class MyProjectProvider extends ChangeNotifier {
   
   void reset(String userId) {
     _statusTimer?.cancel();
+    _initialized = false;
     _state = ProjectState.initial;
     _selectedFile = null;
     _fileName = null;
@@ -307,6 +328,9 @@ class MyProjectProvider extends ChangeNotifier {
     _errorMessage = null;
     _documentTypeError = null;
     _localDataSource.clearDetailedAnalysis(userId);
+    // Re-init immediately to go to error (upload) state instead of staying initial
+    _initialized = false;
+    init(userId);
     notifyListeners();
   }
 

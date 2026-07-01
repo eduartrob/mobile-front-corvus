@@ -1,7 +1,20 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+## [1.2.7] - 2026-06-29
+### Changed
+- **Arquitectura y Rendimiento**: Se modularizó toda la capa de presentación (Perfiles, Equipos, Análisis de Proyecto y Océano Azul) dividiendo clases pesadas en componentes atómicos. Esto optimiza el consumo de batería y la velocidad de renderizado de la app.
+- **Version**: Bumped from `1.2.6+9` to `1.2.7+10`.
 
-## [1.2.4] - 2026-06-28
+
+## [1.2.6] - 2026-06-29
+### Changed
+- **UI/UX — Flat Design**: Se migraron las listas de proyectos en `InspirationPage` hacia un diseño de lista plana (Flat List) tipo "feed", eliminando las tarjetas flotantes blancas y reduciendo el ruido visual para priorizar la lectura.
+- **UI/UX — Detalles de Proyecto**: Se "aplanaron" las secciones de "Índice de Innovación", "Métricas de Calidad" y "Recomendaciones IA" en `DetailedAnalysisWidget` para integrarse directamente al fondo en lugar de generar un efecto abrumador de "tarjetas anidadas".
+- **UI/UX — Tarjeta de Riesgo**: Se corrigió el layout de la tarjeta de validación de riesgo. Ahora el texto descriptivo ocupa el 100% del ancho bajo el encabezado, eliminando los huecos visuales irregulares.
+- **UI/UX — Habilidades Técnicas**: Las "chips" o etiquetas de tecnologías (React, Node.js, etc.) en `ProfilePage` perdieron sus bordes de colores en favor de un diseño de pastilla sólida mucho más moderno, y se aplanaron el resto de contenedores de la vista para que el bloque de habilidades técnicas sea el único que resalte de manera jerárquica.
+- **Version**: Bumped from `1.2.5+7` to `1.2.6+8`.
+
+## [1.2.5] - 2026-06-28
 ### Added
 - **Resiliencia de Flujo RAG (Backend)**: El archivo `draft` del proyecto ya no se borra prematuramente al finalizar el análisis exhaustivo en el servidor. Ahora persiste hasta que el cliente (la app móvil) descarga exitosamente el resultado final.
 - **Recuperación de Fase 9 (Frontend)**: La lógica de inicialización en `MyProjectProvider` ahora intercepta la fase 9 (análisis completado en background) para recuperar el resultado si el usuario cerró la aplicación durante la generación del análisis.

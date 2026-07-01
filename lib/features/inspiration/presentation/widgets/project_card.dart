@@ -27,21 +27,82 @@ class ProjectCard extends StatelessWidget {
     return Theme.of(context).colorScheme.onSurfaceVariant;
   }
 
+  Future<void> _handleTap(BuildContext context) async {
+    if (project.analysisStatus == 'pending') {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('La IA está generando el análisis detallado. Vuelve en un momento.'),
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    final authProvider = context.read<AuthProvider>();
+    final avatarUrl = authProvider.currentUser?.photoUrl;
+    final provider = context.read<InspirationProvider>();
+    
+    final rootNavigator = Navigator.of(context, rootNavigator: true);
+    final localNavigator = Navigator.of(context);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    
+    ProjectEntity? projectToNav = project;
+
+    if (project.analysisData == null) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        useRootNavigator: true,
+        builder: (c) => Center(
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const CircularProgressIndicator(),
+          ),
+        ),
+      );
+      
+      projectToNav = await provider.trackNicheView(project.id, avatarUrl);
+      
+      rootNavigator.pop();
+    } else {
+      provider.trackNicheView(project.id, avatarUrl);
+    }
+
+    if (projectToNav != null) {
+      localNavigator.push(
+        MaterialPageRoute(
+          builder: (context) => BlueOceanDetailPage(project: projectToNav!),
+        ),
+      );
+    } else {
+      scaffoldMessenger.showSnackBar(
+        const SnackBar(content: Text('Error al cargar los detalles. Intenta de nuevo.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final bool isTrending = project.isTrending;
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          GlassContainer(
-            blur: 0,
-            opacity: 0.5,
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+    return Column(
+      children: [
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            _AnimatedCardWrapper(
+              onTap: () => _handleTap(context),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                color: Colors.transparent,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -52,9 +113,8 @@ class ProjectCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: colorScheme.secondaryContainer.withOpacity(0.3),
+                        color: colorScheme.secondaryContainer.withOpacity(0.5),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: colorScheme.secondaryContainer.withOpacity(0.5)),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -72,9 +132,8 @@ class ProjectCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: isTrending ? Colors.orange.withOpacity(0.15) : colorScheme.tertiaryContainer.withOpacity(0.3),
+                        color: isTrending ? Colors.orange.withOpacity(0.15) : colorScheme.tertiaryContainer.withOpacity(0.5),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: isTrending ? Colors.orange.withOpacity(0.5) : colorScheme.tertiaryContainer.withOpacity(0.5)),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -92,9 +151,8 @@ class ProjectCard extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.teal.withOpacity(0.1),
+                          color: Colors.teal.withOpacity(0.15),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.teal.withOpacity(0.4)),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -111,25 +169,23 @@ class ProjectCard extends StatelessWidget {
                   ],
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 10),
 
                 Text(
                   project.title,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, height: 1.2),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, height: 1.2),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
 
                 Text(
                   project.description.startsWith('Este proyecto ha sido clasificado') 
                       ? l10n.blueOceanGenericDesc 
                       : project.description,
-                  maxLines: 4,
+                  maxLines: 3,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 14, color: colorScheme.onSurfaceVariant),
+                  style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant.withOpacity(0.8), height: 1.5),
                 ),
 
-                const SizedBox(height: 16),
-                const Divider(height: 1, thickness: 0.5),
                 const SizedBox(height: 12),
 
                 Row(
@@ -142,92 +198,35 @@ class ProjectCard extends StatelessWidget {
 
                     const Spacer(),
 
-                    InkWell(
-                      onTap: () async {
-                        if (project.analysisStatus == 'pending') {
-                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text('La IA está generando el análisis detallado. Vuelve en un momento.'),
-                              behavior: SnackBarBehavior.floating,
-                              duration: const Duration(seconds: 2),
+                    // Botón Explorar puramente visual
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: colorScheme.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (project.analysisStatus == 'pending') ...[
+                            Text(
+                              'Generando...',
+                              style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13, fontStyle: FontStyle.italic),
                             ),
-                          );
-                          return;
-                        }
-
-                        final authProvider = context.read<AuthProvider>();
-                        final avatarUrl = authProvider.currentUser?.photoUrl;
-                        final provider = context.read<InspirationProvider>();
-                        
-                        final rootNavigator = Navigator.of(context, rootNavigator: true);
-                        final localNavigator = Navigator.of(context);
-                        final scaffoldMessenger = ScaffoldMessenger.of(context);
-                        
-                        ProjectEntity? projectToNav = project;
-
-                        if (project.analysisData == null) {
-                          showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            useRootNavigator: true,
-                            builder: (c) => Center(
-                              child: Container(
-                                padding: const EdgeInsets.all(24),
-                                decoration: BoxDecoration(
-                                  color: colorScheme.surface,
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: const CircularProgressIndicator(),
-                              ),
+                            const SizedBox(width: 8),
+                            SizedBox(
+                              width: 12, height: 12,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: colorScheme.onSurfaceVariant),
+                            )
+                          ] else ...[
+                            Text(
+                              l10n.explore,
+                              style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 0.5),
                             ),
-                          );
-                          
-                          projectToNav = await provider.trackNicheView(project.id, avatarUrl);
-                          
-                          rootNavigator.pop();
-                        } else {
-                          provider.trackNicheView(project.id, avatarUrl);
-                        }
-
-                        if (projectToNav != null) {
-                          localNavigator.push(
-                            MaterialPageRoute(
-                              builder: (context) => BlueOceanDetailPage(project: projectToNav!),
-                            ),
-                          );
-                        } else {
-                          scaffoldMessenger.showSnackBar(
-                            const SnackBar(content: Text('Error al cargar los detalles. Intenta de nuevo.')),
-                          );
-                        }
-                      },
-                      borderRadius: BorderRadius.circular(8),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (project.analysisStatus == 'pending') ...[
-                              Text(
-                                'Generando...',
-                                style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13, fontStyle: FontStyle.italic),
-                              ),
-                              const SizedBox(width: 4),
-                              SizedBox(
-                                width: 12, height: 12,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: colorScheme.onSurfaceVariant),
-                              )
-                            ] else ...[
-                              Text(
-                                l10n.explore,
-                                style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 0.5),
-                              ),
-                              const SizedBox(width: 4),
-                              Icon(Icons.arrow_forward, color: colorScheme.primary, size: 16),
-                            ]
-                          ],
-                        ),
+                            const SizedBox(width: 6),
+                            Icon(Icons.arrow_forward, color: colorScheme.primary, size: 16),
+                          ]
+                        ],
                       ),
                     ),
                   ],
@@ -235,6 +234,7 @@ class ProjectCard extends StatelessWidget {
               ],
             ),
           ),
+        ),
 
           if (isTrending)
             Positioned(
@@ -244,7 +244,9 @@ class ProjectCard extends StatelessWidget {
             ),
         ],
       ),
-    );
+      const Divider(height: 1, thickness: 0.5),
+    ],
+  );
   }
 }
 
@@ -409,6 +411,65 @@ class _ViewersAndCountRow extends StatelessWidget {
           ),
         ]
       ],
+    );
+  }
+}
+
+class _AnimatedCardWrapper extends StatefulWidget {
+  final Widget child;
+  final VoidCallback onTap;
+
+  const _AnimatedCardWrapper({required this.child, required this.onTap});
+
+  @override
+  State<_AnimatedCardWrapper> createState() => _AnimatedCardWrapperState();
+}
+
+class _AnimatedCardWrapperState extends State<_AnimatedCardWrapper> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 150),
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.96).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onTapDown(TapDownDetails details) {
+    _controller.forward();
+  }
+
+  void _onTapUp(TapUpDetails details) {
+    _controller.reverse();
+    widget.onTap();
+  }
+
+  void _onTapCancel() {
+    _controller.reverse();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: _onTapDown,
+      onTapUp: _onTapUp,
+      onTapCancel: _onTapCancel,
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: widget.child,
+      ),
     );
   }
 }

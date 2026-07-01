@@ -34,19 +34,25 @@ class FastRagAnalysisWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Icon(Icons.auto_awesome, color: colorScheme.primary, size: 24),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Análisis RAG Rápido',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: colorScheme.onSurface,
+              Expanded(
+                child: Row(
+                  children: [
+                    Icon(Icons.auto_awesome, color: colorScheme.primary, size: 24),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Análisis RAG Rápido',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurface,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -88,16 +94,23 @@ class FastRagAnalysisWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Row(
-                children: [
-                  Icon(Icons.fact_check_outlined, size: 16, color: colorScheme.tertiary),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Alineación Académica', 
-                    style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: colorScheme.onSurface),
-                  ),
-                ],
+              Expanded(
+                child: Row(
+                  children: [
+                    Icon(Icons.fact_check_outlined, size: 16, color: colorScheme.tertiary),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Alineación Académica', 
+                        style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: colorScheme.onSurface),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               Text('${(alignment * 100).toInt()}%', style: TextStyle(color: colorScheme.tertiary, fontWeight: FontWeight.bold, fontSize: 14)),
             ],
           ),
@@ -123,16 +136,23 @@ class FastRagAnalysisWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Row(
-                children: [
-                  Icon(Icons.plagiarism_outlined, size: 16, color: colorScheme.primary),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Riesgo de Colisión', 
-                    style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: colorScheme.onSurface),
-                  ),
-                ],
+              Expanded(
+                child: Row(
+                  children: [
+                    Icon(Icons.plagiarism_outlined, size: 16, color: colorScheme.primary),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Riesgo de Colisión', 
+                        style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: colorScheme.onSurface),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               Text('${data['collision_risk_level']} (${(collision * 100).toInt()}%)', 
                 style: TextStyle(color: colorScheme.tertiary, fontWeight: FontWeight.bold, fontSize: 14)),
             ],

@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile/features/inspiration/domain/entities/project_entity.dart';
 import 'package:mobile/features/inspiration/data/data_source/inspiration_remote_data_source.dart';
 import 'package:http/http.dart' as http;
+import 'dart:async';
 
 class InspirationProvider extends ChangeNotifier {
   final InspirationRemoteDataSource _dataSource;
@@ -11,6 +12,9 @@ class InspirationProvider extends ChangeNotifier {
   
   List<ProjectEntity> _projects = [];
   List<ProjectEntity> get projects => _projects;
+  
+  // Timer for auto-refresh
+  Timer? _refreshTimer;
 
   bool _isLoading = true;
   bool get isLoading => _isLoading;
@@ -49,6 +53,7 @@ class InspirationProvider extends ChangeNotifier {
 
     try {
       _projects = await _dataSource.getUnexploredProjects(forceRefresh: forceRefresh);
+      _checkAndStartAutoRefresh();
     } catch (e) {
       print("Error detallado en loadProjects: $e");
       if (_projects.isEmpty) _projects = [];
@@ -56,6 +61,34 @@ class InspirationProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  void _checkAndStartAutoRefresh() {
+    _refreshTimer?.cancel();
+    if (_projects.any((p) => p.analysisStatus == 'pending')) {
+      _refreshTimer = Timer.periodic(const Duration(seconds: 3), (timer) async {
+        if (!_projects.any((p) => p.analysisStatus == 'pending')) {
+          timer.cancel();
+          return;
+        }
+        try {
+          final fresh = await _dataSource.getUnexploredProjects(forceRefresh: true);
+          if (fresh.isNotEmpty) {
+            _projects = fresh;
+            notifyListeners();
+            if (!_projects.any((p) => p.analysisStatus == 'pending')) {
+              timer.cancel();
+            }
+          }
+        } catch (_) {}
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
   }
 
   Future<ProjectEntity?> trackNicheView(String nicheId, String? userAvatar) async {

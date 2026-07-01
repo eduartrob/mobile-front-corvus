@@ -31,13 +31,19 @@ class MyProjectRemoteDataSource {
       request.headers['Authorization'] = 'Bearer $token';
       request.headers.remove('Content-Type');
 
-      final streamedResponse = await request.send();
+      final streamedResponse = await request.send().timeout(const Duration(seconds: 15));
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return json.decode(utf8.decode(response.bodyBytes));
       } else {
-        throw Exception('Error en la pre-validación: ${response.body}');
+        final bodyText = utf8.decode(response.bodyBytes);
+        try {
+          final errorJson = json.decode(bodyText);
+          throw Exception(errorJson['detail'] ?? errorJson['message'] ?? bodyText);
+        } catch (_) {
+          throw Exception(bodyText);
+        }
       }
     } catch (e) {
       final msg = e.toString().replaceAll('Exception: ', '');
@@ -55,7 +61,7 @@ class MyProjectRemoteDataSource {
         headers['Authorization'] = 'Bearer $token';
       }
 
-      final response = await client.get(url, headers: headers);
+      final response = await client.get(url, headers: headers).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final data = json.decode(utf8.decode(response.bodyBytes));
@@ -64,7 +70,13 @@ class MyProjectRemoteDataSource {
         }
         return data;
       } else {
-        throw Exception('Error al consultar borrador: ${response.body}');
+        final bodyText = utf8.decode(response.bodyBytes);
+        try {
+          final errorJson = json.decode(bodyText);
+          throw Exception(errorJson['detail'] ?? errorJson['message'] ?? 'Error al consultar borrador');
+        } catch (_) {
+          throw Exception('Error al consultar borrador');
+        }
       }
     } catch (e) {
       throw Exception('Error de conexión: $e');
@@ -81,12 +93,12 @@ class MyProjectRemoteDataSource {
         headers['Authorization'] = 'Bearer $token';
       }
 
-      final response = await client.get(url, headers: headers);
+      final response = await client.get(url, headers: headers).timeout(const Duration(seconds: 10));
       if (response.statusCode == 200) {
         return json.decode(utf8.decode(response.bodyBytes));
       }
     } catch (_) {}
-    return {'phase': 5, 'message': 'Procesando propuesta...'};
+    return {'phase': 0, 'message': ''};
   }
 
   Future<void> analyzeDraftDetailed(String userId) async {
@@ -131,7 +143,7 @@ class MyProjectRemoteDataSource {
         headers['Authorization'] = 'Bearer $token';
       }
 
-      final response = await client.get(url, headers: headers);
+      final response = await client.get(url, headers: headers).timeout(const Duration(seconds: 10));
       if (response.statusCode == 200) {
         return json.decode(utf8.decode(response.bodyBytes));
       }

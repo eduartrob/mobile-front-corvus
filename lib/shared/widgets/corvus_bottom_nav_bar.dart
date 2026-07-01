@@ -30,11 +30,13 @@ class CustomAnimatedBottomNavBar extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerLow,
-        border: Border(
-          top: BorderSide(
-            color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
-          ),
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Theme.of(context).colorScheme.primary.withOpacity(0.08),
+            Theme.of(context).colorScheme.primary.withOpacity(0.02),
+          ],
         ),
       ),
       child: SafeArea(
@@ -154,7 +156,7 @@ class _CustomNavItemState extends State<CustomNavItem> with TickerProviderStateM
                               width: 32,
                               height: 32,
                               decoration: BoxDecoration(
-                                color: colorScheme.primaryContainer,
+                                color: colorScheme.primary.withOpacity(0.25),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),

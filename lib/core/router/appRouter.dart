@@ -13,8 +13,10 @@ import 'package:mobile/features/profile/presentation/pages/profile_page.dart';
 import 'package:mobile/features/prof_dash/presentation/pages/prof_dash_page.dart';
 import 'package:mobile/features/prof_reviews/presentation/pages/prof_reviews_page.dart';
 import 'package:mobile/features/prof_rules/presentation/pages/prof_rules_page.dart';
+import 'package:mobile/features/search/presentation/pages/search_page.dart';
 import 'package:mobile/features/prof_history/presentation/pages/prof_history_page.dart';
 import 'package:mobile/features/prof_profile/presentation/pages/prof_profile_page.dart';
+import 'package:mobile/features/profile/presentation/pages/activity_history_page.dart';
 import 'package:mobile/core/router/main_layout.dart';
 import 'package:mobile/core/router/prof_main_layout.dart';
 
@@ -39,8 +41,11 @@ class AppRouter extends StatelessWidget {
         final authStatus = authProvider.status;
         final isGoingToLogin = state.matchedLocation == '/';
 
+        // During active login (user pressed "Continuar con Google"), stay on login page.
+        // At startup, checkAuthStatus() is awaited before runApp() so initial/loading
+        // should not appear — but if it does, returning null is safe (stays where it is).
         if (authStatus == AuthStatus.initial || authStatus == AuthStatus.loading) {
-          return null; 
+          return null;
         }
 
         if (authStatus != AuthStatus.authenticated && !isGoingToLogin) {
@@ -86,16 +91,16 @@ class AppRouter extends StatelessWidget {
             StatefulShellBranch(
               routes: [
                 GoRoute(
-                  path: '/teams',
-                  builder: (context, state) => const TeamsPage(),
+                  path: '/search',
+                  builder: (context, state) => const SearchPage(),
                 ),
               ],
             ),
             StatefulShellBranch(
               routes: [
                 GoRoute(
-                  path: '/profile',
-                  builder: (context, state) => const ProfilePage(),
+                  path: '/teams',
+                  builder: (context, state) => const TeamsPage(),
                 ),
               ],
             ),
@@ -145,6 +150,14 @@ class AppRouter extends StatelessWidget {
         GoRoute(
           path: '/prof-profile',
           builder: (context, state) => const ProfProfilePage(),
+        ),
+        GoRoute(
+          path: '/profile',
+          builder: (context, state) => const ProfilePage(),
+        ),
+        GoRoute(
+          path: '/activity-history',
+          builder: (context, state) => const ActivityHistoryPage(),
         ),
       ],
     );

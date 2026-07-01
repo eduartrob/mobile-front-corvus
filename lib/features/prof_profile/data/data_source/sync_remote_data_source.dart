@@ -31,11 +31,15 @@ class SyncRemoteDataSourceImpl implements SyncRemoteDataSource {
           'sync_skipped': body['sync_skipped'] ?? false,
         };
       } else {
-        final error = jsonDecode(response.body)['error'] ?? 'Error desconocido';
-        throw Exception(error);
+        var error = jsonDecode(response.body)['error'] ?? 'Error desconocido';
+        if (error is Map) {
+          error = error['message'] ?? error['detail'] ?? error.toString();
+        }
+        throw Exception(error.toString());
       }
     } catch (e) {
-      throw Exception('Fallo al iniciar sincronización: $e');
+      final msg = e.toString().replaceAll('Exception: ', '');
+      throw Exception(msg);
     }
   }
 
@@ -75,11 +79,18 @@ class SyncRemoteDataSourceImpl implements SyncRemoteDataSource {
           };
         }).toList();
       } else {
-        throw Exception('Error al obtener carpetas de Drive: ${response.statusCode}');
+        final bodyText = response.body;
+        var error = 'Error al obtener carpetas de Drive: ${response.statusCode}';
+        try {
+            final errJson = jsonDecode(bodyText);
+            error = errJson['error']?['message'] ?? errJson['error'] ?? error;
+        } catch (_) {}
+        throw Exception(error);
       }
     } catch (e) {
       print('❌ [DRIVE] Error: $e');
-      throw Exception('Fallo al conectar con Google Drive: $e');
+      final msg = e.toString().replaceAll('Exception: ', '');
+      throw Exception(msg);
     }
   }
 }

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/l10n/app_localizations.dart';
-
 import 'package:mobile/features/inspiration/presentation/provider/inspiration_provider.dart';
+import 'package:mobile/core/theme/app_dimens.dart';
 import 'package:mobile/features/inspiration/presentation/widgets/glass_container.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/features/inspiration/presentation/widgets/project_card.dart';
@@ -54,7 +54,11 @@ class _InspirationPageState extends State<InspirationPage> {
       appBar: const CorvusTopBar(),
       body: Stack(
         children: [
-          Container(color: Theme.of(context).colorScheme.surface),
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+            ),
+          ),
 
           RepaintBoundary(
             child: SafeArea(
@@ -66,7 +70,7 @@ class _InspirationPageState extends State<InspirationPage> {
                   controller: _scrollController,
                   slivers: [
                     SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      padding: const EdgeInsets.symmetric(horizontal: AppDimens.screenMargin),
                       sliver: SliverToBoxAdapter(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,13 +85,10 @@ class _InspirationPageState extends State<InspirationPage> {
                     ),
 
                     SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      padding: const EdgeInsets.symmetric(horizontal: AppDimens.screenMargin),
                       sliver: (isLoading && projectCount == 0)
                           ? const SliverToBoxAdapter(
-                              child: Padding(
-                                padding: EdgeInsets.all(32.0),
-                                child: Center(child: CircularProgressIndicator()),
-                              ),
+                              child: _SkeletonLoaderList(),
                             )
                           : SliverList(
                               delegate: SliverChildBuilderDelegate(
@@ -195,7 +196,11 @@ class _SectionHeader extends StatelessWidget {
       children: [
         Text(
           l10n.unexploredProjects,
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface.withOpacity(0.85),
+          ),
         ),
         const SizedBox(height: 4),
         Text(
@@ -204,6 +209,90 @@ class _SectionHeader extends StatelessWidget {
         ),
         const SizedBox(height: 16),
       ],
+    );
+  }
+}
+
+class _SkeletonLoaderList extends StatefulWidget {
+  const _SkeletonLoaderList();
+  
+  @override
+  State<_SkeletonLoaderList> createState() => _SkeletonLoaderListState();
+}
+
+class _SkeletonLoaderListState extends State<_SkeletonLoaderList> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _opacityAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this, 
+      duration: const Duration(milliseconds: 800)
+    )..repeat(reverse: true);
+    _opacityAnim = Tween<double>(begin: 0.3, end: 0.7).animate(_controller);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _opacityAnim,
+      builder: (context, child) {
+        return Opacity(
+          opacity: _opacityAnim.value,
+          child: Column(
+            children: List.generate(3, (index) => _buildSkeletonCard(context)),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSkeletonCard(BuildContext context) {
+    final color = Theme.of(context).colorScheme.surfaceContainerHighest;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: GlassContainer(
+        blur: 0,
+        opacity: 0.3,
+        border: Border.all(color: Colors.transparent),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(width: 100, height: 24, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12))),
+                const SizedBox(width: 8),
+                Container(width: 80, height: 24, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12))),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Container(width: double.infinity, height: 24, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4))),
+            const SizedBox(height: 12),
+            Container(width: double.infinity, height: 12, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4))),
+            const SizedBox(height: 6),
+            Container(width: double.infinity, height: 12, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4))),
+            const SizedBox(height: 6),
+            Container(width: 200, height: 12, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4))),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(width: 60, height: 24, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12))),
+                Container(width: 100, height: 32, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(16))),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

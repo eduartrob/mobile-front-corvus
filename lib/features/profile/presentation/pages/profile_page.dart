@@ -5,6 +5,12 @@ import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/core/theme/theme_provider.dart';
 import 'package:mobile/l10n/app_localizations.dart';
+import 'package:mobile/core/theme/app_dimens.dart';
+
+import '../widgets/student_header_info.dart';
+import '../widgets/student_stats_card.dart';
+import '../widgets/technical_skills_section.dart';
+import '../widgets/recent_activity_section.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -28,175 +34,36 @@ class ProfilePage extends StatelessWidget {
     final user = authProvider.currentUser;
 
     return Scaffold(
-      appBar: const CorvusTopBar(),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+      ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(AppDimens.screenMargin),
         child: Column(
           children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
-              ),
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 48,
-                    backgroundImage: (user?.photoUrl != null && user!.photoUrl!.isNotEmpty)
-                        ? NetworkImage(user.photoUrl!)
-                        : null,
-                    child: (user?.photoUrl == null || user!.photoUrl!.isEmpty)
-                        ? const Icon(Icons.person, size: 48)
-                        : null,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    user?.name ?? 'Nombre de Alumno',
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    user?.email ?? 'correo@institucional.edu',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: colorScheme.primary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            StudentHeaderInfo(user: user),
             
             const SizedBox(height: 20),
             
-            Row(
-              children: [
-                Expanded(
-                  child: _buildStatCard(
-                    context,
-                    icon: Icons.school_outlined,
-                    value: '4.8',
-                    label: l10n.gpa,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _buildStatCard(
-                    context,
-                    icon: Icons.account_tree_outlined,
-                    value: '12',
-                    label: l10n.projects,
-                  ),
-                ),
-              ],
-            ),
+            const StudentStatsCard(),
             
             const SizedBox(height: 20),
             
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.code, color: colorScheme.primary),
-                      const SizedBox(width: 8),
-                      Text(
-                        l10n.technicalSkills,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      _buildChip(context, 'React'),
-                      _buildChip(context, 'Node.js'),
-                      _buildChip(context, 'Python'),
-                      _buildChip(context, 'TypeScript'),
-                      _buildChip(context, 'PostgreSQL'),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            const TechnicalSkillsSection(),
             
             const SizedBox(height: 20),
             
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.history, color: colorScheme.primary),
-                      const SizedBox(width: 8),
-                      Text(
-                        l10n.recentActivity,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  _buildActivityItem(
-                    context,
-                    icon: Icons.update,
-                    title: l10n.ragEngineUpdate,
-                    time: l10n.timeTwoHoursAgo,
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    child: Divider(),
-                  ),
-                  _buildActivityItem(
-                    context,
-                    icon: Icons.menu_book,
-                    title: l10n.readingCompleted,
-                    time: l10n.timeYesterday,
-                  ),
-                ],
-              ),
-            ),
+            const RecentActivitySection(),
             
             const SizedBox(height: 24),
             
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+              decoration: const BoxDecoration(
+                color: Colors.transparent,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -287,102 +154,6 @@ class ProfilePage extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildStatCard(BuildContext context, {required IconData icon, required String value, required String label}) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: colorScheme.primary, size: 28),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              letterSpacing: 1.2,
-              fontWeight: FontWeight.bold,
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildChip(BuildContext context, String label) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: colorScheme.primary.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          color: colorScheme.onSurface,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActivityItem(BuildContext context, {required IconData icon, required String title, required String time}) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: colorScheme.primary.withOpacity(0.1),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(icon, color: colorScheme.primary, size: 20),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  height: 1.3,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                time,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }
