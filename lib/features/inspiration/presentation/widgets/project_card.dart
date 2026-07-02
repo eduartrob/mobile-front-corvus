@@ -101,7 +101,7 @@ class ProjectCard extends StatelessWidget {
             _AnimatedCardWrapper(
               onTap: () => _handleTap(context),
               child: Container(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                padding: const EdgeInsets.symmetric(vertical: 16),
                 color: Colors.transparent,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,7 +173,7 @@ class ProjectCard extends StatelessWidget {
 
                 Text(
                   project.title,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, height: 1.2),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, height: 1.2),
                 ),
                 const SizedBox(height: 6),
 
@@ -183,7 +183,7 @@ class ProjectCard extends StatelessWidget {
                       : project.description,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 14, color: colorScheme.onSurfaceVariant.withOpacity(0.8), height: 1.5),
+                  style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant.withOpacity(0.8), height: 1.5),
                 ),
 
                 const SizedBox(height: 12),

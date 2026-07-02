@@ -31,7 +31,7 @@ class MyProjectRemoteDataSource {
       request.headers['Authorization'] = 'Bearer $token';
       request.headers.remove('Content-Type');
 
-      final streamedResponse = await request.send();
+      final streamedResponse = await request.send().timeout(const Duration(seconds: 15));
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -61,7 +61,7 @@ class MyProjectRemoteDataSource {
         headers['Authorization'] = 'Bearer $token';
       }
 
-      final response = await client.get(url, headers: headers);
+      final response = await client.get(url, headers: headers).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final data = json.decode(utf8.decode(response.bodyBytes));
@@ -93,12 +93,12 @@ class MyProjectRemoteDataSource {
         headers['Authorization'] = 'Bearer $token';
       }
 
-      final response = await client.get(url, headers: headers);
+      final response = await client.get(url, headers: headers).timeout(const Duration(seconds: 10));
       if (response.statusCode == 200) {
         return json.decode(utf8.decode(response.bodyBytes));
       }
     } catch (_) {}
-    return {'phase': 5, 'message': 'Procesando propuesta...'};
+    return {'phase': 0, 'message': ''};
   }
 
   Future<void> analyzeDraftDetailed(String userId) async {
@@ -143,7 +143,7 @@ class MyProjectRemoteDataSource {
         headers['Authorization'] = 'Bearer $token';
       }
 
-      final response = await client.get(url, headers: headers);
+      final response = await client.get(url, headers: headers).timeout(const Duration(seconds: 10));
       if (response.statusCode == 200) {
         return json.decode(utf8.decode(response.bodyBytes));
       }

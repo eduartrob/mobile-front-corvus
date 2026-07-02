@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/l10n/app_localizations.dart';
-
 import 'package:mobile/features/inspiration/presentation/provider/inspiration_provider.dart';
+import 'package:mobile/core/theme/app_dimens.dart';
 import 'package:mobile/features/inspiration/presentation/widgets/glass_container.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/features/inspiration/presentation/widgets/project_card.dart';
@@ -70,7 +70,7 @@ class _InspirationPageState extends State<InspirationPage> {
                   controller: _scrollController,
                   slivers: [
                     SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      padding: const EdgeInsets.symmetric(horizontal: AppDimens.screenMargin),
                       sliver: SliverToBoxAdapter(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,7 +85,7 @@ class _InspirationPageState extends State<InspirationPage> {
                     ),
 
                     SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      padding: const EdgeInsets.symmetric(horizontal: AppDimens.screenMargin),
                       sliver: (isLoading && projectCount == 0)
                           ? const SliverToBoxAdapter(
                               child: _SkeletonLoaderList(),
@@ -196,7 +196,11 @@ class _SectionHeader extends StatelessWidget {
       children: [
         Text(
           l10n.unexploredProjects,
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface.withOpacity(0.85),
+          ),
         ),
         const SizedBox(height: 4),
         Text(

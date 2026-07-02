@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:mobile/core/theme/app_dimens.dart';
 
 class LoginForm extends StatelessWidget {
   const LoginForm({super.key});
@@ -17,7 +18,7 @@ class LoginForm extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 48.0),
+      padding: const EdgeInsets.symmetric(horizontal: AppDimens.screenMargin, vertical: 48.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,

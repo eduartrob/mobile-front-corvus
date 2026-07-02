@@ -75,6 +75,7 @@ class CustomNavItem extends StatefulWidget {
 class _CustomNavItemState extends State<CustomNavItem> with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _bounceAnimation;
+  late Animation<double> _rotateAnimation;
   late Animation<double> _scaleAnimation;
 
   @override
@@ -95,6 +96,10 @@ class _CustomNavItemState extends State<CustomNavItem> with TickerProviderStateM
       parent: _controller, 
       curve: const Interval(0.0, 0.8),
     ));
+
+    _rotateAnimation = Tween<double>(begin: 0.0, end: math.pi / 4).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+    );
 
     _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.5, curve: Curves.easeOutBack)),
@@ -145,12 +150,15 @@ class _CustomNavItemState extends State<CustomNavItem> with TickerProviderStateM
                       if (_scaleAnimation.value > 0)
                         Transform.scale(
                           scale: _scaleAnimation.value,
-                          child: Container(
-                            width: 64,
-                            height: 32,
-                            decoration: BoxDecoration(
-                              color: colorScheme.primaryContainer,
-                              borderRadius: BorderRadius.circular(16),
+                          child: Transform.rotate(
+                            angle: _rotateAnimation.value,
+                            child: Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: colorScheme.primary.withOpacity(0.25),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
                             ),
                           ),
                         ),

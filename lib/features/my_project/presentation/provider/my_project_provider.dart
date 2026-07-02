@@ -101,9 +101,15 @@ class MyProjectProvider extends ChangeNotifier {
         _fileSize = 'Local';
         _state = ProjectState.preValidated;
         notifyListeners();
+      } else {
+        // No local analysis, no draft, no server analysis → user needs to upload
+        _state = ProjectState.error;
+        notifyListeners();
       }
     } catch (e) {
       debugPrint("Error inicializando MyProjectProvider: $e");
+      _state = ProjectState.error;
+      notifyListeners();
     }
   }
 
@@ -312,6 +318,7 @@ class MyProjectProvider extends ChangeNotifier {
   
   void reset(String userId) {
     _statusTimer?.cancel();
+    _initialized = false;
     _state = ProjectState.initial;
     _selectedFile = null;
     _fileName = null;
@@ -321,6 +328,9 @@ class MyProjectProvider extends ChangeNotifier {
     _errorMessage = null;
     _documentTypeError = null;
     _localDataSource.clearDetailedAnalysis(userId);
+    // Re-init immediately to go to error (upload) state instead of staying initial
+    _initialized = false;
+    init(userId);
     notifyListeners();
   }
 
