@@ -166,7 +166,13 @@ class MyProjectProvider extends ChangeNotifier {
         }
       } catch (_) {}
       
-      if (errorStr.contains('no parece ser') || errorStr.contains('Tu propuesta es válida') || errorStr.contains('Faltan secciones obligatorias')) {
+      if (errorStr.contains('no parece ser') || 
+          errorStr.contains('Tu propuesta es válida') || 
+          errorStr.contains('Faltan secciones obligatorias') ||
+          errorStr.contains('[Filtro 1]') ||
+          errorStr.contains('[Filtro 2A]') ||
+          errorStr.contains('[Filtro 2B]') ||
+          errorStr.contains('[Filtro 3]')) {
         _documentTypeError = errorStr;
         await _notificationService.showResultNotification(l10n.notifErrorTitle, errorStr);
       } else {
