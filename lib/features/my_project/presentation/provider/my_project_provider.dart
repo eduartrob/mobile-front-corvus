@@ -310,10 +310,23 @@ class MyProjectProvider extends ChangeNotifier {
 
   Future<void> cancelAnalysis(String userId) async {
     _statusTimer?.cancel();
-    await _notificationService.cancelAnalysisNotification();
-    await _notificationService.cancelSyncNotification();
-    await _dataSource.cancelAnalysis(userId);
-    reset(userId);
+    _state = ProjectState.error;
+    _selectedFile = null;
+    _fileName = null;
+    _fileSize = null;
+    _quickAnalysis = null;
+    _detailedAnalysis = null;
+    notifyListeners();
+
+    try {
+      await _notificationService.cancelAnalysisNotification();
+      await _notificationService.cancelSyncNotification();
+      await _dataSource.cancelAnalysis(userId);
+    } catch (e) {
+      debugPrint("Error canceling analysis: $e");
+    } finally {
+      reset(userId);
+    }
   }
   
   void reset(String userId) {
