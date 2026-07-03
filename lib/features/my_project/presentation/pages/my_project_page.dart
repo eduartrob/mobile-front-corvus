@@ -404,7 +404,9 @@ class _PreValidationLoadingTextWidgetState extends State<_PreValidationLoadingTe
   
   final List<Map<String, String>> _phases = [
     {'icon': '📄', 'text': 'Extrayendo texto del documento...'},
-    {'icon': '🤖', 'text': 'Limpiando y estructurando propuesta...'},
+    {'icon': '🧹', 'text': 'Limpiando estructura del documento...'},
+    {'icon': '🤖', 'text': 'Clasificando propuesta con modelo ML...'},
+    {'icon': '🚫', 'text': 'Revisando palabras comunes (Blacklist)...'},
     {'icon': '📚', 'text': 'Verificando secciones académicas obligatorias...'},
     {'icon': '⚖️', 'text': 'Evaluando coherencia interna...'},
     {'icon': '🔍', 'text': 'Buscando colisiones con proyectos anteriores...'},
@@ -418,7 +420,7 @@ class _PreValidationLoadingTextWidgetState extends State<_PreValidationLoadingTe
 
   void _cycleMessages() async {
     while (mounted) {
-      await Future.delayed(const Duration(seconds: 4));
+      await Future.delayed(const Duration(seconds: 3));
       if (mounted) {
         setState(() {
           if (_currentIndex < _phases.length - 1) {
