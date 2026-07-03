@@ -293,7 +293,7 @@ class _ProjectPageBody extends StatelessWidget {
               children: [
                 const CircularProgressIndicator(),
                 const SizedBox(height: 16),
-                Text(l10n.analyzingStructure),
+                const RepaintBoundary(child: _PreValidationLoadingTextWidget()),
                 const SizedBox(height: 32),
                 OutlinedButton.icon(
                   onPressed: () => provider.cancelAnalysis(userId),
@@ -388,6 +388,85 @@ class _ProjectPageBody extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+class _PreValidationLoadingTextWidget extends StatefulWidget {
+  const _PreValidationLoadingTextWidget();
+
+  @override
+  State<_PreValidationLoadingTextWidget> createState() => _PreValidationLoadingTextWidgetState();
+}
+
+class _PreValidationLoadingTextWidgetState extends State<_PreValidationLoadingTextWidget> {
+  int _currentIndex = 0;
+  
+  final List<Map<String, String>> _phases = [
+    {'icon': '📄', 'text': 'Extrayendo texto del documento...'},
+    {'icon': '🤖', 'text': 'Limpiando y estructurando propuesta...'},
+    {'icon': '📚', 'text': 'Verificando secciones académicas obligatorias...'},
+    {'icon': '⚖️', 'text': 'Evaluando coherencia interna...'},
+    {'icon': '🔍', 'text': 'Buscando colisiones con proyectos anteriores...'},
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _cycleMessages();
+  }
+
+  void _cycleMessages() async {
+    while (mounted) {
+      await Future.delayed(const Duration(seconds: 4));
+      if (mounted) {
+        setState(() {
+          if (_currentIndex < _phases.length - 1) {
+            _currentIndex++;
+          }
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final phaseData = _phases[_currentIndex];
+
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 600),
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        return FadeTransition(
+          opacity: animation,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.2),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
+          ),
+        );
+      },
+      child: Column(
+        key: ValueKey<int>(_currentIndex),
+        children: [
+          Text(
+            phaseData['icon']!,
+            style: const TextStyle(fontSize: 28),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            phaseData['text']!,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: colorScheme.onSurface,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 }
