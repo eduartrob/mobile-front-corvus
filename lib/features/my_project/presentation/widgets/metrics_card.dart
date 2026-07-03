@@ -48,7 +48,10 @@ class MetricsCard extends StatelessWidget {
     );
   }
 
-  Widget _buildMetricBar(String label, int value, Color color, ColorScheme colorScheme) {
+  Widget _buildMetricBar(String label, int rawValue, Color color, ColorScheme colorScheme) {
+    // Normalization: If the LLM hallucinates a 0-10 scale (e.g. returns 8 or 9 instead of 80 or 90)
+    int value = (rawValue > 0 && rawValue <= 10) ? rawValue * 10 : rawValue;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
