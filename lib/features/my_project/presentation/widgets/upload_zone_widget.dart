@@ -1,3 +1,4 @@
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/l10n/app_localizations.dart';
@@ -17,28 +18,24 @@ class UploadZoneWidget extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
-    return Container(
-      width: double.infinity,
-      constraints: const BoxConstraints(minHeight: 250),
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: colorScheme.outlineVariant,
-          width: 2,
+    final exts = provider.allowedExtensionsString;
+    return DottedBorder(
+      color: colorScheme.outlineVariant,
+      strokeWidth: 2,
+      dashPattern: const [6, 4],
+      borderType: BorderType.RRect,
+      radius: const Radius.circular(16),
+      child: Container(
+        width: double.infinity,
+        constraints: const BoxConstraints(minHeight: 250),
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: colorScheme.surface,
+          borderRadius: BorderRadius.circular(16),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          )
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(

@@ -66,11 +66,37 @@ class MyProjectProvider extends ChangeNotifier {
     _isScreenVisible = value;
   }
   
+  List<String> _allowedExtensions = ['pdf', 'md', 'txt'];
+  List<String> get allowedExtensions => _allowedExtensions;
+  
+  String get allowedExtensionsString => _allowedExtensions.join(', ');
+
+  Future<void> _fetchConfig() async {
+    try {
+      // Intentamos obtener la configuración del admin panel
+      final response = await http.get(Uri.parse('https://back-api.corvus.app/clustering/integrator/admin/config'));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data != null && data['allowed_extensions'] != null) {
+          final List<dynamic> exts = data['allowed_extensions'];
+          _allowedExtensions = exts
+              .map((e) => e.toString().replaceAll('.', '').trim().toLowerCase())
+              .where((e) => e.isNotEmpty)
+              .toList();
+        }
+      }
+    } catch (e) {
+      debugPrint("Error fetching config, using defaults: $e");
+    }
+  }
+  
   Future<void> init(String userId) async {
     if (_initialized) return;
     _initialized = true;
     
     try {
+      await _fetchConfig();
+
       final localAnalysis = await _localDataSource.getDetailedAnalysis(userId);
       if (localAnalysis != null) {
         _detailedAnalysis = localAnalysis;
@@ -135,14 +161,23 @@ class MyProjectProvider extends ChangeNotifier {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['pdf'],
+        allowedExtensions: _allowedExtensions.isNotEmpty ? _allowedExtensions : ['pdf'],
       );
 
       if (result != null && result.files.single.path != null) {
-        _selectedFile = File(result.files.single.path!);
+        final file = File(result.files.single.path!);
+        final bytes = await file.length();
+        
+        if (bytes > 10 * 1024 * 1024) {
+          _errorMessage = 'El archivo supera el tamaño máximo permitido de 10 MB.';
+          _state = ProjectState.error;
+          notifyListeners();
+          return;
+        }
+
+        _selectedFile = file;
         _fileName = result.files.single.name;
         
-        final bytes = await _selectedFile!.length();
         _fileSize = '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
         
         _state = ProjectState.uploading;
