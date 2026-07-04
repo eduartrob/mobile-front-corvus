@@ -41,7 +41,7 @@ class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
               onTap: () {
                 if (role == 'PROFESOR') {
                   if (GoRouterState.of(context).matchedLocation != '/prof-profile') {
-                    context.push('/prof-profile');
+                     context.push('/prof-profile');
                   }
                 } else {
                   if (GoRouterState.of(context).matchedLocation != '/profile') {
