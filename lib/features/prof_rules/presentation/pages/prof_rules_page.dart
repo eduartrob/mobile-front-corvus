@@ -147,12 +147,22 @@ class _ExclusionRulesTab extends StatelessWidget {
                   ),
                 ),
               ),
+              IconButton(
+                icon: Icon(Icons.info_outline, color: colorScheme.onSurfaceVariant),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('Temas Bloqueados'),
+                      content: const Text('Selecciona los clústeres o temas que deseas bloquear para futuros proyectos integradores. Los alumnos no podrán presentar propuestas relacionadas con estos temas.'),
+                      actions: [
+                        TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Entendido')),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Selecciona los clústeres o temas que deseas bloquear para futuros proyectos integradores. Los alumnos no podrán presentar propuestas relacionadas con estos temas.',
-            style: TextStyle(fontSize: 14, color: colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 24),
           if (sortedClusters.isEmpty)
@@ -270,12 +280,22 @@ class _ProjectStructureTab extends StatelessWidget {
                   ),
                 ),
               ),
+              IconButton(
+                icon: Icon(Icons.info_outline, color: colorScheme.onSurfaceVariant),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('Estructura del Proyecto'),
+                      content: const Text('Define las secciones obligatorias que debe contener el documento de la propuesta.'),
+                      actions: [
+                        TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Entendido')),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Define las secciones obligatorias que debe contener el documento de la propuesta.',
-            style: TextStyle(fontSize: 14, color: colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 16),
           Row(
@@ -387,62 +407,155 @@ class _ProjectStructureTab extends StatelessWidget {
     final nameController = TextEditingController();
     final keywordsController = TextEditingController();
     bool isObligatory = true;
+    final colorScheme = Theme.of(context).colorScheme;
 
     showDialog(
       context: context,
       builder: (ctx) {
         return StatefulBuilder(
           builder: (context, setState) {
-            return AlertDialog(
-              title: const Text('Añadir Sección'),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      controller: nameController,
-                      decoration: const InputDecoration(labelText: 'Nombre de la sección', hintText: 'Ej. Introducción'),
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: keywordsController,
-                      decoration: const InputDecoration(labelText: 'Palabras clave (por coma)', hintText: 'Ej. contexto, objetivos'),
-                    ),
-                    const SizedBox(height: 12),
-                    SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: const Text('Obligatoria'),
-                      value: isObligatory,
-                      onChanged: (val) {
-                        setState(() {
-                          isObligatory = val;
-                        });
-                      },
-                    ),
-                  ],
+            return Dialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+              elevation: 0,
+              backgroundColor: colorScheme.surface,
+              insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Titulo con Icono
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: colorScheme.primaryContainer,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(Icons.note_add_outlined, color: colorScheme.onPrimaryContainer),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Text(
+                              'Nueva Sección',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: colorScheme.onSurface,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 28),
+                      
+                      // TextField de Nombre
+                      TextField(
+                        controller: nameController,
+                        decoration: InputDecoration(
+                          labelText: 'Nombre de la sección',
+                          hintText: 'Ej. Introducción',
+                          filled: true,
+                          fillColor: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      
+                      // TextField de Palabras Clave
+                      TextField(
+                        controller: keywordsController,
+                        decoration: InputDecoration(
+                          labelText: 'Palabras clave',
+                          hintText: 'Ej. contexto, objetivos',
+                          filled: true,
+                          fillColor: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      
+                      // Toggle de Obligatoria
+                      Container(
+                        decoration: BoxDecoration(
+                          color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: SwitchListTile(
+                          title: const Text('Sección Obligatoria', style: TextStyle(fontWeight: FontWeight.w500)),
+                          subtitle: Text('Requerida para la evaluación', style: TextStyle(fontSize: 12)),
+                          value: isObligatory,
+                          activeColor: colorScheme.primary,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          onChanged: (val) {
+                            setState(() {
+                              isObligatory = val;
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      
+                      // Botones
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextButton(
+                              style: TextButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              ),
+                              onPressed: () => Navigator.pop(ctx),
+                              child: const Text('Cancelar', style: TextStyle(fontWeight: FontWeight.w600)),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: FilledButton(
+                              style: FilledButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              ),
+                              onPressed: () {
+                                final name = nameController.text.trim();
+                                if (name.isNotEmpty) {
+                                  final kwList = keywordsController.text
+                                      .split(',')
+                                      .map((e) => e.trim())
+                                      .where((e) => e.isNotEmpty)
+                                      .toList();
+                                  provider.addSection(name, kwList, isObligatory);
+                                  Navigator.pop(ctx);
+                                }
+                              },
+                              child: const Text('Añadir', style: TextStyle(fontWeight: FontWeight.w600)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  child: const Text('Cancelar'),
-                ),
-                FilledButton(
-                  onPressed: () {
-                    final name = nameController.text.trim();
-                    if (name.isNotEmpty) {
-                      final kwList = keywordsController.text
-                          .split(',')
-                          .map((e) => e.trim())
-                          .where((e) => e.isNotEmpty)
-                          .toList();
-                      provider.addSection(name, kwList, isObligatory);
-                      Navigator.pop(ctx);
-                    }
-                  },
-                  child: const Text('Añadir'),
-                ),
-              ],
             );
           },
         );

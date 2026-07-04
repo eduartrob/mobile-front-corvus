@@ -116,26 +116,36 @@ class _ProjectPageHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          state == ProjectState.detailedAnalysis
-              ? l10n.detailedAnalysisTitle
-              : l10n.preValidationTitle,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            color: colorScheme.onSurface.withOpacity(0.85),
-          ),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          state == ProjectState.detailedAnalysis
-              ? l10n.detailedAnalysisDesc
-              : l10n.preValidationDesc,
-          style: TextStyle(
-            fontSize: 14,
-            color: colorScheme.onSurfaceVariant,
-            height: 1.5,
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                state == ProjectState.detailedAnalysis
+                    ? l10n.detailedAnalysisTitle
+                    : l10n.preValidationTitle,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface.withOpacity(0.85),
+                ),
+              ),
+            ),
+            IconButton(
+              icon: Icon(Icons.info_outline, color: colorScheme.onSurfaceVariant),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: Text(state == ProjectState.detailedAnalysis ? l10n.detailedAnalysisTitle : l10n.preValidationTitle),
+                    content: Text(state == ProjectState.detailedAnalysis ? l10n.detailedAnalysisDesc : l10n.preValidationDesc),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Entendido')),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
         ),
       ],
     );
