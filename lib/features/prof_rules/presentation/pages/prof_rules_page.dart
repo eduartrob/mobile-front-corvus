@@ -285,10 +285,20 @@ class _ProjectStructureTab extends StatelessWidget {
                 'Secciones (${provider.projectSections.length})',
                 style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
               ),
-              OutlinedButton.icon(
-                onPressed: provider.isLoading ? null : () => _generateSectionsDialog(context, provider),
-                icon: const Icon(Icons.auto_awesome),
-                label: const Text('Generar sugerencias'),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: provider.isLoading ? null : () => _addSectionDialog(context, provider),
+                    icon: Icon(Icons.add_circle, color: colorScheme.primary),
+                    tooltip: 'Añadir sección manual',
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: provider.isLoading ? null : () => _generateSectionsDialog(context, provider),
+                    icon: const Icon(Icons.auto_awesome),
+                    label: const Text('IA'),
+                  ),
+                ],
               ),
             ],
           ),
@@ -370,6 +380,73 @@ class _ProjectStructureTab extends StatelessWidget {
         ],
       ),
       ),
+    );
+  }
+
+  void _addSectionDialog(BuildContext context, ProfRulesProvider provider) {
+    final nameController = TextEditingController();
+    final keywordsController = TextEditingController();
+    bool isObligatory = true;
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Añadir Sección'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: nameController,
+                      decoration: const InputDecoration(labelText: 'Nombre de la sección', hintText: 'Ej. Introducción'),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: keywordsController,
+                      decoration: const InputDecoration(labelText: 'Palabras clave (por coma)', hintText: 'Ej. contexto, objetivos'),
+                    ),
+                    const SizedBox(height: 12),
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('Obligatoria'),
+                      value: isObligatory,
+                      onChanged: (val) {
+                        setState(() {
+                          isObligatory = val;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('Cancelar'),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    final name = nameController.text.trim();
+                    if (name.isNotEmpty) {
+                      final kwList = keywordsController.text
+                          .split(',')
+                          .map((e) => e.trim())
+                          .where((e) => e.isNotEmpty)
+                          .toList();
+                      provider.addSection(name, kwList, isObligatory);
+                      Navigator.pop(ctx);
+                    }
+                  },
+                  child: const Text('Añadir'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
