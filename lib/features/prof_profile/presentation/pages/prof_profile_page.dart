@@ -4,21 +4,12 @@ import 'package:go_router/go_router.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
-import 'package:mobile/features/prof_profile/presentation/provider/linked_folders_provider.dart';
-import 'package:mobile/shared/widgets/corvus_top_bar.dart';
-import 'package:mobile/core/di/di.dart';
-import 'package:mobile/features/prof_profile/domain/use_cases/sync_drive_folder_usecase.dart';
-import 'package:mobile/features/prof_profile/domain/use_cases/get_drive_folders_usecase.dart';
-import 'package:mobile/core/services/notification_service.dart';
-import 'package:mobile/core/network/api_config.dart';
 import 'package:mobile/core/theme/theme_provider.dart';
 import 'package:mobile/l10n/app_localizations.dart';
-import 'package:mobile/shared/widgets/syncing_dots_text.dart';
 import 'package:mobile/core/theme/app_dimens.dart';
 
 import '../widgets/prof_header_info.dart';
 import '../widgets/prof_stats_card.dart';
-import '../widgets/drive_sync_modal.dart';
 
 class ProfProfilePage extends StatefulWidget {
   const ProfProfilePage({super.key});
@@ -47,16 +38,9 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final authProvider = context.read<AuthProvider>();
-      final jwtToken = authProvider.currentUser?.token;
-      if (jwtToken != null) {
-        context.read<LinkedFoldersProvider>().loadFolders(jwtToken);
-      }
-    });
   }
 
-  // Drive Sync Modal has been extracted to widgets/drive_sync_modal.dart
+
 
 
   @override
@@ -238,200 +222,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
               ),
             ),
             
-            const SizedBox(height: 32),
-            const Divider(),
-            const SizedBox(height: 24),
             
-            Row(
-              children: [
-                Icon(Icons.folder_shared, color: colorScheme.primary),
-                const SizedBox(width: 8),
-                const Text(
-                  'Directorios Vinculados',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            
-            Consumer<LinkedFoldersProvider>(
-              builder: (context, linkedProvider, child) {
-                if (linkedProvider.folders.isEmpty) {
-                  return Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: colorScheme.surfaceContainerHighest.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
-                    ),
-                    child: Center(
-                      child: Text(
-                        'No hay carpetas sincronizadas. Haz clic abajo para añadir tu primer repositorio.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: colorScheme.onSurfaceVariant),
-                      ),
-                    ),
-                  );
-                }
-
-                return ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: linkedProvider.folders.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 8),
-                  itemBuilder: (context, index) {
-                    final folder = linkedProvider.folders[index];
-                    return Container(
-                      decoration: BoxDecoration(
-                        color: colorScheme.primary.withOpacity(0.05),
-                        border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: ListTile(
-                        leading: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.green.shade100,
-                            shape: BoxShape.circle,
-                          ),
-                          child: folder['status'] == 'syncing'
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-                                  ),
-                                )
-                              : Icon(Icons.check, color: Colors.green.shade700, size: 20),
-                        ),
-                        title: Text(
-                          folder['name'] ?? 'Carpeta Desconocida',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: folder['status'] == 'syncing'
-                            ? SyncingDotsText(
-                                label: 'Sincronizando',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.blue.shade700,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              )
-                            : const Text(
-                                'Activa y Sincronizada',
-                                style: TextStyle(fontSize: 12, color: Colors.green),
-                              ),
-                        trailing: IconButton(
-                          icon: Icon(Icons.delete_outline, color: colorScheme.error),
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text('¿Quitar acceso?'),
-                                content: Text('¿Deseas dejar de visualizar "${folder['name']}" en Corvus? \n\n(Nota: Los vectores permanecerán en el motor de Corvus hasta que se implemente la eliminación completa en el servidor).'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: const Text('Cancelar'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      context.read<LinkedFoldersProvider>().removeFolder(folder['id']!);
-                                      Navigator.pop(context);
-                                    },
-                                    child: Text('Quitar', style: TextStyle(color: colorScheme.error)),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-            
-            const SizedBox(height: 24),
-            
-            SizedBox(
-              width: double.infinity,
-              height: 55,
-              child: OutlinedButton.icon(
-                onPressed: () async {
-                  final granted = await context.read<AuthProvider>().requestDriveAccess();
-                  if (context.mounted) {
-                    if (granted) {
-                      DriveSyncModal.show(context);
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text('Se requiere acceso a Drive para sincronizar.'),
-                          backgroundColor: colorScheme.error,
-                        ),
-                      );
-                    }
-                  }
-                },
-                icon: const Icon(Icons.add_to_drive, size: 24),
-                label: const Text(
-                  'Sincronizar Repositorio de Proyectos',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: colorScheme.primary,
-                  side: BorderSide(color: colorScheme.primary, width: 2),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-              ),
-            ),
-            
-            const SizedBox(height: 12),
-            
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.2)),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(Icons.shield_outlined, color: colorScheme.primary, size: 20),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Aviso de Privacidad y Uso Limitado',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.primary,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Corvus solicita acceso a Google Drive únicamente en modo lectura para extraer y vectorizar los documentos de tus repositorios históricos. La información procesada sirve exclusivamente para generar reportes analíticos de prevención de riesgo de colisión. NO se comparte con terceros ni se utiliza para publicidad, cumpliendo estrictamente con la Política de Uso Limitado (Google API Services User Data Policy).',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: colorScheme.onSurfaceVariant,
-                            height: 1.4,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
             
             const SizedBox(height: 24),            
             SizedBox(

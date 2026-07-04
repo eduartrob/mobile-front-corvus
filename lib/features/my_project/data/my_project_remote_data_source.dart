@@ -31,7 +31,7 @@ class MyProjectRemoteDataSource {
       request.headers['Authorization'] = 'Bearer $token';
       request.headers.remove('Content-Type');
 
-      final streamedResponse = await request.send().timeout(const Duration(seconds: 15));
+      final streamedResponse = await request.send().timeout(const Duration(seconds: 120));
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200 || response.statusCode == 201) {

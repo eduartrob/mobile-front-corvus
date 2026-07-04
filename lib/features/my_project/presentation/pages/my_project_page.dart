@@ -29,15 +29,14 @@ class _MyProjectPageContent extends StatefulWidget {
   State<_MyProjectPageContent> createState() => _MyProjectPageContentState();
 }
 
-class _MyProjectPageContentState extends State<_MyProjectPageContent> {
+class _MyProjectPageContentState extends State<_MyProjectPageContent> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    // Safety net: if the global provider hasn't been init()'d yet
-    // (e.g. fresh login where the listener fired before userId was set),
-    // trigger it now. init() has an _initialized guard so it's safe to call.
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<MyProjectProvider>();
+      provider.setScreenVisible(true);
       if (provider.state == ProjectState.initial) {
         final userId = context.read<AuthProvider>().currentUser?.id;
         if (userId != null) {
@@ -45,6 +44,26 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> {
         }
       }
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    try {
+        context.read<MyProjectProvider>().setScreenVisible(false);
+    } catch (_) {}
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    final provider = context.read<MyProjectProvider>();
+    if (state == AppLifecycleState.resumed) {
+      provider.setScreenVisible(true);
+    } else if (state == AppLifecycleState.paused || state == AppLifecycleState.detached || state == AppLifecycleState.inactive) {
+      provider.setScreenVisible(false);
+    }
   }
 
   @override
@@ -293,7 +312,7 @@ class _ProjectPageBody extends StatelessWidget {
               children: [
                 const CircularProgressIndicator(),
                 const SizedBox(height: 16),
-                Text(l10n.analyzingStructure),
+                const RepaintBoundary(child: _PreValidationLoadingTextWidget()),
                 const SizedBox(height: 32),
                 OutlinedButton.icon(
                   onPressed: () => provider.cancelAnalysis(userId),
@@ -388,6 +407,62 @@ class _ProjectPageBody extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+class _PreValidationLoadingTextWidget extends StatelessWidget {
+  const _PreValidationLoadingTextWidget();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final message = context.select<MyProjectProvider, String>((p) => p.serverPhaseMessage);
+    
+    String icon = '📄';
+    final msgLower = message.toLowerCase();
+    if (msgLower.contains('modelo') || msgLower.contains('clasificador')) icon = '🤖';
+    else if (msgLower.contains('blacklist') || msgLower.contains('comunes')) icon = '🚫';
+    else if (msgLower.contains('secciones')) icon = '📚';
+    else if (msgLower.contains('coherencia')) icon = '⚖️';
+    else if (msgLower.contains('colision') || msgLower.contains('qdrant')) icon = '🔍';
+    else if (msgLower.contains('pre-validación')) icon = '⏳';
+
+    final displayText = message.isEmpty ? 'Iniciando pre-validación...' : message;
+
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 600),
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        return FadeTransition(
+          opacity: animation,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.2),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
+          ),
+        );
+      },
+      child: Column(
+        key: ValueKey<String>(displayText),
+        children: [
+          Text(
+            icon,
+            style: const TextStyle(fontSize: 28),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            displayText,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: colorScheme.onSurface,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 }
