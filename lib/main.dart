@@ -7,6 +7,7 @@ import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/prof_profile/presentation/provider/linked_folders_provider.dart';
 import 'package:mobile/features/inspiration/presentation/provider/inspiration_provider.dart';
 import 'package:mobile/features/my_project/presentation/provider/my_project_provider.dart';
+import 'package:mobile/features/teams/presentation/provider/solicitudes_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:mobile/core/services/notification_service.dart';
@@ -84,6 +85,7 @@ void main() async {
         ChangeNotifierProvider.value(value: myProjectProvider),
         ChangeNotifierProvider.value(value: themeProvider),
         ChangeNotifierProvider(create: (_) => InspirationProvider()),
+        ChangeNotifierProvider(create: (_) => SolicitudesProvider()),
       ],
       child: const MyApp(),
     ),

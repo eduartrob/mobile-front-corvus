@@ -9,6 +9,7 @@ import 'package:mobile/features/auth/presentation/pages/login_page.dart';
 import 'package:mobile/features/inspiration/presentation/pages/inspiration_page.dart';
 import 'package:mobile/features/my_project/presentation/pages/my_project_page.dart';
 import 'package:mobile/features/teams/presentation/pages/teams_page.dart';
+import 'package:mobile/features/teams/presentation/pages/manage_team_page.dart';
 import 'package:mobile/features/profile/presentation/pages/profile_page.dart';
 import 'package:mobile/features/prof_dash/presentation/pages/prof_dash_page.dart';
 import 'package:mobile/features/prof_reviews/presentation/pages/prof_reviews_page.dart';
@@ -19,6 +20,8 @@ import 'package:mobile/features/prof_profile/presentation/pages/prof_profile_pag
 import 'package:mobile/features/profile/presentation/pages/activity_history_page.dart';
 import 'package:mobile/core/router/main_layout.dart';
 import 'package:mobile/core/router/prof_main_layout.dart';
+import 'package:mobile/features/student_directory/presentation/pages/student_directory_page.dart';
+import 'package:mobile/features/notifications/presentation/pages/notifications_page.dart';
 
 class AppRouter extends StatelessWidget {
   final ThemeData? appTheme;
@@ -158,6 +161,18 @@ class AppRouter extends StatelessWidget {
         GoRoute(
           path: '/activity-history',
           builder: (context, state) => const ActivityHistoryPage(),
+        ),
+        GoRoute(
+          path: '/student-directory',
+          builder: (context, state) => const StudentDirectoryPage(),
+        ),
+        GoRoute(
+          path: '/notifications',
+          builder: (context, state) => const NotificationsPage(),
+        ),
+        GoRoute(
+          path: '/manage-team',
+          builder: (context, state) => const ManageTeamPage(),
         ),
       ],
     );
