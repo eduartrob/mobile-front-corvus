@@ -29,15 +29,14 @@ class _MyProjectPageContent extends StatefulWidget {
   State<_MyProjectPageContent> createState() => _MyProjectPageContentState();
 }
 
-class _MyProjectPageContentState extends State<_MyProjectPageContent> {
+class _MyProjectPageContentState extends State<_MyProjectPageContent> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    // Safety net: if the global provider hasn't been init()'d yet
-    // (e.g. fresh login where the listener fired before userId was set),
-    // trigger it now. init() has an _initialized guard so it's safe to call.
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<MyProjectProvider>();
+      provider.setScreenVisible(true);
       if (provider.state == ProjectState.initial) {
         final userId = context.read<AuthProvider>().currentUser?.id;
         if (userId != null) {
@@ -45,6 +44,26 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> {
         }
       }
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    try {
+        context.read<MyProjectProvider>().setScreenVisible(false);
+    } catch (_) {}
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    final provider = context.read<MyProjectProvider>();
+    if (state == AppLifecycleState.resumed) {
+      provider.setScreenVisible(true);
+    } else if (state == AppLifecycleState.paused || state == AppLifecycleState.detached || state == AppLifecycleState.inactive) {
+      provider.setScreenVisible(false);
+    }
   }
 
   @override
@@ -392,49 +411,24 @@ class _ProjectPageBody extends StatelessWidget {
   }
 }
 
-class _PreValidationLoadingTextWidget extends StatefulWidget {
+class _PreValidationLoadingTextWidget extends StatelessWidget {
   const _PreValidationLoadingTextWidget();
-
-  @override
-  State<_PreValidationLoadingTextWidget> createState() => _PreValidationLoadingTextWidgetState();
-}
-
-class _PreValidationLoadingTextWidgetState extends State<_PreValidationLoadingTextWidget> {
-  int _currentIndex = 0;
-  
-  final List<Map<String, String>> _phases = [
-    {'icon': '📄', 'text': 'Extrayendo texto del documento...'},
-    {'icon': '🧹', 'text': 'Limpiando estructura del documento...'},
-    {'icon': '🤖', 'text': 'Clasificando propuesta con modelo ML...'},
-    {'icon': '🚫', 'text': 'Revisando palabras comunes (Blacklist)...'},
-    {'icon': '📚', 'text': 'Verificando secciones académicas obligatorias...'},
-    {'icon': '⚖️', 'text': 'Evaluando coherencia interna...'},
-    {'icon': '🔍', 'text': 'Buscando colisiones con proyectos anteriores...'},
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _cycleMessages();
-  }
-
-  void _cycleMessages() async {
-    while (mounted) {
-      await Future.delayed(const Duration(seconds: 3));
-      if (mounted) {
-        setState(() {
-          if (_currentIndex < _phases.length - 1) {
-            _currentIndex++;
-          }
-        });
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final phaseData = _phases[_currentIndex];
+    final message = context.select<MyProjectProvider, String>((p) => p.serverPhaseMessage);
+    
+    String icon = '📄';
+    final msgLower = message.toLowerCase();
+    if (msgLower.contains('modelo') || msgLower.contains('clasificador')) icon = '🤖';
+    else if (msgLower.contains('blacklist') || msgLower.contains('comunes')) icon = '🚫';
+    else if (msgLower.contains('secciones')) icon = '📚';
+    else if (msgLower.contains('coherencia')) icon = '⚖️';
+    else if (msgLower.contains('colision') || msgLower.contains('qdrant')) icon = '🔍';
+    else if (msgLower.contains('pre-validación')) icon = '⏳';
+
+    final displayText = message.isEmpty ? 'Iniciando pre-validación...' : message;
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 600),
@@ -451,15 +445,15 @@ class _PreValidationLoadingTextWidgetState extends State<_PreValidationLoadingTe
         );
       },
       child: Column(
-        key: ValueKey<int>(_currentIndex),
+        key: ValueKey<String>(displayText),
         children: [
           Text(
-            phaseData['icon']!,
+            icon,
             style: const TextStyle(fontSize: 28),
           ),
           const SizedBox(height: 12),
           Text(
-            phaseData['text']!,
+            displayText,
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w500,
