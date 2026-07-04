@@ -147,20 +147,21 @@ class _ExclusionRulesTab extends StatelessWidget {
                   ),
                 ),
               ),
-              IconButton(
-                icon: Icon(Icons.info_outline, color: colorScheme.onSurfaceVariant),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (ctx) => AlertDialog(
-                      title: const Text('Temas Bloqueados'),
-                      content: const Text('Selecciona los clústeres o temas que deseas bloquear para futuros proyectos integradores. Los alumnos no podrán presentar propuestas relacionadas con estos temas.'),
-                      actions: [
-                        TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Entendido')),
-                      ],
-                    ),
-                  );
-                },
+              Tooltip(
+                message: 'Selecciona los clústeres o temas que deseas bloquear para futuros proyectos integradores. Los alumnos no podrán presentar propuestas relacionadas con estos temas.',
+                triggerMode: TooltipTriggerMode.tap,
+                showDuration: const Duration(seconds: 4),
+                padding: const EdgeInsets.all(16),
+                margin: const EdgeInsets.symmetric(horizontal: 24),
+                decoration: BoxDecoration(
+                  color: colorScheme.inverseSurface,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                textStyle: TextStyle(color: colorScheme.onInverseSurface, fontSize: 14),
+                child: IconButton(
+                  icon: Icon(Icons.info_outline, color: colorScheme.onSurfaceVariant),
+                  onPressed: () {}, // Tooltip handles tap
+                ),
               ),
             ],
           ),
@@ -280,20 +281,21 @@ class _ProjectStructureTab extends StatelessWidget {
                   ),
                 ),
               ),
-              IconButton(
-                icon: Icon(Icons.info_outline, color: colorScheme.onSurfaceVariant),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (ctx) => AlertDialog(
-                      title: const Text('Estructura del Proyecto'),
-                      content: const Text('Define las secciones obligatorias que debe contener el documento de la propuesta.'),
-                      actions: [
-                        TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Entendido')),
-                      ],
-                    ),
-                  );
-                },
+              Tooltip(
+                message: 'Define las secciones obligatorias que debe contener el documento de la propuesta.',
+                triggerMode: TooltipTriggerMode.tap,
+                showDuration: const Duration(seconds: 4),
+                padding: const EdgeInsets.all(16),
+                margin: const EdgeInsets.symmetric(horizontal: 24),
+                decoration: BoxDecoration(
+                  color: colorScheme.inverseSurface,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                textStyle: TextStyle(color: colorScheme.onInverseSurface, fontSize: 14),
+                child: IconButton(
+                  icon: Icon(Icons.info_outline, color: colorScheme.onSurfaceVariant),
+                  onPressed: () {}, // Tooltip handles tap
+                ),
               ),
             ],
           ),

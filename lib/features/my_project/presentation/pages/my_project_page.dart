@@ -130,20 +130,21 @@ class _ProjectPageHeader extends StatelessWidget {
                 ),
               ),
             ),
-            IconButton(
-              icon: Icon(Icons.info_outline, color: colorScheme.onSurfaceVariant),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: Text(state == ProjectState.detailedAnalysis ? l10n.detailedAnalysisTitle : l10n.preValidationTitle),
-                    content: Text(state == ProjectState.detailedAnalysis ? l10n.detailedAnalysisDesc : l10n.preValidationDesc),
-                    actions: [
-                      TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Entendido')),
-                    ],
-                  ),
-                );
-              },
+            Tooltip(
+              message: state == ProjectState.detailedAnalysis ? l10n.detailedAnalysisDesc : l10n.preValidationDesc,
+              triggerMode: TooltipTriggerMode.tap,
+              showDuration: const Duration(seconds: 4),
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.symmetric(horizontal: 24),
+              decoration: BoxDecoration(
+                color: colorScheme.inverseSurface,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              textStyle: TextStyle(color: colorScheme.onInverseSurface, fontSize: 14),
+              child: IconButton(
+                icon: Icon(Icons.info_outline, color: colorScheme.onSurfaceVariant),
+                onPressed: () {}, // Tooltip handles tap
+              ),
             ),
           ],
         ),
