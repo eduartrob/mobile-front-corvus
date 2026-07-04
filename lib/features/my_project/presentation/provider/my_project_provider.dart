@@ -8,6 +8,7 @@ import 'package:mobile/features/my_project/data/my_project_local_data_source.dar
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/services/notification_service.dart';
 import 'package:mobile/l10n/app_localizations.dart';
+import 'package:mobile/core/network/api_config.dart';
 
 enum ProjectState {
   initial,
@@ -74,7 +75,7 @@ class MyProjectProvider extends ChangeNotifier {
   Future<void> _fetchConfig() async {
     try {
       // Intentamos obtener la configuración del admin panel
-      final response = await http.get(Uri.parse('https://back-api.corvus.app/clustering/integrator/admin/config'));
+      final response = await http.get(Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/config'));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data != null && data['allowed_extensions'] != null) {
