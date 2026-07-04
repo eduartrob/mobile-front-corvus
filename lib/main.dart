@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/app.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mobile/core/router/appRouter.dart';
 
 import 'package:mobile/core/di/di.dart';
 import 'package:provider/provider.dart';
@@ -8,12 +10,23 @@ import 'package:mobile/features/prof_profile/presentation/provider/linked_folder
 import 'package:mobile/features/inspiration/presentation/provider/inspiration_provider.dart';
 import 'package:mobile/features/my_project/presentation/provider/my_project_provider.dart';
 import 'package:mobile/features/teams/presentation/provider/solicitudes_provider.dart';
+import 'package:mobile/features/notifications/presentation/provider/notifications_provider.dart';
+import 'package:mobile/features/prof_rules/presentation/provider/prof_rules_provider.dart';
+import 'package:mobile/features/prof_rules/data/data_source/prof_rules_remote_data_source.dart';
+import 'package:http/http.dart' as http;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:mobile/core/services/notification_service.dart';
 import 'package:mobile/firebase_options.dart';
 import 'package:mobile/core/theme/theme_provider.dart';
 import 'package:mobile/core/services/firebase_messaging_handler.dart';
+
+void _handleNotificationTap(RemoteMessage message) {
+  final context = rootNavigatorKey.currentContext;
+  if (context != null) {
+    context.push('/notifications');
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,6 +40,10 @@ void main() async {
   final linkedFoldersProvider = LinkedFoldersProvider();
   final myProjectProvider = MyProjectProvider();
   final themeProvider = ThemeProvider();
+  final inspirationProvider = InspirationProvider();
+  final profRulesProvider = ProfRulesProvider(
+    remoteDataSource: ProfRulesRemoteDataSource(client: http.Client()),
+  );
 
   await Future.wait([
     // Firebase: ~200-500ms (conexión a servidores de Google)
@@ -34,6 +51,19 @@ void main() async {
         .then((_) async {
           FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
           FirebaseMessaging.onMessage.listen(handleFCMMessage);
+          
+          FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+            _handleNotificationTap(message);
+          });
+          
+          FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage? message) {
+            if (message != null) {
+              Future.delayed(const Duration(milliseconds: 1500), () {
+                _handleNotificationTap(message);
+              });
+            }
+          });
+
           await FirebaseMessaging.instance.subscribeToTopic('config_updates');
         })
         .catchError((_) {
@@ -59,6 +89,8 @@ void main() async {
     if (jwtToken != null) {
       linkedFoldersProvider.loadFolders(jwtToken);
     }
+    inspirationProvider.loadProjects(forceRefresh: true);
+    profRulesProvider.fetchData();
   }
 
   // Listen for fresh logins (e.g. user presses "Continuar con Google")
@@ -72,6 +104,8 @@ void main() async {
         if (token != null) {
           linkedFoldersProvider.loadFolders(token);
         }
+        inspirationProvider.loadProjects(forceRefresh: true);
+        profRulesProvider.fetchData();
       }
     }
   });
@@ -84,8 +118,10 @@ void main() async {
         ChangeNotifierProvider.value(value: linkedFoldersProvider),
         ChangeNotifierProvider.value(value: myProjectProvider),
         ChangeNotifierProvider.value(value: themeProvider),
-        ChangeNotifierProvider(create: (_) => InspirationProvider()),
+        ChangeNotifierProvider.value(value: inspirationProvider),
+        ChangeNotifierProvider.value(value: profRulesProvider),
         ChangeNotifierProvider(create: (_) => SolicitudesProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationsProvider()..fetchNotifications()),
       ],
       child: const MyApp(),
     ),

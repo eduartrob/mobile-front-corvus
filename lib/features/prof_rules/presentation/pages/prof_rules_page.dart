@@ -11,16 +11,7 @@ class ProfRulesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) {
-        final provider = ProfRulesProvider(
-          remoteDataSource: ProfRulesRemoteDataSource(client: http.Client()),
-        );
-        provider.fetchData();
-        return provider;
-      },
-      child: const _ProfRulesPageView(),
-    );
+    return const _ProfRulesPageView();
   }
 }
 
