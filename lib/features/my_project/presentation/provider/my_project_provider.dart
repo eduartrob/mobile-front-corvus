@@ -148,7 +148,8 @@ class MyProjectProvider extends ChangeNotifier {
         _state = ProjectState.preValidated;
         notifyListeners();
       } else {
-        _state = ProjectState.initial;
+        // No local analysis, no draft, no server analysis → user needs to upload
+        _state = ProjectState.error;
         notifyListeners();
       }
     } catch (e) {
