@@ -17,6 +17,10 @@ class NotificationService {
   static const String analysisChannelName = 'Análisis de Propuestas';
   static const String analysisChannelDescription = 'Notificaciones sobre el análisis exhaustivo de proyectos';
 
+  static const String analysisProgressChannelId = 'corvus_analysis_progress_channel';
+  static const String analysisProgressChannelName = 'Progreso de Análisis';
+  static const String analysisProgressChannelDescription = 'Notificaciones silenciosas sobre el progreso del análisis';
+
   Future<void> init() async {
     const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
     // -# para ios y otras plataformas se configura aqui se omite por brevedad para centrarse en android
@@ -151,9 +155,9 @@ class NotificationService {
     required String phase,
   }) async {
     final AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
-      analysisChannelId,
-      analysisChannelName,
-      channelDescription: analysisChannelDescription,
+      analysisProgressChannelId,
+      analysisProgressChannelName,
+      channelDescription: analysisProgressChannelDescription,
       channelShowBadge: false,
       importance: Importance.low,
       priority: Priority.low,
