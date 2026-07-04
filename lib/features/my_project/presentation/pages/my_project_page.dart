@@ -74,12 +74,18 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
 
     return Scaffold(
       appBar: const CorvusTopBar(),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppDimens.screenMargin),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _ProjectPageHeader(userId: userId),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          final provider = context.read<MyProjectProvider>();
+          await provider.loadUserAndProject();
+        },
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(AppDimens.screenMargin),
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _ProjectPageHeader(userId: userId),
 
             const SizedBox(height: 24),
 

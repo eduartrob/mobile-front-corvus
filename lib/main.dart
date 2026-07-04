@@ -30,9 +30,10 @@ void main() async {
   await Future.wait([
     // Firebase: ~200-500ms (conexión a servidores de Google)
     Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform)
-        .then((_) {
+        .then((_) async {
           FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
           FirebaseMessaging.onMessage.listen(handleFCMMessage);
+          await FirebaseMessaging.instance.subscribeToTopic('config_updates');
         })
         .catchError((_) {
           debugPrint('Firebase no inicializado: Ejecuta flutterfire configure');

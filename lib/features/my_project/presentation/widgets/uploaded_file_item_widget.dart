@@ -72,7 +72,7 @@ class UploadedFileItemWidget extends StatelessWidget {
           ),
           if (provider.state == ProjectState.preValidated)
             IconButton(
-              onPressed: () => provider.reset(context.read<AuthProvider>().currentUser?.id ?? ''),
+              onPressed: () => provider.cancelAnalysis(context.read<AuthProvider>().currentUser?.id ?? ''),
               icon: Icon(Icons.delete_outline, color: colorScheme.onSurfaceVariant),
               hoverColor: colorScheme.errorContainer,
             ),
