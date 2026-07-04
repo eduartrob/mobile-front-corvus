@@ -148,7 +148,8 @@ class MyProjectProvider extends ChangeNotifier {
         _state = ProjectState.preValidated;
         notifyListeners();
       } else {
-        _state = ProjectState.initial;
+        // No local analysis, no draft, no server analysis → user needs to upload
+        _state = ProjectState.error;
         notifyListeners();
       }
     } catch (e) {
@@ -340,7 +341,7 @@ class MyProjectProvider extends ChangeNotifier {
           } else {
               if (retryResult['status'] != 'pending') {
                   _quickAnalysis = retryResult;
-              } else if (_quickAnalysis == null || _quickAnalysis!.isEmpty || _quickAnalysis!['status'] == 'pending') {
+              } else if (_quickAnalysis == null || _quickAnalysis!.isEmpty || _quickAnalysis?['status'] == 'pending') {
                   final draft = await _dataSource.checkDraft(userId);
                   if (draft.isNotEmpty && draft['status'] != 'not_found') {
                       _quickAnalysis = draft;
