@@ -334,9 +334,18 @@ class MyProjectProvider extends ChangeNotifier {
           final retryResult = await _dataSource.getAnalysisResult(userId);
           
           if (_state == ProjectState.analyzing) {
-              _applyAnalysisResult(userId, retryResult, l10n);
+              if (retryResult['status'] != 'pending') {
+                  _applyAnalysisResult(userId, retryResult, l10n);
+              }
           } else {
-              _quickAnalysis = retryResult;
+              if (retryResult['status'] != 'pending') {
+                  _quickAnalysis = retryResult;
+              } else if (_quickAnalysis.isEmpty || _quickAnalysis['status'] == 'pending') {
+                  final draft = await _dataSource.checkDraft(userId);
+                  if (draft.isNotEmpty && draft['status'] != 'not_found') {
+                      _quickAnalysis = draft;
+                  }
+              }
               _state = ProjectState.preValidated;
               _notificationService.cancelAnalysisNotification();
               if (!_isScreenVisible) {
