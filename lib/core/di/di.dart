@@ -6,6 +6,7 @@ import 'package:mobile/features/auth/domain/use_cases/sign_in_with_google_usecas
 import 'package:mobile/features/auth/domain/use_cases/request_drive_scope_usecase.dart';
 import 'package:mobile/features/auth/domain/use_cases/get_drive_access_token_usecase.dart';
 import 'package:mobile/features/auth/domain/use_cases/sign_out_from_google_usecase.dart';
+import 'package:mobile/features/auth/domain/use_cases/request_classroom_scopes_usecase.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 
 import 'package:mobile/features/prof_profile/data/data_source/sync_remote_data_source.dart';
@@ -38,6 +39,9 @@ void setupDependencies() {
     () => RequestDriveScopeUseCase(sl()),
   );
   sl.registerLazySingleton(
+    () => RequestClassroomScopesUseCase(sl()),
+  );
+  sl.registerLazySingleton(
     () => GetDriveAccessTokenUseCase(sl()),
   );
   sl.registerLazySingleton(
@@ -54,6 +58,7 @@ void setupDependencies() {
     () => AuthProvider(
       signInWithGoogleUseCase: sl(),
       requestDriveScopeUseCase: sl(),
+      requestClassroomScopesUseCase: sl(),
       getDriveAccessTokenUseCase: sl(),
       signOutFromGoogleUseCase: sl(),
     ),

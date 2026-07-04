@@ -8,6 +8,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 abstract class AuthRemoteDataSource {
   Future<UserModel> signInWithGoogle();
   Future<bool> requestDriveScope();
+  Future<bool> requestClassroomScopes();
   Future<String?> getDriveAccessToken();
   Future<void> signOutFromGoogle();
 }
@@ -21,6 +22,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<bool> requestDriveScope() async {
     return await _googleSignIn.requestScopes(['https://www.googleapis.com/auth/drive.readonly']);
+  }
+
+  @override
+  Future<bool> requestClassroomScopes() async {
+    return await _googleSignIn.requestScopes([
+      'https://www.googleapis.com/auth/classroom.courses.readonly',
+      'https://www.googleapis.com/auth/classroom.courseworkmaterials.readonly',
+      'https://www.googleapis.com/auth/drive.readonly'
+    ]);
   }
 
   @override

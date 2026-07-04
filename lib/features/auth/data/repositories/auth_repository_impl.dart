@@ -18,6 +18,11 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<bool> requestClassroomScopes() async {
+    return await remoteDataSource.requestClassroomScopes();
+  }
+
+  @override
   Future<String?> getDriveAccessToken() async {
     return await remoteDataSource.getDriveAccessToken();
   }
