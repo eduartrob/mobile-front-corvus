@@ -114,14 +114,14 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
                 decoration: InputDecoration(
                   hintText: 'Escribe el nombre del equipo',
                   filled: true,
-                  fillColor: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                  fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: colorScheme.outlineVariant.withOpacity(0.5)),
+                    borderSide: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: colorScheme.outlineVariant.withOpacity(0.5)),
+                    borderSide: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -153,14 +153,14 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
                 decoration: InputDecoration(
                   hintText: 'Añade una descripción amigable...',
                   filled: true,
-                  fillColor: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                  fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: colorScheme.outlineVariant.withOpacity(0.5)),
+                    borderSide: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: colorScheme.outlineVariant.withOpacity(0.5)),
+                    borderSide: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -188,7 +188,7 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
                 'Agrega enlaces para que los integrantes se unan a tus canales oficiales.',
                 style: TextStyle(
                   fontSize: 13,
-                  color: colorScheme.onSurfaceVariant.withOpacity(0.8),
+                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                 ),
               ),
               const SizedBox(height: 16),
@@ -202,11 +202,11 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
                       decoration: InputDecoration(
                         hintText: 'Red (ej. Discord)',
                         filled: true,
-                        fillColor: colorScheme.surfaceContainerHighest.withOpacity(0.2),
+                        fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: colorScheme.outlineVariant.withOpacity(0.5)),
+                          borderSide: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
                         ),
                       ),
                     ),
@@ -219,11 +219,11 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
                       decoration: InputDecoration(
                         hintText: 'https://...',
                         filled: true,
-                        fillColor: colorScheme.surfaceContainerHighest.withOpacity(0.2),
+                        fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: colorScheme.outlineVariant.withOpacity(0.5)),
+                          borderSide: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
                         ),
                       ),
                     ),
@@ -256,7 +256,7 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
                     decoration: BoxDecoration(
                       color: colorScheme.surface,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.4)),
+                      border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,

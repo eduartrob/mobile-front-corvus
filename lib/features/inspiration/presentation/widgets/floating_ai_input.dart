@@ -90,7 +90,7 @@ class _FloatingAiInputState extends State<FloatingAiInput>
             alignment: Alignment.bottomLeft,
             children: <Widget>[
               ...previousChildren,
-              if (currentChild != null) currentChild,
+              ?currentChild,
             ],
           );
         },

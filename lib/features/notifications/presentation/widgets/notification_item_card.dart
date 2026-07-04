@@ -60,14 +60,14 @@ class NotificationItemCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
           color: notification.isRead
-              ? colorScheme.outlineVariant.withOpacity(0.3)
-              : colorScheme.primary.withOpacity(0.15),
+              ? colorScheme.outlineVariant.withValues(alpha: 0.3)
+              : colorScheme.primary.withValues(alpha: 0.15),
           width: notification.isRead ? 1 : 1.5,
         ),
       ),
       color: notification.isRead
           ? colorScheme.surface
-          : colorScheme.primary.withOpacity(0.02),
+          : colorScheme.primary.withValues(alpha: 0.02),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: () {
@@ -116,7 +116,7 @@ class NotificationItemCard extends StatelessWidget {
                       _formatTimestamp(notification.timestamp),
                       style: TextStyle(
                         fontSize: 12,
-                        color: colorScheme.onSurfaceVariant.withOpacity(0.7),
+                        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                       ),
                     ),
                   ],

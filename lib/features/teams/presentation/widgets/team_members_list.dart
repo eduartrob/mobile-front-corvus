@@ -121,12 +121,12 @@ class TeamMembersList extends StatelessWidget {
               icon: const Icon(Icons.manage_accounts_outlined, size: 18),
               label: const Text('Gestionar'),
               style: TextButton.styleFrom(
-                backgroundColor: colorScheme.primary.withOpacity(0.15),
+                backgroundColor: colorScheme.primary.withValues(alpha: 0.15),
                 foregroundColor: colorScheme.primary,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
-                  side: BorderSide(color: colorScheme.primary.withOpacity(0.3)),
+                  side: BorderSide(color: colorScheme.primary.withValues(alpha: 0.3)),
                 ),
               ),
             ),
@@ -186,10 +186,10 @@ class InvitationCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.4)),
+        border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -242,7 +242,7 @@ class InvitationCard extends StatelessWidget {
               bio,
               style: TextStyle(
                 fontSize: 14,
-                color: colorScheme.onSurface.withOpacity(0.8),
+                color: colorScheme.onSurface.withValues(alpha: 0.8),
                 height: 1.4,
               ),
             ),

@@ -71,8 +71,8 @@ class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
                 }
               },
               child: const CircleAvatar(
-                child: Icon(Icons.person),
                 radius: 18,
+                child: Icon(Icons.person),
               ),
             ),
           ),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
-import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/core/theme/theme_provider.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/core/theme/app_dimens.dart';
@@ -107,7 +106,7 @@ class ProfilePage extends StatelessWidget {
                         context.read<ThemeProvider>().setThemeMode(newSelection.first);
                       },
                       style: ButtonStyle(
-                        side: MaterialStateProperty.all(BorderSide(color: colorScheme.outlineVariant.withOpacity(0.5))),
+                        side: WidgetStateProperty.all(BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.5))),
                       ),
                     ),
                   ),

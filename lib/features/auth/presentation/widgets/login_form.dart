@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:go_router/go_router.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mobile/core/theme/app_dimens.dart';
@@ -29,8 +28,8 @@ class LoginForm extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: isDark 
-                  ? colors.surfaceContainerHighest.withOpacity(0.5) 
-                  : colors.primaryContainer.withOpacity(0.4),
+                  ? colors.surfaceContainerHighest.withValues(alpha: 0.5) 
+                  : colors.primaryContainer.withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(16),
             ),
             child: SvgPicture.asset(
@@ -67,39 +66,39 @@ class LoginForm extends StatelessWidget {
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
                 color: isDark 
-                    ? colors.outlineVariant.withOpacity(0.2) 
+                    ? colors.outlineVariant.withValues(alpha: 0.2) 
                     : const Color(0xFFE2E8F0),
                 width: 1,
               ),
               boxShadow: isDark
                   ? [
                       BoxShadow(
-                        color: const Color(0xFF6366F1).withOpacity(0.22),
+                        color: const Color(0xFF6366F1).withValues(alpha: 0.22),
                         blurRadius: 50,
                         spreadRadius: 2,
                         offset: const Offset(0, 8),
                       ),
                       BoxShadow(
-                        color: Colors.white.withOpacity(0.08),
+                        color: Colors.white.withValues(alpha: 0.08),
                         blurRadius: 25,
                         spreadRadius: 0,
                         offset: const Offset(0, 0),
                       ),
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.4),
+                        color: Colors.black.withValues(alpha: 0.4),
                         blurRadius: 30,
                         offset: const Offset(0, 12),
                       ),
                     ]
                   : [
                       BoxShadow(
-                        color: const Color(0xFF3B82F6).withOpacity(0.18),
+                        color: const Color(0xFF3B82F6).withValues(alpha: 0.18),
                         blurRadius: 40,
                         spreadRadius: 2,
                         offset: const Offset(0, 10),
                       ),
                       BoxShadow(
-                        color: const Color(0xFF1E40AF).withOpacity(0.08),
+                        color: const Color(0xFF1E40AF).withValues(alpha: 0.08),
                         blurRadius: 15,
                         offset: const Offset(0, 4),
                       ),
@@ -190,7 +189,7 @@ class LoginForm extends StatelessWidget {
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: isDark 
-                                    ? colors.outlineVariant.withOpacity(0.3) 
+                                    ? colors.outlineVariant.withValues(alpha: 0.3) 
                                     : const Color(0xFFE2E8F0),
                               ),
                             ),
@@ -231,7 +230,7 @@ class LoginForm extends StatelessWidget {
                 ),
                 
                 const SizedBox(height: 24),
-                Divider(color: colors.outlineVariant.withOpacity(0.2)),
+                Divider(color: colors.outlineVariant.withValues(alpha: 0.2)),
                 const SizedBox(height: 24),
                 
                 Row(
@@ -320,7 +319,7 @@ class LoginForm extends StatelessWidget {
             '© 2026 Corvus',
             style: TextStyle(
               fontSize: 12,
-              color: colors.onSurfaceVariant.withOpacity(0.5),
+              color: colors.onSurfaceVariant.withValues(alpha: 0.5),
             ),
           ),
         ],

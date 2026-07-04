@@ -15,10 +15,10 @@ class StudentSearchBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.4)),
+        border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.01),
+            color: Colors.black.withValues(alpha: 0.01),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -31,24 +31,24 @@ class StudentSearchBar extends StatelessWidget {
         decoration: InputDecoration(
           hintText: 'Search by name, username, or skills...',
           hintStyle: TextStyle(
-            color: colorScheme.onSurfaceVariant.withOpacity(0.7),
+            color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
             fontSize: 15,
           ),
           prefixIcon: Icon(
             Icons.search,
-            color: colorScheme.onSurfaceVariant.withOpacity(0.7),
+            color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
             size: 22,
           ),
           filled: true,
-          fillColor: colorScheme.surfaceContainerHighest.withOpacity(0.15),
+          fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.15),
           contentPadding: const EdgeInsets.symmetric(vertical: 12),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: colorScheme.outlineVariant.withOpacity(0.5)),
+            borderSide: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: colorScheme.outlineVariant.withOpacity(0.5)),
+            borderSide: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),

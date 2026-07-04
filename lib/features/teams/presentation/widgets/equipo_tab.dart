@@ -31,7 +31,7 @@ class EquipoTab extends StatelessWidget {
           // Project detail box with dashed border
           CustomPaint(
             painter: DashedBorderPainter(
-              color: colorScheme.primary.withOpacity(0.6),
+              color: colorScheme.primary.withValues(alpha: 0.6),
               borderRadius: 12.0,
               dashLength: 5.0,
               gap: 3.0,
@@ -47,7 +47,7 @@ class EquipoTab extends StatelessWidget {
                     'Proyecto Final: "${l10n.teamManagementTitle}". ${l10n.teamManagementDesc}',
                     style: TextStyle(
                       fontSize: 14,
-                      color: colorScheme.onSurfaceVariant.withOpacity(0.9),
+                      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.9),
                       height: 1.5,
                     ),
                   ),
@@ -55,7 +55,7 @@ class EquipoTab extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: colorScheme.primary.withOpacity(0.1),
+                      color: colorScheme.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -111,7 +111,7 @@ class EquipoTab extends StatelessWidget {
                 label: const Text('Salir del equipo'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: colorScheme.error,
-                  side: BorderSide(color: colorScheme.error.withOpacity(0.7)),
+                  side: BorderSide(color: colorScheme.error.withValues(alpha: 0.7)),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),

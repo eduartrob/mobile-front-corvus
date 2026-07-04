@@ -89,7 +89,7 @@ class _StudentDirectoryView extends StatelessWidget {
                           Icon(
                             Icons.people_outline,
                             size: 64,
-                            color: colorScheme.onSurfaceVariant.withOpacity(0.5),
+                            color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                           ),
                           const SizedBox(height: 16),
                           Text(

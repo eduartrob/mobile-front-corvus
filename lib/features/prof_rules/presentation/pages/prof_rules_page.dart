@@ -214,7 +214,7 @@ class _ExclusionRulesTab extends StatelessWidget {
                     subtitle: Text('${cluster['project_count']} proyectos actuales en este tema'),
                     trailing: Switch(
                       value: isBlocked,
-                      activeColor: colorScheme.error,
+                      activeThumbColor: colorScheme.error,
                       onChanged: (value) async {
                         final messenger = ScaffoldMessenger.of(context);
                         final scheme = Theme.of(context).colorScheme;
@@ -461,7 +461,7 @@ class _ProjectStructureTab extends StatelessWidget {
                           labelText: 'Nombre de la sección',
                           hintText: 'Ej. Introducción',
                           filled: true,
-                          fillColor: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                          fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                             borderSide: BorderSide.none,
@@ -482,7 +482,7 @@ class _ProjectStructureTab extends StatelessWidget {
                           labelText: 'Palabras clave',
                           hintText: 'Ej. contexto, objetivos',
                           filled: true,
-                          fillColor: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                          fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                             borderSide: BorderSide.none,
@@ -499,14 +499,14 @@ class _ProjectStructureTab extends StatelessWidget {
                       // Toggle de Obligatoria
                       Container(
                         decoration: BoxDecoration(
-                          color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: SwitchListTile(
                           title: const Text('Sección Obligatoria', style: TextStyle(fontWeight: FontWeight.w500)),
                           subtitle: Text('Requerida para la evaluación', style: TextStyle(fontSize: 12)),
                           value: isObligatory,
-                          activeColor: colorScheme.primary,
+                          activeThumbColor: colorScheme.primary,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                           onChanged: (val) {
                             setState(() {
@@ -653,8 +653,8 @@ class _ProfRulesLoadingSkeletonState extends State<_ProfRulesLoadingSkeleton> wi
               child: ListView.separated(
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: 6,
-                separatorBuilder: (_, __) => const SizedBox(height: 16),
-                itemBuilder: (_, __) => Row(
+                separatorBuilder: (_, _) => const SizedBox(height: 16),
+                itemBuilder: (_, _) => Row(
                   children: [
                     _buildSkeletonBox(width: 40, height: 40, borderRadius: 20),
                     const SizedBox(width: 16),

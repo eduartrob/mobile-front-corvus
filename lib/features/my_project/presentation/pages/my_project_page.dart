@@ -126,7 +126,7 @@ class _ProjectPageHeader extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
-                  color: colorScheme.onSurface.withOpacity(0.85),
+                  color: colorScheme.onSurface.withValues(alpha: 0.85),
                 ),
               ),
             ),
@@ -198,7 +198,7 @@ class _ProjectLoadingSkeletonState extends State<_ProjectLoadingSkeleton>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _opacity,
-      builder: (_, __) => Opacity(
+      builder: (_, _) => Opacity(
         opacity: _opacity.value,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -208,7 +208,7 @@ class _ProjectLoadingSkeletonState extends State<_ProjectLoadingSkeleton>
               width: double.infinity,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
@@ -247,7 +247,7 @@ class _ProjectLoadingSkeletonState extends State<_ProjectLoadingSkeleton>
                 margin: const EdgeInsets.symmetric(vertical: 6),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
@@ -439,8 +439,9 @@ class _PreValidationLoadingTextWidget extends StatelessWidget {
     
     String icon = '📄';
     final msgLower = message.toLowerCase();
-    if (msgLower.contains('modelo') || msgLower.contains('clasificador')) icon = '🤖';
-    else if (msgLower.contains('blacklist') || msgLower.contains('comunes')) icon = '🚫';
+    if (msgLower.contains('modelo') || msgLower.contains('clasificador')) {
+      icon = '🤖';
+    } else if (msgLower.contains('blacklist') || msgLower.contains('comunes')) icon = '🚫';
     else if (msgLower.contains('secciones')) icon = '📚';
     else if (msgLower.contains('coherencia')) icon = '⚖️';
     else if (msgLower.contains('colision') || msgLower.contains('qdrant')) icon = '🔍';

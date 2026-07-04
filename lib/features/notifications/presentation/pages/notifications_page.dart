@@ -79,7 +79,7 @@ class _NotificationsView extends StatelessWidget {
                     Icon(
                       Icons.notifications_none_rounded,
                       size: 72,
-                      color: colorScheme.onSurfaceVariant.withOpacity(0.4),
+                      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
                     ),
                     const SizedBox(height: 16),
                     Text(

@@ -63,7 +63,7 @@ class InspirationOrg extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1D4ED8).withOpacity(0.2),
+                      color: const Color(0xFF1D4ED8).withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Text(
@@ -79,7 +79,7 @@ class InspirationOrg extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFD97706).withOpacity(0.2),
+                      color: const Color(0xFFD97706).withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -138,7 +138,7 @@ class InspirationOrg extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFD97706).withOpacity(0.2),
+                            color: const Color(0xFFD97706).withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Icon(Icons.insights, color: Color(0xFFFDE047), size: 16),
@@ -243,7 +243,7 @@ class InspirationOrg extends StatelessWidget {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF1D4ED8).withOpacity(0.3),
+                                  color: const Color(0xFF1D4ED8).withValues(alpha: 0.3),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: const Text(

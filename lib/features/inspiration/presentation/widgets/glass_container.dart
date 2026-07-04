@@ -30,7 +30,7 @@ class GlassContainer extends StatelessWidget {
     final innerContainer = Container(
       padding: padding,
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHigh.withOpacity(opacity),
+        color: Theme.of(context).colorScheme.surfaceContainerHigh.withValues(alpha: opacity),
       ),
       child: child,
     );
@@ -41,7 +41,7 @@ class GlassContainer extends StatelessWidget {
         borderRadius: effectiveBorderRadius,
         boxShadow: boxShadow,
         border: border ?? Border.all(
-          color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5),
+          color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5),
         ),
       ),
       child: ClipRRect(
