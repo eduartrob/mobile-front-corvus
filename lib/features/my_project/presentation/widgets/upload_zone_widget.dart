@@ -20,11 +20,12 @@ class UploadZoneWidget extends StatelessWidget {
 
     final exts = provider.allowedExtensionsString;
     return DottedBorder(
-      color: colorScheme.outlineVariant,
-      strokeWidth: 2,
-      dashPattern: const [6, 4],
-      borderType: BorderType.RRect,
-      radius: const Radius.circular(16),
+      options: RoundedRectDottedBorderOptions(
+        color: colorScheme.outlineVariant,
+        strokeWidth: 2,
+        dashPattern: const [6, 4],
+        radius: const Radius.circular(16),
+      ),
       child: Container(
         width: double.infinity,
         constraints: const BoxConstraints(minHeight: 250),
@@ -50,7 +51,7 @@ class UploadZoneWidget extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            l10n.uploadZoneTitle,
+            'Agrega tu propuesta aquí',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -60,11 +61,12 @@ class UploadZoneWidget extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            l10n.uploadZoneSubtitle,
+            'Tamaño máximo: 10 MB. Formatos: $exts',
             style: TextStyle(
               fontSize: 14,
               color: colorScheme.onSurfaceVariant,
             ),
+            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
           OutlinedButton.icon(
@@ -80,6 +82,7 @@ class UploadZoneWidget extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }
