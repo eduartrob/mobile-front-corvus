@@ -234,7 +234,8 @@ class _ExclusionRulesTab extends StatelessWidget {
                 },
               ),
             ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -367,6 +368,7 @@ class _ProjectStructureTab extends StatelessWidget {
             ),
           const SizedBox(height: 80), // Space for FAB
         ],
+      ),
       ),
     );
   }

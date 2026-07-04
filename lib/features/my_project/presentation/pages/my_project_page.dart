@@ -77,7 +77,7 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
       body: RefreshIndicator(
         onRefresh: () async {
           final provider = context.read<MyProjectProvider>();
-          await provider.loadUserAndProject();
+          await provider.init(userId);
         },
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppDimens.screenMargin),
@@ -96,6 +96,7 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
             const SizedBox(height: 100),
           ],
         ),
+      ),
       ),
     );
   }
