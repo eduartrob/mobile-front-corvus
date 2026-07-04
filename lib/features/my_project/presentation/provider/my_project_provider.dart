@@ -340,7 +340,7 @@ class MyProjectProvider extends ChangeNotifier {
           } else {
               if (retryResult['status'] != 'pending') {
                   _quickAnalysis = retryResult;
-              } else if (_quickAnalysis.isEmpty || _quickAnalysis['status'] == 'pending') {
+              } else if (_quickAnalysis == null || _quickAnalysis!.isEmpty || _quickAnalysis!['status'] == 'pending') {
                   final draft = await _dataSource.checkDraft(userId);
                   if (draft.isNotEmpty && draft['status'] != 'not_found') {
                       _quickAnalysis = draft;
