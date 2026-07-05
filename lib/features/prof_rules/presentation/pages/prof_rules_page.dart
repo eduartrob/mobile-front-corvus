@@ -86,8 +86,8 @@ class _ProfRulesPageView extends StatelessWidget {
   void _saveRules(BuildContext context, ProfRulesProvider provider) async {
     final user = context.read<AuthProvider>().currentUser;
     await provider.saveConfig(
-      authorName: user?.fullName,
-      authorPhotoUrl: user?.profilePicture,
+      authorName: user?.name,
+      authorPhotoUrl: user?.photoUrl,
     );
     if (context.mounted) {
       if (provider.errorMessage != null) {
@@ -111,7 +111,7 @@ class _ExclusionRulesTab extends StatelessWidget {
     final provider = context.watch<ProfRulesProvider>();
     final colorScheme = Theme.of(context).colorScheme;
 
-    final sortedClusters = List<dynamic>.from(provider.clusterStats);
+    final sortedClusters = List<Map<String, dynamic>>.from(provider.clusterStats);
     sortedClusters.sort((a, b) {
       final nameA = a['cluster_name'] ?? 'Clúster ${a['cluster_id']}';
       final nameB = b['cluster_name'] ?? 'Clúster ${b['cluster_id']}';
@@ -175,7 +175,7 @@ class _ExclusionRulesTab extends StatelessWidget {
               ),
             )
           else
-            ImplicitlyAnimatedList<dynamic>(
+            ImplicitlyAnimatedList<Map<String, dynamic>>(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               items: sortedClusters,
@@ -221,8 +221,8 @@ class _ExclusionRulesTab extends StatelessWidget {
                             final user = context.read<AuthProvider>().currentUser;
                             provider.toggleExclusionRule(clusterName);
                             await provider.saveConfig(
-                              authorName: user?.fullName,
-                              authorPhotoUrl: user?.profilePicture,
+                              authorName: user?.name,
+                              authorPhotoUrl: user?.photoUrl,
                             );
                             
                             messenger.hideCurrentSnackBar();
