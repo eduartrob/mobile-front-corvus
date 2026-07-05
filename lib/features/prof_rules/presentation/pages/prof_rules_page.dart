@@ -4,6 +4,7 @@ import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/features/prof_rules/presentation/provider/prof_rules_provider.dart';
 import 'package:mobile/features/prof_rules/data/data_source/prof_rules_remote_data_source.dart';
+import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:http/http.dart' as http;
 
 class ProfRulesPage extends StatelessWidget {
@@ -81,7 +82,11 @@ class _ProfRulesPageView extends StatelessWidget {
   }
 
   void _saveRules(BuildContext context, ProfRulesProvider provider) async {
-    await provider.saveConfig();
+    final user = context.read<AuthProvider>().currentUser;
+    await provider.saveConfig(
+      authorName: user?.fullName,
+      authorPhotoUrl: user?.profilePicture,
+    );
     if (context.mounted) {
       if (provider.errorMessage != null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -209,8 +214,12 @@ class _ExclusionRulesTab extends StatelessWidget {
                       onChanged: (value) async {
                         final messenger = ScaffoldMessenger.of(context);
                         final scheme = Theme.of(context).colorScheme;
+                        final user = context.read<AuthProvider>().currentUser;
                         provider.toggleExclusionRule(clusterName);
-                        await provider.saveConfig();
+                        await provider.saveConfig(
+                          authorName: user?.fullName,
+                          authorPhotoUrl: user?.profilePicture,
+                        );
                         
                         messenger.hideCurrentSnackBar();
                         messenger.showSnackBar(

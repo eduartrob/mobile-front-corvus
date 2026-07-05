@@ -4,13 +4,31 @@ import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import '../provider/notifications_provider.dart';
 import '../widgets/notification_item_card.dart';
 
-class NotificationsPage extends StatelessWidget {
+class NotificationsPage extends StatefulWidget {
+  static bool isOpen = false;
   final bool highlightLatest;
   const NotificationsPage({super.key, this.highlightLatest = false});
 
   @override
+  State<NotificationsPage> createState() => _NotificationsPageState();
+}
+
+class _NotificationsPageState extends State<NotificationsPage> {
+  @override
+  void initState() {
+    super.initState();
+    NotificationsPage.isOpen = true;
+  }
+
+  @override
+  void dispose() {
+    NotificationsPage.isOpen = false;
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return _NotificationsView(highlightLatest: highlightLatest);
+    return _NotificationsView(highlightLatest: widget.highlightLatest);
   }
 }
 

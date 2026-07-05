@@ -23,9 +23,14 @@ class NotificationService {
 
   Future<void> init() async {
     const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const LinuxInitializationSettings initializationSettingsLinux = LinuxInitializationSettings(
+      defaultActionName: 'Open notification',
+    );
+    
     // -# para ios y otras plataformas se configura aqui se omite por brevedad para centrarse en android
     const InitializationSettings initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
+      linux: initializationSettingsLinux,
     );
 
     await _flutterLocalNotificationsPlugin.initialize(initializationSettings);
