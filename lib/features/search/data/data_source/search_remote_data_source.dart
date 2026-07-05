@@ -7,7 +7,7 @@ abstract class SearchRemoteDataSource {
 }
 
 class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
-  final String _baseUrl = 'http://10.0.2.2:8000';
+  final String _baseUrl = 'http://10.0.2.2:8000/api/v1';
 
   @override
   Future<Map<String, dynamic>> searchSmart(String query) async {
