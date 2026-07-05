@@ -5,6 +5,8 @@ import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/features/prof_rules/presentation/provider/prof_rules_provider.dart';
 import 'package:mobile/features/prof_rules/data/data_source/prof_rules_remote_data_source.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:animated_list_plus/animated_list_plus.dart';
+import 'package:animated_list_plus/transitions.dart';
 import 'package:http/http.dart' as http;
 
 class ProfRulesPage extends StatelessWidget {
@@ -173,77 +175,82 @@ class _ExclusionRulesTab extends StatelessWidget {
               ),
             )
           else
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              child: ListView.separated(
-                key: ValueKey(sortedClusters.map((e) => e['cluster_name']).join('-')),
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: sortedClusters.length,
-                separatorBuilder: (context, index) => const Divider(),
-                itemBuilder: (context, index) {
-                  final cluster = sortedClusters[index];
-                  final clusterName = cluster['cluster_name'] ?? 'Clúster ${cluster['cluster_id']}';
-                  final isBlocked = provider.exclusionRules.contains(clusterName);
+            ImplicitlyAnimatedList<dynamic>(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              items: sortedClusters,
+              areItemsTheSame: (a, b) => a['cluster_name'] == b['cluster_name'],
+              itemBuilder: (context, animation, item, index) {
+                final clusterName = item['cluster_name'] ?? 'Clúster ${item['cluster_id']}';
+                final isBlocked = provider.exclusionRules.contains(clusterName);
 
-                  return ListTile(
-                    key: ValueKey(clusterName),
-                    contentPadding: EdgeInsets.zero,
-                    leading: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: isBlocked ? colorScheme.errorContainer : colorScheme.primaryContainer.withValues(alpha: 0.5),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        isBlocked ? Icons.block : Icons.category,
-                        color: isBlocked ? colorScheme.onErrorContainer : colorScheme.onPrimaryContainer,
-                      ),
-                    ),
-                    title: Text(
-                      clusterName,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: isBlocked ? colorScheme.error : colorScheme.onSurface,
-                      ),
-                    ),
-                    subtitle: Text('${cluster['project_count']} proyectos actuales en este tema'),
-                    trailing: Switch(
-                      value: isBlocked,
-                      activeThumbColor: colorScheme.error,
-                      onChanged: (value) async {
-                        final messenger = ScaffoldMessenger.of(context);
-                        final scheme = Theme.of(context).colorScheme;
-                        final user = context.read<AuthProvider>().currentUser;
-                        provider.toggleExclusionRule(clusterName);
-                        await provider.saveConfig(
-                          authorName: user?.fullName,
-                          authorPhotoUrl: user?.profilePicture,
-                        );
-                        
-                        messenger.hideCurrentSnackBar();
-                        messenger.showSnackBar(
-                          SnackBar(
-                            content: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(value ? Icons.lock_outline : Icons.lock_open_rounded, color: scheme.onInverseSurface, size: 20),
-                                const SizedBox(width: 8),
-                                Text(value ? 'Tema bloqueado' : 'Tema desbloqueado', style: const TextStyle(fontWeight: FontWeight.w500)),
-                              ],
-                            ),
-                            behavior: SnackBarBehavior.floating,
-                            width: 220, // Ancho fijo para que parezca una píldora (Toast)
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)), // Bordes totalmente redondos
-                            backgroundColor: scheme.inverseSurface,
-                            duration: const Duration(seconds: 2),
+                return SizeFadeTransition(
+                  sizeFraction: 0.7,
+                  curve: Curves.easeInOut,
+                  animation: animation,
+                  child: Column(
+                    children: [
+                      ListTile(
+                        key: ValueKey(clusterName),
+                        contentPadding: EdgeInsets.zero,
+                        leading: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: isBlocked ? colorScheme.errorContainer : colorScheme.primaryContainer.withValues(alpha: 0.5),
+                            shape: BoxShape.circle,
                           ),
-                        );
-                      },
-                    ),
-                  );
-                },
-              ),
+                          child: Icon(
+                            isBlocked ? Icons.block : Icons.category,
+                            color: isBlocked ? colorScheme.onErrorContainer : colorScheme.onPrimaryContainer,
+                          ),
+                        ),
+                        title: Text(
+                          clusterName,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: isBlocked ? colorScheme.error : colorScheme.onSurface,
+                          ),
+                        ),
+                        subtitle: Text('${item['project_count']} proyectos actuales en este tema'),
+                        trailing: Switch(
+                          value: isBlocked,
+                          activeThumbColor: colorScheme.error,
+                          onChanged: (value) async {
+                            final messenger = ScaffoldMessenger.of(context);
+                            final scheme = Theme.of(context).colorScheme;
+                            final user = context.read<AuthProvider>().currentUser;
+                            provider.toggleExclusionRule(clusterName);
+                            await provider.saveConfig(
+                              authorName: user?.fullName,
+                              authorPhotoUrl: user?.profilePicture,
+                            );
+                            
+                            messenger.hideCurrentSnackBar();
+                            messenger.showSnackBar(
+                              SnackBar(
+                                content: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(value ? Icons.lock_outline : Icons.lock_open_rounded, color: scheme.onInverseSurface, size: 20),
+                                    const SizedBox(width: 8),
+                                    Text(value ? 'Tema bloqueado' : 'Tema desbloqueado', style: const TextStyle(fontWeight: FontWeight.w500)),
+                                  ],
+                                ),
+                                behavior: SnackBarBehavior.floating,
+                                width: 220,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                                backgroundColor: scheme.inverseSurface,
+                                duration: const Duration(seconds: 2),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      if (index < sortedClusters.length - 1) const Divider(),
+                    ],
+                  ),
+                );
+              },
             ),
           ],
         ),
