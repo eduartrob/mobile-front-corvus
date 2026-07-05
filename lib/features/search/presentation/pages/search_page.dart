@@ -32,11 +32,9 @@ class _SearchPageViewState extends State<_SearchPageView> with SingleTickerProvi
   final TextEditingController _searchController = TextEditingController();
   bool _hasResults = false;
   
-  // Speech to text
   final stt.SpeechToText _speechToText = stt.SpeechToText();
   bool _isListening = false;
   
-  // Mock Data
   final List<String> _tendencias = ['Flutter', 'Redes Neuronales', 'Clean Architecture', 'Scrum', 'MLOps'];
   final List<Map<String, dynamic>> _categorias = [
     {'title': 'Ing. Software', 'icon': Icons.code, 'color': Colors.blueAccent},
@@ -77,7 +75,6 @@ class _SearchPageViewState extends State<_SearchPageView> with SingleTickerProvi
           localeId: 'es_MX',
         );
       } else {
-        // Manejar permisos si es necesario
         var status = await Permission.microphone.request();
         if (status.isGranted) {
            _toggleListening();
@@ -108,14 +105,13 @@ class _SearchPageViewState extends State<_SearchPageView> with SingleTickerProvi
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     
-    // Forzamos un ambiente oscuro para el "Dark Mode Premium"
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? colorScheme.surface : const Color(0xFF0F172A); // Tailwind slate-900
+    final bgColor = isDark ? colorScheme.surface : const Color(0xFF0F172A);
     final textColor = isDark ? colorScheme.onSurface : Colors.white;
 
     return Theme(
       data: Theme.of(context).copyWith(
-        brightness: Brightness.dark, // Forzar colores oscuros
+        brightness: Brightness.dark,
       ),
       child: Scaffold(
         backgroundColor: bgColor,
@@ -193,7 +189,6 @@ class _SearchPageViewState extends State<_SearchPageView> with SingleTickerProvi
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Sección Tendencias
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Row(
@@ -236,7 +231,6 @@ class _SearchPageViewState extends State<_SearchPageView> with SingleTickerProvi
           
           const SizedBox(height: 40),
           
-          // Sección Explorar Categorías (Grid)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(

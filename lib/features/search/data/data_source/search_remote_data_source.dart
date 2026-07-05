@@ -7,8 +7,6 @@ abstract class SearchRemoteDataSource {
 }
 
 class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
-  // Configured to point to the local Python RAG microservice.
-  // In production, this would go through ApiConfig.apiGatewayUrl.
   final String _baseUrl = 'http://10.0.2.2:8000';
 
   @override
@@ -18,7 +16,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
         Uri.parse('$_baseUrl/search-smart'),
         headers: ApiConfig.defaultHeaders,
         body: jsonEncode({'query': query}),
-      ).timeout(const Duration(seconds: 45)); // RAG queries might take a bit longer
+      ).timeout(const Duration(seconds: 45));
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
