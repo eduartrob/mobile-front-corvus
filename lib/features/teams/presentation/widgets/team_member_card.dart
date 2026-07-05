@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/l10n/app_localizations.dart';
 
 class TeamMemberCard extends StatelessWidget {
   final String avatarUrl;
@@ -29,12 +28,12 @@ class TeamMemberCard extends StatelessWidget {
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: colorScheme.outlineVariant.withOpacity(0.5),
+          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
           width: 1.0,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.015),
+            color: Colors.black.withValues(alpha: 0.015),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -64,7 +63,7 @@ class TeamMemberCard extends StatelessWidget {
                   email,
                   style: TextStyle(
                     fontSize: 14,
-                    color: colorScheme.onSurfaceVariant.withOpacity(0.8),
+                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                   ),
                 ),
               ],
@@ -72,7 +71,7 @@ class TeamMemberCard extends StatelessWidget {
           ),
           if (onRemove != null)
             IconButton(
-              icon: Icon(Icons.close, color: colorScheme.onSurfaceVariant.withOpacity(0.7)),
+              icon: Icon(Icons.close, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7)),
               onPressed: onRemove,
               splashRadius: 20,
             ),

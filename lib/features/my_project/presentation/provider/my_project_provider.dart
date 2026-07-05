@@ -8,6 +8,7 @@ import 'package:mobile/features/my_project/data/my_project_local_data_source.dar
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/services/notification_service.dart';
 import 'package:mobile/l10n/app_localizations.dart';
+import 'package:mobile/core/network/api_config.dart';
 
 enum ProjectState {
   initial,
@@ -60,12 +61,43 @@ class MyProjectProvider extends ChangeNotifier {
 
   Timer? _statusTimer;
   bool _initialized = false;
+  bool _isScreenVisible = false;
+  bool get isScreenVisible => _isScreenVisible;
+  void setScreenVisible(bool value) {
+    _isScreenVisible = value;
+  }
+  
+  List<String> _allowedExtensions = ['pdf', 'md', 'txt'];
+  List<String> get allowedExtensions => _allowedExtensions;
+  
+  String get allowedExtensionsString => _allowedExtensions.join(', ');
+
+  Future<void> _fetchConfig() async {
+    try {
+      // Intentamos obtener la configuración del admin panel
+      final response = await http.get(Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/config'));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data != null && data['allowed_extensions'] != null) {
+          final List<dynamic> exts = data['allowed_extensions'];
+          _allowedExtensions = exts
+              .map((e) => e.toString().replaceAll('.', '').trim().toLowerCase())
+              .where((e) => e.isNotEmpty)
+              .toList();
+        }
+      }
+    } catch (e) {
+      debugPrint("Error fetching config, using defaults: $e");
+    }
+  }
   
   Future<void> init(String userId) async {
     if (_initialized) return;
     _initialized = true;
     
     try {
+      await _fetchConfig();
+
       final localAnalysis = await _localDataSource.getDetailedAnalysis(userId);
       if (localAnalysis != null) {
         _detailedAnalysis = localAnalysis;
@@ -79,7 +111,14 @@ class MyProjectProvider extends ChangeNotifier {
       final status = await _dataSource.getAnalysisStatus(userId);
       final phase = (status['phase'] as num?)?.toInt() ?? 0;
       
-      if (phase >= 5 && phase <= 8) {
+      if (phase >= 1 && phase < 5) {
+        _state = ProjectState.uploading;
+        _serverPhase = phase;
+        _serverPhaseMessage = status['message'] ?? '';
+        _startPolling(userId, null);
+        notifyListeners();
+        return;
+      } else if (phase >= 5 && phase <= 8) {
         _state = ProjectState.analyzing;
         _serverPhase = phase;
         _serverPhaseMessage = status['message'] ?? '';
@@ -89,7 +128,14 @@ class MyProjectProvider extends ChangeNotifier {
       } else if (phase == 9) {
         final result = await _dataSource.getAnalysisResult(userId);
         if (result['status'] != 'pending' && result['status'] != 'error') {
-          await _applyAnalysisResult(userId, result, null);
+          // If it's detailed analysis result
+          if (result.containsKey('general_feedback')) {
+              await _applyAnalysisResult(userId, result, null);
+          } else {
+              _quickAnalysis = result;
+              _state = ProjectState.preValidated;
+              notifyListeners();
+          }
           return;
         }
       }
@@ -117,14 +163,23 @@ class MyProjectProvider extends ChangeNotifier {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['pdf'],
+        allowedExtensions: _allowedExtensions.isNotEmpty ? _allowedExtensions : ['pdf'],
       );
 
       if (result != null && result.files.single.path != null) {
-        _selectedFile = File(result.files.single.path!);
+        final file = File(result.files.single.path!);
+        final bytes = await file.length();
+        
+        if (bytes > 10 * 1024 * 1024) {
+          _errorMessage = 'El archivo supera el tamaño máximo permitido de 10 MB.';
+          _state = ProjectState.error;
+          notifyListeners();
+          return;
+        }
+
+        _selectedFile = file;
         _fileName = result.files.single.name;
         
-        final bytes = await _selectedFile!.length();
         _fileSize = '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
         
         _state = ProjectState.uploading;
@@ -143,18 +198,28 @@ class MyProjectProvider extends ChangeNotifier {
     try {
       if (_selectedFile == null) return;
       
-      await _notificationService.showIndeterminateProgressNotification(
-        title: l10n.notifUploadTitle, 
-        message: l10n.notifUploadBody
-      );
+      if (!_isScreenVisible) {
+        await _notificationService.showIndeterminateProgressNotification(
+          title: l10n.notifUploadTitle, 
+          message: l10n.notifUploadBody
+        );
+      }
 
       final response = await _dataSource.preValidateProposal(_selectedFile!.path, userId);
       
-      _quickAnalysis = response;
-      _state = ProjectState.preValidated;
-      
-      await _notificationService.showResultNotification(l10n.notifPreValidReadyTitle, l10n.notifPreValidReadyBody);
-      notifyListeners();
+      if (response['status'] == 'pending') {
+          _serverPhase = 1;
+          _serverPhaseMessage = response['message'] ?? '';
+          _startPolling(userId, l10n);
+          notifyListeners();
+      } else {
+          _quickAnalysis = response;
+          _state = ProjectState.preValidated;
+          if (!_isScreenVisible) {
+             await _notificationService.showResultNotification(l10n.notifPreValidReadyTitle, l10n.notifPreValidReadyBody);
+          }
+          notifyListeners();
+      }
       
     } catch (e) {
       String errorStr = e.toString().replaceAll('Exception: ', '').replaceAll('Exception ', '');
@@ -166,12 +231,9 @@ class MyProjectProvider extends ChangeNotifier {
         }
       } catch (_) {}
       
-      if (errorStr.contains('no parece ser') || errorStr.contains('Tu propuesta es válida') || errorStr.contains('Faltan secciones obligatorias')) {
-        _documentTypeError = errorStr;
-        await _notificationService.showResultNotification(l10n.notifErrorTitle, errorStr);
-      } else {
-        _errorMessage = 'Error en validación rápida: $errorStr';
-        await _notificationService.showResultNotification(l10n.notifErrorTitle, l10n.notifPreValidFailed);
+      _documentTypeError = errorStr;
+      if (!_isScreenVisible) {
+         await _notificationService.showResultNotification(l10n.notifErrorTitle, errorStr);
       }
       
       _state = ProjectState.error;
@@ -218,38 +280,46 @@ class MyProjectProvider extends ChangeNotifier {
 
   void _startPolling(String userId, AppLocalizations? l10n) {
     _statusTimer?.cancel();
-    _statusTimer = Timer.periodic(const Duration(seconds: 2), (_) async {
-      if (_state != ProjectState.analyzing) {
+    _statusTimer = Timer.periodic(const Duration(seconds: 1), (_) async {
+      if (_state != ProjectState.analyzing && _state != ProjectState.uploading) {
         _statusTimer?.cancel();
         return;
       }
 
       final status = await _dataSource.getAnalysisStatus(userId);
       
-      if (_state != ProjectState.analyzing) return;
+      if (_state != ProjectState.analyzing && _state != ProjectState.uploading) return;
       
       final phase = (status['phase'] as num?)?.toInt() ?? 5;
       _serverPhase = phase;
       _serverPhaseMessage = status['message'] ?? '';
       
-      if (_serverPhase == 6) {
-        _notificationService.showAnalysisProgressNotification(
-          title: l10n?.notifAnalysisProgressTitle ?? 'Análisis en curso',
-          message: l10n?.notifAnalysisProgressBody ?? 'Procesando...',
-          phase: 'Buscando áreas de mejora...',
-        );
-      } else if (_serverPhase == 7) {
-        _notificationService.showAnalysisProgressNotification(
-          title: l10n?.notifAnalysisProgressTitle ?? 'Análisis en curso',
-          message: l10n?.notifAnalysisProgressBody ?? 'Procesando...',
-          phase: 'Generando recomendaciones...',
-        );
-      } else if (_serverPhase == 8) {
-        _notificationService.showAnalysisProgressNotification(
-          title: l10n?.notifAnalysisProgressTitle ?? 'Análisis en curso',
-          message: l10n?.notifAnalysisProgressBody ?? 'Procesando...',
-          phase: 'Finalizando reporte...',
-        );
+      if (!_isScreenVisible) {
+          if (_serverPhase == 6) {
+            _notificationService.showAnalysisProgressNotification(
+              title: l10n?.notifAnalysisProgressTitle ?? 'Análisis en curso',
+              message: l10n?.notifAnalysisProgressBody ?? 'Procesando...',
+              phase: 'Buscando áreas de mejora...',
+            );
+          } else if (_serverPhase == 7) {
+            _notificationService.showAnalysisProgressNotification(
+              title: l10n?.notifAnalysisProgressTitle ?? 'Análisis en curso',
+              message: l10n?.notifAnalysisProgressBody ?? 'Procesando...',
+              phase: 'Generando recomendaciones...',
+            );
+          } else if (_serverPhase == 8) {
+            _notificationService.showAnalysisProgressNotification(
+              title: l10n?.notifAnalysisProgressTitle ?? 'Análisis en curso',
+              message: l10n?.notifAnalysisProgressBody ?? 'Procesando...',
+              phase: 'Finalizando reporte...',
+            );
+          } else if (_serverPhase >= 1 && _serverPhase <= 4) {
+             _notificationService.showAnalysisProgressNotification(
+              title: l10n?.notifUploadTitle ?? 'Pre-validación en curso',
+              message: 'Validando documento',
+              phase: _serverPhaseMessage,
+            );
+          }
       }
       
       notifyListeners();
@@ -257,15 +327,45 @@ class MyProjectProvider extends ChangeNotifier {
       if (phase == 9) {
         _statusTimer?.cancel();
         final result = await _dataSource.getAnalysisResult(userId);
-        if (_state != ProjectState.analyzing) return;
+        if (_state != ProjectState.analyzing && _state != ProjectState.uploading) return;
 
         if (result['status'] == 'pending') {
           await Future.delayed(const Duration(seconds: 2));
-          if (_state != ProjectState.analyzing) return;
+          if (_state != ProjectState.analyzing && _state != ProjectState.uploading) return;
           final retryResult = await _dataSource.getAnalysisResult(userId);
-          _applyAnalysisResult(userId, retryResult, l10n);
+          
+          if (_state == ProjectState.analyzing) {
+              if (retryResult['status'] != 'pending') {
+                  _applyAnalysisResult(userId, retryResult, l10n);
+              }
+          } else {
+              if (retryResult['status'] != 'pending') {
+                  _quickAnalysis = retryResult;
+              } else if (_quickAnalysis == null || _quickAnalysis!.isEmpty || _quickAnalysis?['status'] == 'pending') {
+                  final draft = await _dataSource.checkDraft(userId);
+                  if (draft.isNotEmpty && draft['status'] != 'not_found') {
+                      _quickAnalysis = draft;
+                  }
+              }
+              _state = ProjectState.preValidated;
+              _notificationService.cancelAnalysisNotification();
+              if (!_isScreenVisible) {
+                 _notificationService.showResultNotification(l10n?.notifPreValidReadyTitle ?? '¡Validación Lista!', l10n?.notifPreValidReadyBody ?? 'Tu proyecto cumple con el formato inicial.');
+              }
+              notifyListeners();
+          }
         } else {
-          _applyAnalysisResult(userId, result, l10n);
+          if (_state == ProjectState.analyzing) {
+              _applyAnalysisResult(userId, result, l10n);
+          } else {
+              _quickAnalysis = result;
+              _state = ProjectState.preValidated;
+              _notificationService.cancelAnalysisNotification();
+              if (!_isScreenVisible) {
+                 _notificationService.showResultNotification(l10n?.notifPreValidReadyTitle ?? '¡Validación Lista!', l10n?.notifPreValidReadyBody ?? 'Tu proyecto cumple con el formato inicial.');
+              }
+              notifyListeners();
+          }
         }
       }
 
@@ -273,10 +373,18 @@ class MyProjectProvider extends ChangeNotifier {
         _statusTimer?.cancel();
         _notificationService.cancelAnalysisNotification();
         final errMsg = status['message'] ?? l10n?.notifAnalysisFailedBody ?? 'Error en el servidor';
-        await _notificationService.showResultNotification(
-            l10n?.notifAnalysisFailedTitle ?? 'Error', errMsg);
-        _errorMessage = errMsg.replaceAll('Error en el análisis: ', '');
-        _state = ProjectState.preValidated;
+        
+        if (!_isScreenVisible) {
+           await _notificationService.showResultNotification(
+              l10n?.notifAnalysisFailedTitle ?? 'Error', errMsg);
+        }
+        
+        if (_state == ProjectState.uploading) {
+            _documentTypeError = errMsg.replaceAll('Error en el análisis: ', '');
+        } else {
+            _errorMessage = errMsg.replaceAll('Error en el análisis: ', '');
+        }
+        _state = ProjectState.error; // En lugar de volver a preValidated, ir a error para subir de nuevo
         notifyListeners();
       }
     });
@@ -310,10 +418,23 @@ class MyProjectProvider extends ChangeNotifier {
 
   Future<void> cancelAnalysis(String userId) async {
     _statusTimer?.cancel();
-    await _notificationService.cancelAnalysisNotification();
-    await _notificationService.cancelSyncNotification();
-    await _dataSource.cancelAnalysis(userId);
-    reset(userId);
+    _state = ProjectState.error;
+    _selectedFile = null;
+    _fileName = null;
+    _fileSize = null;
+    _quickAnalysis = null;
+    _detailedAnalysis = null;
+    notifyListeners();
+
+    try {
+      await _notificationService.cancelAnalysisNotification();
+      await _notificationService.cancelSyncNotification();
+      await _dataSource.cancelAnalysis(userId);
+    } catch (e) {
+      debugPrint("Error canceling analysis: $e");
+    } finally {
+      reset(userId);
+    }
   }
   
   void reset(String userId) {

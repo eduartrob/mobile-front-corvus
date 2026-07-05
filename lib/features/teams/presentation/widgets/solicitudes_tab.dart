@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:mobile/core/theme/app_dimens.dart';
 import '../provider/solicitudes_provider.dart';
 import '../provider/mock_solicitudes.dart';
 
@@ -51,14 +50,14 @@ class SolicitudesTab extends StatelessWidget {
                           Icon(
                             Icons.mail_outline,
                             size: 64,
-                            color: colorScheme.onSurfaceVariant.withOpacity(0.3),
+                            color: colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                           ),
                           const SizedBox(height: 16),
                           Text(
                             'No hay solicitudes en esta sección',
                             style: TextStyle(
                               fontSize: 16,
-                              color: colorScheme.onSurfaceVariant.withOpacity(0.7),
+                              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                             ),
                           ),
                         ],
@@ -99,13 +98,13 @@ class SolicitudesTab extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
           color: isSelected
-              ? colorScheme.primary.withOpacity(0.12)
-              : colorScheme.surfaceContainerHighest.withOpacity(0.3),
+              ? colorScheme.primary.withValues(alpha: 0.12)
+              : colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected
-                ? colorScheme.primary.withOpacity(0.3)
-                : colorScheme.outlineVariant.withOpacity(0.3),
+                ? colorScheme.primary.withValues(alpha: 0.3)
+                : colorScheme.outlineVariant.withValues(alpha: 0.3),
           ),
         ),
         child: Text(
@@ -143,10 +142,10 @@ class _SolicitudCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.4)),
+        border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.015),
+            color: Colors.black.withValues(alpha: 0.015),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -181,7 +180,7 @@ class _SolicitudCard extends StatelessWidget {
                         student.username,
                         style: TextStyle(
                           fontSize: 14,
-                          color: colorScheme.onSurfaceVariant.withOpacity(0.8),
+                          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                         ),
                       ),
                     ],
@@ -200,7 +199,7 @@ class _SolicitudCard extends StatelessWidget {
               student.bio,
               style: TextStyle(
                 fontSize: 14,
-                color: colorScheme.onSurface.withOpacity(0.8),
+                color: colorScheme.onSurface.withValues(alpha: 0.8),
                 height: 1.4,
               ),
             ),

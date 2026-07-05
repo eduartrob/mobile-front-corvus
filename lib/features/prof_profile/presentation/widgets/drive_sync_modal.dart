@@ -32,7 +32,7 @@ class DriveSyncModal {
                 decoration: BoxDecoration(
                   color: colorScheme.surface,
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                  border: Border(top: BorderSide(color: colorScheme.primary.withOpacity(0.3))),
+                  border: Border(top: BorderSide(color: colorScheme.primary.withValues(alpha: 0.3))),
                 ),
                 child: Material(
                   type: MaterialType.transparency,
@@ -43,7 +43,7 @@ class DriveSyncModal {
                         width: 40,
                         height: 4,
                         decoration: BoxDecoration(
-                          color: colorScheme.onSurfaceVariant.withOpacity(0.4),
+                          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -85,7 +85,7 @@ class DriveSyncModal {
                             hintText: 'Buscar carpeta...',
                             prefixIcon: const Icon(Icons.search),
                             filled: true,
-                            fillColor: colorScheme.surfaceContainerHighest.withOpacity(0.4),
+                            fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide.none,
@@ -177,7 +177,7 @@ class DriveSyncModal {
     final colorScheme = Theme.of(context).colorScheme;
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
-      leading: Icon(Icons.folder, color: colorScheme.primary.withOpacity(0.8), size: 28),
+      leading: Icon(Icons.folder, color: colorScheme.primary.withValues(alpha: 0.8), size: 28),
       title: Text(
         folderName,
         style: const TextStyle(fontWeight: FontWeight.w500),

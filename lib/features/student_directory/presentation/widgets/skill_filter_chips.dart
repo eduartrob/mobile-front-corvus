@@ -35,7 +35,7 @@ class SkillFilterChips extends StatelessWidget {
                   color: isSelected ? const Color(0xFF1E40AF) : colorScheme.surface,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: isSelected ? Colors.transparent : colorScheme.outlineVariant.withOpacity(0.6),
+                    color: isSelected ? Colors.transparent : colorScheme.outlineVariant.withValues(alpha: 0.6),
                     width: 1,
                   ),
                 ),
@@ -43,7 +43,7 @@ class SkillFilterChips extends StatelessWidget {
                   child: Text(
                     skill,
                     style: TextStyle(
-                      color: isSelected ? Colors.white : colorScheme.onSurface.withOpacity(0.8),
+                      color: isSelected ? Colors.white : colorScheme.onSurface.withValues(alpha: 0.8),
                       fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                       fontSize: 14,
                     ),

@@ -40,7 +40,7 @@ class TeamsPage extends StatelessWidget {
                 color: colorScheme.surface,
                 border: Border(
                   bottom: BorderSide(
-                    color: colorScheme.outlineVariant.withOpacity(0.4),
+                    color: colorScheme.outlineVariant.withValues(alpha: 0.4),
                     width: 1,
                   ),
                 ),
@@ -53,7 +53,7 @@ class TeamsPage extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   fontSize: 15,
                 ),
-                unselectedLabelColor: colorScheme.onSurfaceVariant.withOpacity(0.7),
+                unselectedLabelColor: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                 unselectedLabelStyle: const TextStyle(
                   fontWeight: FontWeight.normal,
                   fontSize: 15,

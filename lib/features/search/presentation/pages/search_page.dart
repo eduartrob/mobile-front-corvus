@@ -70,7 +70,7 @@ class _SearchPageState extends State<SearchPage> {
                       )
                     : Icon(Icons.mic_none, color: colorScheme.onSurfaceVariant),
                 filled: true,
-                fillColor: colorScheme.primary.withOpacity(0.08),
+                fillColor: colorScheme.primary.withValues(alpha: 0.08),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(22),
                   borderSide: BorderSide.none,

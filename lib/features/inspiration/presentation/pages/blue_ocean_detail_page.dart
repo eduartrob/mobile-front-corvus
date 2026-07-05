@@ -41,7 +41,7 @@ class BlueOceanDetailPage extends StatelessWidget {
             margin: const EdgeInsets.only(right: 16),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.orange.withOpacity(0.1),
+              color: Colors.orange.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
@@ -148,7 +148,7 @@ class BlueOceanDetailPage extends StatelessWidget {
                 label: Text(isEn ? 'Save for later' : 'Guardar para después', style: TextStyle(color: colorScheme.primary, fontSize: 16, fontWeight: FontWeight.w600)),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  side: BorderSide(color: colorScheme.primary.withOpacity(0.5)),
+                  side: BorderSide(color: colorScheme.primary.withValues(alpha: 0.5)),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),

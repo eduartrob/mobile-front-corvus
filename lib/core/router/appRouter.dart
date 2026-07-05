@@ -23,6 +23,8 @@ import 'package:mobile/core/router/prof_main_layout.dart';
 import 'package:mobile/features/student_directory/presentation/pages/student_directory_page.dart';
 import 'package:mobile/features/notifications/presentation/pages/notifications_page.dart';
 
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
+
 class AppRouter extends StatelessWidget {
   final ThemeData? appTheme;
   final ThemeData? darkTheme;
@@ -35,6 +37,7 @@ class AppRouter extends StatelessWidget {
     final authProvider = context.read<AuthProvider>();
 
     final GoRouter router = GoRouter(
+      navigatorKey: rootNavigatorKey,
       initialLocation: '/',
       debugLogDiagnostics: true,
       
@@ -168,7 +171,10 @@ class AppRouter extends StatelessWidget {
         ),
         GoRoute(
           path: '/notifications',
-          builder: (context, state) => const NotificationsPage(),
+          builder: (context, state) {
+            final highlightLatest = state.uri.queryParameters['highlightLatest'] == 'true';
+            return NotificationsPage(highlightLatest: highlightLatest);
+          },
         ),
         GoRoute(
           path: '/manage-team',

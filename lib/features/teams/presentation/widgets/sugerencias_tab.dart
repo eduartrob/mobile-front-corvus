@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:mobile/core/theme/app_dimens.dart';
 import 'package:mobile/features/teams/presentation/provider/solicitudes_provider.dart';
 import 'package:mobile/features/student_directory/domain/entities/student.dart';
 import 'team_members_list.dart';
@@ -100,7 +99,7 @@ class _SugerenciasTabState extends State<SugerenciasTab> {
                       border: Border.all(
                         color: isSelected
                             ? colorScheme.primary
-                            : colorScheme.outlineVariant.withOpacity(0.5),
+                            : colorScheme.outlineVariant.withValues(alpha: 0.5),
                         width: 1.0,
                       ),
                     ),
@@ -126,7 +125,7 @@ class _SugerenciasTabState extends State<SugerenciasTab> {
                     'No hay sugerencias con esta habilidad',
                     style: TextStyle(
                       fontSize: 15,
-                      color: colorScheme.onSurfaceVariant.withOpacity(0.7),
+                      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                     ),
                   ),
                 )

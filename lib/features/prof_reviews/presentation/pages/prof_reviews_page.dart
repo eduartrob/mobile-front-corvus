@@ -61,7 +61,7 @@ class ProfReviewsPage extends StatelessWidget {
                 const Text(
                   'Análisis de Datos Masivos en Redes Neuronales Distribuidas',
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     height: 1.2,
                   ),
@@ -79,9 +79,9 @@ class ProfReviewsPage extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                    color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+                    border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,7 +100,7 @@ class ProfReviewsPage extends StatelessWidget {
                           const Text(
                             'Resumen de IA',
                             style: TextStyle(
-                              fontSize: 20,
+                              fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -181,11 +181,11 @@ class ProfReviewsPage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: colorScheme.surface,
                 border: Border(
-                  top: BorderSide(color: colorScheme.outlineVariant.withOpacity(0.3)),
+                  top: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 10,
                     offset: const Offset(0, -5),
                   ),

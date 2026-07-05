@@ -34,8 +34,8 @@ class CustomAnimatedBottomNavBar extends StatelessWidget {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            Theme.of(context).colorScheme.primary.withOpacity(0.08),
-            Theme.of(context).colorScheme.primary.withOpacity(0.02),
+            Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
+            Theme.of(context).colorScheme.primary.withValues(alpha: 0.02),
           ],
         ),
       ),
@@ -156,7 +156,7 @@ class _CustomNavItemState extends State<CustomNavItem> with TickerProviderStateM
                               width: 32,
                               height: 32,
                               decoration: BoxDecoration(
-                                color: colorScheme.primary.withOpacity(0.25),
+                                color: colorScheme.primary.withValues(alpha: 0.25),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),

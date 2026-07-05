@@ -29,15 +29,14 @@ class _MyProjectPageContent extends StatefulWidget {
   State<_MyProjectPageContent> createState() => _MyProjectPageContentState();
 }
 
-class _MyProjectPageContentState extends State<_MyProjectPageContent> {
+class _MyProjectPageContentState extends State<_MyProjectPageContent> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    // Safety net: if the global provider hasn't been init()'d yet
-    // (e.g. fresh login where the listener fired before userId was set),
-    // trigger it now. init() has an _initialized guard so it's safe to call.
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<MyProjectProvider>();
+      provider.setScreenVisible(true);
       if (provider.state == ProjectState.initial) {
         final userId = context.read<AuthProvider>().currentUser?.id;
         if (userId != null) {
@@ -48,6 +47,26 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> {
   }
 
   @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    try {
+        context.read<MyProjectProvider>().setScreenVisible(false);
+    } catch (_) {}
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    final provider = context.read<MyProjectProvider>();
+    if (state == AppLifecycleState.resumed) {
+      provider.setScreenVisible(true);
+    } else if (state == AppLifecycleState.paused || state == AppLifecycleState.detached || state == AppLifecycleState.inactive) {
+      provider.setScreenVisible(false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final userId = context.select<AuthProvider, String>(
       (a) => a.currentUser?.id ?? 'default_user',
@@ -55,12 +74,18 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> {
 
     return Scaffold(
       appBar: const CorvusTopBar(),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppDimens.screenMargin),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _ProjectPageHeader(userId: userId),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          final provider = context.read<MyProjectProvider>();
+          await provider.init(userId);
+        },
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(AppDimens.screenMargin),
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _ProjectPageHeader(userId: userId),
 
             const SizedBox(height: 24),
 
@@ -71,6 +96,7 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> {
             const SizedBox(height: 100),
           ],
         ),
+      ),
       ),
     );
   }
@@ -90,26 +116,37 @@ class _ProjectPageHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          state == ProjectState.detailedAnalysis
-              ? l10n.detailedAnalysisTitle
-              : l10n.preValidationTitle,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            color: colorScheme.onSurface.withOpacity(0.85),
-          ),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          state == ProjectState.detailedAnalysis
-              ? l10n.detailedAnalysisDesc
-              : l10n.preValidationDesc,
-          style: TextStyle(
-            fontSize: 14,
-            color: colorScheme.onSurfaceVariant,
-            height: 1.5,
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                state == ProjectState.detailedAnalysis
+                    ? l10n.detailedAnalysisTitle
+                    : l10n.preValidationTitle,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface.withValues(alpha: 0.85),
+                ),
+              ),
+            ),
+            Tooltip(
+              message: state == ProjectState.detailedAnalysis ? l10n.detailedAnalysisDesc : l10n.preValidationDesc,
+              triggerMode: TooltipTriggerMode.tap,
+              showDuration: const Duration(seconds: 4),
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.symmetric(horizontal: 24),
+              decoration: BoxDecoration(
+                color: colorScheme.inverseSurface,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              textStyle: TextStyle(color: colorScheme.onInverseSurface, fontSize: 14),
+              child: IconButton(
+                icon: Icon(Icons.info_outline, color: colorScheme.onSurfaceVariant),
+                onPressed: () {}, // Tooltip handles tap
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -161,7 +198,7 @@ class _ProjectLoadingSkeletonState extends State<_ProjectLoadingSkeleton>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _opacity,
-      builder: (_, __) => Opacity(
+      builder: (_, _) => Opacity(
         opacity: _opacity.value,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -171,7 +208,7 @@ class _ProjectLoadingSkeletonState extends State<_ProjectLoadingSkeleton>
               width: double.infinity,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
@@ -210,7 +247,7 @@ class _ProjectLoadingSkeletonState extends State<_ProjectLoadingSkeleton>
                 margin: const EdgeInsets.symmetric(vertical: 6),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
@@ -293,7 +330,7 @@ class _ProjectPageBody extends StatelessWidget {
               children: [
                 const CircularProgressIndicator(),
                 const SizedBox(height: 16),
-                Text(l10n.analyzingStructure),
+                const RepaintBoundary(child: _PreValidationLoadingTextWidget()),
                 const SizedBox(height: 32),
                 OutlinedButton.icon(
                   onPressed: () => provider.cancelAnalysis(userId),
@@ -388,6 +425,63 @@ class _ProjectPageBody extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+class _PreValidationLoadingTextWidget extends StatelessWidget {
+  const _PreValidationLoadingTextWidget();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final message = context.select<MyProjectProvider, String>((p) => p.serverPhaseMessage);
+    
+    String icon = '📄';
+    final msgLower = message.toLowerCase();
+    if (msgLower.contains('modelo') || msgLower.contains('clasificador')) {
+      icon = '🤖';
+    } else if (msgLower.contains('blacklist') || msgLower.contains('comunes')) icon = '🚫';
+    else if (msgLower.contains('secciones')) icon = '📚';
+    else if (msgLower.contains('coherencia')) icon = '⚖️';
+    else if (msgLower.contains('colision') || msgLower.contains('qdrant')) icon = '🔍';
+    else if (msgLower.contains('pre-validación')) icon = '⏳';
+
+    final displayText = message.isEmpty ? 'Iniciando pre-validación...' : message;
+
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 600),
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        return FadeTransition(
+          opacity: animation,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.2),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
+          ),
+        );
+      },
+      child: Column(
+        key: ValueKey<String>(displayText),
+        children: [
+          Text(
+            icon,
+            style: const TextStyle(fontSize: 28),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            displayText,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: colorScheme.onSurface,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 }

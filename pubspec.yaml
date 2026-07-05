@@ -31,7 +31,12 @@ dependencies:
   firebase_messaging: ^14.9.1
   file_picker: ^8.0.7
   url_launcher: ^6.3.2
+  dotted_border: ^3.1.0
 
+  shared_preferences: any
+  sqflite_sqlcipher: ^3.4.0
+  path: ^1.9.1
+  custom_refresh_indicator: ^4.0.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
