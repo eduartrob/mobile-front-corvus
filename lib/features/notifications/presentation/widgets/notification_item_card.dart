@@ -64,8 +64,8 @@ class _NotificationItemCardState extends State<NotificationItemCard> with Single
     final colorScheme = Theme.of(context).colorScheme;
     _colorTween = ColorTween(
       begin: widget.notification.isRead
-          ? colorScheme.surface
-          : colorScheme.primary.withValues(alpha: 0.02),
+          ? colorScheme.surfaceContainerLow
+          : colorScheme.surfaceContainerHighest,
       end: colorScheme.primaryContainer.withValues(alpha: 0.4),
     ).animate(CurvedAnimation(
       parent: _highlightController,
@@ -159,15 +159,10 @@ class _NotificationItemCardState extends State<NotificationItemCard> with Single
       builder: (context, child) {
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
-          elevation: 0,
+          elevation: notification.isRead ? 0 : 1,
+          shadowColor: colorScheme.shadow.withValues(alpha: 0.2),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
-            side: BorderSide(
-              color: notification.isRead
-                  ? colorScheme.outlineVariant.withValues(alpha: 0.3)
-                  : colorScheme.primary.withValues(alpha: 0.15),
-              width: notification.isRead ? 1 : 1.5,
-            ),
           ),
           color: _colorTween.value,
           child: InkWell(

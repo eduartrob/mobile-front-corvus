@@ -65,7 +65,7 @@ void main() async {
             }
           });
 
-          await FirebaseMessaging.instance.subscribeToTopic('config_updates');
+          // La suscripción a 'config_updates' ahora se maneja en el listener de authProvider
         })
         .catchError((_) {
           debugPrint('Firebase no inicializado: Ejecuta flutterfire configure');
@@ -90,6 +90,12 @@ void main() async {
     if (jwtToken != null) {
       linkedFoldersProvider.loadFolders(jwtToken);
     }
+    if (authProvider.currentUser?.role == 'student') {
+      FirebaseMessaging.instance.subscribeToTopic('config_updates');
+    } else {
+      FirebaseMessaging.instance.unsubscribeFromTopic('config_updates');
+    }
+    
     inspirationProvider.loadProjects(forceRefresh: true);
     profRulesProvider.fetchData();
   }
@@ -105,10 +111,18 @@ void main() async {
         if (token != null) {
           linkedFoldersProvider.loadFolders(token);
         }
+        if (authProvider.currentUser?.role == 'student') {
+          FirebaseMessaging.instance.subscribeToTopic('config_updates');
+        } else {
+          FirebaseMessaging.instance.unsubscribeFromTopic('config_updates');
+        }
+        
         inspirationProvider.loadProjects(forceRefresh: true);
         profRulesProvider.fetchData();
         notificationsProvider.fetchNotifications(); // Recargar notificaciones al cambiar a alumno
       }
+    } else {
+      FirebaseMessaging.instance.unsubscribeFromTopic('config_updates');
     }
   });
 

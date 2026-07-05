@@ -78,7 +78,7 @@ class ProfRulesRemoteDataSource {
     }
   }
 
-  Future<void> updateConfig(List<String> allowedExtensions, String llmProvider, String driveFolderId, List<String> exclusionRules, List<Map<String, dynamic>> projectSections) async {
+  Future<void> updateConfig(List<String> allowedExtensions, String llmProvider, String driveFolderId, List<String> exclusionRules, List<Map<String, dynamic>> projectSections, {String? authorName, String? authorPhotoUrl}) async {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/config');
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
@@ -91,6 +91,8 @@ class ProfRulesRemoteDataSource {
         "drive_folder_id": driveFolderId,
         "exclusion_rules": exclusionRules,
         "project_sections": projectSections,
+        if (authorName != null) "authorName": authorName,
+        if (authorPhotoUrl != null) "authorPhotoUrl": authorPhotoUrl,
       });
 
       final response = await client.post(url, headers: headers, body: body).timeout(const Duration(seconds: 15));

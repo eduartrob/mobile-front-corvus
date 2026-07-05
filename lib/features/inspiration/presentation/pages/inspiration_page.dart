@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/features/inspiration/presentation/provider/inspiration_provider.dart';
 import 'package:mobile/core/theme/app_dimens.dart';
-import 'package:mobile/features/inspiration/presentation/widgets/glass_container.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/features/inspiration/presentation/widgets/project_card.dart';
 import 'package:mobile/features/inspiration/presentation/widgets/floating_ai_input.dart';
@@ -142,10 +141,29 @@ class _WelcomeCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.only(bottom: 24.0),
-      child: GlassContainer(
-        blur: 0,
-        opacity: 0.5,
+      child: Container(
         padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          gradient: LinearGradient(
+            colors: [
+              colorScheme.primaryContainer.withValues(alpha: 0.7),
+              colorScheme.secondaryContainer.withValues(alpha: 0.7)
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          border: Border.all(
+            color: colorScheme.primary.withValues(alpha: 0.2),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: colorScheme.primary.withValues(alpha: 0.05),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -256,14 +274,20 @@ class _SkeletonLoaderListState extends State<_SkeletonLoaderList> with SingleTic
   }
 
   Widget _buildSkeletonCard(BuildContext context) {
-    final color = Theme.of(context).colorScheme.surfaceContainerHighest;
+    final colorScheme = Theme.of(context).colorScheme;
+    final color = colorScheme.surfaceContainerHighest;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: GlassContainer(
-        blur: 0,
-        opacity: 0.3,
-        border: Border.all(color: Colors.transparent),
-        padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.only(bottom: 12.0), // Mismo margen inferior que ProjectCard
+      child: Container(
+        padding: const EdgeInsets.all(16), // Mismo padding interno
+        decoration: BoxDecoration(
+          color: colorScheme.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(16), // Mismo radio de borde
+          border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.25),
+            width: 1,
+          ),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

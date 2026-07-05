@@ -16,8 +16,7 @@ class PushSyncService {
     // Solicitar permisos en caso de iOS
     await messaging.requestPermission();
 
-    // Suscribirse al tópico de actualizaciones globales
-    await messaging.subscribeToTopic('config_updates');
+    // Se quita la suscripción global. Ahora se suscribe solo si el usuario es alumno en main.dart
     
     // Escuchar mensajes en primer plano (Foreground)
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
