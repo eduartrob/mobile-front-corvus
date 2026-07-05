@@ -153,14 +153,11 @@ class _WelcomeCard extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          border: Border.all(
-            color: colorScheme.primary.withValues(alpha: 0.2),
-          ),
           boxShadow: [
             BoxShadow(
-              color: colorScheme.primary.withValues(alpha: 0.05),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
+              color: colorScheme.shadow.withValues(alpha: 0.15),
+              blurRadius: 24,
+              offset: const Offset(0, 10),
             ),
           ],
         ),
