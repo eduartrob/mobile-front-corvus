@@ -14,6 +14,12 @@ import 'package:mobile/features/prof_profile/domain/repositories/sync_repository
 import 'package:mobile/features/prof_profile/domain/use_cases/sync_drive_folder_usecase.dart';
 import 'package:mobile/features/prof_profile/domain/use_cases/get_drive_folders_usecase.dart';
 
+import 'package:mobile/features/search/data/data_source/search_remote_data_source.dart';
+import 'package:mobile/features/search/data/repositories/search_repository_impl.dart';
+import 'package:mobile/features/search/domain/repositories/search_repository.dart';
+import 'package:mobile/features/search/domain/use_cases/smart_search_usecase.dart';
+import 'package:mobile/features/search/presentation/provider/search_provider.dart';
+
 final sl = GetIt.instance;
 
 void setupDependencies() {
@@ -23,12 +29,18 @@ void setupDependencies() {
   sl.registerLazySingleton<SyncRemoteDataSource>(
     () => SyncRemoteDataSourceImpl(),
   );
+  sl.registerLazySingleton<SearchRemoteDataSource>(
+    () => SearchRemoteDataSourceImpl(),
+  );
 
   sl.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(remoteDataSource: sl()),
   );
   sl.registerLazySingleton<SyncRepository>(
     () => SyncRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<SearchRepository>(
+    () => SearchRepositoryImpl(sl()),
   );
 
   sl.registerLazySingleton(
@@ -49,6 +61,9 @@ void setupDependencies() {
   sl.registerLazySingleton(
     () => GetDriveFoldersUseCase(sl()),
   );
+  sl.registerLazySingleton(
+    () => SmartSearchUseCase(sl()),
+  );
 
   sl.registerFactory(
     () => AuthProvider(
@@ -57,5 +72,8 @@ void setupDependencies() {
       getDriveAccessTokenUseCase: sl(),
       signOutFromGoogleUseCase: sl(),
     ),
+  );
+  sl.registerFactory(
+    () => SearchProvider(sl()),
   );
 }

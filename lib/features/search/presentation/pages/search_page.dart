@@ -1,18 +1,34 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:mobile/features/search/presentation/provider/search_provider.dart';
+import 'package:mobile/core/di/di.dart';
 
-class SearchPage extends StatefulWidget {
+class SearchPage extends StatelessWidget {
   const SearchPage({super.key});
 
   @override
-  State<SearchPage> createState() => _SearchPageState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => sl<SearchProvider>(),
+      child: const _SearchPageView(),
+    );
+  }
 }
 
-class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateMixin {
+class _SearchPageView extends StatefulWidget {
+  const _SearchPageView();
+
+  @override
+  State<_SearchPageView> createState() => _SearchPageViewState();
+}
+
+class _SearchPageViewState extends State<_SearchPageView> with SingleTickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   bool _hasResults = false;
   
@@ -83,7 +99,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         _isListening = false;
         _speechToText.stop();
       });
-      // TODO: Conectar con backend RAG
+      context.read<SearchProvider>().performSearch(query);
     }
   }
 
@@ -118,6 +134,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
                 onChanged: (value) {
                   if (_hasResults) {
                     setState(() => _hasResults = false);
+                    context.read<SearchProvider>().clearSearch();
                   }
                 },
                 decoration: InputDecoration(
@@ -134,6 +151,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
                           onPressed: () {
                             _searchController.clear();
                             setState(() => _hasResults = false);
+                            context.read<SearchProvider>().clearSearch();
                           },
                         ),
                       IconButton(
@@ -305,54 +323,125 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   }
 
   Widget _buildResultsView(Color textColor) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Buscando resultados para: "${_searchController.text}"',
-            style: TextStyle(
-              fontSize: 16,
-              color: textColor.withOpacity(0.7),
-            ),
-          ),
-          const SizedBox(height: 24),
-          // Placeholder para la respuesta RAG
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.blueAccent.withOpacity(0.1), Colors.purpleAccent.withOpacity(0.1)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+    return Consumer<SearchProvider>(
+      builder: (context, provider, child) {
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Buscando resultados para: "${_searchController.text}"',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: textColor.withOpacity(0.7),
+                ),
               ),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.blueAccent.withOpacity(0.3)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Row(
+              const SizedBox(height: 24),
+              if (provider.isLoading)
+                const Center(
+                  child: CircularProgressIndicator(color: Colors.blueAccent),
+                )
+              else if (provider.error != null)
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.redAccent.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.redAccent.withOpacity(0.3)),
+                  ),
+                  child: Text(
+                    'Error: ${provider.error}',
+                    style: const TextStyle(color: Colors.redAccent),
+                  ),
+                )
+              else if (provider.currentResult != null)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.auto_awesome, color: Colors.blueAccent),
-                    SizedBox(width: 8),
-                    Text(
-                      'Respuesta de la IA',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.blueAccent.withOpacity(0.1), Colors.purpleAccent.withOpacity(0.1)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.blueAccent.withOpacity(0.3)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.auto_awesome, color: Colors.blueAccent),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Respuesta de la IA (${provider.currentResult!.detectedSubject})',
+                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            provider.currentResult!.summary,
+                            style: TextStyle(color: Colors.white.withOpacity(0.9), height: 1.5),
+                          ),
+                        ],
+                      ),
                     ),
+                    const SizedBox(height: 24),
+                    if (provider.currentResult!.links.isNotEmpty) ...[
+                      Text(
+                        'Fuentes (${provider.currentResult!.links.length})',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: textColor,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      ...provider.currentResult!.links.map((link) => Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: InkWell(
+                              onTap: () => launchUrl(Uri.parse(link)),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.05),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: Colors.white.withOpacity(0.1)),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.picture_as_pdf, color: Colors.redAccent),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        link,
+                                        style: const TextStyle(
+                                          color: Colors.blueAccent,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          )),
+                    ]
                   ],
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  'Este es un ejemplo simulado de respuesta RAG. En el futuro, aquí verás el resumen generado por el LLM basado en los PDFs del maestro, citando las fuentes correctas.',
-                  style: TextStyle(color: Colors.white.withOpacity(0.9), height: 1.5),
-                ),
-              ],
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
