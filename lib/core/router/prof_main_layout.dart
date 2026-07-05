@@ -23,38 +23,41 @@ class _ProfMainLayoutState extends State<ProfMainLayout> {
     );
   }
 
+  Future<bool> _onBackPressed() async {
+    // Si no estamos en Dashboard (pestaña 0), volver a él
+    if (widget.navigationShell.currentIndex != 0) {
+      widget.navigationShell.goBranch(0);
+      return true; // Interceptado: no cierres la app
+    }
+
+    // Ya estamos en Dashboard: doble toque para salir
+    final now = DateTime.now();
+    if (_lastPressedAt == null || now.difference(_lastPressedAt!) > const Duration(seconds: 2)) {
+      _lastPressedAt = now;
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Toca "Volver" de nuevo para salir'),
+            duration: Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+      return true; // Interceptado: no cierres la app todavía
+    }
+
+    // Segunda vez: cerrar la app
+    SystemNavigator.pop();
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return PopScope(
-      canPop: false,
-      onPopInvoked: (didPop) {
-        if (didPop) return;
-
-        // Si no estamos en Dashboard (pestaña 0), volver a él
-        if (widget.navigationShell.currentIndex != 0) {
-          widget.navigationShell.goBranch(0);
-          return;
-        }
-
-        // Ya estamos en Dashboard: doble toque para salir
-        final now = DateTime.now();
-        if (_lastPressedAt == null || now.difference(_lastPressedAt!) > const Duration(seconds: 2)) {
-          _lastPressedAt = now;
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Toca "Volver" de nuevo para salir'),
-              duration: Duration(seconds: 2),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-          return;
-        }
-
-        SystemNavigator.pop();
-      },
+    return BackButtonListener(
+      onBackButtonPressed: _onBackPressed,
       child: Scaffold(
         body: widget.navigationShell,
         bottomNavigationBar: CustomAnimatedBottomNavBar(
