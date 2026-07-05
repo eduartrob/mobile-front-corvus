@@ -8,11 +8,13 @@ import 'package:mobile/features/notifications/presentation/provider/notification
 class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showLogo;
   final Widget? titleWidget;
+  final bool hideActions;
 
   const CorvusTopBar({
     super.key,
     this.showLogo = true,
     this.titleWidget,
+    this.hideActions = false,
   });
 
   @override
@@ -34,7 +36,7 @@ class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             ) 
           : null),
-      actions: [
+      actions: hideActions ? const [] : [
         // Notifications Bell
         Consumer<NotificationsProvider>(
           builder: (context, notificationsProvider, child) {

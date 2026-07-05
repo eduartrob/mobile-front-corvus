@@ -4,6 +4,7 @@ import 'package:mobile/features/auth/domain/entities/user_entity.dart';
 import 'package:mobile/features/auth/domain/use_cases/sign_in_with_google_usecase.dart';
 import 'package:mobile/features/auth/domain/use_cases/request_drive_scope_usecase.dart';
 import 'package:mobile/features/auth/domain/use_cases/get_drive_access_token_usecase.dart';
+import 'package:mobile/features/auth/domain/use_cases/request_classroom_scopes_usecase.dart';
 import 'package:mobile/features/auth/domain/use_cases/sign_out_from_google_usecase.dart';
 import 'package:mobile/core/services/notification_service.dart';
 
@@ -12,6 +13,7 @@ enum AuthStatus { initial, loading, authenticated, unauthenticated, error }
 class AuthProvider extends ChangeNotifier {
   final SignInWithGoogleUseCase signInWithGoogleUseCase;
   final RequestDriveScopeUseCase requestDriveScopeUseCase;
+  final RequestClassroomScopesUseCase requestClassroomScopesUseCase;
   final GetDriveAccessTokenUseCase getDriveAccessTokenUseCase;
   final SignOutFromGoogleUseCase signOutFromGoogleUseCase;
   final FlutterSecureStorage _storage;
@@ -19,6 +21,7 @@ class AuthProvider extends ChangeNotifier {
   AuthProvider({
     required this.signInWithGoogleUseCase,
     required this.requestDriveScopeUseCase,
+    required this.requestClassroomScopesUseCase,
     required this.getDriveAccessTokenUseCase,
     required this.signOutFromGoogleUseCase,
     FlutterSecureStorage? storage,
@@ -117,6 +120,16 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> requestDriveAccess() async {
     try {
       return await requestDriveScopeUseCase();
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> requestClassroomScopes() async {
+    try {
+      final token = await _storage.read(key: 'auth_token');
+      if (token == null) return false;
+      return await requestClassroomScopesUseCase(token);
     } catch (e) {
       return false;
     }

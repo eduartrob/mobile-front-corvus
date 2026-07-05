@@ -8,6 +8,7 @@ import 'package:mobile/core/theme/app_dimens.dart';
 import 'package:mobile/core/constants/app_version.dart';
 import '../widgets/prof_header_info.dart';
 import '../widgets/prof_stats_card.dart';
+import '../widgets/drive_sync_modal.dart';
 
 class ProfProfilePage extends StatefulWidget {
   const ProfProfilePage({super.key});
@@ -157,6 +158,157 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                 fontSize: 12,
                 fontStyle: FontStyle.italic,
                 color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+            
+            const SizedBox(height: 32),
+            
+            // Classroom Synchronization Section
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: colorScheme.primaryContainer.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: colorScheme.primary.withValues(alpha: 0.3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.sync, color: colorScheme.primary),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Sincronización con Google Classroom',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Sincroniza tus materiales para que la Búsqueda Inteligente (RAG) funcione. '
+                    'Para garantizar tu privacidad, la aplicación solicitará permisos estrictamente de "Solo Lectura". '
+                    'No podremos modificar ni eliminar ningún archivo tuyo.',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: colorScheme.onSurfaceVariant,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        final authProvider = context.read<AuthProvider>();
+                        final success = await authProvider.requestClassroomScopes();
+                        
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                          if (success) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('¡Sincronización automática de Classroom activada!'),
+                                backgroundColor: Colors.green,
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Autorización cancelada o fallida.'),
+                                backgroundColor: Colors.redAccent,
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          }
+                        }
+                      },
+                      icon: const Icon(Icons.school),
+                      label: const Text(
+                        'Autorizar y Sincronizar Material',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colorScheme.primary,
+                        foregroundColor: colorScheme.onPrimary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            const SizedBox(height: 32),
+            
+            // Historical Projects Synchronization Section
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: colorScheme.secondaryContainer.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: colorScheme.secondary.withValues(alpha: 0.3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.folder_shared, color: colorScheme.secondary),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Proyectos Históricos',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Sincroniza carpetas de Google Drive que contengan proyectos históricos (tesis, reportes) para incluirlos en la base de conocimiento.',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: colorScheme.onSurfaceVariant,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        DriveSyncModal.show(context);
+                      },
+                      icon: const Icon(Icons.add_to_drive),
+                      label: const Text(
+                        'Sincronizar Google Drive',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colorScheme.secondaryContainer,
+                        foregroundColor: colorScheme.onSecondaryContainer,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             
