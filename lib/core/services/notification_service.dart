@@ -1,5 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
+import 'package:go_router/go_router.dart';
+import 'package:mobile/core/router/appRouter.dart';
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
@@ -33,7 +34,15 @@ class NotificationService {
       linux: initializationSettingsLinux,
     );
 
-    await _flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    await _flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        final context = rootNavigatorKey.currentContext;
+        if (context != null) {
+          context.push('/notifications?highlightLatest=true');
+        }
+      },
+    );
   }
 
   Future<void> requestPermission() async {
