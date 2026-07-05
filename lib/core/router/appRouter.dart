@@ -20,7 +20,6 @@ import 'package:mobile/features/prof_profile/presentation/pages/prof_profile_pag
 import 'package:mobile/features/profile/presentation/pages/activity_history_page.dart';
 import 'package:mobile/core/router/main_layout.dart';
 import 'package:mobile/core/router/prof_main_layout.dart';
-import 'package:mobile/core/router/root_tab_pop_scope.dart';
 import 'package:mobile/features/student_directory/presentation/pages/student_directory_page.dart';
 import 'package:mobile/features/notifications/presentation/pages/notifications_page.dart';
 
@@ -83,10 +82,7 @@ class AppRouter extends StatelessWidget {
               routes: [
                 GoRoute(
                   path: '/inspiration',
-                  builder: (context, state) => const RootTabPopScope(
-                    fallbackPath: '/inspiration',
-                    child: InspirationPage(),
-                  ),
+                  builder: (context, state) => const InspirationPage(),
                 ),
               ],
             ),
@@ -94,10 +90,7 @@ class AppRouter extends StatelessWidget {
               routes: [
                 GoRoute(
                   path: '/my-project',
-                  builder: (context, state) => const RootTabPopScope(
-                    fallbackPath: '/inspiration',
-                    child: MyProjectPage(),
-                  ),
+                  builder: (context, state) => const MyProjectPage(),
                 ),
               ],
             ),
@@ -105,10 +98,7 @@ class AppRouter extends StatelessWidget {
               routes: [
                 GoRoute(
                   path: '/search',
-                  builder: (context, state) => const RootTabPopScope(
-                    fallbackPath: '/inspiration',
-                    child: SearchPage(),
-                  ),
+                  builder: (context, state) => const SearchPage(),
                 ),
               ],
             ),
@@ -116,10 +106,7 @@ class AppRouter extends StatelessWidget {
               routes: [
                 GoRoute(
                   path: '/teams',
-                  builder: (context, state) => const RootTabPopScope(
-                    fallbackPath: '/inspiration',
-                    child: TeamsPage(),
-                  ),
+                  builder: (context, state) => const TeamsPage(),
                 ),
               ],
             ),
@@ -135,10 +122,7 @@ class AppRouter extends StatelessWidget {
               routes: [
                 GoRoute(
                   path: '/prof-dash',
-                  builder: (context, state) => const RootTabPopScope(
-                    fallbackPath: '/prof-dash',
-                    child: ProfDashPage(),
-                  ),
+                  builder: (context, state) => const ProfDashPage(),
                 ),
               ],
             ),
@@ -146,10 +130,7 @@ class AppRouter extends StatelessWidget {
               routes: [
                 GoRoute(
                   path: '/prof-reviews',
-                  builder: (context, state) => const RootTabPopScope(
-                    fallbackPath: '/prof-dash',
-                    child: ProfReviewsPage(),
-                  ),
+                  builder: (context, state) => const ProfReviewsPage(),
                 ),
               ],
             ),
@@ -157,10 +138,7 @@ class AppRouter extends StatelessWidget {
               routes: [
                 GoRoute(
                   path: '/prof-rules',
-                  builder: (context, state) => const RootTabPopScope(
-                    fallbackPath: '/prof-dash',
-                    child: ProfRulesPage(),
-                  ),
+                  builder: (context, state) => const ProfRulesPage(),
                 ),
               ],
             ),
@@ -168,10 +146,7 @@ class AppRouter extends StatelessWidget {
               routes: [
                 GoRoute(
                   path: '/prof-history',
-                  builder: (context, state) => const RootTabPopScope(
-                    fallbackPath: '/prof-dash',
-                    child: ProfHistoryPage(),
-                  ),
+                  builder: (context, state) => const ProfHistoryPage(),
                 ),
               ],
             ),
