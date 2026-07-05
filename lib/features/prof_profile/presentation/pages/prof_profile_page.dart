@@ -124,6 +124,32 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: colorScheme.tertiaryContainer.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: colorScheme.tertiary.withOpacity(0.3)),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.shield_outlined, size: 20, color: colorScheme.tertiary),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Privacidad garantizada: Corvus requiere acceso de lectura a Drive para procesar tus PDFs de Classroom. Nuestros servidores no almacenan copias físicas de tus documentos personales, únicamente vectorizan el material educativo de forma segura.',
+                            style: TextStyle(
+                              fontSize: 12,
+                              height: 1.4,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
