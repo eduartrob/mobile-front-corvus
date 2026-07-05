@@ -151,8 +151,6 @@ class ProfRulesProvider extends ChangeNotifier {
         _exclusionRules,
         _projectSections,
       );
-      // Notify students
-      await remoteDataSource.notifyRulesUpdate();
     } catch (e) {
       _errorMessage = e.toString();
     } finally {
