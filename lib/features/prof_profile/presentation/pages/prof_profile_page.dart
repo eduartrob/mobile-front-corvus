@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/core/theme/theme_provider.dart';
 import 'package:mobile/l10n/app_localizations.dart';
@@ -138,7 +136,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                 const Text(
                   'Course\nAccess',
                   style: TextStyle(
-                    fontSize: 22,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     height: 1.2,
                   ),
@@ -149,7 +147,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
-                      color: colorScheme.primary.withOpacity(0.1),
+                      color: colorScheme.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -171,9 +169,9 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
             
             Container(
               decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+                border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
               ),
               child: Column(
                 children: [
@@ -188,7 +186,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                       _showUpcomingFeature(context);
                     },
                   ),
-                  Divider(height: 1, color: colorScheme.outlineVariant.withOpacity(0.3)),
+                  Divider(height: 1, color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
                   _buildCourseToggle(
                     context,
                     icon: Icons.storage,
@@ -201,7 +199,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                       _showUpcomingFeature(context);
                     },
                   ),
-                  Divider(height: 1, color: colorScheme.outlineVariant.withOpacity(0.3)),
+                  Divider(height: 1, color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
                   _buildCourseToggle(
                     context,
                     icon: Icons.psychology,
@@ -234,9 +232,9 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+                border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -280,7 +278,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                         context.read<ThemeProvider>().setThemeMode(newSelection.first);
                       },
                       style: ButtonStyle(
-                        side: MaterialStateProperty.all(BorderSide(color: colorScheme.outlineVariant.withOpacity(0.5))),
+                        side: WidgetStateProperty.all(BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.5))),
                       ),
                     ),
                   ),
@@ -353,7 +351,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: (iconColor ?? colorScheme.primary).withOpacity(0.15),
+              color: (iconColor ?? colorScheme.primary).withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: iconColor ?? colorScheme.primary),
@@ -378,7 +376,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: colorScheme.primary,
+            activeThumbColor: colorScheme.primary,
           ),
         ],
       ),

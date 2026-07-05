@@ -99,7 +99,10 @@ class AuthProvider extends ChangeNotifier {
 
       _status = AuthStatus.authenticated;
       notifyListeners();
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('❌ ERROR CRÍTICO EN signInWithGoogle (AuthProvider):');
+      print('Excepción: $e');
+      print('Stack Trace:\n$stackTrace');
       String errorStr = e.toString();
       if (errorStr.contains('403') || errorStr.toLowerCase().contains('upchiapas') || errorStr.toLowerCase().contains('domain') || errorStr.toLowerCase().contains('permitido')) {
         _errorMessage = 'AUTH_NOT_ALLOWED';

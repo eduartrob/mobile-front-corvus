@@ -74,12 +74,18 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
 
     return Scaffold(
       appBar: const CorvusTopBar(),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppDimens.screenMargin),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _ProjectPageHeader(userId: userId),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          final provider = context.read<MyProjectProvider>();
+          await provider.init(userId);
+        },
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(AppDimens.screenMargin),
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _ProjectPageHeader(userId: userId),
 
             const SizedBox(height: 24),
 
@@ -90,6 +96,7 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
             const SizedBox(height: 100),
           ],
         ),
+      ),
       ),
     );
   }
@@ -109,26 +116,37 @@ class _ProjectPageHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          state == ProjectState.detailedAnalysis
-              ? l10n.detailedAnalysisTitle
-              : l10n.preValidationTitle,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            color: colorScheme.onSurface.withOpacity(0.85),
-          ),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          state == ProjectState.detailedAnalysis
-              ? l10n.detailedAnalysisDesc
-              : l10n.preValidationDesc,
-          style: TextStyle(
-            fontSize: 14,
-            color: colorScheme.onSurfaceVariant,
-            height: 1.5,
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                state == ProjectState.detailedAnalysis
+                    ? l10n.detailedAnalysisTitle
+                    : l10n.preValidationTitle,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface.withValues(alpha: 0.85),
+                ),
+              ),
+            ),
+            Tooltip(
+              message: state == ProjectState.detailedAnalysis ? l10n.detailedAnalysisDesc : l10n.preValidationDesc,
+              triggerMode: TooltipTriggerMode.tap,
+              showDuration: const Duration(seconds: 4),
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.symmetric(horizontal: 24),
+              decoration: BoxDecoration(
+                color: colorScheme.inverseSurface,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              textStyle: TextStyle(color: colorScheme.onInverseSurface, fontSize: 14),
+              child: IconButton(
+                icon: Icon(Icons.info_outline, color: colorScheme.onSurfaceVariant),
+                onPressed: () {}, // Tooltip handles tap
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -180,7 +198,7 @@ class _ProjectLoadingSkeletonState extends State<_ProjectLoadingSkeleton>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _opacity,
-      builder: (_, __) => Opacity(
+      builder: (_, _) => Opacity(
         opacity: _opacity.value,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -190,7 +208,7 @@ class _ProjectLoadingSkeletonState extends State<_ProjectLoadingSkeleton>
               width: double.infinity,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
@@ -229,7 +247,7 @@ class _ProjectLoadingSkeletonState extends State<_ProjectLoadingSkeleton>
                 margin: const EdgeInsets.symmetric(vertical: 6),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
@@ -421,8 +439,9 @@ class _PreValidationLoadingTextWidget extends StatelessWidget {
     
     String icon = '📄';
     final msgLower = message.toLowerCase();
-    if (msgLower.contains('modelo') || msgLower.contains('clasificador')) icon = '🤖';
-    else if (msgLower.contains('blacklist') || msgLower.contains('comunes')) icon = '🚫';
+    if (msgLower.contains('modelo') || msgLower.contains('clasificador')) {
+      icon = '🤖';
+    } else if (msgLower.contains('blacklist') || msgLower.contains('comunes')) icon = '🚫';
     else if (msgLower.contains('secciones')) icon = '📚';
     else if (msgLower.contains('coherencia')) icon = '⚖️';
     else if (msgLower.contains('colision') || msgLower.contains('qdrant')) icon = '🔍';

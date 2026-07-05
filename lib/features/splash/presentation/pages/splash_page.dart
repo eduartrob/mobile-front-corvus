@@ -104,7 +104,7 @@ class _SplashPageState extends State<SplashPage>
             // ── Logo animado ──────────────────────────────────
             AnimatedBuilder(
               animation: _controller,
-              builder: (_, __) => Opacity(
+              builder: (_, _) => Opacity(
                 opacity: _logoOpacity.value,
                 child: Transform.scale(
                   scale: _logoScale.value,
@@ -122,7 +122,7 @@ class _SplashPageState extends State<SplashPage>
             // ── Nombre "Corvus" ───────────────────────────────
             AnimatedBuilder(
               animation: _controller,
-              builder: (_, __) => Opacity(
+              builder: (_, _) => Opacity(
                 opacity: _textOpacity.value,
                 child: const Text(
                   'Corvus',
@@ -141,7 +141,7 @@ class _SplashPageState extends State<SplashPage>
             // ── Tagline ───────────────────────────────────────
             AnimatedBuilder(
               animation: _controller,
-              builder: (_, __) => Opacity(
+              builder: (_, _) => Opacity(
                 opacity: _taglineOpacity.value,
                 child: const Text(
                   'Validación académica inteligente',

@@ -50,22 +50,33 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<UserModel> signInWithGoogle() async {
     try {
+      print('🔵 Iniciando flujo de Google Sign-In (GoogleSignIn.signIn)...');
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
+        print('🟡 Google Sign-In: El usuario canceló la selección de cuenta.');
         throw Exception('Inicio de sesión cancelado por el usuario');
       }
 
+      print('✅ Google Sign-In exitoso: Email = ${googleUser.email}');
       final String? serverAuthCode = googleUser.serverAuthCode;
 
       if (serverAuthCode == null) {
+        print('❌ Google Sign-In: serverAuthCode es null.');
         throw Exception('No se pudo obtener el serverAuthCode de Google');
       }
 
+      print('🔵 Enviando serverAuthCode al backend...');
+      final targetUrl = '${ApiConfig.apiGatewayUrl}${ApiConfig.authGoogleEndpoint}';
+      print('URL Backend: $targetUrl');
+      
       final response = await http.post(
-        Uri.parse('${ApiConfig.apiGatewayUrl}${ApiConfig.authGoogleEndpoint}'),
+        Uri.parse(targetUrl),
         headers: ApiConfig.defaultHeaders,
         body: jsonEncode({'authCode': serverAuthCode}),
       ).timeout(ApiConfig.connectionTimeout);
+
+      print('🔵 Backend respondió con status code: ${response.statusCode}');
+      print('Body de la respuesta: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final jsonResponse = jsonDecode(response.body);
@@ -106,9 +117,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         if (error is Map) {
           error = error['message'] ?? error['detail'] ?? error.toString();
         }
+        print('❌ Error del backend: $error');
         throw Exception(error.toString());
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('❌ ERROR CRÍTICO EN signInWithGoogle (Remote Data Source):');
+      print('Excepción: $e');
+      print('Stack Trace:\n$stackTrace');
       await _googleSignIn.signOut();
       final msg = e.toString().replaceAll('Exception: ', '');
       throw Exception(msg);

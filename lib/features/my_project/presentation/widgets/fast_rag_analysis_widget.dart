@@ -19,10 +19,10 @@ class FastRagAnalysisWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
+        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.primary.withOpacity(0.05),
+            color: colorScheme.primary.withValues(alpha: 0.05),
             blurRadius: 20,
             spreadRadius: 0,
           )
@@ -59,7 +59,7 @@ class FastRagAnalysisWidget extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
+                  border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
                 ),
                 child: Row(
                   children: [
@@ -87,7 +87,7 @@ class FastRagAnalysisWidget extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 24.0),
-            child: Divider(color: colorScheme.outlineVariant.withOpacity(0.5)),
+            child: Divider(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
           ),
           
           Row(
@@ -181,7 +181,7 @@ class FastRagAnalysisWidget extends StatelessWidget {
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainerLowest,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.5)),
+                border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

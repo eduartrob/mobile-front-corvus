@@ -18,7 +18,7 @@ class ProfHistoryPage extends StatelessWidget {
             Text(
               'Historial de Decisiones',
               style: TextStyle(
-                fontSize: 28,
+                fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: colorScheme.primary,
                 height: 1.2,
@@ -39,9 +39,9 @@ class ProfHistoryPage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+                border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,7 +49,7 @@ class ProfHistoryPage extends StatelessWidget {
                   const Text(
                     'Filtros',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -61,7 +61,7 @@ class ProfHistoryPage extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: colorScheme.surface,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.5)),
+                      border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
                     ),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
@@ -86,12 +86,12 @@ class ProfHistoryPage extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: colorScheme.surface,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.5)),
+                      border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('mm/dd/yyyy', style: TextStyle(color: colorScheme.onSurfaceVariant.withOpacity(0.5))),
+                        Text('mm/dd/yyyy', style: TextStyle(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5))),
                         Icon(Icons.calendar_today, size: 18, color: colorScheme.onSurfaceVariant),
                       ],
                     ),
@@ -106,12 +106,12 @@ class ProfHistoryPage extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: colorScheme.surface,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.5)),
+                      border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('mm/dd/yyyy', style: TextStyle(color: colorScheme.onSurfaceVariant.withOpacity(0.5))),
+                        Text('mm/dd/yyyy', style: TextStyle(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5))),
                         Icon(Icons.calendar_today, size: 18, color: colorScheme.onSurfaceVariant),
                       ],
                     ),
@@ -166,9 +166,9 @@ class ProfHistoryPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+        border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -195,7 +195,7 @@ class ProfHistoryPage extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: isRejected ? colorScheme.errorContainer.withOpacity(0.5) : colorScheme.primaryContainer.withOpacity(0.5),
+                  color: isRejected ? colorScheme.errorContainer.withValues(alpha: 0.5) : colorScheme.primaryContainer.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(

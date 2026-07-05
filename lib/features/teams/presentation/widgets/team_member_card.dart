@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/l10n/app_localizations.dart';
 
 class TeamMemberCard extends StatelessWidget {
   final String avatarUrl;
@@ -7,6 +6,7 @@ class TeamMemberCard extends StatelessWidget {
   final String email;
   final bool isLeader;
   final bool isMe;
+  final VoidCallback? onRemove;
 
   const TeamMemberCard({
     super.key,
@@ -15,103 +15,66 @@ class TeamMemberCard extends StatelessWidget {
     required this.email,
     this.isLeader = false,
     this.isMe = false,
+    this.onRemove,
   });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final l10n = AppLocalizations.of(context)!;
 
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: isMe
-            ? colorScheme.primary.withValues(alpha: 0.05)
-            : colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(12),
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isMe
-              ? colorScheme.primary.withValues(alpha: 0.5)
-              : colorScheme.outlineVariant.withValues(alpha: 0.3),
+          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+          width: 1.0,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.015),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [
-          Stack(
-            children: [
-              CircleAvatar(
-                radius: 24,
-                backgroundImage: NetworkImage(avatarUrl),
-              ),
-              if (isLeader)
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      color: colorScheme.surface,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.star,
-                      size: 14,
-                      color: colorScheme.primary,
-                    ),
-                  ),
-                ),
-            ],
+          CircleAvatar(
+            radius: 26,
+            backgroundImage: NetworkImage(avatarUrl),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        name,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    if (isMe)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: colorScheme.primary.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            l10n.youLeader,
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: colorScheme.primary,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
+                Text(
+                  name,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   email,
                   style: TextStyle(
                     fontSize: 14,
-                    color: colorScheme.onSurfaceVariant,
+                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                   ),
                 ),
               ],
             ),
           ),
+          if (onRemove != null)
+            IconButton(
+              icon: Icon(Icons.close, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7)),
+              onPressed: onRemove,
+              splashRadius: 20,
+            ),
         ],
       ),
     );
