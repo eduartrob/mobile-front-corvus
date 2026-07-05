@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import '../provider/notifications_provider.dart';
 import '../widgets/notification_item_card.dart';
 
 class NotificationsPage extends StatelessWidget {
-  const NotificationsPage({super.key});
+  final bool highlightLatest;
+  const NotificationsPage({super.key, this.highlightLatest = false});
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => NotificationsProvider(),
-      child: const _NotificationsView(),
-    );
+    return _NotificationsView(highlightLatest: highlightLatest);
   }
 }
 
 class _NotificationsView extends StatelessWidget {
-  const _NotificationsView();
+  final bool highlightLatest;
+  const _NotificationsView({this.highlightLatest = false});
 
   @override
   Widget build(BuildContext context) {
@@ -27,16 +27,32 @@ class _NotificationsView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Notificaciones',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        leading: provider.isSelectionMode
+            ? IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => provider.clearSelection(),
+              )
+            : null,
+        title: Text(
+          provider.isSelectionMode
+              ? '${provider.selectedIds.length} Seleccionadas'
+              : 'Notificaciones',
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: colorScheme.surface,
+        backgroundColor: provider.isSelectionMode ? colorScheme.surfaceContainerHighest : colorScheme.surface,
         elevation: 0,
         scrolledUnderElevation: 0,
-        iconTheme: IconThemeData(color: colorScheme.onSurface),
+        iconTheme: IconThemeData(color: provider.isSelectionMode ? colorScheme.onSurfaceVariant : colorScheme.onSurface),
         actions: [
-          if (notifications.isNotEmpty) ...[
+          if (provider.isSelectionMode)
+            IconButton(
+              icon: const Icon(Icons.delete),
+              tooltip: 'Borrar seleccionadas',
+              onPressed: () {
+                provider.deleteSelected();
+              },
+            )
+          else if (notifications.isNotEmpty) ...[
             IconButton(
               icon: const Icon(Icons.done_all),
               tooltip: 'Marcar todas como leídas',
@@ -45,7 +61,7 @@ class _NotificationsView extends StatelessWidget {
                 ScaffoldMessenger.of(context).hideCurrentSnackBar();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Todas las notificaciones marcadas como leídas'),
+                    content: Text('Todas marcadas como leídas'),
                     behavior: SnackBarBehavior.floating,
                   ),
                 );
@@ -93,13 +109,51 @@ class _NotificationsView extends StatelessWidget {
                   ],
                 ),
               )
-            : ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                itemCount: notifications.length,
-                itemBuilder: (context, index) {
-                  final notification = notifications[index];
-                  return NotificationItemCard(notification: notification);
+            : CustomRefreshIndicator(
+                builder: (BuildContext context, Widget child, IndicatorController controller) {
+                  return AnimatedBuilder(
+                    animation: controller,
+                    builder: (context, _) {
+                      final double value = controller.value;
+                      final double rotate = (value * 2 * 3.14159) % (2 * 3.14159); // Simple rotation for bell
+                      return Stack(
+                        alignment: Alignment.topCenter,
+                        children: [
+                          if (controller.isDragging || controller.isArmed || controller.isLoading)
+                            Positioned(
+                              top: 20,
+                              child: Transform.rotate(
+                                angle: rotate,
+                                child: Icon(
+                                  Icons.notifications_active,
+                                  color: colorScheme.primary,
+                                  size: 32 * value.clamp(0.5, 1.0),
+                                ),
+                              ),
+                            ),
+                          Transform.translate(
+                            offset: Offset(0.0, 60.0 * value),
+                            child: child,
+                          ),
+                        ],
+                      );
+                    },
+                  );
                 },
+                onRefresh: () async {
+                  await provider.fetchNotifications();
+                },
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  itemCount: notifications.length,
+                  itemBuilder: (context, index) {
+                    final notification = notifications[index];
+                    return NotificationItemCard(
+                      notification: notification,
+                      autoExpandAndHighlight: highlightLatest && index == 0,
+                    );
+                  },
+                ),
               ),
       ),
     );

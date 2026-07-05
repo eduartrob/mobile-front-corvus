@@ -61,7 +61,7 @@ class ProfReviewsPage extends StatelessWidget {
                 const Text(
                   'Análisis de Datos Masivos en Redes Neuronales Distribuidas',
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     height: 1.2,
                   ),
@@ -100,7 +100,7 @@ class ProfReviewsPage extends StatelessWidget {
                           const Text(
                             'Resumen de IA',
                             style: TextStyle(
-                              fontSize: 20,
+                              fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
                           ),

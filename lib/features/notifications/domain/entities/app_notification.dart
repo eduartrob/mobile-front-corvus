@@ -6,6 +6,8 @@ class AppNotification {
   final DateTime timestamp;
   final NotificationType type;
   final bool isRead;
+  final String? authorName;
+  final String? authorPhotoUrl;
 
   const AppNotification({
     required this.id,
@@ -13,6 +15,8 @@ class AppNotification {
     required this.timestamp,
     required this.type,
     this.isRead = false,
+    this.authorName,
+    this.authorPhotoUrl,
   });
 
   AppNotification copyWith({
@@ -21,6 +25,8 @@ class AppNotification {
     DateTime? timestamp,
     NotificationType? type,
     bool? isRead,
+    String? authorName,
+    String? authorPhotoUrl,
   }) {
     return AppNotification(
       id: id ?? this.id,
@@ -28,6 +34,8 @@ class AppNotification {
       timestamp: timestamp ?? this.timestamp,
       type: type ?? this.type,
       isRead: isRead ?? this.isRead,
+      authorName: authorName ?? this.authorName,
+      authorPhotoUrl: authorPhotoUrl ?? this.authorPhotoUrl,
     );
   }
 }

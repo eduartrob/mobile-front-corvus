@@ -70,7 +70,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                 const Text(
                   'Course\nAccess',
                   style: TextStyle(
-                    fontSize: 22,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     height: 1.2,
                   ),

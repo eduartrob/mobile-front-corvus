@@ -1,60 +1,100 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/shared/widgets/corvus_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/inspiration/presentation/provider/inspiration_provider.dart';
 
-class MainLayout extends StatelessWidget {
+class MainLayout extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
 
   const MainLayout({super.key, required this.navigationShell});
 
+  @override
+  State<MainLayout> createState() => _MainLayoutState();
+}
+
+class _MainLayoutState extends State<MainLayout> {
+  DateTime? _lastPressedAt;
+
   void _onItemTapped(BuildContext context, int index) {
-    if (index == navigationShell.currentIndex) {
+    if (index == widget.navigationShell.currentIndex) {
       if (index == 0) {
         context.read<InspirationProvider>().refreshIndicatorKey.currentState?.show();
       }
       return;
     }
 
-    navigationShell.goBranch(
+    widget.navigationShell.goBranch(
       index,
-      initialLocation: index == navigationShell.currentIndex,
+      initialLocation: index == widget.navigationShell.currentIndex,
     );
+  }
+
+  void _onPopInvoked(bool didPop) {
+    if (didPop) return;
+
+    if (widget.navigationShell.currentIndex != 0) {
+      widget.navigationShell.goBranch(0);
+      return;
+    }
+
+    final now = DateTime.now();
+    final backButtonHasNotBeenPressedOrSnackBarHasBeenClosed =
+        _lastPressedAt == null || now.difference(_lastPressedAt!) > const Duration(seconds: 2);
+
+    if (backButtonHasNotBeenPressedOrSnackBarHasBeenClosed) {
+      _lastPressedAt = now;
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Toca "Volver" de nuevo para salir'),
+          duration: Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    SystemNavigator.pop();
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     
-    return Scaffold(
-      body: navigationShell,
-      bottomNavigationBar: CustomAnimatedBottomNavBar(
-        currentIndex: navigationShell.currentIndex,
-        onTap: (index) => _onItemTapped(context, index),
-        items: [
-          CustomNavItemData(
-            icon: Icons.lightbulb_outline,
-            activeIcon: Icons.lightbulb,
-            label: l10n.navInspiration,
-          ),
-          CustomNavItemData(
-            icon: Icons.folder_open,
-            activeIcon: Icons.folder,
-            label: l10n.navMyProject,
-          ),
-          CustomNavItemData(
-            icon: Icons.search_outlined,
-            activeIcon: Icons.search,
-            label: l10n.navSearch, // Note: Make sure l10n.navSearch exists or we will need to add it or use a string for now. If it fails, I'll fix it. Let's use 'Buscar' just in case.
-          ),
-          CustomNavItemData(
-            icon: Icons.groups_outlined,
-            activeIcon: Icons.groups,
-            label: l10n.navTeams,
-          ),
-        ],
+    return PopScope(
+      canPop: false,
+      onPopInvoked: _onPopInvoked,
+      child: Scaffold(
+        body: widget.navigationShell,
+        bottomNavigationBar: CustomAnimatedBottomNavBar(
+          currentIndex: widget.navigationShell.currentIndex,
+          onTap: (index) => _onItemTapped(context, index),
+          items: [
+            CustomNavItemData(
+              icon: Icons.lightbulb_outline,
+              activeIcon: Icons.lightbulb,
+              label: l10n.navInspiration,
+            ),
+            CustomNavItemData(
+              icon: Icons.folder_open,
+              activeIcon: Icons.folder,
+              label: l10n.navMyProject,
+            ),
+            CustomNavItemData(
+              icon: Icons.search_outlined,
+              activeIcon: Icons.search,
+              label: l10n.navSearch,
+            ),
+            CustomNavItemData(
+              icon: Icons.groups_outlined,
+              activeIcon: Icons.groups,
+              label: l10n.navTeams,
+            ),
+          ],
+        ),
       ),
     );
   }

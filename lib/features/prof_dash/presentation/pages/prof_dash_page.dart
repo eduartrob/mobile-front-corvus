@@ -73,7 +73,7 @@ class ProfDashPage extends StatelessWidget {
                       const Text(
                         'Avance General',
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -113,7 +113,7 @@ class ProfDashPage extends StatelessWidget {
                   const Text(
                     'Atención Requerida',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

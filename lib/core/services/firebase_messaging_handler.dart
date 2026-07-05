@@ -1,9 +1,13 @@
+import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:mobile/core/services/notification_service.dart';
 import 'package:mobile/firebase_options.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' as flutter_secure_storage;
 import 'package:mobile/features/notifications/data/notifications_local_data_source.dart';
+import 'package:mobile/core/router/appRouter.dart';
+import 'package:provider/provider.dart';
+import 'package:mobile/features/notifications/presentation/provider/notifications_provider.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -19,21 +23,41 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 Future<void> handleFCMMessage(RemoteMessage message) async {
   final data = message.data;
   
+  const storage = flutter_secure_storage.FlutterSecureStorage();
+  final role = await storage.read(key: 'auth_role');
+
   if (message.notification != null) {
-    // Es una notificación push visible, la guardamos en SQLite
+    // Guardar en SQLite (historial temporal o caché) con un ID generado para satisfacer el schema
     await NotificationsLocalDataSource.insertNotification({
+      'id': 'temp_${DateTime.now().millisecondsSinceEpoch}',
       'title': message.notification!.title ?? 'Nueva Notificación',
       'body': message.notification!.body ?? '',
       'type': data['type'] ?? 'info',
       'timestamp': DateTime.now().toIso8601String(),
       'isRead': 0,
+      'authorName': data['authorName'],
+      'authorPhotoUrl': data['authorPhotoUrl'],
     });
     
-    // Mostrar visualmente la notificación en primer plano usando flutter_local_notifications
-    NotificationService().showResultNotification(
-      message.notification!.title ?? 'Nueva Notificación',
-      message.notification!.body ?? '',
-    );
+    // Si la app está en foreground, disparar un refresco silencioso al backend
+    final context = rootNavigatorKey.currentContext;
+    if (context != null) {
+      try {
+        context.read<NotificationsProvider>().fetchNotifications(silent: true);
+      } catch(e) {
+        debugPrint('Provider no disponible en context actual');
+      }
+    }
+    
+    // Si estamos logueados como PROFESOR, no mostrar la alerta flotante para estas notificaciones de configuración
+    if (!(data['type'] == 'CONFIG_UPDATED' && role == 'PROFESOR')) {
+      NotificationService().showResultNotification(
+        message.notification!.title ?? 'Nueva Notificación',
+        message.notification!.body ?? '',
+      );
+    } else {
+      debugPrint("Alerta visual flotante de config_updates omitida para el profesor.");
+    }
   }
 
   if (data['type'] == 'sync_progress') {

@@ -45,7 +45,7 @@ class CorvusMetricCard extends StatelessWidget {
           Text(
             value,
             style: TextStyle(
-              fontSize: 32,
+              fontSize: 24,
               fontWeight: FontWeight.bold,
               color: colorScheme.primary,
             ),

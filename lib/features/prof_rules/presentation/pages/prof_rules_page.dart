@@ -133,7 +133,7 @@ class _ExclusionRulesTab extends StatelessWidget {
                 child: Text(
                   'Temas Bloqueados',
                   style: TextStyle(
-                    fontSize: 22,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

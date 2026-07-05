@@ -18,7 +18,7 @@ class ProfHistoryPage extends StatelessWidget {
             Text(
               'Historial de Decisiones',
               style: TextStyle(
-                fontSize: 28,
+                fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: colorScheme.primary,
                 height: 1.2,
@@ -49,7 +49,7 @@ class ProfHistoryPage extends StatelessWidget {
                   const Text(
                     'Filtros',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

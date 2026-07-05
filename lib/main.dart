@@ -24,7 +24,7 @@ import 'package:mobile/core/services/firebase_messaging_handler.dart';
 void _handleNotificationTap(RemoteMessage message) {
   final context = rootNavigatorKey.currentContext;
   if (context != null) {
-    context.push('/notifications');
+    context.push('/notifications?highlightLatest=true');
   }
 }
 
@@ -44,6 +44,7 @@ void main() async {
   final profRulesProvider = ProfRulesProvider(
     remoteDataSource: ProfRulesRemoteDataSource(client: http.Client()),
   );
+  final notificationsProvider = NotificationsProvider()..fetchNotifications();
 
   await Future.wait([
     // Firebase: ~200-500ms (conexión a servidores de Google)
@@ -106,6 +107,7 @@ void main() async {
         }
         inspirationProvider.loadProjects(forceRefresh: true);
         profRulesProvider.fetchData();
+        notificationsProvider.fetchNotifications(); // Recargar notificaciones al cambiar a alumno
       }
     }
   });
@@ -121,7 +123,7 @@ void main() async {
         ChangeNotifierProvider.value(value: inspirationProvider),
         ChangeNotifierProvider.value(value: profRulesProvider),
         ChangeNotifierProvider(create: (_) => SolicitudesProvider()),
-        ChangeNotifierProvider(create: (_) => NotificationsProvider()..fetchNotifications()),
+        ChangeNotifierProvider.value(value: notificationsProvider),
       ],
       child: const MyApp(),
     ),

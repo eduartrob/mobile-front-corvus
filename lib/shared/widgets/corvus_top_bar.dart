@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/features/notifications/presentation/provider/notifications_provider.dart';
 
 class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showLogo;
@@ -34,6 +35,46 @@ class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
             ) 
           : null),
       actions: [
+        // Notifications Bell
+        Consumer<NotificationsProvider>(
+          builder: (context, notificationsProvider, child) {
+            final unreadCount = notificationsProvider.unreadCount;
+            return Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.center,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.notifications_none),
+                  onPressed: () {
+                    context.push('/notifications');
+                  },
+                ),
+                if (unreadCount > 0)
+                  Positioned(
+                    right: 8,
+                    top: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        unreadCount.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
+        const SizedBox(width: 8),
+
         if (photoUrl != null && photoUrl.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
