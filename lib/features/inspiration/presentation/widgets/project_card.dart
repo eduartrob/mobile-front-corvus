@@ -88,17 +88,17 @@ class ProjectCard extends StatelessWidget {
     final bool isTrending = project.isTrending;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20), // Espaciado exterior de cada tarjeta
+      padding: const EdgeInsets.only(bottom: 12), // Espaciado exterior reducido
       child: Stack(
         clipBehavior: Clip.none,
         children: [
           _AnimatedCardWrapper(
             onTap: () => _handleTap(context),
             child: Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(16), // Ligeramente menos padding interno para balancear
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(16), // Borde menos redondeado
                 border: Border.all(
                   color: colorScheme.outlineVariant.withValues(alpha: 0.25),
                   width: 1,

@@ -277,12 +277,12 @@ class _SkeletonLoaderListState extends State<_SkeletonLoaderList> with SingleTic
     final colorScheme = Theme.of(context).colorScheme;
     final color = colorScheme.surfaceContainerHighest;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20.0),
+      padding: const EdgeInsets.only(bottom: 12.0), // Mismo margen inferior que ProjectCard
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16), // Mismo padding interno
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(16), // Mismo radio de borde
           border: Border.all(
             color: colorScheme.outlineVariant.withValues(alpha: 0.25),
             width: 1,
