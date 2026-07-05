@@ -66,5 +66,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Corvus requiere reconocimiento de voz para realizar búsquedas por voz.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Corvus requiere acceso al micrófono para grabar tus consultas de búsqueda.</string>
 </dict>
 </plist>
