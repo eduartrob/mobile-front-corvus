@@ -414,7 +414,7 @@ class _ProjectStructureTab extends StatelessWidget {
 
   void _addSectionDialog(BuildContext context, ProfRulesProvider provider) {
     final nameController = TextEditingController();
-    final keywordsController = TextEditingController();
+
     bool isObligatory = true;
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -482,26 +482,7 @@ class _ProjectStructureTab extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       
-                      // TextField de Palabras Clave
-                      TextField(
-                        controller: keywordsController,
-                        decoration: InputDecoration(
-                          labelText: 'Palabras clave',
-                          hintText: 'Ej. contexto, objetivos',
-                          filled: true,
-                          fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide.none,
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
+
                       
                       // Toggle de Obligatoria
                       Container(
@@ -547,12 +528,7 @@ class _ProjectStructureTab extends StatelessWidget {
                               onPressed: () {
                                 final name = nameController.text.trim();
                                 if (name.isNotEmpty) {
-                                  final kwList = keywordsController.text
-                                      .split(',')
-                                      .map((e) => e.trim())
-                                      .where((e) => e.isNotEmpty)
-                                      .toList();
-                                  provider.addSection(name, kwList, isObligatory);
+                                  provider.addSection(name, [], isObligatory);
                                   Navigator.pop(ctx);
                                 }
                               },
