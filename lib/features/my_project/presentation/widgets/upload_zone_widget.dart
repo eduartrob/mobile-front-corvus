@@ -1,3 +1,4 @@
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/l10n/app_localizations.dart';
@@ -17,28 +18,25 @@ class UploadZoneWidget extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
-    return Container(
-      width: double.infinity,
-      constraints: const BoxConstraints(minHeight: 250),
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: colorScheme.outlineVariant,
-          width: 2,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          )
-        ],
+    final exts = provider.allowedExtensionsString;
+    return DottedBorder(
+      options: RoundedRectDottedBorderOptions(
+        color: colorScheme.outlineVariant,
+        strokeWidth: 2,
+        dashPattern: const [6, 4],
+        radius: const Radius.circular(16),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
+      child: Container(
+        width: double.infinity,
+        constraints: const BoxConstraints(minHeight: 250),
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: colorScheme.surface,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -53,7 +51,7 @@ class UploadZoneWidget extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            l10n.uploadZoneTitle,
+            'Agrega tu propuesta aquí',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -63,11 +61,12 @@ class UploadZoneWidget extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            l10n.uploadZoneSubtitle,
+            'Tamaño máximo: 10 MB. Formatos: $exts',
             style: TextStyle(
               fontSize: 14,
               color: colorScheme.onSurfaceVariant,
             ),
+            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
           OutlinedButton.icon(
@@ -83,6 +82,7 @@ class UploadZoneWidget extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }

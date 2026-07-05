@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
-import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/core/theme/theme_provider.dart';
 import 'package:mobile/l10n/app_localizations.dart';
-
+import 'package:mobile/core/theme/app_dimens.dart';
+import 'package:mobile/core/constants/app_version.dart';
 import '../widgets/student_header_info.dart';
 import '../widgets/student_stats_card.dart';
 import '../widgets/technical_skills_section.dart';
@@ -33,9 +33,13 @@ class ProfilePage extends StatelessWidget {
     final user = authProvider.currentUser;
 
     return Scaffold(
-      appBar: const CorvusTopBar(),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+      ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(AppDimens.screenMargin),
         child: Column(
           children: [
             StudentHeaderInfo(user: user),
@@ -102,7 +106,7 @@ class ProfilePage extends StatelessWidget {
                         context.read<ThemeProvider>().setThemeMode(newSelection.first);
                       },
                       style: ButtonStyle(
-                        side: MaterialStateProperty.all(BorderSide(color: colorScheme.outlineVariant.withOpacity(0.5))),
+                        side: WidgetStateProperty.all(BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.5))),
                       ),
                     ),
                   ),
@@ -145,7 +149,27 @@ class ProfilePage extends StatelessWidget {
               ),
             ),
             
-            const SizedBox(height: 100),
+            const SizedBox(height: 24),
+            Column(
+              children: [
+                Text(
+                  'Versión ${AppVersion.version}',
+                  style: TextStyle(
+                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '© 2026 Corvus. Todos los derechos reservados.',
+                  style: TextStyle(
+                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 40),
           ],
         ),
       ),

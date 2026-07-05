@@ -1,5 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
+import 'package:go_router/go_router.dart';
+import 'package:mobile/core/router/appRouter.dart';
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
@@ -17,14 +18,31 @@ class NotificationService {
   static const String analysisChannelName = 'Análisis de Propuestas';
   static const String analysisChannelDescription = 'Notificaciones sobre el análisis exhaustivo de proyectos';
 
+  static const String analysisProgressChannelId = 'corvus_analysis_progress_channel';
+  static const String analysisProgressChannelName = 'Progreso de Análisis';
+  static const String analysisProgressChannelDescription = 'Notificaciones silenciosas sobre el progreso del análisis';
+
   Future<void> init() async {
     const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const LinuxInitializationSettings initializationSettingsLinux = LinuxInitializationSettings(
+      defaultActionName: 'Open notification',
+    );
+    
     // -# para ios y otras plataformas se configura aqui se omite por brevedad para centrarse en android
     const InitializationSettings initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
+      linux: initializationSettingsLinux,
     );
 
-    await _flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    await _flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        final context = rootNavigatorKey.currentContext;
+        if (context != null) {
+          context.push('/notifications?highlightLatest=true');
+        }
+      },
+    );
   }
 
   Future<void> requestPermission() async {
@@ -72,8 +90,8 @@ class NotificationService {
       channelName,
       channelDescription: channelDescription,
       channelShowBadge: false,
-      importance: Importance.max,
-      priority: Priority.high,
+      importance: Importance.low,
+      priority: Priority.low,
       onlyAlertOnce: true,
       showProgress: true,
       indeterminate: true,
@@ -151,9 +169,9 @@ class NotificationService {
     required String phase,
   }) async {
     final AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
-      analysisChannelId,
-      analysisChannelName,
-      channelDescription: analysisChannelDescription,
+      analysisProgressChannelId,
+      analysisProgressChannelName,
+      channelDescription: analysisProgressChannelDescription,
       channelShowBadge: false,
       importance: Importance.low,
       priority: Priority.low,

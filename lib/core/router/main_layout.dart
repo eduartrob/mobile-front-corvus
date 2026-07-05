@@ -1,37 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/shared/widgets/corvus_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/inspiration/presentation/provider/inspiration_provider.dart';
 
-class MainLayout extends StatelessWidget {
+class MainLayout extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
 
   const MainLayout({super.key, required this.navigationShell});
 
+  @override
+  State<MainLayout> createState() => _MainLayoutState();
+}
+
+class _MainLayoutState extends State<MainLayout> {
+
+
   void _onItemTapped(BuildContext context, int index) {
-    if (index == navigationShell.currentIndex) {
+    if (index == widget.navigationShell.currentIndex) {
       if (index == 0) {
         context.read<InspirationProvider>().refreshIndicatorKey.currentState?.show();
       }
       return;
     }
 
-    navigationShell.goBranch(
+    widget.navigationShell.goBranch(
       index,
-      initialLocation: index == navigationShell.currentIndex,
+      initialLocation: index == widget.navigationShell.currentIndex,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
-      body: navigationShell,
+      body: widget.navigationShell,
       bottomNavigationBar: CustomAnimatedBottomNavBar(
-        currentIndex: navigationShell.currentIndex,
+        currentIndex: widget.navigationShell.currentIndex,
         onTap: (index) => _onItemTapped(context, index),
         items: [
           CustomNavItemData(
@@ -47,7 +55,7 @@ class MainLayout extends StatelessWidget {
           CustomNavItemData(
             icon: Icons.search_outlined,
             activeIcon: Icons.search,
-            label: l10n.navSearch, // Note: Make sure l10n.navSearch exists or we will need to add it or use a string for now. If it fails, I'll fix it. Let's use 'Buscar' just in case.
+            label: l10n.navSearch,
           ),
           CustomNavItemData(
             icon: Icons.groups_outlined,

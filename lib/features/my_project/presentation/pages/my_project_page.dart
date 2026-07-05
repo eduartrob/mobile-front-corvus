@@ -11,15 +11,14 @@ import 'package:mobile/features/my_project/presentation/widgets/detailed_analysi
 import 'package:mobile/features/my_project/presentation/widgets/animated_loading_text_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/invalid_document_widget.dart';
 
+import 'package:mobile/core/theme/app_dimens.dart';
+
 class MyProjectPage extends StatelessWidget {
   const MyProjectPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => MyProjectProvider(),
-      child: const _MyProjectPageContent(),
-    );
+    return const _MyProjectPageContent();
   }
 }
 
@@ -30,14 +29,41 @@ class _MyProjectPageContent extends StatefulWidget {
   State<_MyProjectPageContent> createState() => _MyProjectPageContentState();
 }
 
-class _MyProjectPageContentState extends State<_MyProjectPageContent> {
+class _MyProjectPageContentState extends State<_MyProjectPageContent> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final userId = context.read<AuthProvider>().currentUser?.id ?? 'default_user';
-      context.read<MyProjectProvider>().init(userId);
+      final provider = context.read<MyProjectProvider>();
+      provider.setScreenVisible(true);
+      if (provider.state == ProjectState.initial) {
+        final userId = context.read<AuthProvider>().currentUser?.id;
+        if (userId != null) {
+          provider.init(userId);
+        }
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    try {
+        context.read<MyProjectProvider>().setScreenVisible(false);
+    } catch (_) {}
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    final provider = context.read<MyProjectProvider>();
+    if (state == AppLifecycleState.resumed) {
+      provider.setScreenVisible(true);
+    } else if (state == AppLifecycleState.paused || state == AppLifecycleState.detached || state == AppLifecycleState.inactive) {
+      provider.setScreenVisible(false);
+    }
   }
 
   @override
@@ -48,12 +74,18 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> {
 
     return Scaffold(
       appBar: const CorvusTopBar(),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _ProjectPageHeader(userId: userId),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          final provider = context.read<MyProjectProvider>();
+          await provider.init(userId);
+        },
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(AppDimens.screenMargin),
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _ProjectPageHeader(userId: userId),
 
             const SizedBox(height: 24),
 
@@ -64,6 +96,7 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> {
             const SizedBox(height: 100),
           ],
         ),
+      ),
       ),
     );
   }
@@ -83,32 +116,158 @@ class _ProjectPageHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          state == ProjectState.detailedAnalysis
-              ? l10n.detailedAnalysisTitle
-              : l10n.preValidationTitle,
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: colorScheme.primary,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          state == ProjectState.detailedAnalysis
-              ? l10n.detailedAnalysisDesc
-              : l10n.preValidationDesc,
-          style: TextStyle(
-            fontSize: 14,
-            color: colorScheme.onSurfaceVariant,
-            height: 1.5,
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                state == ProjectState.detailedAnalysis
+                    ? l10n.detailedAnalysisTitle
+                    : l10n.preValidationTitle,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface.withValues(alpha: 0.85),
+                ),
+              ),
+            ),
+            Tooltip(
+              message: state == ProjectState.detailedAnalysis ? l10n.detailedAnalysisDesc : l10n.preValidationDesc,
+              triggerMode: TooltipTriggerMode.tap,
+              showDuration: const Duration(seconds: 4),
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.symmetric(horizontal: 24),
+              decoration: BoxDecoration(
+                color: colorScheme.inverseSurface,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              textStyle: TextStyle(color: colorScheme.onInverseSurface, fontSize: 14),
+              child: IconButton(
+                icon: Icon(Icons.info_outline, color: colorScheme.onSurfaceVariant),
+                onPressed: () {}, // Tooltip handles tap
+              ),
+            ),
+          ],
         ),
       ],
     );
   }
 }
 
+// Skeleton shown while MyProjectProvider initializes in background
+class _ProjectLoadingSkeleton extends StatefulWidget {
+  const _ProjectLoadingSkeleton();
+
+  @override
+  State<_ProjectLoadingSkeleton> createState() => _ProjectLoadingSkeletonState();
+}
+
+class _ProjectLoadingSkeletonState extends State<_ProjectLoadingSkeleton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _opacity;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat(reverse: true);
+    _opacity = Tween<double>(begin: 0.3, end: 0.7).animate(_controller);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Widget _bar({double width = double.infinity, double height = 14, double radius = 6}) {
+    final color = Theme.of(context).colorScheme.surfaceContainerHighest;
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(radius),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _opacity,
+      builder: (_, _) => Opacity(
+        opacity: _opacity.value,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Innovation card skeleton
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                children: [
+                  _bar(width: 140, height: 18),
+                  const SizedBox(height: 20),
+                  _bar(width: 120, height: 120, radius: 60),
+                  const SizedBox(height: 20),
+                  _bar(width: 80, height: 14),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Metrics skeleton
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _bar(width: 160, height: 18),
+                  const SizedBox(height: 24),
+                  _bar(height: 8),
+                  const SizedBox(height: 20),
+                  _bar(height: 8),
+                  const SizedBox(height: 20),
+                  _bar(height: 8),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            // Recommendations skeleton
+            _bar(width: 180, height: 18),
+            const SizedBox(height: 16),
+            for (int i = 0; i < 3; i++) ...[
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 6),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _bar(width: 180, height: 14),
+                    const SizedBox(height: 10),
+                    _bar(height: 10),
+                    const SizedBox(height: 6),
+                    _bar(width: 220, height: 10),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
 // -# 
 class _ProjectPageBody extends StatelessWidget {
   final String userId;
@@ -151,8 +310,12 @@ class _ProjectPageBody extends StatelessWidget {
             specificError: provider.documentTypeError!,
           ),
 
-        if (provider.state == ProjectState.initial ||
-            (provider.state == ProjectState.error && provider.documentTypeError == null))
+        // Show skeleton while loading initial state (provider is initializing in background)
+        if (provider.state == ProjectState.initial)
+          const _ProjectLoadingSkeleton(),
+
+        // Show upload zone only after init resolved AND there's an error (no analysis found)
+        if (provider.state == ProjectState.error && provider.documentTypeError == null)
           UploadZoneWidget(provider: provider),
 
         if (provider.state != ProjectState.initial &&
@@ -167,7 +330,7 @@ class _ProjectPageBody extends StatelessWidget {
               children: [
                 const CircularProgressIndicator(),
                 const SizedBox(height: 16),
-                Text(l10n.analyzingStructure),
+                const RepaintBoundary(child: _PreValidationLoadingTextWidget()),
                 const SizedBox(height: 32),
                 OutlinedButton.icon(
                   onPressed: () => provider.cancelAnalysis(userId),
@@ -262,6 +425,63 @@ class _ProjectPageBody extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+class _PreValidationLoadingTextWidget extends StatelessWidget {
+  const _PreValidationLoadingTextWidget();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final message = context.select<MyProjectProvider, String>((p) => p.serverPhaseMessage);
+    
+    String icon = '📄';
+    final msgLower = message.toLowerCase();
+    if (msgLower.contains('modelo') || msgLower.contains('clasificador')) {
+      icon = '🤖';
+    } else if (msgLower.contains('blacklist') || msgLower.contains('comunes')) icon = '🚫';
+    else if (msgLower.contains('secciones')) icon = '📚';
+    else if (msgLower.contains('coherencia')) icon = '⚖️';
+    else if (msgLower.contains('colision') || msgLower.contains('qdrant')) icon = '🔍';
+    else if (msgLower.contains('pre-validación')) icon = '⏳';
+
+    final displayText = message.isEmpty ? 'Iniciando pre-validación...' : message;
+
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 600),
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        return FadeTransition(
+          opacity: animation,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.2),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
+          ),
+        );
+      },
+      child: Column(
+        key: ValueKey<String>(displayText),
+        children: [
+          Text(
+            icon,
+            style: const TextStyle(fontSize: 28),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            displayText,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: colorScheme.onSurface,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 }

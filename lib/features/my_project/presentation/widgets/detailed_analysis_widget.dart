@@ -48,7 +48,7 @@ class DetailedAnalysisWidget extends StatelessWidget {
         if (recommendations.isNotEmpty)
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.only(top: 20, bottom: 12),
+            padding: const EdgeInsets.only(top: 10, bottom: 12),
             decoration: BoxDecoration(
               color: Colors.transparent,
             ),
@@ -56,7 +56,7 @@ class DetailedAnalysisWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  padding: EdgeInsets.zero,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -79,7 +79,7 @@ class DetailedAnalysisWidget extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: colorScheme.primary.withOpacity(0.12),
+                          color: colorScheme.primary.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Text(
@@ -100,10 +100,10 @@ class DetailedAnalysisWidget extends StatelessWidget {
                   if (rec['icon'] == 'account_tree') iconData = Icons.account_tree;
 
                   return Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+                    margin: const EdgeInsets.symmetric(vertical: 6.0),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: colorScheme.surfaceContainerHighest.withOpacity(0.4),
+                      color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(

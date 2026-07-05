@@ -34,11 +34,12 @@ class _SearchPageState extends State<SearchPage> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: const CorvusTopBar(),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
+      appBar: CorvusTopBar(
+        showLogo: false,
+        titleWidget: Padding(
+          padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+          child: SizedBox(
+            height: 44,
             child: TextField(
               controller: _searchController,
               autofocus: true,
@@ -50,15 +51,16 @@ class _SearchPageState extends State<SearchPage> {
                     _hasResults = false;
                   });
                 } else {
-                  setState(() {}); // to show/hide clear icon
+                  setState(() {});
                 }
               },
               decoration: InputDecoration(
                 hintText: l10n.searchFieldLabelHint,
-                prefixIcon: Icon(Icons.search, color: colorScheme.primary),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                prefixIcon: Icon(Icons.search, color: colorScheme.onSurfaceVariant),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear),
+                        icon: const Icon(Icons.clear, size: 20),
                         onPressed: () {
                           _searchController.clear();
                           setState(() {
@@ -66,16 +68,20 @@ class _SearchPageState extends State<SearchPage> {
                           });
                         },
                       )
-                    : null,
+                    : Icon(Icons.mic_none, color: colorScheme.onSurfaceVariant),
                 filled: true,
-                fillColor: colorScheme.surfaceContainerHigh,
+                fillColor: colorScheme.primary.withValues(alpha: 0.08),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(22),
                   borderSide: BorderSide.none,
                 ),
               ),
             ),
           ),
+        ),
+      ),
+      body: Column(
+        children: [
           Expanded(
             child: _hasResults
                 ? Center(

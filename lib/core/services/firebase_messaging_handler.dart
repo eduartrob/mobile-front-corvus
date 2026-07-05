@@ -1,7 +1,14 @@
+import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:mobile/core/services/notification_service.dart';
 import 'package:mobile/firebase_options.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart' as flutter_secure_storage;
+import 'package:mobile/features/notifications/data/notifications_local_data_source.dart';
+import 'package:mobile/core/router/appRouter.dart';
+import 'package:provider/provider.dart';
+import 'package:mobile/features/notifications/presentation/provider/notifications_provider.dart';
+import 'package:mobile/features/notifications/presentation/pages/notifications_page.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -9,13 +16,59 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    handleFCMMessage(message);
+    await handleFCMMessage(message);
   } catch (e) {
   }
 }
 
-void handleFCMMessage(RemoteMessage message) {
+Future<void> handleFCMMessage(RemoteMessage message) async {
   final data = message.data;
+  
+  const storage = flutter_secure_storage.FlutterSecureStorage();
+  final role = await storage.read(key: 'auth_role');
+
+  if (message.notification != null) {
+    // Guardar en SQLite (historial temporal o caché) con un ID generado para satisfacer el schema
+    await NotificationsLocalDataSource.insertNotification({
+      'id': 'temp_${DateTime.now().millisecondsSinceEpoch}',
+      'title': message.notification!.title ?? 'Nueva Notificación',
+      'body': message.notification!.body ?? '',
+      'type': data['type'] ?? 'info',
+      'timestamp': DateTime.now().toIso8601String(),
+      'isRead': 0,
+      'authorName': data['authorName'],
+      'authorPhotoUrl': data['authorPhotoUrl'],
+    });
+    
+    // Si la app está en foreground, disparar un refresco silencioso al backend
+    final context = rootNavigatorKey.currentContext;
+    if (context != null) {
+      try {
+        context.read<NotificationsProvider>().fetchNotifications(silent: true);
+      } catch(e) {
+        debugPrint('Provider no disponible en context actual');
+      }
+    }
+    
+    // Omitir alerta flotante si es un PROFESOR viendo una actualización de config o si ya estamos en la página
+    bool skipHeadsUp = false;
+    if (data['type'] == 'CONFIG_UPDATED' && role == 'PROFESOR') {
+      skipHeadsUp = true;
+    }
+    if (NotificationsPage.isOpen) {
+      skipHeadsUp = true;
+    }
+
+    if (!skipHeadsUp) {
+      NotificationService().showResultNotification(
+        message.notification!.title ?? 'Nueva Notificación',
+        message.notification!.body ?? '',
+      );
+    } else {
+      debugPrint("Alerta visual flotante omitida (es profesor o la página de notificaciones está abierta).");
+    }
+  }
+
   if (data['type'] == 'sync_progress') {
     final progress = int.tryParse(data['progress']?.toString() ?? '0') ?? 0;
     final total = int.tryParse(data['total']?.toString() ?? '100') ?? 100;
@@ -32,5 +85,15 @@ void handleFCMMessage(RemoteMessage message) {
       title: '¡Sincronización Completada!',
       message: data['message'] ?? 'Los archivos fueron vectorizados correctamente.'
     );
+  } else if (data['type'] == 'CONFIG_UPDATED') {
+    try {
+      const storage = flutter_secure_storage.FlutterSecureStorage();
+      await storage.delete(key: 'cached_prof_config');
+      await storage.delete(key: 'etag_prof_config'); // Importante borrar el ETAG para forzar refresh
+      await storage.delete(key: 'cached_cluster_stats');
+      await storage.delete(key: 'etag_cluster_stats');
+    } catch (e) {
+      // Ignorar error
+    }
   }
 }

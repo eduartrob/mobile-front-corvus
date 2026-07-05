@@ -14,7 +14,7 @@ class MetricsCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(vertical: 24),
       decoration: const BoxDecoration(
         color: Colors.transparent,
       ),
@@ -38,17 +38,20 @@ class MetricsCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 24),
-          _buildMetricBar('Rigor Académico', (metrics['academic_rigor'] ?? metrics['academic_rigor_score'] ?? 0) as int, colorScheme.primary, colorScheme),
+          _buildMetricBar('Rigor Académico', ((metrics['academic_rigor'] ?? metrics['academic_rigor_score'] ?? 0) as num).toInt(), colorScheme.primary, colorScheme),
           const SizedBox(height: 24),
-          _buildMetricBar('Relevancia Técnica', (metrics['technical_relevance'] ?? metrics['technical_relevance_score'] ?? 0) as int, colorScheme.secondary, colorScheme),
+          _buildMetricBar('Relevancia Técnica', ((metrics['technical_relevance'] ?? metrics['technical_relevance_score'] ?? 0) as num).toInt(), colorScheme.secondary, colorScheme),
           const SizedBox(height: 24),
-          _buildMetricBar('Claridad Estructural', (metrics['structural_clarity'] ?? metrics['structural_clarity_score'] ?? 0) as int, colorScheme.tertiary, colorScheme),
+          _buildMetricBar('Claridad Estructural', ((metrics['structural_clarity'] ?? metrics['structural_clarity_score'] ?? 0) as num).toInt(), colorScheme.tertiary, colorScheme),
         ],
       ),
     );
   }
 
-  Widget _buildMetricBar(String label, int value, Color color, ColorScheme colorScheme) {
+  Widget _buildMetricBar(String label, int rawValue, Color color, ColorScheme colorScheme) {
+    // Normalization: If the LLM hallucinates a 0-10 scale (e.g. returns 8 or 9 instead of 80 or 90)
+    int value = (rawValue > 0 && rawValue <= 10) ? rawValue * 10 : rawValue;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

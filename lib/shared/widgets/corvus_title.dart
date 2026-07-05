@@ -13,8 +13,9 @@ class Title extends StatelessWidget {
     return Text(
       text,
       style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-            color: Theme.of(context).colorScheme.onBackground,
-            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.85),
+            fontWeight: FontWeight.w600,
           ),
     );
   }

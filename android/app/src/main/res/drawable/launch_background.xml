@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Fondo del splash: blanco mientras Flutter inicializa -->
+<!-- Splash nativo: logo Corvus sobre fondo blanco -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@android:color/white" />
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFFF" />
+        </shape>
+    </item>
+    <item
+        android:width="200dp"
+        android:height="200dp"
+        android:gravity="center">
+        <inset android:drawable="@drawable/corvus_logo" />
+    </item>
 </layer-list>
-
