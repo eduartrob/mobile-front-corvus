@@ -35,6 +35,11 @@ class _MainLayoutState extends State<MainLayout> {
   void _onPopInvoked(bool didPop) {
     if (didPop) return;
 
+    if (GoRouter.of(context).canPop()) {
+      GoRouter.of(context).pop();
+      return;
+    }
+
     if (widget.navigationShell.currentIndex != 0) {
       widget.navigationShell.goBranch(0);
       return;
