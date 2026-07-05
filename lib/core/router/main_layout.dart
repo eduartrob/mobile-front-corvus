@@ -35,8 +35,13 @@ class _MainLayoutState extends State<MainLayout> {
   void _onPopInvoked(bool didPop) {
     if (didPop) return;
 
-    if (GoRouter.of(context).canPop()) {
-      GoRouter.of(context).pop();
+    final path = GoRouterState.of(context).uri.path;
+    final rootPaths = ['/inspiration', '/my-project', '/search', '/teams'];
+    
+    if (!rootPaths.contains(path)) {
+      if (context.canPop()) {
+        context.pop();
+      }
       return;
     }
 

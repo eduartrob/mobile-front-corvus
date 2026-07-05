@@ -26,8 +26,13 @@ class _ProfMainLayoutState extends State<ProfMainLayout> {
   void _onPopInvoked(bool didPop) {
     if (didPop) return;
 
-    if (GoRouter.of(context).canPop()) {
-      GoRouter.of(context).pop();
+    final path = GoRouterState.of(context).uri.path;
+    final rootPaths = ['/prof-dash', '/prof-reviews', '/prof-rules', '/prof-history'];
+    
+    if (!rootPaths.contains(path)) {
+      if (context.canPop()) {
+        context.pop();
+      }
       return;
     }
 
