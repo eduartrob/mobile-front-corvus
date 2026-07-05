@@ -4,6 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mobile/features/auth/data/models/user_model.dart';
 import 'package:mobile/core/network/api_config.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 abstract class AuthRemoteDataSource {
   Future<UserModel> signInWithGoogle();
@@ -14,7 +15,8 @@ abstract class AuthRemoteDataSource {
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    serverClientId: '1078483343139-2fobsjceva5r60i6vrpcg4jbjddmj4uo.apps.googleusercontent.com',
+    // En Web, no se debe pasar serverClientId porque lanza un error. Usa el del index.html
+    serverClientId: kIsWeb ? null : '1078483343139-2fobsjceva5r60i6vrpcg4jbjddmj4uo.apps.googleusercontent.com',
     scopes: ['email', 'profile'],
   );
 

@@ -8,6 +8,7 @@ import 'package:mobile/features/notifications/data/notifications_local_data_sour
 import 'package:mobile/core/router/appRouter.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/notifications/presentation/provider/notifications_provider.dart';
+import 'package:mobile/features/notifications/presentation/pages/notifications_page.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -49,14 +50,22 @@ Future<void> handleFCMMessage(RemoteMessage message) async {
       }
     }
     
-    // Si estamos logueados como PROFESOR, no mostrar la alerta flotante para estas notificaciones de configuración
-    if (!(data['type'] == 'CONFIG_UPDATED' && role == 'PROFESOR')) {
+    // Omitir alerta flotante si es un PROFESOR viendo una actualización de config o si ya estamos en la página
+    bool skipHeadsUp = false;
+    if (data['type'] == 'CONFIG_UPDATED' && role == 'PROFESOR') {
+      skipHeadsUp = true;
+    }
+    if (NotificationsPage.isOpen) {
+      skipHeadsUp = true;
+    }
+
+    if (!skipHeadsUp) {
       NotificationService().showResultNotification(
         message.notification!.title ?? 'Nueva Notificación',
         message.notification!.body ?? '',
       );
     } else {
-      debugPrint("Alerta visual flotante de config_updates omitida para el profesor.");
+      debugPrint("Alerta visual flotante omitida (es profesor o la página de notificaciones está abierta).");
     }
   }
 

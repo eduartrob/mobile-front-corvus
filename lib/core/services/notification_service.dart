@@ -1,5 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
+import 'package:go_router/go_router.dart';
+import 'package:mobile/core/router/appRouter.dart';
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
@@ -23,12 +24,25 @@ class NotificationService {
 
   Future<void> init() async {
     const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const LinuxInitializationSettings initializationSettingsLinux = LinuxInitializationSettings(
+      defaultActionName: 'Open notification',
+    );
+    
     // -# para ios y otras plataformas se configura aqui se omite por brevedad para centrarse en android
     const InitializationSettings initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
+      linux: initializationSettingsLinux,
     );
 
-    await _flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    await _flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        final context = rootNavigatorKey.currentContext;
+        if (context != null) {
+          context.push('/notifications?highlightLatest=true');
+        }
+      },
+    );
   }
 
   Future<void> requestPermission() async {

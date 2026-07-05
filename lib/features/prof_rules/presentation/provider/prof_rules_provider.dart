@@ -138,7 +138,7 @@ class ProfRulesProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> saveConfig() async {
+  Future<void> saveConfig({String? authorName, String? authorPhotoUrl}) async {
     _isSaving = true;
     _errorMessage = null;
     notifyListeners();
@@ -150,9 +150,9 @@ class ProfRulesProvider extends ChangeNotifier {
         _driveFolderId,
         _exclusionRules,
         _projectSections,
+        authorName: authorName,
+        authorPhotoUrl: authorPhotoUrl,
       );
-      // Notify students
-      await remoteDataSource.notifyRulesUpdate();
     } catch (e) {
       _errorMessage = e.toString();
     } finally {
