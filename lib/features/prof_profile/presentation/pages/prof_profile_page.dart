@@ -5,7 +5,7 @@ import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/core/theme/theme_provider.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/core/theme/app_dimens.dart';
-
+import 'package:mobile/core/constants/app_version.dart';
 import '../widgets/prof_header_info.dart';
 import '../widgets/prof_stats_card.dart';
 
@@ -259,7 +259,27 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
               ),
             ),
             
-            const SizedBox(height: 100),
+            const SizedBox(height: 24),
+            Column(
+              children: [
+                Text(
+                  'Versión ${AppVersion.version}',
+                  style: TextStyle(
+                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '© 2026 Corvus. Todos los derechos reservados.',
+                  style: TextStyle(
+                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 40),
           ],
         ),
       ),
