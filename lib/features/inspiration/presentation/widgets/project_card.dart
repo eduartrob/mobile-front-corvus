@@ -20,11 +20,6 @@ class ProjectCard extends StatelessWidget {
     }
   }
 
-  Color _viewCountColor(BuildContext context) {
-    if (project.isTrending) return Colors.orange.shade600;
-    if (project.viewCount < 10) return Colors.teal.shade600;
-    return Theme.of(context).colorScheme.onSurfaceVariant;
-  }
 
   Future<void> _handleTap(BuildContext context) async {
     if (project.analysisStatus == 'pending') {
@@ -92,16 +87,30 @@ class ProjectCard extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final bool isTrending = project.isTrending;
 
-    return Column(
-      children: [
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            _AnimatedCardWrapper(
-              onTap: () => _handleTap(context),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                color: Colors.transparent,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20), // Espaciado exterior de cada tarjeta
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          _AnimatedCardWrapper(
+            onTap: () => _handleTap(context),
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: colorScheme.outlineVariant.withValues(alpha: 0.25),
+                  width: 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: colorScheme.shadow.withValues(alpha: 0.06),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -168,13 +177,18 @@ class ProjectCard extends StatelessWidget {
                   ],
                 ),
 
-                const SizedBox(height: 10),
+              const SizedBox(height: 12),
 
-                Text(
-                  project.title,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, height: 1.2),
+              Text(
+                project.title,
+                style: TextStyle(
+                  fontSize: 18, 
+                  fontWeight: FontWeight.w700, 
+                  height: 1.2,
+                  color: colorScheme.onSurface,
                 ),
-                const SizedBox(height: 6),
+              ),
+              const SizedBox(height: 8),
 
                 Text(
                   project.description.startsWith('Este proyecto ha sido clasificado') 
@@ -243,9 +257,7 @@ class ProjectCard extends StatelessWidget {
             ),
         ],
       ),
-      const Divider(height: 1, thickness: 0.5),
-    ],
-  );
+    );
   }
 }
 
