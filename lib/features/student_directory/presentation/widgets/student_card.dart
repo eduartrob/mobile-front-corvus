@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
 import '../../domain/entities/student.dart';
 
 class StudentCard extends StatelessWidget {
@@ -110,13 +112,33 @@ class StudentCard extends StatelessWidget {
               height: 48,
               child: ElevatedButton(
                 onPressed: () {
-                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Invitación enviada a ${student.name}'),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
+                  if (student.id != null) {
+                    context.read<TeamsProvider>().sendInvitation(student.id!).then((_) {
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Invitación enviada a ${student.name}'),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }).catchError((error) {
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Error al enviar invitación: $error'),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    });
+                  } else {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Error: El estudiante no tiene ID válido'),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1E40AF), // Dark blue like in the photo

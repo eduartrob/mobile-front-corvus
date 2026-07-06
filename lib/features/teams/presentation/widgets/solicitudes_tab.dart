@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../provider/solicitudes_provider.dart';
+import '../provider/teams_provider.dart';
 import '../provider/mock_solicitudes.dart';
 
 class SolicitudesTab extends StatelessWidget {
@@ -10,8 +10,12 @@ class SolicitudesTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Consumer<SolicitudesProvider>(
+    return Consumer<TeamsProvider>(
       builder: (context, provider, child) {
+        if (provider.isLoading && provider.requests.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
         final filteredList = provider.filteredSolicitudes;
 
         return Column(
@@ -63,17 +67,52 @@ class SolicitudesTab extends StatelessWidget {
                         ],
                       ),
                     )
-                  : ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                      itemCount: filteredList.length,
-                      itemBuilder: (context, index) {
-                        final solicitud = filteredList[index];
-                        return _SolicitudCard(
-                          solicitud: solicitud,
-                          onInvite: () => provider.inviteStudent(solicitud.id),
-                          onReject: () => provider.rejectStudent(solicitud.id),
-                        );
-                      },
+                  : RefreshIndicator(
+                      onRefresh: () => provider.fetchRequests(),
+                      child: ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                        itemCount: filteredList.length,
+                        itemBuilder: (context, index) {
+                          final solicitud = filteredList[index];
+                          return _SolicitudCard(
+                            solicitud: solicitud,
+                            onReject: () {
+                              provider.cancelRequest(solicitud.id).then((_) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Solicitud cancelada / rechazada'),
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              }).catchError((error) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Error: $error'),
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              });
+                            },
+                            onAccept: () {
+                              provider.acceptRequest(solicitud.id).then((_) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Invitación aceptada. Te has unido al equipo!'),
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              }).catchError((error) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Error: $error'),
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              });
+                            },
+                          );
+                        },
+                      ),
                     ),
             ),
           ],
@@ -122,13 +161,13 @@ class SolicitudesTab extends StatelessWidget {
 
 class _SolicitudCard extends StatelessWidget {
   final Solicitud solicitud;
-  final VoidCallback onInvite;
   final VoidCallback onReject;
+  final VoidCallback onAccept;
 
   const _SolicitudCard({
     required this.solicitud,
-    required this.onInvite,
     required this.onReject,
+    required this.onAccept,
   });
 
   @override
@@ -194,64 +233,93 @@ class _SolicitudCard extends StatelessWidget {
                   ),
               ],
             ),
-            const SizedBox(height: 12),
-            Text(
-              student.bio,
-              style: TextStyle(
-                fontSize: 14,
-                color: colorScheme.onSurface.withValues(alpha: 0.8),
-                height: 1.4,
+            if (student.bio.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text(
+                student.bio,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: colorScheme.onSurface.withValues(alpha: 0.8),
+                  height: 1.4,
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: student.tags.map((tag) {
-                final isSpecial = tag == 'UI/UX';
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: isSpecial
-                        ? const Color(0xFFE0E7FF)
-                        : const Color(0xFFF3F4F6),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    tag,
-                    style: TextStyle(
-                      fontSize: 12,
+            ],
+            if (student.tags.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: student.tags.map((tag) {
+                  final isSpecial = tag == 'UI/UX';
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
                       color: isSpecial
-                          ? const Color(0xFF4338CA)
-                          : const Color(0xFF374151),
-                      fontWeight: FontWeight.w600,
+                          ? const Color(0xFFE0E7FF)
+                          : const Color(0xFFF3F4F6),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ),
-                );
-              }).toList(),
-            ),
+                    child: Text(
+                      tag,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isSpecial
+                            ? const Color(0xFF4338CA)
+                            : const Color(0xFF374151),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
             if (solicitud.state == SolicitudState.enviada) ...[
               const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: OutlinedButton(
-                  onPressed: onReject,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.red.shade400,
-                    side: BorderSide(color: Colors.red.shade200),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: onReject,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.red.shade400,
+                        side: BorderSide(color: Colors.red.shade200),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      child: const Text(
+                        'Rechazar / Cancelar',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
-                  child: const Text(
-                    'Cancelar solicitud',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: onAccept,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colorScheme.primary,
+                        foregroundColor: colorScheme.onPrimary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        elevation: 0,
+                      ),
+                      child: const Text(
+                        'Aceptar',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
             ],
           ],
