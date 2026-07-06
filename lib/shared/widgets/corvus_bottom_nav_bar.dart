@@ -156,7 +156,7 @@ class _CustomNavItemState extends State<CustomNavItem> with TickerProviderStateM
                               width: 32,
                               height: 32,
                               decoration: BoxDecoration(
-                                color: colorScheme.primary.withValues(alpha: 0.25),
+                                color: colorScheme.primaryContainer, // Quitamos la opacidad para que el color sea sólido y más visible
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),

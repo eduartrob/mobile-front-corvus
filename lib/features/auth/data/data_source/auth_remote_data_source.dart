@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 abstract class AuthRemoteDataSource {
   Future<UserModel> signInWithGoogle();
   Future<bool> requestDriveScope();
+  Future<bool> requestClassroomScopes(String jwtToken);
   Future<String?> getDriveAccessToken();
   Future<void> signOutFromGoogle();
 }
@@ -26,17 +27,104 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<String?> getDriveAccessToken() async {
-    GoogleSignInAccount? user = _googleSignIn.currentUser;
-    if (user == null) {
-      try {
-        user = await _googleSignIn.signInSilently();
-      } catch (e) {
-        print('Error silent sign in: $e');
-      }
+  Future<bool> requestClassroomScopes(String jwtToken) async {
+    bool success = await _googleSignIn.requestScopes([
+      'https://www.googleapis.com/auth/classroom.courses.readonly',
+      'https://www.googleapis.com/auth/classroom.courseworkmaterials.readonly',
+      'https://www.googleapis.com/auth/drive.readonly'
+    ]);
+    
+    if (success) {
+      // Fire and forget to not block the UI
+      _syncClassroomMaterials(jwtToken);
     }
-    final GoogleSignInAuthentication? auth = await user?.authentication;
-    return auth?.accessToken;
+    
+    return success;
+  }
+
+  Future<void> _syncClassroomMaterials(String jwtToken) async {
+    try {
+      final token = await getDriveAccessToken();
+      if (token == null) return;
+      
+      GoogleSignInAccount? user = _googleSignIn.currentUser;
+      final teacherId = user?.id ?? "unknown";
+
+      // 1. Fetch classroom courses
+      final response = await http.get(
+        Uri.parse('https://classroom.googleapis.com/v1/courses?courseStates=ACTIVE'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final courses = data['courses'] as List<dynamic>? ?? [];
+
+        for (var course in courses) {
+          final courseId = course['id'];
+          final teacherFolder = course['teacherFolder'];
+          final ownerId = course['ownerId'];
+          print('DEBUG: Course $courseId ownerId: $ownerId');
+          
+          if (teacherFolder != null && teacherFolder['id'] != null) {
+            final folderId = teacherFolder['id'];
+            
+            // 2. Send to backend ingest
+            try {
+              final ingestUrl = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/subject/ingest');
+              final ingestResponse = await http.post(
+                ingestUrl,
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Bearer $jwtToken',
+                },
+                body: jsonEncode({
+                  'course_id': courseId.toString(),
+                  'teacher_id': teacherId.toString(),
+                  'folder_id': folderId.toString(),
+                  'access_token': token,
+                }),
+              );
+              print('Ingest for $courseId: ${ingestResponse.statusCode}');
+            } catch (e) {
+              print('Error calling ingest for $courseId: $e');
+            }
+          }
+        }
+      } else {
+        print('Error fetching courses: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e) {
+      print('Error in _syncClassroomMaterials: $e');
+    }
+  }
+
+
+  @override
+  Future<String?> getDriveAccessToken() async {
+    try {
+      final googleSignInForDrive = GoogleSignIn(
+        serverClientId: kIsWeb ? null : '1078483343139-2fobsjceva5r60i6vrpcg4jbjddmj4uo.apps.googleusercontent.com',
+        scopes: [
+          'email',
+          'profile',
+          'https://www.googleapis.com/auth/classroom.courses.readonly',
+          'https://www.googleapis.com/auth/classroom.courseworkmaterials.readonly',
+          'https://www.googleapis.com/auth/drive.readonly'
+        ],
+      );
+      final user = await googleSignInForDrive.signInSilently();
+      if (user != null) {
+        final GoogleSignInAuthentication auth = await user.authentication;
+        return auth.accessToken;
+      }
+      return null;
+    } catch (e) {
+      print('Error getting drive token: $e');
+      return null;
+    }
   }
 
   @override
