@@ -1,28 +1,13 @@
 import 'package:mobile/features/student_directory/domain/entities/student.dart';
+import 'package:mobile/features/teams/data/models/solicitud_model.dart';
 
-enum SolicitudState {
-  aceptada,
-  enviada,
-}
-
-class Solicitud {
-  final String id;
-  final Student student;
-  final SolicitudState state;
-  final DateTime date;
-
-  const Solicitud({
-    required this.id,
-    required this.student,
-    required this.state,
-    required this.date,
-  });
-}
+export 'package:mobile/features/teams/data/models/solicitud_model.dart';
 
 final List<Solicitud> mockSolicitudes = [
   Solicitud(
     id: 'sol_1',
     student: const Student(
+      id: '1',
       name: 'Elena Rodríguez',
       username: '@elena_dev',
       bio: 'Full-stack developer passionate about building scalable RAG applications and UI/UX',
@@ -36,6 +21,7 @@ final List<Solicitud> mockSolicitudes = [
   Solicitud(
     id: 'sol_2',
     student: const Student(
+      id: '2',
       name: 'Marcus Chen',
       username: '@marcus_codes',
       bio: 'Backend engineer specialized in Go, Python, and distributed systems architecture.',
@@ -49,6 +35,7 @@ final List<Solicitud> mockSolicitudes = [
   Solicitud(
     id: 'sol_3',
     student: const Student(
+      id: '3',
       name: 'Sophia Patel',
       username: '@sophia_data',
       bio: 'Data Scientist focused on NLP, machine learning pipelines, and vector databases.',
@@ -62,6 +49,7 @@ final List<Solicitud> mockSolicitudes = [
   Solicitud(
     id: 'sol_4',
     student: const Student(
+      id: '4',
       name: 'Mateo Ruiz',
       username: '@mateo_ux',
       bio: 'Product designer creating clean, accessible, and user-centered digital experiences.',

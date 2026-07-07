@@ -9,10 +9,12 @@ import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/prof_profile/presentation/provider/linked_folders_provider.dart';
 import 'package:mobile/features/inspiration/presentation/provider/inspiration_provider.dart';
 import 'package:mobile/features/my_project/presentation/provider/my_project_provider.dart';
-import 'package:mobile/features/teams/presentation/provider/solicitudes_provider.dart';
+import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
+import 'package:mobile/features/student_directory/presentation/provider/clustering_provider.dart';
 import 'package:mobile/features/notifications/presentation/provider/notifications_provider.dart';
 import 'package:mobile/features/prof_rules/presentation/provider/prof_rules_provider.dart';
 import 'package:mobile/features/prof_rules/data/data_source/prof_rules_remote_data_source.dart';
+import 'package:mobile/features/profile/presentation/provider/profile_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -45,6 +47,8 @@ void main() async {
     remoteDataSource: ProfRulesRemoteDataSource(client: http.Client()),
   );
   final notificationsProvider = NotificationsProvider()..fetchNotifications();
+  final teamsProvider = TeamsProvider();
+  final profileProvider = ProfileProvider();
 
   await Future.wait([
     // Firebase: ~200-500ms (conexión a servidores de Google)
@@ -98,6 +102,8 @@ void main() async {
     
     inspirationProvider.loadProjects(forceRefresh: true);
     profRulesProvider.fetchData();
+    teamsProvider.fetchMyTeam();
+    profileProvider.fetchProfile();
   }
 
   // Listen for fresh logins (e.g. user presses "Continuar con Google")
@@ -120,6 +126,8 @@ void main() async {
         inspirationProvider.loadProjects(forceRefresh: true);
         profRulesProvider.fetchData();
         notificationsProvider.fetchNotifications(); // Recargar notificaciones al cambiar a alumno
+        teamsProvider.fetchMyTeam();
+        profileProvider.fetchProfile();
       }
     } else {
       FirebaseMessaging.instance.unsubscribeFromTopic('config_updates');
@@ -136,8 +144,10 @@ void main() async {
         ChangeNotifierProvider.value(value: themeProvider),
         ChangeNotifierProvider.value(value: inspirationProvider),
         ChangeNotifierProvider.value(value: profRulesProvider),
-        ChangeNotifierProvider(create: (_) => SolicitudesProvider()),
+        ChangeNotifierProvider.value(value: teamsProvider),
+        ChangeNotifierProvider(create: (_) => ClusteringProvider()),
         ChangeNotifierProvider.value(value: notificationsProvider),
+        ChangeNotifierProvider.value(value: profileProvider),
       ],
       child: const MyApp(),
     ),
