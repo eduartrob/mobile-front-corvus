@@ -1,32 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 import 'package:mobile/features/teams/presentation/widgets/team_member_card.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile/features/teams/data/models/team_model.dart';
+import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
 
 class TeamMembersList extends StatelessWidget {
-  final String myAvatarUrl;
-  final String? userName;
-  final String? userEmail;
+  final List<TeamMemberModel> members;
+  final String currentUserId;
 
   const TeamMembersList({
     super.key,
-    required this.myAvatarUrl,
-    this.userName,
-    this.userEmail,
+    required this.members,
+    required this.currentUserId,
   });
 
-  void _showUpcomingFeature(BuildContext context, AppLocalizations l10n) {
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(l10n.featureUpcoming),
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
-  void _showRemoveConfirmationDialog(BuildContext context, String memberName) {
+  void _showRemoveConfirmationDialog(BuildContext context, TeamMemberModel member) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -49,7 +38,7 @@ class TeamMembersList extends StatelessWidget {
             ),
           ),
           content: Text(
-            'Se le notificará amablemente a $memberName que ha sido removido del equipo. Esta acción no se puede deshacer.',
+            'Se le notificará a ${member.name} que ha sido removido del equipo. Esta acción no se puede deshacer.',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: colorScheme.onSurfaceVariant,
@@ -71,15 +60,22 @@ class TeamMembersList extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                // Sin funcionar (no-op)
                 Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Acción no implementada temporalmente'),
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
+                context.read<TeamsProvider>().removeMember(member.id).then((_) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('${member.name} ha sido removido del equipo'),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }).catchError((error) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error al remover integrante: $error'),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                });
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: colorScheme.error,
@@ -101,7 +97,6 @@ class TeamMembersList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,26 +128,19 @@ class TeamMembersList extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        TeamMemberCard(
-          avatarUrl: myAvatarUrl,
-          name: userName ?? 'Alex Rivera',
-          email: userEmail ?? 'arivera@university.edu',
-          isMe: true,
-        ),
-        const SizedBox(height: 12),
-        TeamMemberCard(
-          avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBXgTC4DnAYNbbZqJiR2_eXQVjVBBU9UAfGrdGXOt0kuaQU0pB6NC2VA430rwd4RXjZ_hC5Hfq92mwXe2lxvfwHF5PEWKa6lPQkYXOsjQVHelRTzu19Dvk4rGSpIO4madR4j--BNrWFv3pXGHVjKPbA1Gwxzy-16impgeDJrVMZ3ur9i2TBCFnRgU_T3BSzAWjaze7feR8wzo2PmgLdiKJ29z5fHVKDnAVOwtf1F07fAyiIjCOTBsgAtrbB2A7g3j41-3bOoHBHjQM',
-          name: 'Elena Morales',
-          email: 'emorales@university.edu',
-          onRemove: () => _showRemoveConfirmationDialog(context, 'Elena Morales'),
-        ),
-        const SizedBox(height: 12),
-        TeamMemberCard(
-          avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCrL7ehJPOSPFx9kjB2ZvERwzM3OMH8QIwIepB1EPeDn4nneI-XG4DzjJS4U4PbpYTnR-4eZt0JNAZodSqDIh8ddQ5DaGmmlhQ0oR-bgeevIdAUyjzJPhUB5ensFdryjBeIM5P_3kvP1jO2wq1hVCHPr6ZEuQzqa2_Vs_MnF2jOpDPQtSSBSbCbNl7YS_wCAsLGUTPVjepr0lY4VoAGE3GAa5EdTE-XhuxekDzHw7L5qtKjFrupUbS_x0d3pjJUISMHWC_oG_ayC_8',
-          name: 'David Chen',
-          email: 'dchen@university.edu',
-          onRemove: () => _showRemoveConfirmationDialog(context, 'David Chen'),
-        ),
+        ...members.map((member) {
+          final isMe = member.id == currentUserId;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12.0),
+            child: TeamMemberCard(
+              avatarUrl: member.avatarUrl ?? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
+              name: member.name,
+              email: member.email,
+              isMe: isMe,
+              onRemove: isMe ? null : () => _showRemoveConfirmationDialog(context, member),
+            ),
+          );
+        }),
       ],
     );
   }
