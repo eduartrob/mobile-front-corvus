@@ -30,6 +30,11 @@ class ProfileCompletoModel {
   final List<dynamic> documentosConIa;
   final List<dynamic> materias;
   final List<HabilidadModel> habilidades;
+  
+  // Soporte para procesamiento asíncrono
+  final String? status;
+  final double? progress;
+  final String? message;
 
   ProfileCompletoModel({
     required this.alumno,
@@ -37,11 +42,27 @@ class ProfileCompletoModel {
     required this.documentosConIa,
     required this.materias,
     required this.habilidades,
+    this.status,
+    this.progress,
+    this.message,
   });
 
   factory ProfileCompletoModel.fromJson(Map<String, dynamic> json) {
+    final statusStr = json['status']?.toString();
     var habilidadesList = json['habilidades'] as List? ?? [];
+    
+    double? progVal;
+    if (json['progress'] != null) {
+      progVal = double.tryParse(json['progress'].toString());
+      if (progVal != null && progVal > 1.0) {
+        progVal = progVal / 100.0;
+      }
+    }
+
     return ProfileCompletoModel(
+      status: statusStr,
+      progress: progVal,
+      message: json['message']?.toString() ?? json['detail']?.toString(),
       alumno: json['alumno']?.toString() ?? '',
       resumen: json['resumen'] as Map<String, dynamic>? ?? {},
       documentosConIa: json['documentos_con_ia'] as List? ?? [],
@@ -49,4 +70,6 @@ class ProfileCompletoModel {
       habilidades: habilidadesList.map((h) => HabilidadModel.fromJson(h)).toList(),
     );
   }
+
+  bool get isProcessing => status == 'processing' || status == 'PROCESANDO';
 }
