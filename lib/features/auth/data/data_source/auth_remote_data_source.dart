@@ -18,7 +18,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     // En Web, no se debe pasar serverClientId porque lanza un error. Usa el del index.html
     serverClientId: kIsWeb ? null : '1078483343139-2fobsjceva5r60i6vrpcg4jbjddmj4uo.apps.googleusercontent.com',
-    scopes: ['email', 'profile'],
+    scopes: [
+      'email',
+      'profile',
+      'https://www.googleapis.com/auth/classroom.courses.readonly',
+      'https://www.googleapis.com/auth/classroom.student-submissions.me.readonly',
+      'https://www.googleapis.com/auth/classroom.courseworkmaterials.readonly',
+      'https://www.googleapis.com/auth/drive.readonly',
+    ],
   );
 
   @override
@@ -111,8 +118,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           'email',
           'profile',
           'https://www.googleapis.com/auth/classroom.courses.readonly',
+          'https://www.googleapis.com/auth/classroom.student-submissions.me.readonly',
           'https://www.googleapis.com/auth/classroom.courseworkmaterials.readonly',
-          'https://www.googleapis.com/auth/drive.readonly'
+          'https://www.googleapis.com/auth/drive.readonly',
         ],
       );
       final user = await googleSignInForDrive.signInSilently();

@@ -88,54 +88,81 @@ class _SugerenciasTabState extends State<SugerenciasTab> {
             Expanded(
               child: provider.isLoading && suggestions.isEmpty
                   ? const Center(child: CircularProgressIndicator())
-                  : suggestions.isEmpty
+                  : provider.errorMessage != null && suggestions.isEmpty
                       ? Center(
-                          child: Text(
-                            'No hay sugerencias con esta habilidad',
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                          child: Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.error_outline, color: Colors.red, size: 40),
+                                const SizedBox(height: 12),
+                                Text(
+                                  'Error al cargar sugerencias:\n${provider.errorMessage}',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: colorScheme.error,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                ElevatedButton.icon(
+                                  onPressed: () => provider.fetchSuggestions(skill: _selectedSkill),
+                                  icon: const Icon(Icons.refresh),
+                                  label: const Text('Reintentar'),
+                                ),
+                              ],
                             ),
                           ),
                         )
-                      : RefreshIndicator(
-                          onRefresh: () => provider.fetchSuggestions(skill: _selectedSkill),
-                          child: ListView.builder(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                            itemCount: suggestions.length,
-                            itemBuilder: (context, index) {
-                              final student = suggestions[index];
-                              return InvitationCard(
-                                name: student.name,
-                                username: student.username,
-                                bio: student.bio,
-                                tags: student.tags,
-                                avatarUrl: student.avatarUrl,
-                                onSendRequest: () {
-                                  if (student.id != null) {
-                                    provider.sendInvitation(student.id!).then((_) {
-                                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text('Invitación enviada a ${student.name}'),
-                                          behavior: SnackBarBehavior.floating,
-                                        ),
-                                      );
-                                    }).catchError((error) {
-                                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text('Error al enviar invitación: $error'),
-                                          behavior: SnackBarBehavior.floating,
-                                        ),
-                                      );
-                                    });
-                                  }
+                      : suggestions.isEmpty
+                          ? Center(
+                              child: Text(
+                                'No hay sugerencias con esta habilidad',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                                ),
+                              ),
+                            )
+                          : RefreshIndicator(
+                              onRefresh: () => provider.fetchSuggestions(skill: _selectedSkill),
+                              child: ListView.builder(
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                                itemCount: suggestions.length,
+                                itemBuilder: (context, index) {
+                                  final student = suggestions[index];
+                                  return InvitationCard(
+                                    name: student.name,
+                                    username: student.username,
+                                    bio: student.bio,
+                                    tags: student.tags,
+                                    avatarUrl: student.avatarUrl,
+                                    onSendRequest: () {
+                                      if (student.id != null) {
+                                        provider.sendInvitation(student.id!).then((_) {
+                                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text('Invitación enviada a ${student.name}'),
+                                              behavior: SnackBarBehavior.floating,
+                                            ),
+                                          );
+                                        }).catchError((error) {
+                                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text('Error al enviar invitación: $error'),
+                                              behavior: SnackBarBehavior.floating,
+                                            ),
+                                          );
+                                        });
+                                      }
+                                    },
+                                  );
                                 },
-                              );
-                            },
-                          ),
-                        ),
+                              ),
+                            ),
             ),
           ],
         );
