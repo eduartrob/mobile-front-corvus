@@ -8,6 +8,7 @@ import 'package:mobile/features/auth/domain/use_cases/request_drive_scope_usecas
 import 'package:mobile/features/auth/domain/use_cases/get_drive_access_token_usecase.dart';
 import 'package:mobile/features/auth/domain/use_cases/request_classroom_scopes_usecase.dart';
 import 'package:mobile/features/auth/domain/use_cases/sign_out_from_google_usecase.dart';
+import 'package:mobile/features/auth/domain/use_cases/login_with_email_usecase.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 
 import 'package:mobile/features/prof_profile/data/data_source/sync_remote_data_source.dart';
@@ -52,6 +53,9 @@ void setupDependencies() {
     () => RequestDriveScopeUseCase(sl()),
   );
   sl.registerLazySingleton(
+    () => LoginWithEmailUseCase(sl()),
+  );
+  sl.registerLazySingleton(
     () => RequestClassroomScopesUseCase(sl()),
   );
   sl.registerLazySingleton(
@@ -73,6 +77,7 @@ void setupDependencies() {
   sl.registerFactory(
     () => AuthProvider(
       signInWithGoogleUseCase: sl(),
+      loginWithEmailUseCase: sl(),
       requestDriveScopeUseCase: sl(),
       requestClassroomScopesUseCase: sl(),
       getDriveAccessTokenUseCase: sl(),

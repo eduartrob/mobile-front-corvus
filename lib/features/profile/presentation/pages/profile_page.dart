@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/features/profile/presentation/pages/edit_profile_page.dart' as mobile;
+import 'package:mobile/features/profile/presentation/pages/settings_page.dart' as mobile;
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
@@ -84,8 +86,6 @@ class _ProfilePageState extends State<ProfilePage> {
               
               const SizedBox(height: 20),
               
-              const StudentStatsCard(),
-              
               const SizedBox(height: 20),
               
               const TechnicalSkillsSection(),
@@ -96,117 +96,48 @@ class _ProfilePageState extends State<ProfilePage> {
               
               const SizedBox(height: 24),
               
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: const BoxDecoration(
-                  color: Colors.transparent,
+              const SizedBox(height: 32),
+              
+              Card(
+                elevation: 0,
+                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
                 ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Icon(Icons.palette, color: colorScheme.primary),
-                        const SizedBox(width: 8),
-                        Text(
-                          l10n.appearance,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
+                    ListTile(
+                      leading: Icon(Icons.edit, color: colorScheme.primary),
+                      title: const Text('Editar Perfil', style: TextStyle(fontWeight: FontWeight.bold)),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      onTap: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const mobile.EditProfilePage()),
+                        );
+                        if (context.mounted) {
+                          context.read<ProfileProvider>().getPerfilCompleto();
+                          context.read<AuthProvider>().checkAuthStatus();
+                        }
+                      },
                     ),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      width: double.infinity,
-                      child: SegmentedButton<ThemeMode>(
-                        segments: [
-                          ButtonSegment(
-                            value: ThemeMode.system,
-                            icon: const Icon(Icons.settings),
-                            label: Text(l10n.themeSystem),
-                          ),
-                          ButtonSegment(
-                            value: ThemeMode.light,
-                            icon: const Icon(Icons.wb_sunny),
-                            label: Text(l10n.themeLight),
-                          ),
-                          ButtonSegment(
-                            value: ThemeMode.dark,
-                            icon: const Icon(Icons.nightlight_round),
-                            label: Text(l10n.themeDark),
-                          ),
-                        ],
-                        selected: {context.watch<ThemeProvider>().themeMode},
-                        onSelectionChanged: (Set<ThemeMode> newSelection) {
-                          context.read<ThemeProvider>().setThemeMode(newSelection.first);
-                        },
-                        style: ButtonStyle(
-                          side: WidgetStateProperty.all(BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.5))),
-                        ),
-                      ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: Icon(Icons.settings, color: colorScheme.primary),
+                      title: const Text('Configuración', style: TextStyle(fontWeight: FontWeight.bold)),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const mobile.SettingsPage()),
+                        );
+                      },
                     ),
                   ],
                 ),
               ),
               
-              const SizedBox(height: 40),
-              
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton.icon(
-                  onPressed: () async {
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (context) => const Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
-                    
-                    await context.read<AuthProvider>().logout();
-                    
-                    if (context.mounted) {
-                      Navigator.of(context).pop();
-                      context.go('/');
-                    }
-                  },
-                  icon: const Icon(Icons.logout),
-                  label: Text(l10n.logout, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: colorScheme.errorContainer,
-                    foregroundColor: colorScheme.error,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ),
-              
-              const SizedBox(height: 24),
-              Column(
-                children: [
-                  Text(
-                    'Versión ${AppVersion.version}',
-                    style: TextStyle(
-                      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '© 2026 Corvus. Todos los derechos reservados.',
-                    style: TextStyle(
-                      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
               const SizedBox(height: 40),
             ],
           ),
@@ -215,3 +146,4 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 }
+

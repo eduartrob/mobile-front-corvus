@@ -57,4 +57,53 @@ class ProfileProvider extends ChangeNotifier {
       }
     }
   }
+
+  Future<void> updateProfile({
+    required String fullName,
+    required String enrollmentId,
+    required String semester,
+    required List<String> skills,
+  }) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await remoteDataSource.updateProfile(
+        fullName: fullName,
+        enrollmentId: enrollmentId,
+        semester: semester,
+        skills: skills,
+      );
+      await fetchProfile(forceRefresh: true);
+    } catch (e) {
+      _errorMessage = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      throw Exception(_errorMessage);
+    }
+  }
+
+  Future<void> requestVerificationCode() async {
+    try {
+      await remoteDataSource.requestVerificationCode();
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
+  Future<void> confirmVerificationCode(String code) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await remoteDataSource.confirmVerificationCode(code);
+      await fetchProfile(forceRefresh: true);
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      throw Exception(e.toString());
+    }
+  }
 }

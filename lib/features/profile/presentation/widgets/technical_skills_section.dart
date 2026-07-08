@@ -438,19 +438,14 @@ class TechnicalSkillsSection extends StatelessWidget {
                 children: [
                   Icon(Icons.code, color: colorScheme.primary),
                   const SizedBox(width: 8),
-                  Text(
-                    l10n.technicalSkills,
-                    style: const TextStyle(
+                  const Text(
+                    'Habilidades',
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
-              ),
-              IconButton(
-                icon: const Icon(Icons.psychology),
-                tooltip: 'Calcular Habilidades con IA',
-                onPressed: () => _recalculateSkills(context, profileProvider),
               ),
             ],
           ),

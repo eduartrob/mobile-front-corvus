@@ -87,16 +87,47 @@ class TeamsRemoteDataSource {
     }
   }
 
-  // 👥 GET /teams/suggestions
+  // GET /clustering/teams/suggestions
   Future<List<Student>> getSuggestions({String? skill}) async {
     var uriString = '${ApiConfig.apiGatewayUrl}/teams/suggestions';
-    if (skill != null && skill.isNotEmpty && skill != 'All Skills') {
+    if (skill != null && skill.isNotEmpty && skill.toLowerCase() != 'all skills') {
       uriString += '?skill=${Uri.encodeComponent(skill)}';
     }
+    
     final url = Uri.parse(uriString);
 
     try {
-      final response = await client.get(url, headers: ApiConfig.defaultHeaders).timeout(ApiConfig.connectionTimeout);
+      final response = await client.get(
+        url, 
+        headers: ApiConfig.defaultHeaders
+      ).timeout(ApiConfig.connectionTimeout);
+
+      if (response.statusCode == 200) {
+        final List body = json.decode(utf8.decode(response.bodyBytes));
+        return body.map((item) => Student.fromJson(item)).toList();
+      } else {
+        _handleError(response);
+      }
+    } catch (e) {
+      throw Exception(e.toString().replaceAll('Exception: ', ''));
+    }
+    return [];
+  }
+
+  // GET /clustering/teams/students
+  Future<List<Student>> getStudentDirectory({String? skill}) async {
+    var uriString = '${ApiConfig.apiGatewayUrl}/teams/students';
+    if (skill != null && skill.isNotEmpty && skill.toLowerCase() != 'all skills') {
+      uriString += '?skill=${Uri.encodeComponent(skill)}';
+    }
+    
+    final url = Uri.parse(uriString);
+
+    try {
+      final response = await client.get(
+        url, 
+        headers: ApiConfig.defaultHeaders
+      ).timeout(ApiConfig.connectionTimeout);
 
       if (response.statusCode == 200) {
         final List body = json.decode(utf8.decode(response.bodyBytes));

@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 abstract class AuthRemoteDataSource {
   Future<UserModel> signInWithGoogle();
+  Future<UserModel> loginWithEmail(String email, String password);
   Future<bool> requestDriveScope();
   Future<bool> requestClassroomScopes(String jwtToken);
   Future<String?> getDriveAccessToken();
@@ -132,6 +133,34 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } catch (e) {
       print('Error getting drive token: $e');
       return null;
+    }
+  }
+
+  @override
+  Future<UserModel> loginWithEmail(String email, String password) async {
+    try {
+      final targetUrl = '${ApiConfig.apiGatewayUrl}/auth/login';
+      final response = await http.post(
+        Uri.parse(targetUrl),
+        headers: ApiConfig.defaultHeaders,
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+        }),
+      ).timeout(ApiConfig.connectionTimeout);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['user'] == null) {
+          throw Exception('La respuesta del backend no contiene los datos del usuario.');
+        }
+        return UserModel.fromJson(data);
+      } else {
+        final errorData = jsonDecode(response.body);
+        throw Exception(errorData['error'] ?? 'Error desconocido del servidor');
+      }
+    } catch (e) {
+      throw Exception('Excepción durante loginWithEmail: $e');
     }
   }
 

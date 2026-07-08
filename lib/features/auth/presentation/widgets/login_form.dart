@@ -28,7 +28,7 @@ class _LoginFormState extends State<LoginForm> {
     super.dispose();
   }
 
-  void _validateAndSubmit() {
+  void _validateAndSubmit() async {
     FocusScope.of(context).unfocus();
     final email = _emailController.text.trim();
     final password = _passwordController.text;
@@ -55,10 +55,25 @@ class _LoginFormState extends State<LoginForm> {
       return;
     }
 
-    if (widget.role == 'DOCENTE' || widget.role == 'PROFESOR') {
-      context.pushReplacement('/prof-dash');
-    } else {
-      context.pushReplacement('/inspiration');
+    try {
+      await context.read<AuthProvider>().loginWithEmail(email, password);
+      
+      final authProvider = context.read<AuthProvider>();
+      if (authProvider.status == AuthStatus.authenticated) {
+        if (widget.role == 'DOCENTE' || widget.role == 'PROFESOR') {
+          context.pushReplacement('/prof-dash');
+        } else {
+          context.pushReplacement('/inspiration');
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(authProvider.errorMessage ?? 'Error al iniciar sesión')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al iniciar sesión: ${e.toString().replaceAll('Exception: ', '')}')),
+      );
     }
   }
 

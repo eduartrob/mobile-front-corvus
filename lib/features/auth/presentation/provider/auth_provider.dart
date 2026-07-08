@@ -9,11 +9,15 @@ import 'package:mobile/features/auth/domain/use_cases/sign_out_from_google_useca
 import 'package:mobile/core/services/notification_service.dart';
 import 'package:mobile/core/network/auth_interceptor_client.dart';
 import 'package:mobile/features/student_directory/data/data_source/clustering_remote_data_source.dart';
+import 'dart:convert';
+import 'package:mobile/core/network/api_config.dart';
+import 'package:mobile/features/auth/domain/use_cases/login_with_email_usecase.dart';
 
 enum AuthStatus { initial, loading, authenticated, unauthenticated, error }
 
 class AuthProvider extends ChangeNotifier {
   final SignInWithGoogleUseCase signInWithGoogleUseCase;
+  final LoginWithEmailUseCase loginWithEmailUseCase;
   final RequestDriveScopeUseCase requestDriveScopeUseCase;
   final RequestClassroomScopesUseCase requestClassroomScopesUseCase;
   final GetDriveAccessTokenUseCase getDriveAccessTokenUseCase;
@@ -22,6 +26,7 @@ class AuthProvider extends ChangeNotifier {
 
   AuthProvider({
     required this.signInWithGoogleUseCase,
+    required this.loginWithEmailUseCase,
     required this.requestDriveScopeUseCase,
     required this.requestClassroomScopesUseCase,
     required this.getDriveAccessTokenUseCase,
@@ -65,6 +70,32 @@ class AuthProvider extends ChangeNotifier {
         );
 
         _status = AuthStatus.authenticated;
+        
+        // Fetch /me to update profile info silently in background
+        apiClient.get(Uri.parse('${ApiConfig.apiGatewayUrl}/auth/me')).then((response) {
+          if (response.statusCode == 200) {
+            final data = jsonDecode(response.body);
+            final userData = data['user'];
+            if (userData != null) {
+              final updatedPhotoUrl = userData['photoUrl'];
+              final updatedName = userData['name'];
+              
+              _currentUser = _currentUser!.copyWith(
+                photoUrl: updatedPhotoUrl,
+                name: updatedName,
+              );
+              
+              if (updatedPhotoUrl != null) {
+                _storage.write(key: 'auth_photo', value: updatedPhotoUrl);
+              }
+              if (updatedName != null) {
+                _storage.write(key: 'auth_name', value: updatedName);
+              }
+              notifyListeners();
+            }
+          }
+        }).catchError((_) {});
+
       } else {
         _status = AuthStatus.unauthenticated;
       }
@@ -125,6 +156,46 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> loginWithEmail(String email, String password) async {
+    _status = AuthStatus.loading;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final user = await loginWithEmailUseCase(email, password);
+      _currentUser = user;
+      _cachedRole = user.role;
+      
+      if (user.token != null) {
+        await _storage.write(key: 'auth_token', value: user.token!);
+      }
+      if (user.role != null) {
+        await _storage.write(key: 'auth_role', value: user.role!);
+      }
+      await _storage.write(key: 'auth_id', value: user.id);
+      await _storage.write(key: 'auth_email', value: user.email);
+      await _storage.write(key: 'auth_name', value: user.name);
+      if (user.photoUrl != null) {
+        await _storage.write(key: 'auth_photo', value: user.photoUrl!);
+      }
+
+      await NotificationService().requestPermission();
+
+      try {
+        final clusteringDs = ClusteringRemoteDataSource(client: apiClient);
+        clusteringDs.syncStudentProfile().catchError((_) => <String, dynamic>{});
+      } catch (_) {}
+
+      _status = AuthStatus.authenticated;
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _status = AuthStatus.error;
+      notifyListeners();
+      throw e;
+    }
+  }
+
   Future<bool> requestDriveAccess() async {
     try {
       return await requestDriveScopeUseCase();
@@ -176,4 +247,58 @@ class AuthProvider extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
   }
+
+  Future<bool> updateProfilePicture(String base64Image) async {
+    try {
+      final token = await _storage.read(key: 'auth_token');
+      if (token == null) return false;
+
+      // Actualizar foto en el backend usando Cloudinary
+      final response = await apiClient.put(
+        Uri.parse('${ApiConfig.apiGatewayUrl}/auth/profile-picture'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'imageBase64': base64Image}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        // Backend returns { profile_picture: url } directly
+        final newPhotoUrl = data?['profile_picture'] ?? data?['user']?['profile_picture'];
+        if (newPhotoUrl != null) {
+          if (_currentUser != null) {
+            _currentUser = _currentUser!.copyWith(photoUrl: newPhotoUrl);
+          }
+          await _storage.write(key: 'auth_photo', value: newPhotoUrl);
+          notifyListeners();
+          return true;
+        }
+      }
+      return false;
+    } catch (e) {
+      print('Error al actualizar foto de perfil: $e');
+      return false;
+    }
+  }
+
+  Future<bool> deleteAccount() async {
+    try {
+      final token = await _storage.read(key: 'auth_token');
+      if (token == null) return false;
+
+      final response = await apiClient.delete(
+        Uri.parse('${ApiConfig.apiGatewayUrl}/auth/delete-account'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        await logout();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('Error al borrar cuenta: $e');
+      return false;
+    }
+  }
 }
+

@@ -218,17 +218,21 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
       // 2. Completamos el perfil del estudiante
       final response = await apiClient.put(
         Uri.parse('${ApiConfig.apiGatewayUrl}/auth/complete-student-profile'),
+        headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'full_name': provider.fullName,
           'enrollment_id': provider.matricula,
           'university_id': provider.universityId.isNotEmpty ? provider.universityId : provider.universityName,
           'career_id': provider.careerId.isNotEmpty ? provider.careerId : provider.careerName,
+          'period_number': provider.periodNumber,
           'skills': _selectedSkills,
         }),
       );
 
       if (response.statusCode == 200) {
         if (mounted) {
+          // Actualizar el estado global para que el router nos deje pasar
+          await context.read<AuthProvider>().checkAuthStatus();
           context.pushReplacement('/inspiration');
         }
       } else {
