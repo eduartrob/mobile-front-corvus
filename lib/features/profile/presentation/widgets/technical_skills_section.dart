@@ -32,7 +32,7 @@ class TechnicalSkillsSection extends StatelessWidget {
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Habilidades recalculadas con éxito.'),
+          content: Text('Análisis profundo iniciado. Esto tomará un par de minutos...'),
           behavior: SnackBarBehavior.floating,
         ),
       );

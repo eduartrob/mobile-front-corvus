@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:mobile/features/auth/presentation/widgets/login_form.dart';
 
 class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+  final String role;
+  
+  const LoginPage({super.key, this.role = 'ALUMNO'});
 
   @override
   Widget build(BuildContext context) {
@@ -17,8 +19,8 @@ class LoginPage extends StatelessWidget {
                            MediaQuery.of(context).padding.top - 
                            MediaQuery.of(context).padding.bottom,
               ),
-              child: const Center(
-                child: LoginForm(),
+              child: Center(
+                child: LoginForm(role: role),
               ),
             ),
           ),

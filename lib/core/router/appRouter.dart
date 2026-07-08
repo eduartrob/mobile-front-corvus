@@ -6,6 +6,11 @@ import 'package:provider/provider.dart';
 
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/auth/presentation/pages/login_page.dart';
+import 'package:mobile/features/auth/presentation/pages/role_selection_page.dart';
+import 'package:mobile/features/auth/presentation/pages/register_page.dart';
+import 'package:mobile/features/auth/presentation/pages/student_university_page.dart';
+import 'package:mobile/features/auth/presentation/pages/student_skills_page.dart';
+import 'package:mobile/features/auth/presentation/pages/teacher_verification_page.dart';
 import 'package:mobile/features/inspiration/presentation/pages/inspiration_page.dart';
 import 'package:mobile/features/my_project/presentation/pages/my_project_page.dart';
 import 'package:mobile/features/teams/presentation/pages/teams_page.dart';
@@ -20,11 +25,30 @@ import 'package:mobile/features/prof_profile/presentation/pages/prof_profile_pag
 import 'package:mobile/features/profile/presentation/pages/activity_history_page.dart';
 import 'package:mobile/core/router/main_layout.dart';
 import 'package:mobile/core/router/prof_main_layout.dart';
-import 'package:mobile/core/router/root_tab_pop_scope.dart';
+
 import 'package:mobile/features/student_directory/presentation/pages/student_directory_page.dart';
 import 'package:mobile/features/notifications/presentation/pages/notifications_page.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
+
+CustomTransitionPage _buildSlideTransition(Widget child, LocalKey key) {
+  return CustomTransitionPage(
+    key: key,
+    child: child,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(1.0, 0.0),
+          end: Offset.zero,
+        ).animate(CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+        )),
+        child: child,
+      );
+    },
+  );
+}
 
 class AppRouter extends StatelessWidget {
   final ThemeData? appTheme;
@@ -46,7 +70,9 @@ class AppRouter extends StatelessWidget {
 
       redirect: (context, state) {
         final authStatus = authProvider.status;
-        final isGoingToLogin = state.matchedLocation == '/';
+        final isAuthRoute = state.matchedLocation == '/' || 
+                            state.matchedLocation == '/login' || 
+                            state.matchedLocation.startsWith('/register');
 
         // During active login (user pressed "Continuar con Google"), stay on login page.
         // At startup, checkAuthStatus() is awaited before runApp() so initial/loading
@@ -55,12 +81,12 @@ class AppRouter extends StatelessWidget {
           return null;
         }
 
-        if (authStatus != AuthStatus.authenticated && !isGoingToLogin) {
+        if (authStatus != AuthStatus.authenticated && !isAuthRoute) {
           return '/';
         }
 
-        if (authStatus == AuthStatus.authenticated && isGoingToLogin) {
-          if (authProvider.role == 'PROFESOR') {
+        if (authStatus == AuthStatus.authenticated && isAuthRoute) {
+          if (authProvider.role == 'PROFESOR' || authProvider.role == 'DOCENTE') {
             return '/prof-dash';
           }
           return '/inspiration';
@@ -72,7 +98,37 @@ class AppRouter extends StatelessWidget {
       routes: [
         GoRoute(
           path: '/',
-          builder: (context, state) => const LoginPage(),
+          pageBuilder: (context, state) => _buildSlideTransition(const RoleSelectionPage(), state.pageKey),
+        ),
+        GoRoute(
+          path: '/login',
+          pageBuilder: (context, state) {
+            final role = state.extra as String? ?? 'ALUMNO';
+            return _buildSlideTransition(LoginPage(role: role), state.pageKey);
+          },
+        ),
+        GoRoute(
+          path: '/register',
+          pageBuilder: (context, state) {
+            final role = state.extra as String? ?? 'ALUMNO';
+            return _buildSlideTransition(RegisterPage(role: role), state.pageKey);
+          },
+        ),
+        GoRoute(
+          path: '/register-student-university',
+          pageBuilder: (context, state) => _buildSlideTransition(const StudentUniversityPage(), state.pageKey),
+        ),
+        GoRoute(
+          path: '/register-student-skills',
+          pageBuilder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>? ?? {};
+            final skills = (extra['skills'] as List<dynamic>?)?.cast<String>() ?? [];
+            return _buildSlideTransition(StudentSkillsPage(suggestedSkills: skills), state.pageKey);
+          },
+        ),
+        GoRoute(
+          path: '/register-teacher-verification',
+          pageBuilder: (context, state) => _buildSlideTransition(const TeacherVerificationPage(), state.pageKey),
         ),
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) {
@@ -83,10 +139,7 @@ class AppRouter extends StatelessWidget {
               routes: [
                 GoRoute(
                   path: '/inspiration',
-                  builder: (context, state) => const RootTabPopScope(
-                    fallbackPath: '/inspiration',
-                    child: InspirationPage(),
-                  ),
+                  builder: (context, state) => const InspirationPage(),
                 ),
               ],
             ),
@@ -94,10 +147,7 @@ class AppRouter extends StatelessWidget {
               routes: [
                 GoRoute(
                   path: '/my-project',
-                  builder: (context, state) => const RootTabPopScope(
-                    fallbackPath: '/inspiration',
-                    child: MyProjectPage(),
-                  ),
+                  builder: (context, state) => const MyProjectPage(),
                 ),
               ],
             ),
@@ -105,10 +155,7 @@ class AppRouter extends StatelessWidget {
               routes: [
                 GoRoute(
                   path: '/search',
-                  builder: (context, state) => const RootTabPopScope(
-                    fallbackPath: '/inspiration',
-                    child: SearchPage(),
-                  ),
+                  builder: (context, state) => const SearchPage(),
                 ),
               ],
             ),
@@ -116,10 +163,7 @@ class AppRouter extends StatelessWidget {
               routes: [
                 GoRoute(
                   path: '/teams',
-                  builder: (context, state) => const RootTabPopScope(
-                    fallbackPath: '/inspiration',
-                    child: TeamsPage(),
-                  ),
+                  builder: (context, state) => const TeamsPage(),
                 ),
               ],
             ),
@@ -135,10 +179,7 @@ class AppRouter extends StatelessWidget {
               routes: [
                 GoRoute(
                   path: '/prof-dash',
-                  builder: (context, state) => const RootTabPopScope(
-                    fallbackPath: '/prof-dash',
-                    child: ProfDashPage(),
-                  ),
+                  builder: (context, state) => const ProfDashPage(),
                 ),
               ],
             ),
@@ -146,10 +187,7 @@ class AppRouter extends StatelessWidget {
               routes: [
                 GoRoute(
                   path: '/prof-reviews',
-                  builder: (context, state) => const RootTabPopScope(
-                    fallbackPath: '/prof-dash',
-                    child: ProfReviewsPage(),
-                  ),
+                  builder: (context, state) => const ProfReviewsPage(),
                 ),
               ],
             ),
@@ -157,10 +195,7 @@ class AppRouter extends StatelessWidget {
               routes: [
                 GoRoute(
                   path: '/prof-rules',
-                  builder: (context, state) => const RootTabPopScope(
-                    fallbackPath: '/prof-dash',
-                    child: ProfRulesPage(),
-                  ),
+                  builder: (context, state) => const ProfRulesPage(),
                 ),
               ],
             ),
@@ -168,10 +203,7 @@ class AppRouter extends StatelessWidget {
               routes: [
                 GoRoute(
                   path: '/prof-history',
-                  builder: (context, state) => const RootTabPopScope(
-                    fallbackPath: '/prof-dash',
-                    child: ProfHistoryPage(),
-                  ),
+                  builder: (context, state) => const ProfHistoryPage(),
                 ),
               ],
             ),

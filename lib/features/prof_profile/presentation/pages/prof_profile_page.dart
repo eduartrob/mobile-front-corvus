@@ -21,6 +21,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
   bool course1Enabled = true;
   bool course2Enabled = true;
   bool course3Enabled = false;
+  bool _isSyncing = false;
 
   void _showUpcomingFeature(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -205,35 +206,49 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                     width: double.infinity,
                     height: 48,
                     child: ElevatedButton.icon(
-                      onPressed: () async {
-                        final authProvider = context.read<AuthProvider>();
-                        final success = await authProvider.requestClassroomScopes();
+                      onPressed: _isSyncing ? null : () async {
+                        setState(() {
+                          _isSyncing = true;
+                        });
                         
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                          if (success) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('¡Sincronización automática de Classroom activada!'),
-                                backgroundColor: Colors.green,
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Autorización cancelada o fallida.'),
-                                backgroundColor: Colors.redAccent,
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
+                        final authProvider = context.read<AuthProvider>();
+                        try {
+                          final success = await authProvider.requestClassroomScopes();
+                          
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                            if (success) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('¡Materiales sincronizados correctamente!'),
+                                  backgroundColor: Colors.green,
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Autorización cancelada o fallida.'),
+                                  backgroundColor: Colors.redAccent,
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            }
+                          }
+                        } finally {
+                          if (mounted) {
+                            setState(() {
+                              _isSyncing = false;
+                            });
                           }
                         }
                       },
-                      icon: const Icon(Icons.school),
-                      label: const Text(
-                        'Autorizar y Sincronizar Material',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                      icon: _isSyncing 
+                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) 
+                          : const Icon(Icons.school),
+                      label: Text(
+                        _isSyncing ? 'Sincronizando... por favor espera' : 'Autorizar y Sincronizar Material',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: colorScheme.primary,

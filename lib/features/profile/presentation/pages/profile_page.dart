@@ -36,6 +36,8 @@ class _ProfilePageState extends State<ProfilePage> {
     final l10n = AppLocalizations.of(context)!;
     final authProvider = context.watch<AuthProvider>();
     final user = authProvider.currentUser;
+    final profileProvider = context.watch<ProfileProvider>();
+    final isProcessing = profileProvider.profile?.isProcessing == true;
 
     return Scaffold(
       appBar: AppBar(
@@ -51,6 +53,34 @@ class _ProfilePageState extends State<ProfilePage> {
           child: Column(
             children: [
               StudentHeaderInfo(user: user),
+              
+              if (isProcessing) ...[
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(colorScheme.onPrimaryContainer),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Text(
+                          "La IA de Corvus está analizando tus tareas y perfil en segundo plano. Esto tomará unos segundos...",
+                          style: TextStyle(
+                            color: colorScheme.onPrimaryContainer,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               
               const SizedBox(height: 20),
               

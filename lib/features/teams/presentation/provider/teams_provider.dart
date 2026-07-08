@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile/core/network/auth_interceptor_client.dart';
 import 'package:mobile/features/student_directory/domain/entities/student.dart';
 import 'package:mobile/features/teams/data/models/team_model.dart';
 import 'package:mobile/features/teams/data/models/solicitud_model.dart';
@@ -14,7 +15,7 @@ class TeamsProvider extends ChangeNotifier {
   final TeamsRemoteDataSource remoteDataSource;
 
   TeamsProvider({TeamsRemoteDataSource? remoteDataSource})
-      : remoteDataSource = remoteDataSource ?? TeamsRemoteDataSource(client: http.Client());
+      : remoteDataSource = remoteDataSource ?? TeamsRemoteDataSource(client: apiClient);
 
   TeamModel? _myTeam;
   List<Student> _suggestions = [];

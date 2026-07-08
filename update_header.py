@@ -1,3 +1,9 @@
+import re
+
+with open("lib/features/profile/presentation/widgets/student_header_info.dart", "r") as f:
+    content = f.read()
+
+replacement = """
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:mobile/features/auth/domain/entities/user_entity.dart';
@@ -114,3 +120,7 @@ class _StudentHeaderInfoState extends State<StudentHeaderInfo> {
     );
   }
 }
+"""
+
+with open("lib/features/profile/presentation/widgets/student_header_info.dart", "w") as f:
+    f.write(replacement.strip() + "\n")

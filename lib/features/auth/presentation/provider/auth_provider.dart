@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:mobile/core/services/secure_storage_service.dart';
 import 'package:mobile/features/auth/domain/entities/user_entity.dart';
 import 'package:mobile/features/auth/domain/use_cases/sign_in_with_google_usecase.dart';
 import 'package:mobile/features/auth/domain/use_cases/request_drive_scope_usecase.dart';
@@ -7,6 +7,8 @@ import 'package:mobile/features/auth/domain/use_cases/get_drive_access_token_use
 import 'package:mobile/features/auth/domain/use_cases/request_classroom_scopes_usecase.dart';
 import 'package:mobile/features/auth/domain/use_cases/sign_out_from_google_usecase.dart';
 import 'package:mobile/core/services/notification_service.dart';
+import 'package:mobile/core/network/auth_interceptor_client.dart';
+import 'package:mobile/features/student_directory/data/data_source/clustering_remote_data_source.dart';
 
 enum AuthStatus { initial, loading, authenticated, unauthenticated, error }
 
@@ -16,7 +18,7 @@ class AuthProvider extends ChangeNotifier {
   final RequestClassroomScopesUseCase requestClassroomScopesUseCase;
   final GetDriveAccessTokenUseCase getDriveAccessTokenUseCase;
   final SignOutFromGoogleUseCase signOutFromGoogleUseCase;
-  final FlutterSecureStorage _storage;
+  final SecureStorageService _storage;
 
   AuthProvider({
     required this.signInWithGoogleUseCase,
@@ -24,8 +26,8 @@ class AuthProvider extends ChangeNotifier {
     required this.requestClassroomScopesUseCase,
     required this.getDriveAccessTokenUseCase,
     required this.signOutFromGoogleUseCase,
-    FlutterSecureStorage? storage,
-  }) : _storage = storage ?? const FlutterSecureStorage();
+    SecureStorageService? storage,
+  }) : _storage = storage ?? SecureStorageService();
 
   AuthStatus _status = AuthStatus.initial;
   UserEntity? _currentUser;
@@ -83,19 +85,25 @@ class AuthProvider extends ChangeNotifier {
       _cachedRole = user.role;
       
       if (user.token != null) {
-        await _storage.write(key: 'auth_token', value: user.token);
+        await _storage.write(key: 'auth_token', value: user.token!);
       }
       if (user.role != null) {
-        await _storage.write(key: 'auth_role', value: user.role);
+        await _storage.write(key: 'auth_role', value: user.role!);
       }
       await _storage.write(key: 'auth_id', value: user.id);
       await _storage.write(key: 'auth_email', value: user.email);
       await _storage.write(key: 'auth_name', value: user.name);
       if (user.photoUrl != null) {
-        await _storage.write(key: 'auth_photo', value: user.photoUrl);
+        await _storage.write(key: 'auth_photo', value: user.photoUrl!);
       }
 
       await NotificationService().requestPermission();
+
+      try {
+        // Trigger profile parsing in background silently
+        final clusteringDs = ClusteringRemoteDataSource(client: apiClient);
+        clusteringDs.syncStudentProfile().catchError((_) => <String, dynamic>{});
+      } catch (_) {}
 
       _status = AuthStatus.authenticated;
       notifyListeners();

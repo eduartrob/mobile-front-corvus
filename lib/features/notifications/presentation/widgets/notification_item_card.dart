@@ -168,7 +168,12 @@ class _NotificationItemCardState extends State<NotificationItemCard> with Single
           child: InkWell(
             borderRadius: BorderRadius.circular(16),
             onLongPress: () {
-              context.read<NotificationsProvider>().toggleSelection(notification.id);
+              final provider = context.read<NotificationsProvider>();
+              if (!provider.isSelectionMode) {
+                provider.enterSelectionMode(notification.id);
+              } else {
+                provider.toggleSelection(notification.id);
+              }
             },
             onTap: () {
               final provider = context.read<NotificationsProvider>();

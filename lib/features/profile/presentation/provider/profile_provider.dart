@@ -2,12 +2,13 @@ import 'package:flutter/foundation.dart';
 import 'package:mobile/features/profile/data/data_source/profile_remote_data_source.dart';
 import 'package:mobile/features/profile/data/models/profile_completo_model.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile/core/network/auth_interceptor_client.dart';
 
 class ProfileProvider extends ChangeNotifier {
   final ProfileRemoteDataSource remoteDataSource;
 
   ProfileProvider({ProfileRemoteDataSource? remoteDataSource})
-      : remoteDataSource = remoteDataSource ?? ProfileRemoteDataSource(client: http.Client());
+      : remoteDataSource = remoteDataSource ?? ProfileRemoteDataSource(client: apiClient);
 
   ProfileCompletoModel? _profile;
   bool _isLoading = false;
@@ -24,11 +25,36 @@ class ProfileProvider extends ChangeNotifier {
 
     try {
       _profile = await remoteDataSource.getPerfilCompleto(forceRefresh: forceRefresh);
+      if (_profile != null && _profile!.isProcessing) {
+        _isLoading = false;
+        notifyListeners();
+        _pollProfile();
+      } else {
+        _isLoading = false;
+        notifyListeners();
+      }
     } catch (e) {
       _errorMessage = e.toString();
-    } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  void _pollProfile() async {
+    while (_profile != null && _profile!.isProcessing) {
+      await Future.delayed(const Duration(seconds: 5));
+      try {
+        final newProfile = await remoteDataSource.getPerfilCompleto(forceRefresh: false);
+        _profile = newProfile;
+        if (!_profile!.isProcessing) {
+          notifyListeners();
+          break;
+        }
+      } catch (e) {
+        _errorMessage = e.toString();
+        notifyListeners();
+        break;
+      }
     }
   }
 }

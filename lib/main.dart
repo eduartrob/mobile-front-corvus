@@ -15,7 +15,9 @@ import 'package:mobile/features/notifications/presentation/provider/notification
 import 'package:mobile/features/prof_rules/presentation/provider/prof_rules_provider.dart';
 import 'package:mobile/features/prof_rules/data/data_source/prof_rules_remote_data_source.dart';
 import 'package:mobile/features/profile/presentation/provider/profile_provider.dart';
+import 'package:mobile/features/auth/presentation/provider/registration_provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile/core/network/auth_interceptor_client.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:mobile/core/services/notification_service.dart';
@@ -44,7 +46,7 @@ void main() async {
   final themeProvider = ThemeProvider();
   final inspirationProvider = InspirationProvider();
   final profRulesProvider = ProfRulesProvider(
-    remoteDataSource: ProfRulesRemoteDataSource(client: http.Client()),
+    remoteDataSource: ProfRulesRemoteDataSource(client: apiClient),
   );
   final notificationsProvider = NotificationsProvider()..fetchNotifications();
   final teamsProvider = TeamsProvider();
@@ -148,6 +150,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ClusteringProvider()),
         ChangeNotifierProvider.value(value: notificationsProvider),
         ChangeNotifierProvider.value(value: profileProvider),
+        ChangeNotifierProvider(create: (_) => RegistrationProvider()),
       ],
       child: const MyApp(),
     ),

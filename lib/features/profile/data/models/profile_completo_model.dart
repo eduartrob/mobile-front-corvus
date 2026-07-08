@@ -30,6 +30,7 @@ class ProfileCompletoModel {
   final List<dynamic> documentosConIa;
   final List<dynamic> materias;
   final List<HabilidadModel> habilidades;
+  final bool isProcessing;
 
   ProfileCompletoModel({
     required this.alumno,
@@ -37,6 +38,7 @@ class ProfileCompletoModel {
     required this.documentosConIa,
     required this.materias,
     required this.habilidades,
+    this.isProcessing = false,
   });
 
   factory ProfileCompletoModel.fromJson(Map<String, dynamic> json) {
@@ -47,6 +49,7 @@ class ProfileCompletoModel {
       documentosConIa: json['documentos_con_ia'] as List? ?? [],
       materias: json['materias'] as List? ?? [],
       habilidades: habilidadesList.map((h) => HabilidadModel.fromJson(h)).toList(),
+      isProcessing: json['status'] == 'processing',
     );
   }
 }
