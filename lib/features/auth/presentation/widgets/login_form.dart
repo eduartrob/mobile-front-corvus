@@ -109,14 +109,18 @@ class _LoginFormState extends State<LoginForm> {
           alignment: Alignment.centerRight,
           child: Padding(
             padding: const EdgeInsets.only(top: 8.0),
-            child: GestureDetector(
+            child: InkWell(
               onTap: () {},
-              child: Text(
-                'Olvidé mi contraseña',
-                style: TextStyle(
-                  color: colors.primary,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
+              borderRadius: BorderRadius.circular(4),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+                child: Text(
+                  'Olvidé mi contraseña',
+                  style: TextStyle(
+                    color: colors.primary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ),
@@ -149,26 +153,28 @@ class _LoginFormState extends State<LoginForm> {
           builder: (context, authProvider, child) {
             final isLoading = authProvider.status == AuthStatus.loading;
             
-            return InkWell(
-              onTap: isLoading 
-                  ? null 
-                  : () async {
-                      await authProvider.signInWithGoogle();
-                    },
+            return Material(
+              color: isDark ? colors.surfaceContainer : Colors.white,
               borderRadius: BorderRadius.circular(12),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                decoration: BoxDecoration(
-                  color: isDark ? colors.surfaceContainer : Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: isDark 
-                        ? colors.outlineVariant.withValues(alpha: 0.3) 
-                        : const Color(0xFFE2E8F0),
+              child: InkWell(
+                onTap: isLoading 
+                    ? null 
+                    : () async {
+                        await authProvider.signInWithGoogle();
+                      },
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isDark 
+                          ? colors.outlineVariant.withValues(alpha: 0.3) 
+                          : const Color(0xFFE2E8F0),
+                    ),
                   ),
-                ),
-                child: Row(
+                  child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     if (isLoading)
@@ -198,7 +204,8 @@ class _LoginFormState extends State<LoginForm> {
                   ],
                 ),
               ),
-            );
+            ),
+          );
           },
         ),
         const SizedBox(height: 24),
@@ -212,16 +219,20 @@ class _LoginFormState extends State<LoginForm> {
                 fontSize: 14,
               ),
             ),
-            GestureDetector(
+            InkWell(
               onTap: () {
                 context.push('/register', extra: widget.role);
               },
-              child: Text(
-                'Regístrate',
-                style: TextStyle(
-                  color: colors.primary,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
+              borderRadius: BorderRadius.circular(4),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+                child: Text(
+                  'Regístrate',
+                  style: TextStyle(
+                    color: colors.primary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),

@@ -1,4 +1,5 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:mobile/features/teams/data/data_source/teams_remote_data_source.dart';
 import '../../domain/entities/student.dart';
 
 class StudentDirectoryProvider extends ChangeNotifier {

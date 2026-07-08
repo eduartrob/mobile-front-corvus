@@ -131,27 +131,31 @@ class SolicitudesTab extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final isSelected = currentFilter == filter;
 
-    return GestureDetector(
-      onTap: () => onTap(filter),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? colorScheme.primary.withValues(alpha: 0.12)
-              : colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => onTap(filter),
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          decoration: BoxDecoration(
             color: isSelected
-                ? colorScheme.primary.withValues(alpha: 0.3)
-                : colorScheme.outlineVariant.withValues(alpha: 0.3),
+                ? colorScheme.primary.withValues(alpha: 0.12)
+                : colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isSelected
+                  ? colorScheme.primary.withValues(alpha: 0.3)
+                  : colorScheme.outlineVariant.withValues(alpha: 0.3),
+            ),
           ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
-            fontSize: 14,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
+              fontSize: 14,
+            ),
           ),
         ),
       ),

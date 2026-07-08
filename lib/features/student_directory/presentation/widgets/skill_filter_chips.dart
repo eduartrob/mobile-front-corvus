@@ -24,28 +24,32 @@ class SkillFilterChips extends StatelessWidget {
 
           return Padding(
             padding: const EdgeInsets.only(right: 10.0),
-            child: GestureDetector(
-              onTap: () {
-                provider.selectSkill(skill);
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 150),
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFF1E40AF) : colorScheme.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: isSelected ? Colors.transparent : colorScheme.outlineVariant.withValues(alpha: 0.6),
-                    width: 1,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  provider.selectSkill(skill);
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: isSelected ? const Color(0xFF1E40AF) : colorScheme.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isSelected ? Colors.transparent : colorScheme.outlineVariant.withValues(alpha: 0.6),
+                      width: 1,
+                    ),
                   ),
-                ),
-                child: Center(
-                  child: Text(
-                    skill,
-                    style: TextStyle(
-                      color: isSelected ? Colors.white : colorScheme.onSurface.withValues(alpha: 0.8),
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                      fontSize: 14,
+                  child: Center(
+                    child: Text(
+                      skill,
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : colorScheme.onSurface.withValues(alpha: 0.8),
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                        fontSize: 14,
+                      ),
                     ),
                   ),
                 ),

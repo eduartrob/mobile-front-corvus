@@ -47,35 +47,39 @@ class _SugerenciasTabState extends State<SugerenciasTab> {
 
                   return Padding(
                     padding: const EdgeInsets.only(right: 8.0),
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedSkill = skill;
-                        });
-                        // Fetch suggestions filtered by selected skill
-                        provider.fetchSuggestions(skill: skill);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? colorScheme.primary
-                              : colorScheme.surface,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          setState(() {
+                            _selectedSkill = skill;
+                          });
+                          // Fetch suggestions filtered by selected skill
+                          provider.fetchSuggestions(skill: skill);
+                        },
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
                             color: isSelected
                                 ? colorScheme.primary
-                                : colorScheme.outlineVariant.withValues(alpha: 0.5),
-                            width: 1.0,
+                                : colorScheme.surface,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: isSelected
+                                  ? colorScheme.primary
+                                  : colorScheme.outlineVariant.withValues(alpha: 0.5),
+                              width: 1.0,
+                            ),
                           ),
-                        ),
-                        child: Text(
-                          skill,
-                          style: TextStyle(
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                            color: isSelected ? Colors.white : colorScheme.onSurfaceVariant,
-                            fontSize: 14,
+                          child: Text(
+                            skill,
+                            style: TextStyle(
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                              color: isSelected ? Colors.white : colorScheme.onSurfaceVariant,
+                              fontSize: 14,
+                            ),
                           ),
                         ),
                       ),
@@ -138,6 +142,7 @@ class _SugerenciasTabState extends State<SugerenciasTab> {
                                     bio: student.bio,
                                     tags: student.tags,
                                     avatarUrl: student.avatarUrl,
+                                    isVerified: student.isVerified,
                                     onSendRequest: () {
                                       if (student.id != null) {
                                         provider.sendInvitation(student.id!).then((_) {

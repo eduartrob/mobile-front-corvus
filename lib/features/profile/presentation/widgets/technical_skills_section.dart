@@ -485,13 +485,16 @@ class TechnicalSkillsSection extends StatelessWidget {
 
   Widget _buildWhiteLinkCard(BuildContext context, int count, VoidCallback onTap) {
     final colorScheme = Theme.of(context).colorScheme;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
           border: Border.all(color: colorScheme.outlineVariant),
           boxShadow: [
             BoxShadow(
@@ -517,6 +520,7 @@ class TechnicalSkillsSection extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

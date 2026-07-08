@@ -114,6 +114,35 @@ class _StudentUniversityPageState extends State<StudentUniversityPage> {
     return [];
   }
 
+  Future<List<String>> _getCareers(String query) async {
+    if (query.isEmpty || query.length < 2) return [];
+
+    _lastQuery = query;
+    await Future.delayed(const Duration(milliseconds: 300));
+    if (_lastQuery != query) return [];
+
+    try {
+      final universityName = Uri.encodeComponent(_universityController.text.trim());
+      final response = await http
+          .get(
+            Uri.parse(
+              '${ApiConfig.apiGatewayUrl}/auth/careers?search=$query&universityId=$universityName',
+            ),
+          )
+          .timeout(const Duration(seconds: 10));
+
+      if (_lastQuery != query) return [];
+
+      if (response.statusCode == 200) {
+        final List data = json.decode(response.body);
+        return data.map((c) => c['name'].toString()).toList();
+      }
+    } catch (e) {
+      debugPrint("Error fetching careers: $e");
+    }
+    return [];
+  }
+
   Future<void> _submitCareer() async {
     FocusScope.of(context).unfocus();
     final name = _nameController.text.trim();
@@ -517,44 +546,98 @@ class _StudentUniversityPageState extends State<StudentUniversityPage> {
 
                     const Label(text: "Carrera"),
                     const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? colors.surfaceContainer
-                            : Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isDark
-                              ? colors.outlineVariant.withValues(
-                                  alpha: 0.5,
-                                )
-                              : const Color(0xFFE2E8F0),
-                        ),
-                      ),
-                      child: TextField(
-                        controller: _careerController,
-                        style: TextStyle(
-                          color: colors.onSurface,
-                          fontSize: 15,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: "Ej. Ingeniería de Software",
-                          hintStyle: TextStyle(
-                            color: colors.onSurfaceVariant.withValues(
-                              alpha: 0.6,
+                    Autocomplete<String>(
+                      initialValue: TextEditingValue(text: _careerController.text),
+                      optionsBuilder: (TextEditingValue textEditingValue) async {
+                        return await _getCareers(textEditingValue.text);
+                      },
+                      onSelected: (String selection) {
+                        _careerController.text = selection;
+                      },
+                      fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (controller.text != _careerController.text) {
+                            _careerController.text = controller.text;
+                          }
+                        });
+
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14),
+                          decoration: BoxDecoration(
+                            color: isDark ? colors.surfaceContainer : Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: isDark ? colors.outlineVariant.withValues(alpha: 0.5) : const Color(0xFFE2E8F0),
                             ),
                           ),
-                          border: InputBorder.none,
-                          icon: Icon(
-                            Icons.school,
-                            color: Colors.greenAccent,
-                            size: 20,
+                          child: TextField(
+                            controller: controller,
+                            focusNode: focusNode,
+                            onEditingComplete: () {
+                              _careerController.text = controller.text;
+                              onEditingComplete();
+                            },
+                            onChanged: (val) {
+                              _careerController.text = val;
+                            },
+                            style: TextStyle(
+                              color: colors.onSurface,
+                              fontSize: 15,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: "Ej. Ingeniería de Software",
+                              hintStyle: TextStyle(
+                                color: colors.onSurfaceVariant.withValues(alpha: 0.6),
+                              ),
+                              border: InputBorder.none,
+                              icon: Icon(
+                                Icons.school,
+                                color: Colors.greenAccent,
+                                size: 20,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
+                        );
+                      },
+                      optionsViewBuilder: (context, onSelected, options) {
+                        return Align(
+                          alignment: Alignment.topLeft,
+                          child: Material(
+                            elevation: 4.0,
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              width: MediaQuery.of(context).size.width - 64,
+                              constraints: const BoxConstraints(maxHeight: 200),
+                              decoration: BoxDecoration(
+                                color: isDark ? colors.surfaceContainerHigh : Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: ListView.builder(
+                                padding: EdgeInsets.zero,
+                                itemCount: options.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  final String option = options.elementAt(index);
+                                  return InkWell(
+                                    onTap: () {
+                                      onSelected(option);
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Text(
+                                        option,
+                                        style: TextStyle(
+                                          color: colors.onSurface,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(height: 32),
 

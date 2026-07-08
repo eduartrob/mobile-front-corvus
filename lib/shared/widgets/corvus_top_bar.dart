@@ -80,21 +80,26 @@ class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
         if (photoUrl != null && photoUrl.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
-            child: GestureDetector(
-              onTap: () {
-                if (role == 'PROFESOR') {
-                  if (GoRouterState.of(context).matchedLocation != '/prof-profile') {
-                     context.push('/prof-profile');
+            child: Material(
+              type: MaterialType.circle,
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  if (role == 'PROFESOR') {
+                    if (GoRouterState.of(context).matchedLocation != '/prof-profile') {
+                       context.push('/prof-profile');
+                    }
+                  } else {
+                    if (GoRouterState.of(context).matchedLocation != '/profile') {
+                      context.push('/profile');
+                    }
                   }
-                } else {
-                  if (GoRouterState.of(context).matchedLocation != '/profile') {
-                    context.push('/profile');
-                  }
-                }
-              },
-              child: CircleAvatar(
-                backgroundImage: NetworkImage(photoUrl),
-                radius: 18,
+                },
+                customBorder: const CircleBorder(),
+                child: CircleAvatar(
+                  backgroundImage: NetworkImage(photoUrl),
+                  radius: 18,
+                ),
               ),
             ),
           )

@@ -116,39 +116,44 @@ class _StudentHeaderInfoState extends State<StudentHeaderInfo> {
       ),
       child: Column(
         children: [
-          GestureDetector(
-            onTap: _isUploading ? null : _pickImage,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                CircleAvatar(
-                  radius: 48,
-                  backgroundImage: (currentUser?.photoUrl != null && currentUser!.photoUrl!.isNotEmpty)
-                      ? NetworkImage(currentUser.photoUrl!)
-                      : null,
-                  child: (currentUser?.photoUrl == null || currentUser!.photoUrl!.isEmpty)
-                      ? const Icon(Icons.person, size: 48)
-                      : null,
-                ),
-                if (_isUploading)
-                  const CircularProgressIndicator(),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: colorScheme.primary,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.camera_alt,
-                      size: 20,
-                      color: colorScheme.onPrimary,
+          Material(
+            type: MaterialType.circle,
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: _isUploading ? null : _pickImage,
+              customBorder: const CircleBorder(),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 48,
+                    backgroundImage: (currentUser?.photoUrl != null && currentUser!.photoUrl!.isNotEmpty)
+                        ? NetworkImage(currentUser.photoUrl!)
+                        : null,
+                    child: (currentUser?.photoUrl == null || currentUser!.photoUrl!.isEmpty)
+                        ? const Icon(Icons.person, size: 48)
+                        : null,
+                  ),
+                  if (_isUploading)
+                    const CircularProgressIndicator(),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: colorScheme.primary,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.camera_alt,
+                        size: 20,
+                        color: colorScheme.onPrimary,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           Consumer<ProfileProvider>(
@@ -237,7 +242,7 @@ class _StudentHeaderInfoState extends State<StudentHeaderInfo> {
                                   MaterialPageRoute(builder: (context) => const mobile.EditProfilePage()),
                                 );
                                 if (context.mounted) {
-                                  context.read<ProfileProvider>().getPerfilCompleto();
+                                  context.read<ProfileProvider>().fetchProfile(forceRefresh: true);
                                   context.read<AuthProvider>().checkAuthStatus();
                                 }
                               }

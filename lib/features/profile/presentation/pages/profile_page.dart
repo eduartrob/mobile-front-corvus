@@ -116,8 +116,8 @@ class _ProfilePageState extends State<ProfilePage> {
                           context,
                           MaterialPageRoute(builder: (context) => const mobile.EditProfilePage()),
                         );
-                        if (context.mounted) {
-                          context.read<ProfileProvider>().getPerfilCompleto();
+                        if (mounted) {
+                          context.read<ProfileProvider>().fetchProfile(forceRefresh: true);
                           context.read<AuthProvider>().checkAuthStatus();
                         }
                       },
