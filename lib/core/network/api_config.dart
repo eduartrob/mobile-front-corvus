@@ -5,7 +5,7 @@ class ApiConfig {
 
   static const String authGoogleEndpoint = '/auth/google';
   
-  static const Duration connectionTimeout = Duration(seconds: 30);
+  static const Duration connectionTimeout = Duration(seconds: 120);
   
   static const Map<String, String> defaultHeaders = {
     'Content-Type': 'application/json',
