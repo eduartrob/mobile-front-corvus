@@ -73,23 +73,9 @@ class _SearchPageViewState extends State<_SearchPageView>
   @override
   void initState() {
     super.initState();
-    _initSpeech();
     _searchFocusNode.addListener(() {
       setState(() {});
     });
-  }
-
-  void _initSpeech() async {
-    await _speechToText.initialize(
-      onStatus: (status) {
-        if (status == 'done' || status == 'notListening') {
-          setState(() => _isListening = false);
-          if (_searchController.text.isNotEmpty && !_hasResults) {
-            _submitSearch(_searchController.text, fromVoice: true);
-          }
-        }
-      },
-    );
   }
 
   @override
@@ -104,7 +90,16 @@ class _SearchPageViewState extends State<_SearchPageView>
     _flutterTts
         .stop(); // Detener cualquier lectura actual al interactuar con el micrófono
     if (!_isListening) {
-      bool available = await _speechToText.initialize();
+      bool available = await _speechToText.initialize(
+        onStatus: (status) {
+          if (status == 'done' || status == 'notListening') {
+            setState(() => _isListening = false);
+            if (_searchController.text.isNotEmpty && !_hasResults) {
+              _submitSearch(_searchController.text, fromVoice: true);
+            }
+          }
+        },
+      );
       if (available) {
         setState(() => _isListening = true);
         _speechToText.listen(
@@ -447,14 +442,17 @@ class _SearchPageViewState extends State<_SearchPageView>
     required ColorScheme colorScheme,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: colorScheme.primaryContainer.withOpacity(0.5),
-          borderRadius: BorderRadius.circular(10),
-        ),
+    return Material(
+      color: colorScheme.primaryContainer.withValues(alpha: 0.5),
+      borderRadius: BorderRadius.circular(10),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+          ),
         child: Row(
           children: [
             Expanded(
@@ -481,7 +479,8 @@ class _SearchPageViewState extends State<_SearchPageView>
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 
   Widget _buildResultsView(Color textColor, ColorScheme colorScheme) {

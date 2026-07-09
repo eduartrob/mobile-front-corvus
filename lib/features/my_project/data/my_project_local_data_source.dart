@@ -1,10 +1,10 @@
 import 'dart:convert';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:mobile/core/services/secure_storage_service.dart';
 
 class MyProjectLocalDataSource {
-  final FlutterSecureStorage _storage;
+  final SecureStorageService _storage;
 
-  MyProjectLocalDataSource() : _storage = const FlutterSecureStorage();
+  MyProjectLocalDataSource() : _storage = SecureStorageService();
 
   String _getKey(String userId) => 'detailed_analysis_$userId';
 

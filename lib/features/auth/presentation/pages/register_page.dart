@@ -227,29 +227,9 @@ class _RegisterFormState extends State<_RegisterForm> {
         ),
         const SizedBox(height: 16),
         
-        InkWell(
-          onTap: () {
-            // Google sign-in logic for registration, same as login practically,
-            // but we will redirect to the next steps
-            if (widget.role == 'DOCENTE' || widget.role == 'PROFESOR') {
-              context.push('/register-teacher-verification');
-            } else {
-              context.push('/register-student-university');
-            }
-          },
+        Material(
+          color: isDark ? colors.surfaceContainer : Colors.white,
           borderRadius: BorderRadius.circular(12),
-<<<<<<< Updated upstream
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            decoration: BoxDecoration(
-              color: isDark ? colors.surfaceContainer : Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: isDark 
-                    ? colors.outlineVariant.withValues(alpha: 0.3) 
-                    : const Color(0xFFE2E8F0),
-=======
           child: InkWell(
             onTap: () async {
               try {
@@ -297,9 +277,7 @@ class _RegisterFormState extends State<_RegisterForm> {
                       ? colors.outlineVariant.withValues(alpha: 0.3) 
                       : const Color(0xFFE2E8F0),
                 ),
->>>>>>> Stashed changes
               ),
-            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -321,6 +299,7 @@ class _RegisterFormState extends State<_RegisterForm> {
             ),
           ),
         ),
+        ),
         
         const SizedBox(height: 24),
         Row(
@@ -333,16 +312,20 @@ class _RegisterFormState extends State<_RegisterForm> {
                 fontSize: 14,
               ),
             ),
-            GestureDetector(
+            InkWell(
               onTap: () {
                 context.pop();
               },
-              child: Text(
-                'Inicia sesión',
-                style: TextStyle(
-                  color: colors.primary,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
+              borderRadius: BorderRadius.circular(4),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+                child: Text(
+                  'Inicia sesión',
+                  style: TextStyle(
+                    color: colors.primary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),

@@ -4,6 +4,8 @@ import '../provider/student_directory_provider.dart';
 import '../widgets/student_search_bar.dart';
 import '../widgets/skill_filter_chips.dart';
 import '../widgets/student_card.dart';
+import 'package:mobile/core/network/auth_interceptor_client.dart';
+import 'package:mobile/features/teams/data/data_source/teams_remote_data_source.dart';
 
 class StudentDirectoryPage extends StatelessWidget {
   const StudentDirectoryPage({super.key});
@@ -11,7 +13,9 @@ class StudentDirectoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => StudentDirectoryProvider(),
+      create: (_) => StudentDirectoryProvider(
+        remoteDataSource: TeamsRemoteDataSource(client: apiClient),
+      ),
       child: const _StudentDirectoryView(),
     );
   }
@@ -81,35 +85,40 @@ class _StudentDirectoryView extends StatelessWidget {
             
             // Student List
             Expanded(
-              child: filteredStudents.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.people_outline,
-                            size: 64,
-                            color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'No se encontraron estudiantes',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: colorScheme.onSurfaceVariant,
+              child: context.watch<StudentDirectoryProvider>().isLoading 
+                  ? const Center(child: CircularProgressIndicator())
+                  : RefreshIndicator(
+                      onRefresh: context.read<StudentDirectoryProvider>().refresh,
+                      child: filteredStudents.isEmpty
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.people_outline,
+                                    size: 64,
+                                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'No se encontraron estudiantes',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : ListView.builder(
+                              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                              itemCount: filteredStudents.length,
+                              itemBuilder: (context, index) {
+                                final student = filteredStudents[index];
+                                return StudentCard(student: student);
+                              },
                             ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      itemCount: filteredStudents.length,
-                      itemBuilder: (context, index) {
-                        final student = filteredStudents[index];
-                        return StudentCard(student: student);
-                      },
                     ),
             ),
           ],

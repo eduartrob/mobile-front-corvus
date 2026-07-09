@@ -1,10 +1,10 @@
 import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:mobile/core/services/secure_storage_service.dart';
 
 class NotificationsLocalDataSource {
   static Database? _database;
-  static const _storage = FlutterSecureStorage();
+  static final SecureStorageService _storage = SecureStorageService();
 
   static Future<Database> get database async {
     if (_database != null) return _database!;
@@ -99,6 +99,11 @@ class NotificationsLocalDataSource {
   static Future<void> deleteNotification(String id) async {
     final db = await database;
     await db.delete('notifications', where: 'id = ?', whereArgs: [id]);
+  }
+
+  static Future<void> deleteAllRemote() async {
+    final db = await database;
+    await db.delete('notifications', where: "id NOT LIKE 'temp_%'");
   }
 
   static Future<void> deleteAll() async {
