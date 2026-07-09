@@ -6,7 +6,6 @@ import 'dart:io';
 import 'package:mobile/features/my_project/data/my_project_remote_data_source.dart';
 import 'package:mobile/features/my_project/data/my_project_local_data_source.dart';
 import 'package:http/http.dart' as http;
-import 'package:mobile/core/network/auth_interceptor_client.dart';
 import 'package:mobile/core/services/notification_service.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/core/network/api_config.dart';
@@ -26,7 +25,7 @@ class MyProjectProvider extends ChangeNotifier {
   final NotificationService _notificationService;
 
   MyProjectProvider() 
-      : _dataSource = MyProjectRemoteDataSource(client: apiClient),
+      : _dataSource = MyProjectRemoteDataSource(client: http.Client()),
         _localDataSource = MyProjectLocalDataSource(),
         _notificationService = NotificationService();
 
@@ -76,7 +75,7 @@ class MyProjectProvider extends ChangeNotifier {
   Future<void> _fetchConfig() async {
     try {
       // Intentamos obtener la configuración del admin panel
-      final response = await apiClient.get(Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/config'));
+      final response = await http.get(Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/config'));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data != null && data['allowed_extensions'] != null) {

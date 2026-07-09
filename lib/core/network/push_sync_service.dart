@@ -38,7 +38,7 @@ class PushSyncService {
     // Si la vista está activa, se actualizará instantáneamente.
     try {
       context.read<ProfRulesProvider>().fetchData();
-      // context.read<MyProjectProvider>().loadUserAndProject(); // revisar nombre del metodo
+      context.read<MyProjectProvider>().loadUserAndProject();
       debugPrint('🔄 Push Silencioso: Caché invalidado y datos recargados.');
     } catch (e) {
       debugPrint('Error en recarga por push: $e');

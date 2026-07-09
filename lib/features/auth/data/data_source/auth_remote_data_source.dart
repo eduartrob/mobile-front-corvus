@@ -21,6 +21,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     scopes: [
       'email',
       'profile',
+      'https://www.googleapis.com/auth/classroom.courses.readonly',
+      'https://www.googleapis.com/auth/classroom.student-submissions.me.readonly',
+      'https://www.googleapis.com/auth/classroom.courseworkmaterials.readonly',
+      'https://www.googleapis.com/auth/drive.readonly',
     ],
   );
 
@@ -38,7 +42,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     ]);
     
     if (success) {
-      await _syncClassroomMaterials(jwtToken);
+      // Fire and forget to not block the UI
+      _syncClassroomMaterials(jwtToken);
     }
     
     return success;
@@ -84,7 +89,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
                 },
                 body: jsonEncode({
                   'course_id': courseId.toString(),
-                  'course_name': course['name']?.toString() ?? 'Materia Sin Nombre',
                   'teacher_id': teacherId.toString(),
                   'folder_id': folderId.toString(),
                   'access_token': token,
@@ -132,40 +136,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-<<<<<<< Updated upstream
-=======
-  Future<UserModel> loginWithEmail(String email, String password) async {
-    try {
-      final targetUrl = '${ApiConfig.apiGatewayUrl}/auth/login';
-      final response = await http.post(
-        Uri.parse(targetUrl),
-        headers: ApiConfig.defaultHeaders,
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-        }),
-      ).timeout(ApiConfig.connectionTimeout);
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (data['user'] == null) {
-          throw Exception('La respuesta del backend no contiene los datos del usuario.');
-        }
-        return UserModel.fromJson({
-          ...data['user'],
-          'token': data['token'],
-        });
-      } else {
-        final errorData = jsonDecode(response.body);
-        throw Exception(errorData['error'] ?? 'Error desconocido del servidor');
-      }
-    } catch (e) {
-      throw Exception('Excepción durante loginWithEmail: $e');
-    }
-  }
-
-  @override
->>>>>>> Stashed changes
   Future<UserModel> signInWithGoogle() async {
     try {
       print('🔵 Iniciando flujo de Google Sign-In (GoogleSignIn.signIn)...');
@@ -226,8 +196,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         return UserModel.fromJson({
           ...userData,
           'token': token,
-          'photoUrl': userData['photoUrl'] ?? googleUser.photoUrl,
-          'name': userData['name'] ?? googleUser.displayName,
+          'photoUrl': googleUser.photoUrl ?? userData['photoUrl'],
+          'name': googleUser.displayName ?? userData['name'],
         });
       } else {
         final jsonResponse = jsonDecode(response.body);
@@ -236,9 +206,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           error = error['message'] ?? error['detail'] ?? error.toString();
         }
         print('❌ Error del backend: $error');
-        if (error.toString().contains('Esta cuenta de Google no está registrada')) {
-          throw Exception('USER_NOT_REGISTERED|${googleUser.email}');
-        }
         throw Exception(error.toString());
       }
     } catch (e, stackTrace) {

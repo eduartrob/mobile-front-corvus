@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../provider/teams_provider.dart';
-import 'package:mobile/features/teams/data/models/solicitud_model.dart';
+import '../provider/mock_solicitudes.dart';
 
 class SolicitudesTab extends StatelessWidget {
   const SolicitudesTab({super.key});
@@ -28,8 +28,8 @@ class SolicitudesTab extends StatelessWidget {
                 children: [
                   _buildFilterChip(
                     context,
-                    label: 'Recibidas',
-                    filter: SolicitudFilter.recibidas,
+                    label: 'Aceptadas',
+                    filter: SolicitudFilter.aceptadas,
                     currentFilter: provider.selectedFilter,
                     onTap: (filter) => provider.selectFilter(filter),
                   ),
@@ -47,32 +47,21 @@ class SolicitudesTab extends StatelessWidget {
             // List of Request Cards
             Expanded(
               child: filteredList.isEmpty
-                  ? RefreshIndicator(
-                      onRefresh: () => provider.fetchRequests(),
-                      child: ListView(
-                        physics: const AlwaysScrollableScrollPhysics(),
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.5,
-                            child: Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.mail_outline,
-                                    size: 64,
-                                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    'No hay solicitudes en esta sección',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                          Icon(
+                            Icons.mail_outline,
+                            size: 64,
+                            color: colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No hay solicitudes en esta sección',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                             ),
                           ),
                         ],
@@ -186,11 +175,6 @@ class _SolicitudCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final student = solicitud.student;
-    
-    final provider = context.watch<TeamsProvider>();
-    final myTeamCount = provider.myTeam?.members.length ?? 0;
-    final isReceiverInTeam = myTeamCount > 1;
-    final inviteText = isReceiverInTeam ? 'Quiere unirse a tu grupo' : 'Te invitó a formar parte de su grupo';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -222,18 +206,6 @@ class _SolicitudCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (solicitud.state == SolicitudState.recibida)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 2),
-                          child: Text(
-                            inviteText,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: colorScheme.primary,
-                            ),
-                          ),
-                        ),
                       Text(
                         student.name,
                         style: TextStyle(
@@ -301,7 +273,7 @@ class _SolicitudCard extends StatelessWidget {
                 }).toList(),
               ),
             ],
-            if (solicitud.state == SolicitudState.recibida) ...[
+            if (solicitud.state == SolicitudState.enviada) ...[
               const SizedBox(height: 20),
               Row(
                 children: [
@@ -317,7 +289,7 @@ class _SolicitudCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                       child: const Text(
-                        'Eliminar',
+                        'Rechazar / Cancelar',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -340,32 +312,6 @@ class _SolicitudCard extends StatelessWidget {
                       ),
                       child: const Text(
                         'Aceptar',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ] else if (solicitud.state == SolicitudState.enviada) ...[
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: onReject,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.red.shade400,
-                        side: BorderSide(color: Colors.red.shade200),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                      child: const Text(
-                        'Cancelar',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,

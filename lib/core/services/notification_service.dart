@@ -39,11 +39,7 @@ class NotificationService {
       onDidReceiveNotificationResponse: (NotificationResponse response) {
         final context = rootNavigatorKey.currentContext;
         if (context != null) {
-          if (response.payload == 'TEAM_INVITE') {
-            context.push('/teams?tab=1');
-          } else {
-            context.push('/notifications?highlightLatest=true');
-          }
+          context.push('/notifications?highlightLatest=true');
         }
       },
     );
@@ -114,7 +110,7 @@ class NotificationService {
     );
   }
 
-  Future<void> showResultNotification(String title, String message, {String? payload}) async {
+  Future<void> showResultNotification(String title, String message) async {
     final AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
       channelId,
       channelName,
@@ -134,7 +130,6 @@ class NotificationService {
       title,
       message,
       notificationDetails,
-      payload: payload,
     );
   }
 

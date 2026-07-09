@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:mobile/core/network/auth_interceptor_client.dart';
 import 'package:mobile/core/network/api_config.dart';
 
 abstract class SyncRemoteDataSource {
@@ -12,7 +11,7 @@ class SyncRemoteDataSourceImpl implements SyncRemoteDataSource {
   @override
   Future<Map<String, dynamic>> processFolder(String folderId, String accessToken, String jwtToken, String userId) async {
     try {
-      final response = await apiClient.post(
+      final response = await http.post(
         Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/process-folder'),
         headers: {
           'Content-Type': 'application/json',
@@ -56,7 +55,7 @@ class SyncRemoteDataSourceImpl implements SyncRemoteDataSource {
       });
       print('🌐 [DRIVE] URL: $uri');
 
-      final response = await apiClient.get(
+      final response = await http.get(
         uri,
         headers: {
           'Authorization': 'Bearer $accessToken',

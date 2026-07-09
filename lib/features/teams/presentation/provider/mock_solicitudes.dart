@@ -15,7 +15,7 @@ final List<Solicitud> mockSolicitudes = [
       avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
       isVerified: true,
     ),
-    state: SolicitudState.recibida,
+    state: SolicitudState.aceptada,
     date: DateTime.now(),
   ),
   Solicitud(
@@ -29,7 +29,7 @@ final List<Solicitud> mockSolicitudes = [
       avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
       isVerified: true,
     ),
-    state: SolicitudState.recibida,
+    state: SolicitudState.aceptada,
     date: DateTime.now(),
   ),
   Solicitud(

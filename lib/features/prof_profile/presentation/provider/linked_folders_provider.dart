@@ -1,20 +1,20 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:mobile/core/services/secure_storage_service.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/api_config.dart';
 import 'package:mobile/core/services/notification_service.dart';
 
 class LinkedFoldersProvider extends ChangeNotifier {
-  final SecureStorageService _storage;
+  final FlutterSecureStorage _storage;
   static const String _storageKey = 'corvus_linked_folders';
 
   List<Map<String, String>> _folders = [];
 
   List<Map<String, String>> get folders => _folders;
 
-  LinkedFoldersProvider({SecureStorageService? storage})
-      : _storage = storage ?? SecureStorageService();
+  LinkedFoldersProvider({FlutterSecureStorage? storage})
+      : _storage = storage ?? const FlutterSecureStorage();
 
   Future<void> loadFolders(String jwtToken) async {
     try {
