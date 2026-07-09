@@ -57,4 +57,101 @@ class ProfileProvider extends ChangeNotifier {
       }
     }
   }
+<<<<<<< Updated upstream
+=======
+
+  Future<void> updateProfile({
+    required String fullName,
+    required String enrollmentId,
+    required String semester,
+    required List<String> skills,
+  }) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await remoteDataSource.updateProfile(
+        fullName: fullName,
+        enrollmentId: enrollmentId,
+        semester: semester,
+        skills: skills,
+      );
+      await fetchProfile(forceRefresh: true);
+    } catch (e) {
+      _errorMessage = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      throw Exception(_errorMessage);
+    }
+  }
+
+  Future<void> requestVerificationCode(String type) async {
+    try {
+      await remoteDataSource.requestVerificationCode(type);
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
+  Future<void> confirmVerificationCode(String code, String type) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await remoteDataSource.confirmVerificationCode(code, type);
+      await fetchProfile(forceRefresh: true);
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      throw Exception(e.toString());
+    }
+  }
+
+  Future<void> linkGoogleAccount(String authCode) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await remoteDataSource.linkGoogleAccount(authCode);
+      await fetchProfile(forceRefresh: true);
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      throw Exception(e.toString());
+    }
+  }
+
+  Future<void> addSecondaryEmail(String email) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await remoteDataSource.addSecondaryEmail(email);
+      await fetchProfile(forceRefresh: true);
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      throw Exception(e.toString());
+    }
+  }
+
+  Future<void> deleteEmail(String type) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await remoteDataSource.deleteEmail(type);
+      await fetchProfile(forceRefresh: true);
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      throw Exception(e.toString());
+    }
+  }
+>>>>>>> Stashed changes
 }

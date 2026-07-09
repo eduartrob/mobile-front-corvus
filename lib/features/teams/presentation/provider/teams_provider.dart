@@ -7,7 +7,7 @@ import 'package:mobile/features/teams/data/models/solicitud_model.dart';
 import 'package:mobile/features/teams/data/data_source/teams_remote_data_source.dart';
 
 enum SolicitudFilter {
-  aceptadas,
+  recibidas,
   enviadas,
 }
 
@@ -22,7 +22,7 @@ class TeamsProvider extends ChangeNotifier {
   List<Solicitud> _requests = [];
   bool _isLoading = false;
   String? _errorMessage;
-  SolicitudFilter _selectedFilter = SolicitudFilter.aceptadas;
+  SolicitudFilter _selectedFilter = SolicitudFilter.recibidas;
 
   TeamModel? get myTeam => _myTeam;
   List<Student> get suggestions => _suggestions;
@@ -32,8 +32,8 @@ class TeamsProvider extends ChangeNotifier {
   SolicitudFilter get selectedFilter => _selectedFilter;
 
   List<Solicitud> get filteredSolicitudes {
-    final targetState = _selectedFilter == SolicitudFilter.aceptadas
-        ? SolicitudState.aceptada
+    final targetState = _selectedFilter == SolicitudFilter.recibidas
+        ? SolicitudState.recibida
         : SolicitudState.enviada;
     return _requests.where((s) => s.state == targetState).toList();
   }
@@ -121,13 +121,13 @@ class TeamsProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchSuggestions({String? skill}) async {
+  Future<void> fetchSuggestions({String? skill, String? search}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      _suggestions = await remoteDataSource.getSuggestions(skill: skill);
+      _suggestions = await remoteDataSource.getSuggestions(skill: skill, search: search);
     } catch (e) {
       _errorMessage = e.toString();
     } finally {
@@ -142,7 +142,7 @@ class TeamsProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final filterStr = _selectedFilter == SolicitudFilter.aceptadas ? 'aceptadas' : 'enviadas';
+      final filterStr = _selectedFilter == SolicitudFilter.recibidas ? 'recibidas' : 'enviadas';
       _requests = await remoteDataSource.getRequests(filterStr);
     } catch (e) {
       _errorMessage = e.toString();

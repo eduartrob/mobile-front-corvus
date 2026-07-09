@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:mobile/core/services/secure_storage_service.dart';
 import 'package:mobile/features/auth/domain/entities/user_entity.dart';
 import 'package:mobile/features/auth/domain/use_cases/sign_in_with_google_usecase.dart';
@@ -9,6 +10,13 @@ import 'package:mobile/features/auth/domain/use_cases/sign_out_from_google_useca
 import 'package:mobile/core/services/notification_service.dart';
 import 'package:mobile/core/network/auth_interceptor_client.dart';
 import 'package:mobile/features/student_directory/data/data_source/clustering_remote_data_source.dart';
+<<<<<<< Updated upstream
+=======
+import 'dart:convert';
+import 'package:mobile/core/network/api_config.dart';
+import 'package:http/http.dart' as http;
+import 'package:mobile/features/auth/domain/use_cases/login_with_email_usecase.dart';
+>>>>>>> Stashed changes
 
 enum AuthStatus { initial, loading, authenticated, unauthenticated, error }
 
@@ -65,6 +73,57 @@ class AuthProvider extends ChangeNotifier {
         );
 
         _status = AuthStatus.authenticated;
+<<<<<<< Updated upstream
+=======
+        
+        // Fetch /me to update profile info silently in background
+        apiClient.get(Uri.parse('${ApiConfig.apiGatewayUrl}/auth/me')).then((response) {
+          if (response.statusCode == 200) {
+            final data = jsonDecode(response.body);
+            final userData = data['user'];
+            if (userData != null) {
+              final updatedPhotoUrl = userData['photoUrl'];
+              final updatedName = userData['name'];
+              
+              _currentUser = _currentUser!.copyWith(
+                photoUrl: updatedPhotoUrl,
+                name: updatedName,
+              );
+              
+              if (updatedPhotoUrl != null) {
+                _storage.write(key: 'auth_photo', value: updatedPhotoUrl);
+              }
+              if (updatedName != null) {
+                _storage.write(key: 'auth_name', value: updatedName);
+              }
+              notifyListeners();
+            }
+          }
+        }).catchError((_) {});
+
+        // Registrar FCM token silenciosamente
+        try {
+          final fcmToken = await FirebaseMessaging.instance.getToken();
+          if (fcmToken != null && _currentUser != null && _currentUser!.id.isNotEmpty) {
+            final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/notifications/device');
+            http.post(
+              uri,
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ${_currentUser!.token}',
+              },
+              body: jsonEncode({
+                'userId': _currentUser!.id,
+                'fcmToken': fcmToken
+              })
+            ).then((r) => print('FCM guardado al restaurar sesión: ${r.statusCode}'))
+            .catchError((e) => print('Error FCM rest: $e'));
+          }
+        } catch(e) {
+          print('Error FCM al restaurar sesión: $e');
+        }
+
+>>>>>>> Stashed changes
       } else {
         _status = AuthStatus.unauthenticated;
       }
@@ -112,7 +171,9 @@ class AuthProvider extends ChangeNotifier {
       print('Excepción: $e');
       print('Stack Trace:\n$stackTrace');
       String errorStr = e.toString();
-      if (errorStr.contains('403') || errorStr.toLowerCase().contains('upchiapas') || errorStr.toLowerCase().contains('domain') || errorStr.toLowerCase().contains('permitido')) {
+      if (errorStr.contains('USER_NOT_REGISTERED|')) {
+        _errorMessage = errorStr.replaceAll('Exception: ', '');
+      } else if (errorStr.contains('403') || errorStr.toLowerCase().contains('upchiapas') || errorStr.toLowerCase().contains('domain') || errorStr.toLowerCase().contains('permitido')) {
         _errorMessage = 'AUTH_NOT_ALLOWED';
       } else if (errorStr.toLowerCase().contains('canceled') || errorStr.toLowerCase().contains('cancelado')) {
         _errorMessage = 'AUTH_CANCELED';
@@ -154,6 +215,23 @@ class AuthProvider extends ChangeNotifier {
   Future<void> logout() async {
     _status = AuthStatus.loading;
     notifyListeners();
+
+    try {
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+      if (fcmToken != null) {
+        final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/notifications/device');
+        await http.delete(
+          uri,
+          headers: {
+            'Content-Type': 'application/json',
+            if (_currentUser?.token != null) 'Authorization': 'Bearer ${_currentUser!.token}',
+          },
+          body: jsonEncode({'fcmToken': fcmToken})
+        );
+      }
+    } catch (e) {
+      print('Error al desregistrar FCM: $e');
+    }
 
     try {
       await signOutFromGoogleUseCase();

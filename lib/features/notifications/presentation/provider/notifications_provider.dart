@@ -33,7 +33,7 @@ class NotificationsProvider extends ChangeNotifier {
       // 1. Try to fetch from remote and sync to local
       try {
         final remoteData = await _remoteDataSource.fetchMyNotifications();
-        await NotificationsLocalDataSource.deleteAll();
+        await NotificationsLocalDataSource.deleteAllRemote();
         for (var n in remoteData) {
           await NotificationsLocalDataSource.insertNotification({
             'id': n['id'],

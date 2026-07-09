@@ -11,6 +11,7 @@ import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:mobile/core/services/security_service.dart';
 
 class StudentSkillsPage extends StatefulWidget {
   final List<String> suggestedSkills;
@@ -25,12 +26,20 @@ class StudentSkillsPage extends StatefulWidget {
 }
 
 class _StudentSkillsPageState extends State<StudentSkillsPage> {
+  final SecurityService _securityService = SecurityService();
   final List<String> _selectedSkills = [];
   late List<String> _displaySkills;
 
   @override
+  void dispose() {
+    _securityService.preventScreenshots(false);
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
+    _securityService.preventScreenshots(true);
     final List<String> allSkills = [
       'Resolución de problemas', 'Trabajo en equipo', 'Comunicación', 'Liderazgo', 'Pensamiento crítico', 'Adaptabilidad', 'Organización', 'Creatividad',
       'Desarrollo Web', 'Desarrollo Móvil', 'Bases de Datos', 'Machine Learning', 'Inteligencia Artificial', 'Diseño UI/UX', 'Análisis de Datos', 'Gestión de Proyectos',

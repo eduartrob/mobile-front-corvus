@@ -101,6 +101,11 @@ class NotificationsLocalDataSource {
     await db.delete('notifications', where: 'id = ?', whereArgs: [id]);
   }
 
+  static Future<void> deleteAllRemote() async {
+    final db = await database;
+    await db.delete('notifications', where: "id NOT LIKE 'temp_%'");
+  }
+
   static Future<void> deleteAll() async {
     final db = await database;
     await db.delete('notifications');

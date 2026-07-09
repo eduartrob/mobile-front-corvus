@@ -15,6 +15,7 @@ import 'package:http/http.dart' as http;
 import 'package:mobile/features/auth/presentation/provider/registration_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/shared/widgets/auth_layout.dart';
+import 'package:mobile/core/services/security_service.dart';
 
 class StudentUniversityPage extends StatefulWidget {
   const StudentUniversityPage({super.key});
@@ -24,6 +25,7 @@ class StudentUniversityPage extends StatefulWidget {
 }
 
 class _StudentUniversityPageState extends State<StudentUniversityPage> {
+  final SecurityService _securityService = SecurityService();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _matriculaController = TextEditingController();
   final TextEditingController _universityController = TextEditingController();
@@ -44,8 +46,20 @@ class _StudentUniversityPageState extends State<StudentUniversityPage> {
   String _lastQuery = '';
 
   @override
+  void dispose() {
+    _securityService.preventScreenshots(false);
+    _nameController.dispose();
+    _matriculaController.dispose();
+    _universityController.dispose();
+    _careerController.dispose();
+    _periodNumberController.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
+    _securityService.preventScreenshots(true);
     final provider = Provider.of<RegistrationProvider>(context, listen: false);
     
     if (provider.fullName.isNotEmpty) _nameController.text = provider.fullName;
@@ -74,16 +88,6 @@ class _StudentUniversityPageState extends State<StudentUniversityPage> {
         provider.periodNumber = _periodNumberController.text;
       });
     });
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _matriculaController.dispose();
-    _universityController.dispose();
-    _careerController.dispose();
-    _periodNumberController.dispose();
-    super.dispose();
   }
 
   Future<List<String>> _getUniversities(String query) async {

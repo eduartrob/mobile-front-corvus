@@ -5,19 +5,19 @@ import 'package:http/http.dart' as http;
 import 'package:mobile/core/router/appRouter.dart';
 import 'package:mobile/core/di/di.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:mobile/core/services/secure_storage_service.dart';
 
 class AuthInterceptorClient extends http.BaseClient {
   final http.Client _inner;
   final VoidCallback onUnauthenticated;
-  final FlutterSecureStorage _storage;
+  final SecureStorageService _storage;
 
   AuthInterceptorClient({
     http.Client? client,
     required this.onUnauthenticated,
-    FlutterSecureStorage? storage,
+    SecureStorageService? storage,
   })  : _inner = client ?? http.Client(),
-        _storage = storage ?? const FlutterSecureStorage();
+        _storage = storage ?? SecureStorageService();
 
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
@@ -30,7 +30,7 @@ class AuthInterceptorClient extends http.BaseClient {
     final response = await _inner.send(request);
     
     // si da 401 expiro
-    if (response.statusCode == 401) {
+    if (response.statusCode == 401 && token != null) {
       onUnauthenticated();
     }
     

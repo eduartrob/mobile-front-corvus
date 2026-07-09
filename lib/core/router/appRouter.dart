@@ -163,7 +163,10 @@ class AppRouter extends StatelessWidget {
               routes: [
                 GoRoute(
                   path: '/teams',
-                  builder: (context, state) => const TeamsPage(),
+                  builder: (context, state) {
+                    final tab = state.uri.queryParameters['tab'];
+                    return TeamsPage(initialTabIndex: int.tryParse(tab ?? '0') ?? 0);
+                  },
                 ),
               ],
             ),

@@ -87,11 +87,27 @@ class TeamsRemoteDataSource {
     }
   }
 
+<<<<<<< Updated upstream
   // 👥 GET /teams/suggestions
   Future<List<Student>> getSuggestions({String? skill}) async {
     var uriString = '${ApiConfig.apiGatewayUrl}/teams/suggestions';
     if (skill != null && skill.isNotEmpty && skill != 'All Skills') {
       uriString += '?skill=${Uri.encodeComponent(skill)}';
+=======
+  // 🔍 GET /clustering/teams/suggestions
+  Future<List<Student>> getSuggestions({String? skill, String? search}) async {
+    var uriString = '${ApiConfig.apiGatewayUrl}/teams/suggestions';
+    final queryParams = <String>[];
+    if (skill != null && skill.isNotEmpty && skill.toLowerCase() != 'all skills') {
+      queryParams.add('skill=${Uri.encodeComponent(skill)}');
+    }
+    if (search != null && search.isNotEmpty) {
+      queryParams.add('search=${Uri.encodeComponent(search)}');
+    }
+    
+    if (queryParams.isNotEmpty) {
+      uriString += '?${queryParams.join('&')}';
+>>>>>>> Stashed changes
     }
     final url = Uri.parse(uriString);
 
@@ -119,7 +135,8 @@ class TeamsRemoteDataSource {
 
       if (response.statusCode == 200) {
         final List body = json.decode(utf8.decode(response.bodyBytes));
-        return body.map((item) => Solicitud.fromJson(item)).toList();
+        final forcedState = filter == 'enviadas' ? SolicitudState.enviada : SolicitudState.recibida;
+        return body.map((item) => Solicitud.fromJson(item, forcedState: forcedState)).toList();
       } else {
         _handleError(response);
       }

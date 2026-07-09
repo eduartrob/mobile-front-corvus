@@ -28,7 +28,11 @@ import 'package:mobile/core/services/firebase_messaging_handler.dart';
 void _handleNotificationTap(RemoteMessage message) {
   final context = rootNavigatorKey.currentContext;
   if (context != null) {
-    context.push('/notifications?highlightLatest=true');
+    if (message.data['type'] == 'TEAM_INVITE') {
+      context.push('/teams?tab=1'); // tab 1 is Solicitudes
+    } else {
+      context.push('/notifications?highlightLatest=true');
+    }
   }
 }
 

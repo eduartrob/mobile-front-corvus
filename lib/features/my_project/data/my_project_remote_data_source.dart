@@ -12,12 +12,13 @@ class MyProjectRemoteDataSource {
 
     try {
       var request = http.MultipartRequest('POST', url);
-      request.files.add(await http.MultipartFile.fromPath('file', filePath));
       request.fields['user_id'] = userId;
-      request.headers.addAll(ApiConfig.defaultHeaders);
-      request.headers.remove('Content-Type');
+      request.files.add(await http.MultipartFile.fromPath('file', filePath));
+      
+      // Do NOT addAll(ApiConfig.defaultHeaders) because it overwrites the multipart boundary Content-Type
+      request.headers['Accept'] = 'application/json';
 
-      final streamedResponse = await request.send().timeout(const Duration(seconds: 120));
+      final streamedResponse = await client.send(request).timeout(const Duration(seconds: 120));
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -81,10 +82,9 @@ class MyProjectRemoteDataSource {
     try {
       var request = http.MultipartRequest('POST', url);
       request.fields['user_id'] = userId;
-      request.headers.addAll(ApiConfig.defaultHeaders);
-      request.headers.remove('Content-Type');
+      request.headers['Accept'] = 'application/json';
 
-      final streamedResponse = await request.send();
+      final streamedResponse = await client.send(request);
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode != 200 && response.statusCode != 201) {

@@ -267,10 +267,9 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
             
             // Historical Projects Synchronization Section
             Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: colorScheme.secondaryContainer.withValues(alpha: 0.2),
+                color: colorScheme.secondaryContainer.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: colorScheme.secondary.withValues(alpha: 0.3)),
               ),
@@ -293,34 +292,43 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Sincroniza carpetas de Google Drive que contengan proyectos históricos (tesis, reportes) para incluirlos en la base de conocimiento.',
+                    'Para incluir proyectos históricos, comparte tu carpeta de Google Drive otorgando permisos de "Lector" al siguiente correo:',
                     style: TextStyle(
                       fontSize: 13,
                       color: colorScheme.onSurfaceVariant,
                       height: 1.4,
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        DriveSyncModal.show(context);
-                      },
-                      icon: const Icon(Icons.add_to_drive),
-                      label: const Text(
-                        'Sincronizar Google Drive',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colorScheme.secondaryContainer,
-                        foregroundColor: colorScheme.onSecondaryContainer,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surface,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: colorScheme.outlineVariant),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: SelectableText(
+                            'corvus-backend@corvus-376d3.iam.gserviceaccount.com',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: colorScheme.onSurface,
+                            ),
+                          ),
                         ),
-                        elevation: 0,
-                      ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'El panel de administración detectará automáticamente la carpeta compartida.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontStyle: FontStyle.italic,
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],

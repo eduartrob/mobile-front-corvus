@@ -8,6 +8,8 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile/shared/widgets/corvus_input_completed.dart';
 import 'package:mobile/shared/widgets/corvus_button.dart';
 import 'package:mobile/shared/widgets/auth_layout.dart';
+import 'package:mobile/features/auth/presentation/provider/registration_provider.dart';
+import 'dart:math';
 
 class LoginForm extends StatefulWidget {
   final String role;
@@ -141,6 +143,7 @@ class _LoginFormState extends State<LoginForm> {
                       await authProvider.signInWithGoogle();
                     },
               borderRadius: BorderRadius.circular(12),
+<<<<<<< Updated upstream
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -151,6 +154,63 @@ class _LoginFormState extends State<LoginForm> {
                     color: isDark 
                         ? colors.outlineVariant.withValues(alpha: 0.3) 
                         : const Color(0xFFE2E8F0),
+=======
+              child: InkWell(
+                onTap: isLoading 
+                    ? null 
+                    : () async {
+                        await authProvider.signInWithGoogle();
+                        
+                        if (authProvider.status == AuthStatus.authenticated) {
+                          if (widget.role == 'DOCENTE' || widget.role == 'PROFESOR') {
+                            context.pushReplacement('/prof-dash');
+                          } else {
+                            context.pushReplacement('/inspiration');
+                          }
+                        } else if (authProvider.errorMessage != null && authProvider.errorMessage!.startsWith('USER_NOT_REGISTERED|')) {
+                          final email = authProvider.errorMessage!.split('|').last;
+                          final provider = Provider.of<RegistrationProvider>(context, listen: false);
+                          
+                          const chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+                          final rnd = Random();
+                          final randomPassword = String.fromCharCodes(Iterable.generate(
+                            12, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
+
+                          provider.setRegisterData(
+                            email: email,
+                            password: randomPassword,
+                            role: widget.role,
+                          );
+
+                          if (widget.role == 'DOCENTE' || widget.role == 'PROFESOR') {
+                            context.push('/register-teacher-verification');
+                          } else {
+                            context.push('/register-student-university');
+                          }
+                        } else {
+                          String msg = authProvider.errorMessage ?? 'Error al iniciar sesión';
+                          if (msg == 'AUTH_NOT_ALLOWED') {
+                            msg = 'Dominio de correo no permitido.';
+                          } else if (msg == 'AUTH_CANCELED') {
+                            msg = 'Inicio de sesión cancelado.';
+                          }
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(msg)),
+                          );
+                        }
+                      },
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isDark 
+                          ? colors.outlineVariant.withValues(alpha: 0.3) 
+                          : const Color(0xFFE2E8F0),
+                    ),
+>>>>>>> Stashed changes
                   ),
                 ),
                 child: Row(

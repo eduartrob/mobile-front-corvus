@@ -3,9 +3,29 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile/shared/widgets/corvus_input_completed.dart';
 import 'package:mobile/shared/widgets/corvus_button.dart';
 import 'package:mobile/shared/widgets/auth_layout.dart';
+import 'package:mobile/core/services/security_service.dart';
 
-class TeacherVerificationPage extends StatelessWidget {
+class TeacherVerificationPage extends StatefulWidget {
   const TeacherVerificationPage({super.key});
+
+  @override
+  State<TeacherVerificationPage> createState() => _TeacherVerificationPageState();
+}
+
+class _TeacherVerificationPageState extends State<TeacherVerificationPage> {
+  final SecurityService _securityService = SecurityService();
+
+  @override
+  void initState() {
+    super.initState();
+    _securityService.preventScreenshots(true);
+  }
+
+  @override
+  void dispose() {
+    _securityService.preventScreenshots(false);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

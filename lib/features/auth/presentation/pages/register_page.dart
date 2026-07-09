@@ -8,10 +8,31 @@ import 'package:mobile/shared/widgets/corvus_button.dart';
 import 'package:mobile/shared/widgets/auth_layout.dart';
 import 'package:mobile/features/auth/presentation/provider/registration_provider.dart';
 import 'package:provider/provider.dart';
-
-class RegisterPage extends StatelessWidget {
+import 'package:mobile/core/services/security_service.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'dart:math';
+class RegisterPage extends StatefulWidget {
   final String role;
   const RegisterPage({super.key, this.role = 'ALUMNO'});
+
+  @override
+  State<RegisterPage> createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
+  final SecurityService _securityService = SecurityService();
+
+  @override
+  void initState() {
+    super.initState();
+    _securityService.preventScreenshots(true);
+  }
+
+  @override
+  void dispose() {
+    _securityService.preventScreenshots(false);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +46,7 @@ class RegisterPage extends StatelessWidget {
                          MediaQuery.of(context).padding.bottom,
             ),
             child: Center(
-              child: _RegisterForm(role: role),
+              child: _RegisterForm(role: widget.role),
             ),
           ),
         ),
@@ -95,6 +116,25 @@ class _RegisterFormState extends State<_RegisterForm> {
           controller: _emailController,
           iconColor: Colors.blueAccent,
         ),
+        if (widget.role == 'ALUMNO') ...[
+          const SizedBox(height: 6),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.info_outline, size: 14, color: Colors.blue),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  'Te recomendamos registrarte con tu correo institucional de la universidad.',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: colors.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
         const SizedBox(height: 16),
         InputCompleted(
           label: "Contraseña",
@@ -198,6 +238,7 @@ class _RegisterFormState extends State<_RegisterForm> {
             }
           },
           borderRadius: BorderRadius.circular(12),
+<<<<<<< Updated upstream
           child: Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -208,6 +249,55 @@ class _RegisterFormState extends State<_RegisterForm> {
                 color: isDark 
                     ? colors.outlineVariant.withValues(alpha: 0.3) 
                     : const Color(0xFFE2E8F0),
+=======
+          child: InkWell(
+            onTap: () async {
+              try {
+                final googleSignIn = GoogleSignIn(
+                  scopes: ['email', 'profile'],
+                );
+                await googleSignIn.signOut(); // Ensure we prompt for account if they want to choose
+                final googleUser = await googleSignIn.signIn();
+                if (googleUser == null) return; // User canceled
+
+                final email = googleUser.email;
+                
+                // Generate a random 12-character password since they will login with Google later
+                const chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+                final rnd = Random();
+                final randomPassword = String.fromCharCodes(Iterable.generate(
+                  12, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
+
+                final provider = Provider.of<RegistrationProvider>(context, listen: false);
+                provider.setRegisterData(
+                  email: email,
+                  password: randomPassword,
+                  role: widget.role,
+                );
+
+                if (widget.role == 'DOCENTE' || widget.role == 'PROFESOR') {
+                  context.push('/register-teacher-verification');
+                } else {
+                  context.push('/register-student-university');
+                }
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Error con Google: $e')),
+                );
+              }
+            },
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isDark 
+                      ? colors.outlineVariant.withValues(alpha: 0.3) 
+                      : const Color(0xFFE2E8F0),
+                ),
+>>>>>>> Stashed changes
               ),
             ),
             child: Row(

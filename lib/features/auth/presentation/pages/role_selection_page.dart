@@ -2,9 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/core/theme/app_dimens.dart';
+import 'package:mobile/core/services/security_service.dart';
 
-class RoleSelectionPage extends StatelessWidget {
+class RoleSelectionPage extends StatefulWidget {
   const RoleSelectionPage({super.key});
+
+  @override
+  State<RoleSelectionPage> createState() => _RoleSelectionPageState();
+}
+
+class _RoleSelectionPageState extends State<RoleSelectionPage> {
+  final SecurityService _securityService = SecurityService();
+
+  @override
+  void initState() {
+    super.initState();
+    _securityService.preventScreenshots(true);
+  }
+
+  @override
+  void dispose() {
+    _securityService.preventScreenshots(false);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
