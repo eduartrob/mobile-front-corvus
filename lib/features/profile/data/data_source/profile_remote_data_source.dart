@@ -26,8 +26,6 @@ class ProfileRemoteDataSource {
       throw Exception(e.toString().replaceAll('Exception: ', ''));
     }
   }
-<<<<<<< Updated upstream
-=======
 
   Future<void> updateProfile({
     required String fullName,
@@ -147,5 +145,4 @@ class ProfileRemoteDataSource {
       throw Exception(e.toString().replaceAll('Exception: ', ''));
     }
   }
->>>>>>> Stashed changes
 }

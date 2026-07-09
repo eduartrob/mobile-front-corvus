@@ -143,18 +143,6 @@ class _LoginFormState extends State<LoginForm> {
                       await authProvider.signInWithGoogle();
                     },
               borderRadius: BorderRadius.circular(12),
-<<<<<<< Updated upstream
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                decoration: BoxDecoration(
-                  color: isDark ? colors.surfaceContainer : Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: isDark 
-                        ? colors.outlineVariant.withValues(alpha: 0.3) 
-                        : const Color(0xFFE2E8F0),
-=======
               child: InkWell(
                 onTap: isLoading 
                     ? null 
@@ -210,7 +198,6 @@ class _LoginFormState extends State<LoginForm> {
                           ? colors.outlineVariant.withValues(alpha: 0.3) 
                           : const Color(0xFFE2E8F0),
                     ),
->>>>>>> Stashed changes
                   ),
                 ),
                 child: Row(

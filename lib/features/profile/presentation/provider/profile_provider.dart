@@ -57,8 +57,6 @@ class ProfileProvider extends ChangeNotifier {
       }
     }
   }
-<<<<<<< Updated upstream
-=======
 
   Future<void> updateProfile({
     required String fullName,
@@ -153,5 +151,4 @@ class ProfileProvider extends ChangeNotifier {
       throw Exception(e.toString());
     }
   }
->>>>>>> Stashed changes
 }

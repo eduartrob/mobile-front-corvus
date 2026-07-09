@@ -10,13 +10,10 @@ import 'package:mobile/features/auth/domain/use_cases/sign_out_from_google_useca
 import 'package:mobile/core/services/notification_service.dart';
 import 'package:mobile/core/network/auth_interceptor_client.dart';
 import 'package:mobile/features/student_directory/data/data_source/clustering_remote_data_source.dart';
-<<<<<<< Updated upstream
-=======
 import 'dart:convert';
 import 'package:mobile/core/network/api_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/features/auth/domain/use_cases/login_with_email_usecase.dart';
->>>>>>> Stashed changes
 
 enum AuthStatus { initial, loading, authenticated, unauthenticated, error }
 
@@ -73,8 +70,6 @@ class AuthProvider extends ChangeNotifier {
         );
 
         _status = AuthStatus.authenticated;
-<<<<<<< Updated upstream
-=======
         
         // Fetch /me to update profile info silently in background
         apiClient.get(Uri.parse('${ApiConfig.apiGatewayUrl}/auth/me')).then((response) {
@@ -123,7 +118,6 @@ class AuthProvider extends ChangeNotifier {
           print('Error FCM al restaurar sesión: $e');
         }
 
->>>>>>> Stashed changes
       } else {
         _status = AuthStatus.unauthenticated;
       }

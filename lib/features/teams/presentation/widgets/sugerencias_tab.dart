@@ -100,51 +100,6 @@ class _SugerenciasTabState extends State<SugerenciasTab> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-<<<<<<< Updated upstream
-            // Horizontal Scroll Skills Selector
-            SizedBox(
-              height: 64,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                itemCount: _skills.length,
-                itemBuilder: (context, index) {
-                  final skill = _skills[index];
-                  final isSelected = _selectedSkill == skill;
-
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedSkill = skill;
-                        });
-                        // Fetch suggestions filtered by selected skill
-                        provider.fetchSuggestions(skill: skill);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? colorScheme.primary
-                              : colorScheme.surface,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: isSelected
-                                ? colorScheme.primary
-                                : colorScheme.outlineVariant.withValues(alpha: 0.5),
-                            width: 1.0,
-                          ),
-                        ),
-                        child: Text(
-                          skill,
-                          style: TextStyle(
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                            color: isSelected ? Colors.white : colorScheme.onSurfaceVariant,
-                            fontSize: 14,
-                          ),
-=======
             // Search Bar and Filter
             Padding(
               padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
@@ -161,7 +116,6 @@ class _SugerenciasTabState extends State<SugerenciasTab> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(color: colorScheme.outlineVariant),
->>>>>>> Stashed changes
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),

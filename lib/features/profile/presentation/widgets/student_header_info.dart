@@ -2,14 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:mobile/features/auth/domain/entities/user_entity.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:provider/provider.dart';
-<<<<<<< Updated upstream
-import 'package:image_picker/image_picker.dart';
-=======
 import 'package:mobile/features/profile/presentation/provider/profile_provider.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
->>>>>>> Stashed changes
 
 class StudentHeaderInfo extends StatefulWidget {
   final UserEntity? user;
@@ -21,36 +17,6 @@ class StudentHeaderInfo extends StatefulWidget {
 }
 
 class _StudentHeaderInfoState extends State<StudentHeaderInfo> {
-<<<<<<< Updated upstream
-  bool _isUploading = false;
-
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 800,
-      maxHeight: 800,
-      imageQuality: 80,
-    );
-
-    if (pickedFile != null) {
-      setState(() {
-        _isUploading = true;
-      });
-      try {
-        final bytes = await pickedFile.readAsBytes();
-        final base64Image = base64Encode(bytes);
-        await context.read<AuthProvider>().updateProfilePicture(base64Image);
-      } finally {
-        setState(() {
-          _isUploading = false;
-        });
-      }
-    }
-  }
-
-=======
->>>>>>> Stashed changes
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -64,61 +30,6 @@ class _StudentHeaderInfoState extends State<StudentHeaderInfo> {
       ),
       child: Column(
         children: [
-<<<<<<< Updated upstream
-          GestureDetector(
-            onTap: _isUploading ? null : _pickImage,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                CircleAvatar(
-                  radius: 48,
-                  backgroundImage: (currentUser?.photoUrl != null && currentUser!.photoUrl!.isNotEmpty)
-                      ? NetworkImage(currentUser.photoUrl!)
-                      : null,
-                  child: (currentUser?.photoUrl == null || currentUser!.photoUrl!.isEmpty)
-                      ? const Icon(Icons.person, size: 48)
-                      : null,
-                ),
-                if (_isUploading)
-                  const CircularProgressIndicator(),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: colorScheme.primary,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.camera_alt,
-                      size: 20,
-                      color: colorScheme.onPrimary,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            currentUser?.name ?? 'Nombre de Alumno',
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            currentUser?.email ?? 'correo@institucional.edu',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              color: colorScheme.primary,
-              fontWeight: FontWeight.w500,
-            ),
-=======
           CircleAvatar(
             radius: 48,
             backgroundImage: (currentUser?.photoUrl != null && currentUser!.photoUrl!.isNotEmpty)
@@ -384,7 +295,6 @@ class _StudentHeaderInfoState extends State<StudentHeaderInfo> {
                 ],
               );
             },
->>>>>>> Stashed changes
           ),
         ],
       ),

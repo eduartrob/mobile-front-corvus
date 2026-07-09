@@ -87,13 +87,6 @@ class TeamsRemoteDataSource {
     }
   }
 
-<<<<<<< Updated upstream
-  // 👥 GET /teams/suggestions
-  Future<List<Student>> getSuggestions({String? skill}) async {
-    var uriString = '${ApiConfig.apiGatewayUrl}/teams/suggestions';
-    if (skill != null && skill.isNotEmpty && skill != 'All Skills') {
-      uriString += '?skill=${Uri.encodeComponent(skill)}';
-=======
   // 🔍 GET /clustering/teams/suggestions
   Future<List<Student>> getSuggestions({String? skill, String? search}) async {
     var uriString = '${ApiConfig.apiGatewayUrl}/teams/suggestions';
@@ -107,7 +100,6 @@ class TeamsRemoteDataSource {
     
     if (queryParams.isNotEmpty) {
       uriString += '?${queryParams.join('&')}';
->>>>>>> Stashed changes
     }
     final url = Uri.parse(uriString);
 

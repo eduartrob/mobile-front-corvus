@@ -132,8 +132,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-<<<<<<< Updated upstream
-=======
   Future<UserModel> loginWithEmail(String email, String password) async {
     try {
       final targetUrl = '${ApiConfig.apiGatewayUrl}/auth/login';
@@ -165,7 +163,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
->>>>>>> Stashed changes
   Future<UserModel> signInWithGoogle() async {
     try {
       print('🔵 Iniciando flujo de Google Sign-In (GoogleSignIn.signIn)...');

@@ -103,11 +103,6 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 24),
               const Divider(height: 1),
               
-<<<<<<< Updated upstream
-              const StudentStatsCard(),
-              
-              const SizedBox(height: 20),
-=======
               // Habilidades
               ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -121,7 +116,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   );
                 },
               ),
->>>>>>> Stashed changes
               
               // Actividad Reciente
               ListTile(
@@ -165,95 +159,6 @@ class _ProfilePageState extends State<ProfilePage> {
               
               const SizedBox(height: 24),
               
-<<<<<<< Updated upstream
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: const BoxDecoration(
-                  color: Colors.transparent,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.palette, color: colorScheme.primary),
-                        const SizedBox(width: 8),
-                        Text(
-                          l10n.appearance,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      width: double.infinity,
-                      child: SegmentedButton<ThemeMode>(
-                        segments: [
-                          ButtonSegment(
-                            value: ThemeMode.system,
-                            icon: const Icon(Icons.settings),
-                            label: Text(l10n.themeSystem),
-                          ),
-                          ButtonSegment(
-                            value: ThemeMode.light,
-                            icon: const Icon(Icons.wb_sunny),
-                            label: Text(l10n.themeLight),
-                          ),
-                          ButtonSegment(
-                            value: ThemeMode.dark,
-                            icon: const Icon(Icons.nightlight_round),
-                            label: Text(l10n.themeDark),
-                          ),
-                        ],
-                        selected: {context.watch<ThemeProvider>().themeMode},
-                        onSelectionChanged: (Set<ThemeMode> newSelection) {
-                          context.read<ThemeProvider>().setThemeMode(newSelection.first);
-                        },
-                        style: ButtonStyle(
-                          side: WidgetStateProperty.all(BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.5))),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              const SizedBox(height: 40),
-              
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton.icon(
-                  onPressed: () async {
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (context) => const Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
-                    
-                    await context.read<AuthProvider>().logout();
-                    
-                    if (context.mounted) {
-                      Navigator.of(context).pop();
-                      context.go('/');
-                    }
-                  },
-                  icon: const Icon(Icons.logout),
-                  label: Text(l10n.logout, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: colorScheme.errorContainer,
-                    foregroundColor: colorScheme.error,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-=======
               // Cerrar sesión
               SizedBox(
                 width: double.infinity,
@@ -416,35 +321,11 @@ class _ProfilePageState extends State<ProfilePage> {
                   style: TextStyle(
                     color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                     fontSize: 12,
->>>>>>> Stashed changes
                   ),
                 ),
               ),
               
               const SizedBox(height: 24),
-<<<<<<< Updated upstream
-              Column(
-                children: [
-                  Text(
-                    'Versión ${AppVersion.version}',
-                    style: TextStyle(
-                      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '© 2026 Corvus. Todos los derechos reservados.',
-                    style: TextStyle(
-                      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 40),
-=======
->>>>>>> Stashed changes
             ],
           ),
         ),
