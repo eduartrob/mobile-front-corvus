@@ -13,6 +13,11 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<UserEntity> loginWithEmail(String email, String password) async {
+    return await remoteDataSource.loginWithEmail(email, password);
+  }
+
+  @override
   Future<bool> requestDriveScope() async {
     return await remoteDataSource.requestDriveScope();
   }

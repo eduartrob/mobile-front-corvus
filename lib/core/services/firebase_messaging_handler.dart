@@ -3,12 +3,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:mobile/core/services/notification_service.dart';
 import 'package:mobile/firebase_options.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart' as flutter_secure_storage;
+import 'package:mobile/core/services/secure_storage_service.dart';
 import 'package:mobile/features/notifications/data/notifications_local_data_source.dart';
 import 'package:mobile/core/router/appRouter.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/notifications/presentation/provider/notifications_provider.dart';
 import 'package:mobile/features/notifications/presentation/pages/notifications_page.dart';
+import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -24,7 +25,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 Future<void> handleFCMMessage(RemoteMessage message) async {
   final data = message.data;
   
-  const storage = flutter_secure_storage.FlutterSecureStorage();
+  final storage = SecureStorageService();
   final role = await storage.read(key: 'auth_role');
 
   if (message.notification != null) {
@@ -45,6 +46,13 @@ Future<void> handleFCMMessage(RemoteMessage message) async {
     if (context != null) {
       try {
         context.read<NotificationsProvider>().fetchNotifications(silent: true);
+        
+        // WhatsApp-like real-time reactive updates para Equipos
+        if (data['type'] == 'team_request' || data['type'] == 'team_accept') {
+          context.read<TeamsProvider>().fetchMyTeam();
+          context.read<TeamsProvider>().fetchRequests();
+          context.read<TeamsProvider>().fetchSuggestions();
+        }
       } catch(e) {
         debugPrint('Provider no disponible en context actual');
       }
@@ -63,6 +71,7 @@ Future<void> handleFCMMessage(RemoteMessage message) async {
       NotificationService().showResultNotification(
         message.notification!.title ?? 'Nueva Notificación',
         message.notification!.body ?? '',
+        payload: data['type'],
       );
     } else {
       debugPrint("Alerta visual flotante omitida (es profesor o la página de notificaciones está abierta).");
@@ -87,7 +96,7 @@ Future<void> handleFCMMessage(RemoteMessage message) async {
     );
   } else if (data['type'] == 'CONFIG_UPDATED') {
     try {
-      const storage = flutter_secure_storage.FlutterSecureStorage();
+      final storage = SecureStorageService();
       await storage.delete(key: 'cached_prof_config');
       await storage.delete(key: 'etag_prof_config'); // Importante borrar el ETAG para forzar refresh
       await storage.delete(key: 'cached_cluster_stats');

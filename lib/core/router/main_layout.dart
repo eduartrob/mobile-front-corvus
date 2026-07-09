@@ -16,7 +16,7 @@ class MainLayout extends StatefulWidget {
 }
 
 class _MainLayoutState extends State<MainLayout> {
-
+  DateTime? _lastPressedAt;
 
   void _onItemTapped(BuildContext context, int index) {
     if (index == widget.navigationShell.currentIndex) {
@@ -36,33 +36,65 @@ class _MainLayoutState extends State<MainLayout> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Scaffold(
-      body: widget.navigationShell,
-      bottomNavigationBar: CustomAnimatedBottomNavBar(
-        currentIndex: widget.navigationShell.currentIndex,
-        onTap: (index) => _onItemTapped(context, index),
-        items: [
-          CustomNavItemData(
-            icon: Icons.lightbulb_outline,
-            activeIcon: Icons.lightbulb,
-            label: l10n.navInspiration,
-          ),
-          CustomNavItemData(
-            icon: Icons.folder_open,
-            activeIcon: Icons.folder,
-            label: l10n.navMyProject,
-          ),
-          CustomNavItemData(
-            icon: Icons.search_outlined,
-            activeIcon: Icons.search,
-            label: l10n.navSearch,
-          ),
-          CustomNavItemData(
-            icon: Icons.groups_outlined,
-            activeIcon: Icons.groups,
-            label: l10n.navTeams,
-          ),
-        ],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, Object? result) async {
+        if (didPop) return;
+
+        // Si no estamos en la primera pestaña (Inspiración), regresar a ella
+        if (widget.navigationShell.currentIndex != 0) {
+          widget.navigationShell.goBranch(0);
+          return;
+        }
+
+        // Ya estamos en Inspiración: doble toque para salir
+        final now = DateTime.now();
+        if (_lastPressedAt == null ||
+            now.difference(_lastPressedAt!) > const Duration(seconds: 2)) {
+          _lastPressedAt = now;
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Toca "Volver" de nuevo para salir'),
+                duration: Duration(seconds: 2),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+          return;
+        }
+
+        SystemNavigator.pop();
+      },
+      child: Scaffold(
+        body: widget.navigationShell,
+        bottomNavigationBar: CustomAnimatedBottomNavBar(
+          currentIndex: widget.navigationShell.currentIndex,
+          onTap: (index) => _onItemTapped(context, index),
+          items: [
+            CustomNavItemData(
+              icon: Icons.lightbulb_outline,
+              activeIcon: Icons.lightbulb,
+              label: l10n.navInspiration,
+            ),
+            CustomNavItemData(
+              icon: Icons.folder_open,
+              activeIcon: Icons.folder,
+              label: l10n.navMyProject,
+            ),
+            CustomNavItemData(
+              icon: Icons.search_outlined,
+              activeIcon: Icons.search,
+              label: l10n.navSearch,
+            ),
+            CustomNavItemData(
+              icon: Icons.groups_outlined,
+              activeIcon: Icons.groups,
+              label: l10n.navTeams,
+            ),
+          ],
+        ),
       ),
     );
   }

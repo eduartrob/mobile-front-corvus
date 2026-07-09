@@ -94,14 +94,14 @@ class ProjectCard extends StatelessWidget {
         children: [
           _AnimatedCardWrapper(
             onTap: () => _handleTap(context),
+            backgroundColor: colorScheme.surfaceContainerLow,
             child: Container(
               padding: const EdgeInsets.all(16), // Ligeramente menos padding interno para balancear
               decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(16), // Borde menos redondeado
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: colorScheme.outlineVariant.withValues(alpha: 0.25),
-                  width: 1,
+                  color: isTrending ? colorScheme.primary : colorScheme.outlineVariant.withValues(alpha: 0.5),
+                  width: isTrending ? 1.5 : 1.0,
                 ),
                 boxShadow: [
                   BoxShadow(
@@ -429,8 +429,9 @@ class _ViewersAndCountRow extends StatelessWidget {
 class _AnimatedCardWrapper extends StatefulWidget {
   final Widget child;
   final VoidCallback onTap;
+  final Color backgroundColor;
 
-  const _AnimatedCardWrapper({required this.child, required this.onTap});
+  const _AnimatedCardWrapper({required this.child, required this.onTap, this.backgroundColor = Colors.transparent});
 
   @override
   State<_AnimatedCardWrapper> createState() => _AnimatedCardWrapperState();
@@ -458,28 +459,25 @@ class _AnimatedCardWrapperState extends State<_AnimatedCardWrapper> with SingleT
     super.dispose();
   }
 
-  void _onTapDown(TapDownDetails details) {
-    _controller.forward();
-  }
-
-  void _onTapUp(TapUpDetails details) {
-    _controller.reverse();
-    widget.onTap();
-  }
-
-  void _onTapCancel() {
-    _controller.reverse();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: _onTapDown,
-      onTapUp: _onTapUp,
-      onTapCancel: _onTapCancel,
-      child: ScaleTransition(
-        scale: _scaleAnimation,
-        child: widget.child,
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: Material(
+        color: widget.backgroundColor,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          onTap: widget.onTap,
+          borderRadius: BorderRadius.circular(16),
+          onHighlightChanged: (isHighlighted) {
+            if (isHighlighted) {
+              _controller.forward();
+            } else {
+              _controller.reverse();
+            }
+          },
+          child: widget.child,
+        ),
       ),
     );
   }
