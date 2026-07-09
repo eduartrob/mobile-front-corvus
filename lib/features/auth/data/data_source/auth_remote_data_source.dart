@@ -17,11 +17,14 @@ abstract class AuthRemoteDataSource {
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    // En Web, no se debe pasar serverClientId porque lanza un error. Usa el del index.html
+    // en web no se debe pasar serverclientid porque lanza un error usa el del indexhtml
     serverClientId: kIsWeb ? null : '1078483343139-2fobsjceva5r60i6vrpcg4jbjddmj4uo.apps.googleusercontent.com',
     scopes: [
-      'email',
+      'email', 
       'profile',
+      'https://www.googleapis.com/auth/classroom.courses.readonly',
+      'https://www.googleapis.com/auth/classroom.courseworkmaterials.readonly',
+      'https://www.googleapis.com/auth/drive.readonly'
     ],
   );
 
@@ -39,7 +42,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     ]);
     
     if (success) {
-      await _syncClassroomMaterials(jwtToken);
+      // fire and forget to not block the ui
+      _syncClassroomMaterials(jwtToken);
     }
     
     return success;
@@ -53,7 +57,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       GoogleSignInAccount? user = _googleSignIn.currentUser;
       final teacherId = user?.id ?? "unknown";
 
-      // 1. Fetch classroom courses
+      // 1 fetch classroom courses
       final response = await http.get(
         Uri.parse('https://classroom.googleapis.com/v1/courses?courseStates=ACTIVE'),
         headers: {
@@ -74,7 +78,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           if (teacherFolder != null && teacherFolder['id'] != null) {
             final folderId = teacherFolder['id'];
             
-            // 2. Send to backend ingest
+            // 2 send to backend ingest
             try {
               final ingestUrl = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/subject/ingest');
               final ingestResponse = await http.post(
