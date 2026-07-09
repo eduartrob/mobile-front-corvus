@@ -291,6 +291,36 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<bool> validateUniversityCode(String code) async {
+    try {
+      final response = await apiClient.post(
+        Uri.parse('${ApiConfig.apiGatewayUrl}/auth/universities/validate'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'code': code}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final university = data['university'];
+        
+        if (university != null && university['id'] != null) {
+          // Save university ID in storage for future use
+          await _storage.write(key: 'auth_university_id', value: university['id']);
+          return true;
+        }
+      }
+      
+      _errorMessage = 'Código de universidad inválido';
+      notifyListeners();
+      return false;
+    } catch (e) {
+      print('Error validating university code: $e');
+      _errorMessage = 'Error al validar el código';
+      notifyListeners();
+      return false;
+    }
+  }
+
   Future<bool> updateProfilePicture(String base64Image) async {
     try {
       final token = await _storage.read(key: 'auth_token');
