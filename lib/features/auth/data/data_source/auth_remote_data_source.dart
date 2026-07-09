@@ -20,11 +20,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     // en web no se debe pasar serverclientid porque lanza un error usa el del indexhtml
     serverClientId: kIsWeb ? null : '1078483343139-2fobsjceva5r60i6vrpcg4jbjddmj4uo.apps.googleusercontent.com',
     scopes: [
-      'email', 
+      'email',
       'profile',
-      'https://www.googleapis.com/auth/classroom.courses.readonly',
-      'https://www.googleapis.com/auth/classroom.courseworkmaterials.readonly',
-      'https://www.googleapis.com/auth/drive.readonly'
     ],
   );
 
