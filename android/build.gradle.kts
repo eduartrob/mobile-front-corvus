@@ -3,9 +3,17 @@ allprojects {
         google()
         mavenCentral()
     }
+    // Force Kotlin stdlib to 2.2.20 in all subprojects to satisfy Flutter's KGP version check
+    configurations.all {
+        resolutionStrategy.force(
+            "org.jetbrains.kotlin:kotlin-stdlib:2.2.20",
+            "org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.20",
+            "org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.20"
+        )
+    }
 }
 
-// Forzar compileSdk >= 36 y Java 17 en todos los plugins (debe coincidir con jvmTarget de Kotlin)
+// Forzar compileSdk >= 36 y Java 17 en todos los plugins
 subprojects {
     afterEvaluate {
         if (extensions.findByName("android") != null) {
@@ -18,7 +26,7 @@ subprojects {
             }
         }
     }
-    
+
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
         compilerOptions {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)

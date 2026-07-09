@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:mobile/core/network/auth_interceptor_client.dart';
 import 'package:mobile/features/auth/data/data_source/auth_remote_data_source.dart';
 import 'package:mobile/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:mobile/features/auth/domain/repositories/auth_repository.dart';
@@ -31,7 +32,7 @@ void setupDependencies() {
     () => SyncRemoteDataSourceImpl(),
   );
   sl.registerLazySingleton<SearchRemoteDataSource>(
-    () => SearchRemoteDataSourceImpl(),
+    () => SearchRemoteDataSourceImpl(client: apiClient),
   );
 
   sl.registerLazySingleton<AuthRepository>(

@@ -73,23 +73,9 @@ class _SearchPageViewState extends State<_SearchPageView>
   @override
   void initState() {
     super.initState();
-    _initSpeech();
     _searchFocusNode.addListener(() {
       setState(() {});
     });
-  }
-
-  void _initSpeech() async {
-    await _speechToText.initialize(
-      onStatus: (status) {
-        if (status == 'done' || status == 'notListening') {
-          setState(() => _isListening = false);
-          if (_searchController.text.isNotEmpty && !_hasResults) {
-            _submitSearch(_searchController.text, fromVoice: true);
-          }
-        }
-      },
-    );
   }
 
   @override
@@ -104,7 +90,16 @@ class _SearchPageViewState extends State<_SearchPageView>
     _flutterTts
         .stop(); // Detener cualquier lectura actual al interactuar con el micrófono
     if (!_isListening) {
-      bool available = await _speechToText.initialize();
+      bool available = await _speechToText.initialize(
+        onStatus: (status) {
+          if (status == 'done' || status == 'notListening') {
+            setState(() => _isListening = false);
+            if (_searchController.text.isNotEmpty && !_hasResults) {
+              _submitSearch(_searchController.text, fromVoice: true);
+            }
+          }
+        },
+      );
       if (available) {
         setState(() => _isListening = true);
         _speechToText.listen(
