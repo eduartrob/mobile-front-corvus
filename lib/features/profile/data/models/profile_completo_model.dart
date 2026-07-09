@@ -26,73 +26,50 @@ class HabilidadModel {
 
 class ProfileCompletoModel {
   final String alumno;
-<<<<<<< Updated upstream
-=======
-  final String? correo;
-  final String? correoSecundario;
-  final bool isGoogleLinked;
-  final String? universidad;
-  final String? carrera;
-  final String? cuatrimestre;
->>>>>>> Stashed changes
   final Map<String, dynamic> resumen;
   final List<dynamic> documentosConIa;
   final List<dynamic> materias;
   final List<HabilidadModel> habilidades;
-  final bool isProcessing;
-
-<<<<<<< Updated upstream
-  ProfileCompletoModel({
-    required this.alumno,
-=======
+  
+  // Soporte para procesamiento asíncrono
+  final String? status;
   final double? progress;
   final String? message;
-  final String? matricula;
-  final bool isVerified;
-  final bool secondaryIsVerified;
-  final String? googleEmail;
+
   ProfileCompletoModel({
     required this.alumno,
-    this.correo,
-    this.correoSecundario,
-    this.isGoogleLinked = false,
-    this.universidad,
-    this.carrera,
-    this.cuatrimestre,
-    this.matricula,
-    this.isVerified = false,
-    this.secondaryIsVerified = false,
-    this.googleEmail,
->>>>>>> Stashed changes
     required this.resumen,
     required this.documentosConIa,
     required this.materias,
     required this.habilidades,
-    this.isProcessing = false,
+    this.status,
+    this.progress,
+    this.message,
   });
 
   factory ProfileCompletoModel.fromJson(Map<String, dynamic> json) {
+    final statusStr = json['status']?.toString();
     var habilidadesList = json['habilidades'] as List? ?? [];
+    
+    double? progVal;
+    if (json['progress'] != null) {
+      progVal = double.tryParse(json['progress'].toString());
+      if (progVal != null && progVal > 1.0) {
+        progVal = progVal / 100.0;
+      }
+    }
+
     return ProfileCompletoModel(
+      status: statusStr,
+      progress: progVal,
+      message: json['message']?.toString() ?? json['detail']?.toString(),
       alumno: json['alumno']?.toString() ?? '',
-<<<<<<< Updated upstream
-=======
-      correo: json['correo']?.toString(),
-      correoSecundario: json['correo_secundario']?.toString(),
-      isGoogleLinked: json['is_google_linked'] ?? false,
-      universidad: json['universidad']?.toString(),
-      carrera: json['carrera']?.toString(),
-      cuatrimestre: json['cuatrimestre']?.toString(),
-      matricula: json['matricula']?.toString(),
-      isVerified: json['is_verified'] ?? false,
-      secondaryIsVerified: json['secondary_is_verified'] ?? false,
-      googleEmail: json['google_email']?.toString(),
->>>>>>> Stashed changes
       resumen: json['resumen'] as Map<String, dynamic>? ?? {},
       documentosConIa: json['documentos_con_ia'] as List? ?? [],
       materias: json['materias'] as List? ?? [],
       habilidades: habilidadesList.map((h) => HabilidadModel.fromJson(h)).toList(),
-      isProcessing: json['status'] == 'processing',
     );
   }
+
+  bool get isProcessing => status == 'processing' || status == 'PROCESANDO';
 }

@@ -1,13 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:mobile/core/network/auth_interceptor_client.dart';
 import 'package:mobile/features/student_directory/domain/entities/student.dart';
 import 'package:mobile/features/teams/data/models/team_model.dart';
 import 'package:mobile/features/teams/data/models/solicitud_model.dart';
 import 'package:mobile/features/teams/data/data_source/teams_remote_data_source.dart';
 
 enum SolicitudFilter {
-  recibidas,
+  aceptadas,
   enviadas,
 }
 
@@ -15,14 +14,14 @@ class TeamsProvider extends ChangeNotifier {
   final TeamsRemoteDataSource remoteDataSource;
 
   TeamsProvider({TeamsRemoteDataSource? remoteDataSource})
-      : remoteDataSource = remoteDataSource ?? TeamsRemoteDataSource(client: apiClient);
+      : remoteDataSource = remoteDataSource ?? TeamsRemoteDataSource(client: http.Client());
 
   TeamModel? _myTeam;
   List<Student> _suggestions = [];
   List<Solicitud> _requests = [];
   bool _isLoading = false;
   String? _errorMessage;
-  SolicitudFilter _selectedFilter = SolicitudFilter.recibidas;
+  SolicitudFilter _selectedFilter = SolicitudFilter.aceptadas;
 
   TeamModel? get myTeam => _myTeam;
   List<Student> get suggestions => _suggestions;
@@ -32,8 +31,8 @@ class TeamsProvider extends ChangeNotifier {
   SolicitudFilter get selectedFilter => _selectedFilter;
 
   List<Solicitud> get filteredSolicitudes {
-    final targetState = _selectedFilter == SolicitudFilter.recibidas
-        ? SolicitudState.recibida
+    final targetState = _selectedFilter == SolicitudFilter.aceptadas
+        ? SolicitudState.aceptada
         : SolicitudState.enviada;
     return _requests.where((s) => s.state == targetState).toList();
   }
@@ -121,13 +120,13 @@ class TeamsProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchSuggestions({String? skill, String? search}) async {
+  Future<void> fetchSuggestions({String? skill}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      _suggestions = await remoteDataSource.getSuggestions(skill: skill, search: search);
+      _suggestions = await remoteDataSource.getSuggestions(skill: skill);
     } catch (e) {
       _errorMessage = e.toString();
     } finally {
@@ -142,7 +141,7 @@ class TeamsProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final filterStr = _selectedFilter == SolicitudFilter.recibidas ? 'recibidas' : 'enviadas';
+      final filterStr = _selectedFilter == SolicitudFilter.aceptadas ? 'aceptadas' : 'enviadas';
       _requests = await remoteDataSource.getRequests(filterStr);
     } catch (e) {
       _errorMessage = e.toString();

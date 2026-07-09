@@ -1,7 +1,7 @@
 import 'package:mobile/features/student_directory/domain/entities/student.dart';
 
 enum SolicitudState {
-  recibida,
+  aceptada,
   enviada,
 }
 
@@ -18,17 +18,12 @@ class Solicitud {
     required this.date,
   });
 
-  factory Solicitud.fromJson(Map<String, dynamic> json, {SolicitudState? forcedState}) {
-    SolicitudState state;
-    if (forcedState != null) {
-      state = forcedState;
-    } else {
-      final stateStr = json['state']?.toString().toLowerCase() ?? 
-                       json['status']?.toString().toLowerCase() ?? 'enviada';
-      state = (stateStr == 'aceptada' || stateStr == 'accepted' || stateStr == 'approved' || stateStr == 'pendiente' || stateStr == 'recibida')
-          ? SolicitudState.recibida
-          : SolicitudState.enviada;
-    }
+  factory Solicitud.fromJson(Map<String, dynamic> json) {
+    final stateStr = json['state']?.toString().toLowerCase() ?? 
+                     json['status']?.toString().toLowerCase() ?? 'enviada';
+    final state = (stateStr == 'aceptada' || stateStr == 'accepted' || stateStr == 'approved')
+        ? SolicitudState.aceptada
+        : SolicitudState.enviada;
 
     Student studentObj;
     if (json['student'] != null) {

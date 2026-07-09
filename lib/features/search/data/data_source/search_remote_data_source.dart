@@ -1,23 +1,26 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/api_config.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 abstract class SearchRemoteDataSource {
   Future<Map<String, dynamic>> searchSmart(String query);
 }
 
 class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
-  final http.Client client;
   final String _baseUrl = '${ApiConfig.apiGatewayUrl}/clustering/subject';
-
-  SearchRemoteDataSourceImpl({required this.client});
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   @override
   Future<Map<String, dynamic>> searchSmart(String query) async {
     try {
+      final token = await _storage.read(key: 'auth_token');
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
+      if (token != null) {
+        headers['Authorization'] = 'Bearer $token';
+      }
 
-      final response = await client.post(
+      final response = await http.post(
         Uri.parse('$_baseUrl/search-smart'),
         headers: headers,
         body: jsonEncode({'query': query}),

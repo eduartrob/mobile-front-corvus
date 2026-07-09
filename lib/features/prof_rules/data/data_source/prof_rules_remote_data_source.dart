@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:mobile/core/services/secure_storage_service.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobile/core/network/api_config.dart';
 
 class ProfRulesRemoteDataSource {
   final http.Client client;
-  final SecureStorageService _storage = SecureStorageService();
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   ProfRulesRemoteDataSource({required this.client});
 
@@ -23,8 +23,8 @@ class ProfRulesRemoteDataSource {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/config');
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
-
-
+      final token = await _storage.read(key: 'auth_token');
+      if (token != null) headers['Authorization'] = 'Bearer $token';
 
       final etag = await _storage.read(key: etagKey);
       if (etag != null) {
@@ -63,8 +63,8 @@ class ProfRulesRemoteDataSource {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/clusters-stats');
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
-
-
+      final token = await _storage.read(key: 'auth_token');
+      if (token != null) headers['Authorization'] = 'Bearer $token';
 
       final response = await client.get(url, headers: headers).timeout(const Duration(seconds: 15));
       if (response.statusCode == 200) {
@@ -82,8 +82,8 @@ class ProfRulesRemoteDataSource {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/config');
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
-
-
+      final token = await _storage.read(key: 'auth_token');
+      if (token != null) headers['Authorization'] = 'Bearer $token';
 
       final body = json.encode({
         "allowed_extensions": allowedExtensions,
@@ -108,8 +108,8 @@ class ProfRulesRemoteDataSource {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/generate-sections');
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
-
-
+      final token = await _storage.read(key: 'auth_token');
+      if (token != null) headers['Authorization'] = 'Bearer $token';
 
       final response = await client.post(url, headers: headers).timeout(const Duration(seconds: 60));
       if (response.statusCode == 200) {
@@ -126,8 +126,8 @@ class ProfRulesRemoteDataSource {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/notify-rules');
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
-
-
+      final token = await _storage.read(key: 'auth_token');
+      if (token != null) headers['Authorization'] = 'Bearer $token';
 
       await client.post(url, headers: headers).timeout(const Duration(seconds: 10));
     } catch (e) {

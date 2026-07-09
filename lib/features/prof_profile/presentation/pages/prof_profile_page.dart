@@ -21,7 +21,6 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
   bool course1Enabled = true;
   bool course2Enabled = true;
   bool course3Enabled = false;
-  bool _isSyncing = false;
 
   void _showUpcomingFeature(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -206,49 +205,35 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                     width: double.infinity,
                     height: 48,
                     child: ElevatedButton.icon(
-                      onPressed: _isSyncing ? null : () async {
-                        setState(() {
-                          _isSyncing = true;
-                        });
-                        
+                      onPressed: () async {
                         final authProvider = context.read<AuthProvider>();
-                        try {
-                          final success = await authProvider.requestClassroomScopes();
-                          
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                            if (success) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('¡Materiales sincronizados correctamente!'),
-                                  backgroundColor: Colors.green,
-                                  behavior: SnackBarBehavior.floating,
-                                ),
-                              );
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Autorización cancelada o fallida.'),
-                                  backgroundColor: Colors.redAccent,
-                                  behavior: SnackBarBehavior.floating,
-                                ),
-                              );
-                            }
-                          }
-                        } finally {
-                          if (mounted) {
-                            setState(() {
-                              _isSyncing = false;
-                            });
+                        final success = await authProvider.requestClassroomScopes();
+                        
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                          if (success) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('¡Sincronización automática de Classroom activada!'),
+                                backgroundColor: Colors.green,
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Autorización cancelada o fallida.'),
+                                backgroundColor: Colors.redAccent,
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
                           }
                         }
                       },
-                      icon: _isSyncing 
-                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) 
-                          : const Icon(Icons.school),
-                      label: Text(
-                        _isSyncing ? 'Sincronizando... por favor espera' : 'Autorizar y Sincronizar Material',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      icon: const Icon(Icons.school),
+                      label: const Text(
+                        'Autorizar y Sincronizar Material',
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: colorScheme.primary,
@@ -267,9 +252,10 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
             
             // Historical Projects Synchronization Section
             Container(
-              padding: const EdgeInsets.all(16),
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: colorScheme.secondaryContainer.withValues(alpha: 0.3),
+                color: colorScheme.secondaryContainer.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: colorScheme.secondary.withValues(alpha: 0.3)),
               ),
@@ -292,43 +278,34 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Para incluir proyectos históricos, comparte tu carpeta de Google Drive otorgando permisos de "Lector" al siguiente correo:',
+                    'Sincroniza carpetas de Google Drive que contengan proyectos históricos (tesis, reportes) para incluirlos en la base de conocimiento.',
                     style: TextStyle(
                       fontSize: 13,
                       color: colorScheme.onSurfaceVariant,
                       height: 1.4,
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: colorScheme.surface,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: colorScheme.outlineVariant),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: SelectableText(
-                            'corvus-backend@corvus-376d3.iam.gserviceaccount.com',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: colorScheme.onSurface,
-                            ),
-                          ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        DriveSyncModal.show(context);
+                      },
+                      icon: const Icon(Icons.add_to_drive),
+                      label: const Text(
+                        'Sincronizar Google Drive',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colorScheme.secondaryContainer,
+                        foregroundColor: colorScheme.onSecondaryContainer,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'El panel de administración detectará automáticamente la carpeta compartida.',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontStyle: FontStyle.italic,
-                      color: colorScheme.onSurfaceVariant,
+                        elevation: 0,
+                      ),
                     ),
                   ),
                 ],

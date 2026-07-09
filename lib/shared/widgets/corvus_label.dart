@@ -10,11 +10,10 @@ class Label extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
     return Text(
       text,
-      style: TextStyle(
-        color: colors.onSurface,
+      style: const TextStyle(
+        color: Colors.white,
         fontSize: 16,
         fontWeight: FontWeight.w600,
       ),

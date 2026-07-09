@@ -1,24 +1,37 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobile/core/network/api_config.dart';
 
 class MyProjectRemoteDataSource {
   final http.Client client;
+  final FlutterSecureStorage _storage;
 
-  MyProjectRemoteDataSource({required this.client});
+  MyProjectRemoteDataSource({required this.client, FlutterSecureStorage? storage})
+      : _storage = storage ?? const FlutterSecureStorage();
 
   Future<Map<String, dynamic>> preValidateProposal(String filePath, String userId) async {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/pre-validate-proposal');
 
     try {
       var request = http.MultipartRequest('POST', url);
-      request.fields['user_id'] = userId;
       request.files.add(await http.MultipartFile.fromPath('file', filePath));
+      request.fields['user_id'] = userId;
+      request.headers.addAll(ApiConfig.defaultHeaders);
       
-      // Do NOT addAll(ApiConfig.defaultHeaders) because it overwrites the multipart boundary Content-Type
-      request.headers['Accept'] = 'application/json';
+      // -# reintento el keystore de android puede fallar al volver de filepicker
+      var token = await _storage.read(key: 'auth_token');
+      if (token == null) {
+        await Future.delayed(const Duration(milliseconds: 600));
+        token = await _storage.read(key: 'auth_token');
+      }
+      if (token == null) {
+        throw Exception('Sesión no encontrada. Por favor cierra y abre la app nuevamente.');
+      }
+      request.headers['Authorization'] = 'Bearer $token';
+      request.headers.remove('Content-Type');
 
-      final streamedResponse = await client.send(request).timeout(const Duration(seconds: 120));
+      final streamedResponse = await request.send().timeout(const Duration(seconds: 120));
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -43,11 +56,18 @@ class MyProjectRemoteDataSource {
 
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
+      final token = await _storage.read(key: 'auth_token');
+      if (token != null) {
+        headers['Authorization'] = 'Bearer $token';
+      }
+
       final response = await client.get(url, headers: headers).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final data = json.decode(utf8.decode(response.bodyBytes));
-        if (data['status'] == 'not_found') return {};
+        if (data['status'] == 'not_found') {
+          return {};
+        }
         return data;
       } else {
         final bodyText = utf8.decode(response.bodyBytes);
@@ -68,6 +88,11 @@ class MyProjectRemoteDataSource {
 
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
+      final token = await _storage.read(key: 'auth_token');
+      if (token != null) {
+        headers['Authorization'] = 'Bearer $token';
+      }
+
       final response = await client.get(url, headers: headers).timeout(const Duration(seconds: 10));
       if (response.statusCode == 200) {
         return json.decode(utf8.decode(response.bodyBytes));
@@ -82,9 +107,15 @@ class MyProjectRemoteDataSource {
     try {
       var request = http.MultipartRequest('POST', url);
       request.fields['user_id'] = userId;
-      request.headers['Accept'] = 'application/json';
+      request.headers.addAll(ApiConfig.defaultHeaders);
 
-      final streamedResponse = await client.send(request);
+      final token = await _storage.read(key: 'auth_token');
+      if (token != null) {
+        request.headers['Authorization'] = 'Bearer $token';
+      }
+      request.headers.remove('Content-Type');
+
+      final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode != 200 && response.statusCode != 201) {
@@ -107,6 +138,11 @@ class MyProjectRemoteDataSource {
 
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
+      final token = await _storage.read(key: 'auth_token');
+      if (token != null) {
+        headers['Authorization'] = 'Bearer $token';
+      }
+
       final response = await client.get(url, headers: headers).timeout(const Duration(seconds: 10));
       if (response.statusCode == 200) {
         return json.decode(utf8.decode(response.bodyBytes));
@@ -120,7 +156,13 @@ class MyProjectRemoteDataSource {
 
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
+      final token = await _storage.read(key: 'auth_token');
+      if (token != null) {
+        headers['Authorization'] = 'Bearer $token';
+      }
+
       await client.post(url, headers: headers);
-    } catch (_) {}
+    } catch (_) {
+    }
   }
 }

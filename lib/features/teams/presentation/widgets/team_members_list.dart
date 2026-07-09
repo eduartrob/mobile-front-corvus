@@ -98,8 +98,6 @@ class TeamMembersList extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    final isAdmin = members.isNotEmpty && members[0].id == currentUserId;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -113,21 +111,20 @@ class TeamMembersList extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            if (isAdmin)
-              TextButton.icon(
-                onPressed: () => context.push('/manage-team'),
-                icon: const Icon(Icons.manage_accounts_outlined, size: 18),
-                label: const Text('Gestionar'),
-                style: TextButton.styleFrom(
-                  backgroundColor: colorScheme.primary.withValues(alpha: 0.15),
-                  foregroundColor: colorScheme.primary,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    side: BorderSide(color: colorScheme.primary.withValues(alpha: 0.3)),
-                  ),
+            TextButton.icon(
+              onPressed: () => context.push('/manage-team'),
+              icon: const Icon(Icons.manage_accounts_outlined, size: 18),
+              label: const Text('Gestionar'),
+              style: TextButton.styleFrom(
+                backgroundColor: colorScheme.primary.withValues(alpha: 0.15),
+                foregroundColor: colorScheme.primary,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  side: BorderSide(color: colorScheme.primary.withValues(alpha: 0.3)),
                 ),
               ),
+            ),
           ],
         ),
         const SizedBox(height: 16),
@@ -140,7 +137,7 @@ class TeamMembersList extends StatelessWidget {
               name: member.name,
               email: member.email,
               isMe: isMe,
-              onRemove: (!isAdmin || isMe) ? null : () => _showRemoveConfirmationDialog(context, member),
+              onRemove: isMe ? null : () => _showRemoveConfirmationDialog(context, member),
             ),
           );
         }),

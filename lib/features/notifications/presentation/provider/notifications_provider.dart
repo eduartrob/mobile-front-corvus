@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:mobile/core/services/secure_storage_service.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import 'package:mobile/core/network/auth_interceptor_client.dart';
 import '../../domain/entities/app_notification.dart';
 import '../../data/notifications_local_data_source.dart';
 import '../../data/notifications_remote_data_source.dart';
@@ -9,19 +8,17 @@ import '../../data/notifications_remote_data_source.dart';
 class NotificationsProvider extends ChangeNotifier {
   List<AppNotification> _notifications = [];
   bool _isLoading = false;
+  
+  final NotificationsRemoteDataSource _remoteDataSource = NotificationsRemoteDataSource(client: http.Client());
 
-  // Selection mode
+  // Selection mode variables
   Set<String> _selectedIds = {};
-  bool _isSelectionMode = false;
-
-  final NotificationsRemoteDataSource _remoteDataSource =
-      NotificationsRemoteDataSource(client: apiClient);
 
   List<AppNotification> get notifications => _notifications;
   bool get isLoading => _isLoading;
   int get unreadCount => _notifications.where((n) => !n.isRead).length;
-
-  bool get isSelectionMode => _isSelectionMode;
+  
+  bool get isSelectionMode => _selectedIds.isNotEmpty;
   Set<String> get selectedIds => _selectedIds;
 
   Future<void> fetchNotifications({bool silent = false}) async {
@@ -30,10 +27,11 @@ class NotificationsProvider extends ChangeNotifier {
       notifyListeners();
     }
     try {
-      // 1. Try to fetch from remote and sync to local
+      // 1. Try to fetch from remote
       try {
         final remoteData = await _remoteDataSource.fetchMyNotifications();
-        await NotificationsLocalDataSource.deleteAllRemote();
+        // Overwrite local DB completely for simplicity in sync
+        await NotificationsLocalDataSource.deleteAll();
         for (var n in remoteData) {
           await NotificationsLocalDataSource.insertNotification({
             'id': n['id'],
@@ -52,27 +50,23 @@ class NotificationsProvider extends ChangeNotifier {
 
       // 2. Load from local DB
       final data = await NotificationsLocalDataSource.getNotifications();
-      final storage = SecureStorageService();
+      const storage = FlutterSecureStorage();
       final role = await storage.read(key: 'auth_role');
 
-      var parsedNotifications = data
-          .map((n) => AppNotification(
-                id: n['id'].toString(),
-                message: n['title'] != null && n['title'] != ''
-                    ? "${n['title']}\n${n['body']}"
-                    : n['body'],
-                timestamp: DateTime.parse(n['timestamp']),
-                type: _getTypeFromString(n['type']),
-                isRead: n['isRead'] == 1,
-                authorName: n['authorName'],
-                authorPhotoUrl: n['authorPhotoUrl'],
-              ))
-          .toList();
+      var parsedNotifications = data.map((n) => AppNotification(
+        id: n['id'].toString(),
+        message: n['title'] != null && n['title'] != '' ? "${n['title']}\n${n['body']}" : n['body'],
+        timestamp: DateTime.parse(n['timestamp']),
+        type: _getTypeFromString(n['type']),
+        isRead: n['isRead'] == 1,
+        authorName: n['authorName'],
+        authorPhotoUrl: n['authorPhotoUrl'],
+      )).toList();
 
       if (role == 'PROFESOR') {
+        // Ocultar notificaciones de configuración al profesor
         parsedNotifications = parsedNotifications.where((n) {
-          final isConfigUpdate = n.message.contains('Temas para Proyecto') ||
-              n.message.contains('estructura de proyecto');
+          final isConfigUpdate = n.message.contains('Temas para Proyecto') || n.message.contains('estructura de proyecto');
           return !isConfigUpdate;
         }).toList();
       }
@@ -82,151 +76,80 @@ class NotificationsProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint('Error fetching notifications: $e');
     } finally {
-      if (!silent) _isLoading = false;
+      if (!silent) {
+        _isLoading = false;
+      }
       notifyListeners();
     }
-  }
-
-  /// Marca todas las notificaciones como leídas (local + servidor) cuando
-  /// el usuario abre la pantalla de notificaciones.
-  Future<void> markAllAsReadOnOpen() async {
-    final unread = _notifications.where((n) => !n.isRead).toList();
-    if (unread.isEmpty) return;
-
-    // Actualización optimista en memoria
-    _notifications = _notifications.map((n) => n.copyWith(isRead: true)).toList();
-    notifyListeners();
-
-    // Persistir en local
-    await NotificationsLocalDataSource.markAllAsRead();
-
-    // Persistir en servidor (una petición por notificación no leída)
-    for (final n in unread) {
-      try {
-        await _remoteDataSource.markAsRead(n.id);
-      } catch (e) {
-        debugPrint('Error marking ${n.id} as read on server: $e');
-      }
-    }
-  }
-
-  // ── Selection mode ────────────────────────────────────────────────────────
-
-  void enterSelectionMode(String firstId) {
-    _isSelectionMode = true;
-    _selectedIds = {firstId};
-    notifyListeners();
-  }
-
-  void exitSelectionMode() {
-    _isSelectionMode = false;
-    _selectedIds.clear();
-    notifyListeners();
   }
 
   void toggleSelection(String id) {
     if (_selectedIds.contains(id)) {
       _selectedIds.remove(id);
-      if (_selectedIds.isEmpty) _isSelectionMode = false;
     } else {
       _selectedIds.add(id);
     }
     notifyListeners();
   }
 
-  // kept for compatibility
-  void clearSelection() => exitSelectionMode();
+  void clearSelection() {
+    _selectedIds.clear();
+    notifyListeners();
+  }
 
-  // ── Mark as read ──────────────────────────────────────────────────────────
+  Future<void> deleteSelected() async {
+    if (_selectedIds.isEmpty) return;
+    
+    final idsToDelete = _selectedIds.toList();
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _remoteDataSource.deleteBulk(idsToDelete);
+      for (var id in idsToDelete) {
+        await NotificationsLocalDataSource.deleteNotification(id);
+      }
+      _selectedIds.clear();
+      await fetchNotifications(silent: true);
+    } catch (e) {
+      debugPrint('Error deleting bulk notifications: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 
   Future<void> markAsRead(String id) async {
-    // Optimistic update
-    _notifications = _notifications
-        .map((n) => n.id == id ? n.copyWith(isRead: true) : n)
-        .toList();
-    notifyListeners();
-
     try {
       await _remoteDataSource.markAsRead(id);
       await NotificationsLocalDataSource.markAsRead(id);
+      await fetchNotifications(silent: true);
     } catch (e) {
       debugPrint('Error marking as read: $e');
     }
   }
 
   Future<void> markAllAsRead() async {
-    // Optimistic update
-    _notifications = _notifications.map((n) => n.copyWith(isRead: true)).toList();
-    notifyListeners();
-
+    // Currently backend doesn't have a markAllAsRead endpoint, but we can iterate or skip
+    // Let's just update local for now or we can implement it in the backend later
     await NotificationsLocalDataSource.markAllAsRead();
-
-    // Sync each to server
-    for (final n in _notifications) {
-      try {
-        await _remoteDataSource.markAsRead(n.id);
-      } catch (e) {
-        debugPrint('Error marking ${n.id} as read on server: $e');
-      }
-    }
-  }
-
-  // ── Delete ────────────────────────────────────────────────────────────────
-
-  Future<void> deleteSelected() async {
-    if (_selectedIds.isEmpty) return;
-
-    final idsToDelete = _selectedIds.toList();
-
-    // Optimistic update
-    _notifications.removeWhere((n) => idsToDelete.contains(n.id));
-    _isSelectionMode = false;
-    _selectedIds.clear();
-    notifyListeners();
-
-    try {
-      await _remoteDataSource.deleteBulk(idsToDelete);
-      for (var id in idsToDelete) {
-        await NotificationsLocalDataSource.deleteNotification(id);
-      }
-    } catch (e) {
-      debugPrint('Error deleting bulk notifications: $e');
-      // Refresh to restore state if server failed
-      await fetchNotifications(silent: true);
-    }
-  }
-
-  Future<void> deleteNotification(String id) async {
-    // Optimistic remove
-    _notifications.removeWhere((n) => n.id == id);
-    notifyListeners();
-
-    try {
-      await _remoteDataSource.deleteNotification(id);
-      await NotificationsLocalDataSource.deleteNotification(id);
-    } catch (e) {
-      debugPrint('Error deleting notification: $e');
-      await fetchNotifications(silent: true);
-    }
+    await fetchNotifications(silent: true);
   }
 
   Future<void> clearAll() async {
-    // Optimistic update
-    _notifications.clear();
-    _isSelectionMode = false;
-    _selectedIds.clear();
+    _isLoading = true;
     notifyListeners();
-
     try {
       await _remoteDataSource.deleteAll();
       await NotificationsLocalDataSource.deleteAll();
+      _notifications.clear();
+      _selectedIds.clear();
     } catch (e) {
-      debugPrint('Error clearing notifications: $e');
-      await fetchNotifications(silent: true);
+       debugPrint('Error clearing notifications: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
-
-  // ── Helpers ───────────────────────────────────────────────────────────────
 
   NotificationType _getTypeFromString(String typeStr) {
     switch (typeStr) {
