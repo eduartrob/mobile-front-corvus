@@ -131,14 +131,18 @@ class _CustomNavItemState extends State<CustomNavItem> with TickerProviderStateM
     final colorScheme = Theme.of(context).colorScheme;
     final color = widget.isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant;
 
-    return GestureDetector(
-      onTap: widget.onTap,
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, child) {
-          return SizedBox(
-            width: 70,
+    return Material(
+      color: Colors.transparent,
+      child: InkResponse(
+        onTap: widget.onTap,
+        radius: 30,
+        splashColor: colorScheme.primary.withValues(alpha: 0.1),
+        highlightColor: colorScheme.primary.withValues(alpha: 0.05),
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (context, child) {
+            return SizedBox(
+              width: 70,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -189,6 +193,7 @@ class _CustomNavItemState extends State<CustomNavItem> with TickerProviderStateM
           );
         },
       ),
-    );
-  }
+    ),
+  );
+}
 }

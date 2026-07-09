@@ -8,7 +8,8 @@ import '../widgets/solicitudes_tab.dart';
 import '../widgets/sugerencias_tab.dart';
 
 class TeamsPage extends StatefulWidget {
-  const TeamsPage({super.key});
+  final int initialTabIndex;
+  const TeamsPage({super.key, this.initialTabIndex = 0});
 
   @override
   State<TeamsPage> createState() => _TeamsPageState();
@@ -36,6 +37,7 @@ class _TeamsPageState extends State<TeamsPage> {
 
     return DefaultTabController(
       length: 3,
+      initialIndex: widget.initialTabIndex,
       child: Scaffold(
         appBar: const CorvusTopBar(),
         body: Column(

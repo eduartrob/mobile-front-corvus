@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 abstract class AuthRemoteDataSource {
   Future<UserModel> signInWithGoogle();
+  Future<UserModel> loginWithEmail(String email, String password);
   Future<bool> requestDriveScope();
   Future<bool> requestClassroomScopes(String jwtToken);
   Future<String?> getDriveAccessToken();
@@ -88,6 +89,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
                 },
                 body: jsonEncode({
                   'course_id': courseId.toString(),
+                  'course_name': course['name']?.toString() ?? 'Materia Sin Nombre',
                   'teacher_id': teacherId.toString(),
                   'folder_id': folderId.toString(),
                   'access_token': token,
@@ -117,8 +119,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           'email',
           'profile',
           'https://www.googleapis.com/auth/classroom.courses.readonly',
+          'https://www.googleapis.com/auth/classroom.student-submissions.me.readonly',
           'https://www.googleapis.com/auth/classroom.courseworkmaterials.readonly',
-          'https://www.googleapis.com/auth/drive.readonly'
+          'https://www.googleapis.com/auth/drive.readonly',
         ],
       );
       final user = await googleSignInForDrive.signInSilently();
@@ -130,6 +133,37 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } catch (e) {
       print('Error getting drive token: $e');
       return null;
+    }
+  }
+
+  @override
+  Future<UserModel> loginWithEmail(String email, String password) async {
+    try {
+      final targetUrl = '${ApiConfig.apiGatewayUrl}/auth/login';
+      final response = await http.post(
+        Uri.parse(targetUrl),
+        headers: ApiConfig.defaultHeaders,
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+        }),
+      ).timeout(ApiConfig.connectionTimeout);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['user'] == null) {
+          throw Exception('La respuesta del backend no contiene los datos del usuario.');
+        }
+        return UserModel.fromJson({
+          ...data['user'],
+          'token': data['token'],
+        });
+      } else {
+        final errorData = jsonDecode(response.body);
+        throw Exception(errorData['error'] ?? 'Error desconocido del servidor');
+      }
+    } catch (e) {
+      throw Exception('Excepción durante loginWithEmail: $e');
     }
   }
 
@@ -194,8 +228,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         return UserModel.fromJson({
           ...userData,
           'token': token,
-          'photoUrl': googleUser.photoUrl ?? userData['photoUrl'],
-          'name': googleUser.displayName ?? userData['name'],
+          'photoUrl': userData['photoUrl'] ?? googleUser.photoUrl,
+          'name': userData['name'] ?? googleUser.displayName,
         });
       } else {
         final jsonResponse = jsonDecode(response.body);
@@ -204,6 +238,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           error = error['message'] ?? error['detail'] ?? error.toString();
         }
         print('❌ Error del backend: $error');
+        if (error.toString().contains('Esta cuenta de Google no está registrada')) {
+          throw Exception('USER_NOT_REGISTERED|${googleUser.email}');
+        }
         throw Exception(error.toString());
       }
     } catch (e, stackTrace) {

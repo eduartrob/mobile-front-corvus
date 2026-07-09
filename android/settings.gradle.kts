@@ -23,6 +23,8 @@ plugins {
     // START: FlutterFire Configuration
     id("com.google.gms.google-services") version("4.4.4") apply false
     // END: FlutterFire Configuration
+    // Kotlin at 2.2.20 — required by Flutter's built-in Kotlin support
+    // and to satisfy the minimum version check from third-party plugins.
     id("org.jetbrains.kotlin.android") version "2.2.20" apply false
 }
 

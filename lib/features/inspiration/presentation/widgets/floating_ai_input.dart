@@ -125,29 +125,35 @@ class _FloatingAiInputState extends State<FloatingAiInput>
     const softBlue = Color(0xFF5B8DEF);
     const softBlueDark = Color(0xFF4A7DE0);
 
-    return GestureDetector(
-      key: const ValueKey('minimized'),
-      onTap: () async {
-        widget.onExpand?.call();
-        setState(() => _isMinimized = false);
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setBool('floating_ai_minimized', false);
-      },
-      child: Container(
-        margin: const EdgeInsets.only(left: 0, bottom: 28),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 18),
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [softBlue, softBlueDark],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-          borderRadius: BorderRadius.only(
-            topRight: Radius.circular(32),
-            bottomRight: Radius.circular(32),
-          ),
-          boxShadow: [
-            BoxShadow(
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        key: const ValueKey('minimized'),
+        onTap: () async {
+          widget.onExpand?.call();
+          setState(() => _isMinimized = false);
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setBool('floating_ai_minimized', false);
+        },
+        borderRadius: const BorderRadius.only(
+          topRight: Radius.circular(32),
+          bottomRight: Radius.circular(32),
+        ),
+        child: Container(
+          margin: const EdgeInsets.only(left: 0, bottom: 28),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 18),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [softBlue, softBlueDark],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+            borderRadius: BorderRadius.only(
+              topRight: Radius.circular(32),
+              bottomRight: Radius.circular(32),
+            ),
+            boxShadow: [
+              BoxShadow(
               color: Color(0x595B8DEF), // softBlue ~35% opacity
               blurRadius: 18,
               spreadRadius: 0,
@@ -161,8 +167,9 @@ class _FloatingAiInputState extends State<FloatingAiInput>
           size: 26,
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   // ─── Expanded glass card ────────────────────────────────────────────────────
   Widget _buildExpandedState(ColorScheme colorScheme, AppLocalizations l10n) {
@@ -268,28 +275,31 @@ class _FloatingAiInputState extends State<FloatingAiInput>
                           ),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: InkWell(
-                              onTap: () {
-                                FocusScope.of(context).unfocus();
-                                ScaffoldMessenger.of(context)
-                                    .hideCurrentSnackBar();
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(l10n.featureUpcoming),
-                                    behavior: SnackBarBehavior.floating,
-                                    duration: const Duration(seconds: 2),
-                                  ),
-                                );
-                              },
+                            child: Material(
+                              color: colorScheme.primary,
                               borderRadius: BorderRadius.circular(8),
-                              child: Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: colorScheme.primary,
-                                  borderRadius: BorderRadius.circular(8),
+                              child: InkWell(
+                                onTap: () {
+                                  FocusScope.of(context).unfocus();
+                                  ScaffoldMessenger.of(context)
+                                      .hideCurrentSnackBar();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(l10n.featureUpcoming),
+                                      behavior: SnackBarBehavior.floating,
+                                      duration: const Duration(seconds: 2),
+                                    ),
+                                  );
+                                },
+                                borderRadius: BorderRadius.circular(8),
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(Icons.send,
+                                      color: colorScheme.onPrimary, size: 18),
                                 ),
-                                child: Icon(Icons.send,
-                                    color: colorScheme.onPrimary, size: 18),
                               ),
                             ),
                           ),
