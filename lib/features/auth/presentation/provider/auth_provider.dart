@@ -305,8 +305,9 @@ class AuthProvider extends ChangeNotifier {
         final university = data['university'];
         
         if (university != null && university['id'] != null) {
-          // Save university ID in storage for future use
+          // Save university ID and name in storage for future use
           await _storage.write(key: 'auth_university_id', value: university['id']);
+          await _storage.write(key: 'auth_university_name', value: university['name']);
           return true;
         }
       }
@@ -350,6 +351,31 @@ class AuthProvider extends ChangeNotifier {
       return false;
     } catch (e) {
       print('Error al actualizar foto de perfil: $e');
+      return false;
+    }
+  }
+
+  Future<bool> deleteProfilePicture() async {
+    try {
+      final token = await _storage.read(key: 'auth_token');
+      if (token == null) return false;
+
+      final response = await apiClient.delete(
+        Uri.parse('${ApiConfig.apiGatewayUrl}/auth/profile-picture'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        if (_currentUser != null) {
+          _currentUser = _currentUser!.copyWith(photoUrl: '');
+        }
+        await _storage.delete(key: 'auth_photo');
+        notifyListeners();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('Error al borrar foto de perfil: $e');
       return false;
     }
   }

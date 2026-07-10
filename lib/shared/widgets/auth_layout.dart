@@ -6,6 +6,7 @@ class AuthLayout extends StatelessWidget {
   final String appTitle;
   final String cardTitle;
   final String? cardSubtitle;
+  final Widget? customSubtitle;
   final List<Widget> children;
   final Widget? bottomContent;
 
@@ -14,6 +15,7 @@ class AuthLayout extends StatelessWidget {
     this.appTitle = 'Corvus',
     required this.cardTitle,
     this.cardSubtitle,
+    this.customSubtitle,
     required this.children,
     this.bottomContent,
   });
@@ -108,7 +110,10 @@ class AuthLayout extends StatelessWidget {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  if (cardSubtitle != null) ...[
+                  if (customSubtitle != null) ...[
+                    const SizedBox(height: 12),
+                    customSubtitle!,
+                  ] else if (cardSubtitle != null) ...[
                     const SizedBox(height: 12),
                     Text(
                       cardSubtitle!,

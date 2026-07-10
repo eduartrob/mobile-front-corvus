@@ -34,19 +34,27 @@ class ProfileRemoteDataSource {
     required String enrollmentId,
     required String semester,
     required List<String> skills,
+    List<String>? careers,
   }) async {
     try {
       // 1. Actualizar nombre/matrícula/cuatrimestre en auth service
       final authUrl = Uri.parse('${ApiConfig.apiGatewayUrl}/auth/profile');
+      
+      final Map<String, dynamic> bodyData = {
+        'full_name': fullName,
+        'enrollment_id': enrollmentId,
+        'semester': semester,
+        'skills': skills,
+      };
+      
+      if (careers != null) {
+        bodyData['careers'] = careers;
+      }
+
       final authResponse = await client.put(
         authUrl,
         headers: ApiConfig.defaultHeaders,
-        body: json.encode({
-          'full_name': fullName,
-          'enrollment_id': enrollmentId,
-          'semester': semester,
-          'skills': skills,
-        }),
+        body: json.encode(bodyData),
       ).timeout(ApiConfig.connectionTimeout);
 
       if (authResponse.statusCode != 200) {

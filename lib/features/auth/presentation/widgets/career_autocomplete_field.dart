@@ -25,6 +25,13 @@ class CareerAutocompleteField extends StatefulWidget {
 
 class _CareerAutocompleteFieldState extends State<CareerAutocompleteField> {
   String _lastQuery = '';
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
 
   Future<List<String>> _getCareers(String query) async {
     if (widget.universityController.text.trim().isEmpty) return [];
@@ -53,23 +60,24 @@ class _CareerAutocompleteFieldState extends State<CareerAutocompleteField> {
   @override
   Widget build(BuildContext context) {
     return Autocomplete<String>(
-      initialValue: TextEditingValue(text: widget.controller.text),
-      optionsViewOpenDirection: OptionsViewOpenDirection.up,
+      textEditingController: widget.controller,
+      focusNode: _focusNode,
+      optionsViewOpenDirection: OptionsViewOpenDirection.down,
       optionsBuilder: (TextEditingValue textEditingValue) async {
         return await _getCareers(textEditingValue.text);
       },
       onSelected: (String selection) {
-        widget.controller.text = selection;
         widget.onSelected(selection);
       },
       fieldViewBuilder: (context, textEditingController, focusNode, onEditingComplete) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (textEditingController.text != widget.controller.text) {
-            widget.controller.text = textEditingController.text;
-          }
-        });
-
-        return ListenableBuilder(
+        return TapRegion(
+          groupId: 'autocomplete_career',
+          onTapOutside: (event) {
+            if (focusNode.hasFocus) {
+              focusNode.unfocus();
+            }
+          },
+          child: ListenableBuilder(
           listenable: focusNode,
           builder: (context, child) {
             final hasFocus = focusNode.hasFocus;
@@ -88,6 +96,14 @@ class _CareerAutocompleteFieldState extends State<CareerAutocompleteField> {
                 ),
               ),
               child: TextField(
+                readOnly: true,
+                onTap: () {
+                  if (textEditingController.text.isEmpty) {
+                    textEditingController.text = ' ';
+                    textEditingController.text = '';
+                  }
+                  focusNode.requestFocus();
+                },
                 controller: textEditingController,
                 focusNode: focusNode,
                 onEditingComplete: () {
@@ -126,61 +142,65 @@ class _CareerAutocompleteFieldState extends State<CareerAutocompleteField> {
               ),
             );
           },
+        ),
         );
       },
       optionsViewBuilder: (context, onSelected, options) {
         final scrollController = ScrollController();
-        return Align(
-          alignment: Alignment.bottomLeft,
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Material(
-              elevation: 4.0,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(12),
-                bottom: Radius.zero,
-              ),
-              child: Container(
-                width: MediaQuery.of(context).size.width - 64,
-                constraints: const BoxConstraints(maxHeight: 250),
-                decoration: BoxDecoration(
-                  color: widget.isDark ? widget.colors.surfaceContainerHigh : Colors.white,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(12),
-                    bottom: Radius.zero,
-                  ),
+        return TapRegion(
+          groupId: 'autocomplete_career',
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Material(
+                elevation: 4.0,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.zero,
+                  bottom: Radius.circular(12),
                 ),
-                child: Scrollbar(
-                  controller: scrollController,
-                  child: ListView.builder(
+                child: Container(
+                  width: MediaQuery.of(context).size.width - 64,
+                  constraints: const BoxConstraints(maxHeight: 250),
+                  decoration: BoxDecoration(
+                    color: widget.isDark ? widget.colors.surfaceContainerHigh : Colors.white,
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.zero,
+                      bottom: Radius.circular(12),
+                    ),
+                  ),
+                  child: Scrollbar(
                     controller: scrollController,
-                    padding: EdgeInsets.zero,
-                    shrinkWrap: true,
-                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.manual,
-                    physics: const ClampingScrollPhysics(),
-                  itemCount: options.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final String option = options.elementAt(index);
-                    return InkWell(
-                      onTap: () {
-                        onSelected(option);
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                          option,
-                          style: TextStyle(
-                            color: widget.colors.onSurface,
-                            fontSize: 15,
+                    child: ListView.builder(
+                      controller: scrollController,
+                      padding: EdgeInsets.zero,
+                      shrinkWrap: true,
+                      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.manual,
+                      physics: const ClampingScrollPhysics(),
+                      itemCount: options.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        final String option = options.elementAt(index);
+                        return InkWell(
+                          onTap: () {
+                            onSelected(option);
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Text(
+                              option,
+                              style: TextStyle(
+                                color: widget.colors.onSurface,
+                                fontSize: 15,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    );
-                  },
+                        );
+                      },
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
           ),
         );
       },

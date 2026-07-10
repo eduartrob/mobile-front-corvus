@@ -67,6 +67,7 @@ class ProfileProvider extends ChangeNotifier {
     required String enrollmentId,
     required String semester,
     required List<String> skills,
+    List<String>? careers,
   }) async {
     _isLoading = true;
     _errorMessage = null;
@@ -78,6 +79,7 @@ class ProfileProvider extends ChangeNotifier {
         enrollmentId: enrollmentId,
         semester: semester,
         skills: skills,
+        careers: careers,
       );
       await fetchProfile(forceRefresh: true);
     } catch (e) {
