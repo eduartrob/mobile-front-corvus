@@ -15,7 +15,9 @@ class ProfileRemoteDataSource {
       final response = await client.get(url, headers: ApiConfig.defaultHeaders).timeout(ApiConfig.connectionTimeout);
 
       if (response.statusCode == 200) {
-        final body = json.decode(utf8.decode(response.bodyBytes));
+        final bodyText = utf8.decode(response.bodyBytes);
+        print('🔵 [DEBUG] RAW PROFILE: $bodyText');
+        final body = json.decode(bodyText);
         return ProfileCompletoModel.fromJson(body);
       } else {
         final bodyText = utf8.decode(response.bodyBytes);

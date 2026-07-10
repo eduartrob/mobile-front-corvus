@@ -16,7 +16,7 @@ abstract class AuthRemoteDataSource {
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
+  GoogleSignIn _googleSignIn = GoogleSignIn(
     // en web no se debe pasar serverclientid porque lanza un error usa el del indexhtml
     serverClientId: kIsWeb ? null : '1078483343139-2fobsjceva5r60i6vrpcg4jbjddmj4uo.apps.googleusercontent.com',
     scopes: [
@@ -32,18 +32,30 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<bool> requestClassroomScopes(String jwtToken) async {
-    bool success = await _googleSignIn.requestScopes([
-      'https://www.googleapis.com/auth/classroom.courses.readonly',
-      'https://www.googleapis.com/auth/classroom.courseworkmaterials.readonly',
-      'https://www.googleapis.com/auth/drive.readonly'
-    ]);
-    
-    if (success) {
-      // fire and forget to not block the ui
-      _syncClassroomMaterials(jwtToken);
+    try {
+      if (_googleSignIn.currentUser == null) {
+        final account = await _googleSignIn.signInSilently() ?? await _googleSignIn.signIn();
+        if (account == null) {
+          return false;
+        }
+      }
+
+      bool success = await _googleSignIn.requestScopes([
+        'https://www.googleapis.com/auth/classroom.courses.readonly',
+        'https://www.googleapis.com/auth/classroom.courseworkmaterials.readonly',
+        'https://www.googleapis.com/auth/drive.readonly'
+      ]);
+      
+      if (success) {
+        // fire and forget to not block the ui
+        _syncClassroomMaterials(jwtToken);
+      }
+      
+      return success;
+    } catch (e) {
+      print('Error en requestClassroomScopes: $e');
+      return false;
     }
-    
-    return success;
   }
 
   Future<void> _syncClassroomMaterials(String jwtToken) async {
@@ -110,18 +122,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<String?> getDriveAccessToken() async {
     try {
-      final googleSignInForDrive = GoogleSignIn(
-        serverClientId: kIsWeb ? null : '1078483343139-2fobsjceva5r60i6vrpcg4jbjddmj4uo.apps.googleusercontent.com',
-        scopes: [
-          'email',
-          'profile',
-          'https://www.googleapis.com/auth/classroom.courses.readonly',
-          'https://www.googleapis.com/auth/classroom.student-submissions.me.readonly',
-          'https://www.googleapis.com/auth/classroom.courseworkmaterials.readonly',
-          'https://www.googleapis.com/auth/drive.readonly',
-        ],
-      );
-      final user = await googleSignInForDrive.signInSilently();
+      final user = _googleSignIn.currentUser;
       if (user != null) {
         final GoogleSignInAuthentication auth = await user.authentication;
         return auth.accessToken;
@@ -236,7 +237,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         }
         print('❌ Error del backend: $error');
         if (error.toString().contains('Esta cuenta de Google no está registrada')) {
-          throw Exception('USER_NOT_REGISTERED|${googleUser.email}');
+          throw Exception('USER_NOT_REGISTERED|${googleUser.email}|${serverAuthCode ?? ""}');
         }
         throw Exception(error.toString());
       }
@@ -257,5 +258,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } catch (e) {
       await _googleSignIn.signOut();
     }
+    
+    // IMPORTANTE: Recrear la instancia para resetear los scopes que el profe haya aceptado
+    // De lo contrario, si entra un estudiante después en la misma sesión de la app,
+    // Google SignIn seguirá recordando y pidiendo los scopes de Classroom/Drive.
+    _googleSignIn = GoogleSignIn(
+      serverClientId: kIsWeb ? null : '1078483343139-2fobsjceva5r60i6vrpcg4jbjddmj4uo.apps.googleusercontent.com',
+      scopes: [
+        'email',
+        'profile',
+      ],
+    );
   }
 }

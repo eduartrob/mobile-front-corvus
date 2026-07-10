@@ -169,14 +169,19 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
     
     try {
       // 1. Primero registramos al usuario porque aún no tiene cuenta
+      final Map<String, dynamic> bodyData = {
+        'email': provider.email,
+        'password': provider.password,
+        'roleName': provider.role.toUpperCase(),
+      };
+      if (provider.googleAuthCode != null) {
+        bodyData['googleEmail'] = provider.email;
+      }
+
       final registerResponse = await http.post(
         Uri.parse('${ApiConfig.apiGatewayUrl}/auth/register'),
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'email': provider.email,
-          'password': provider.password,
-          'roleName': provider.role.toUpperCase(),
-        }),
+        body: json.encode(bodyData),
       );
 
       // Si falla el registro, revisamos el motivo
@@ -239,6 +244,12 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
       );
 
       if (response.statusCode == 200) {
+        if (provider.googleAuthCode != null) {
+          debugPrint('🟢 [GoogleReg] Cuenta registrada con Google — googleEmail guardado en registro.');
+        } else {
+          debugPrint('🟡 [GoogleReg] Cuenta registrada con email/password normal.');
+        }
+
         if (mounted) {
           // Actualizar el estado global para que el router nos deje pasar
           await context.read<AuthProvider>().checkAuthStatus();

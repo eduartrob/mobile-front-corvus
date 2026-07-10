@@ -261,10 +261,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (profile?.isVerified == true)
-                    const Icon(Icons.check_circle, color: Colors.green, size: 20)
-                  else
-                    const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 20),
+                  Builder(
+                    builder: (context) {
+                      final bool isLinked = profile?.isGoogleLinked == true || 
+                          (profile?.googleEmail != null && profile!.googleEmail!.isNotEmpty);
+                      final bool isVerified = (profile?.isVerified == true) || isLinked;
+                      
+                      if (isVerified) {
+                        return const Icon(Icons.check_circle, color: Colors.green, size: 20);
+                      } else {
+                        return const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 20);
+                      }
+                    },
+                  ),
                   const SizedBox(width: 8),
                   const Icon(Icons.arrow_forward_ios, size: 16),
                 ],

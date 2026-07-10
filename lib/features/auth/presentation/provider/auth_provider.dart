@@ -278,6 +278,7 @@ class AuthProvider extends ChangeNotifier {
     await _storage.delete(key: 'auth_role');
     await _storage.delete(key: 'auth_id');
     await _storage.delete(key: 'auth_email');
+    await _storage.delete(key: 'registered_with_google');
     await _storage.delete(key: 'auth_name');
     await _storage.delete(key: 'auth_photo');
     _currentUser = null;

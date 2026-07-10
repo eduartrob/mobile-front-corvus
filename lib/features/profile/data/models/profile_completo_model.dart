@@ -28,7 +28,7 @@ class ProfileCompletoModel {
   final String alumno;
   final String? correo;
   final String? correoSecundario;
-  final bool isGoogleLinked;
+  bool isGoogleLinked;
   final String? universidad;
   final String? carrera;
   final String? cuatrimestre;

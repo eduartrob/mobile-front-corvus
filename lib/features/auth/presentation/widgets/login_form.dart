@@ -171,7 +171,10 @@ class _LoginFormState extends State<LoginForm> {
                             context.pushReplacement('/inspiration');
                           }
                         } else if (authProvider.errorMessage != null && authProvider.errorMessage!.startsWith('USER_NOT_REGISTERED|')) {
-                          final email = authProvider.errorMessage!.split('|').last;
+                          final parts = authProvider.errorMessage!.split('|');
+                          final email = parts[1];
+                          final authCode = parts.length > 2 && parts[2].isNotEmpty ? parts[2] : null;
+
                           final provider = Provider.of<RegistrationProvider>(context, listen: false);
                           
                           const chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
@@ -183,6 +186,7 @@ class _LoginFormState extends State<LoginForm> {
                             email: email,
                             password: randomPassword,
                             role: widget.role,
+                            googleAuthCode: authCode,
                           );
 
                           if (widget.role == 'DOCENTE' || widget.role == 'PROFESOR') {

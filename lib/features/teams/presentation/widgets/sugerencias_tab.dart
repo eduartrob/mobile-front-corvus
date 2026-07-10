@@ -198,13 +198,24 @@ class _SugerenciasTabState extends State<SugerenciasTab> {
                           ),
                         )
                       : suggestions.isEmpty
-                          ? Center(
-                              child: Text(
-                                'No hay sugerencias encontradas',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
-                                ),
+                          ? RefreshIndicator(
+                              onRefresh: () => provider.fetchSuggestions(skill: _selectedSkill, search: _searchQuery),
+                              child: ListView(
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                children: [
+                                  SizedBox(
+                                    height: MediaQuery.of(context).size.height * 0.5,
+                                    child: Center(
+                                      child: Text(
+                                        'No hay sugerencias encontradas',
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             )
                           : RefreshIndicator(
