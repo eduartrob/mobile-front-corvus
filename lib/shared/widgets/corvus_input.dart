@@ -27,11 +27,21 @@ class Input extends StatefulWidget {
 
 class _InputState extends State<Input> {
   late bool _isObscure;
+  final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
     _isObscure = widget.obscure;
+    _focusNode.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -44,13 +54,15 @@ class _InputState extends State<Input> {
         color: isDark ? colors.surfaceContainer : Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isDark 
-              ? colors.outlineVariant.withValues(alpha: 0.3) 
-              : const Color(0xFFE2E8F0),
+          color: _focusNode.hasFocus 
+              ? colors.primary 
+              : (isDark ? colors.outlineVariant.withValues(alpha: 0.3) : const Color(0xFFE2E8F0)),
+          width: _focusNode.hasFocus ? 1.5 : 1.0,
         ),
       ),
       child: TextField(
         controller: widget.controller,
+        focusNode: _focusNode,
         obscureText: _isObscure,
         keyboardType: widget.keyboardType,
         inputFormatters: widget.inputFormatters,
