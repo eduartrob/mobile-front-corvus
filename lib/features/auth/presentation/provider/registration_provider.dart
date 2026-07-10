@@ -5,6 +5,7 @@ class RegistrationProvider extends ChangeNotifier {
   String email = '';
   String password = '';
   String role = '';
+  String? googleAuthCode; // set when user registers via Google
 
   // Step 2: StudentUniversityPage
   String fullName = '';
@@ -23,10 +24,12 @@ class RegistrationProvider extends ChangeNotifier {
     required String email,
     required String password,
     required String role,
+    String? googleAuthCode,
   }) {
     this.email = email;
     this.password = password;
     this.role = role;
+    this.googleAuthCode = googleAuthCode;
     notifyListeners();
   }
 
@@ -69,6 +72,7 @@ class RegistrationProvider extends ChangeNotifier {
     careerId = '';
     careerName = '';
     selectedSkills = [];
+    googleAuthCode = null;
     notifyListeners();
   }
 }

@@ -47,14 +47,10 @@ class SyncRemoteDataSourceImpl implements SyncRemoteDataSource {
   @override
   Future<List<Map<String, dynamic>>> getDriveFolders(String accessToken) async {
     try {
-      print('🔑 [DRIVE] accessToken length: ${accessToken.length}');
-      print('🔑 [DRIVE] accessToken prefix: ${accessToken.substring(0, accessToken.length > 20 ? 20 : accessToken.length)}...');
-
       final uri = Uri.https('www.googleapis.com', '/drive/v3/files', {
         'q': "mimeType='application/vnd.google-apps.folder' and trashed=false",
         'fields': "files(id,name,owners)",
       });
-      print('🌐 [DRIVE] URL: $uri');
 
       final response = await apiClient.get(
         uri,
@@ -63,13 +59,9 @@ class SyncRemoteDataSourceImpl implements SyncRemoteDataSource {
         },
       ).timeout(const Duration(seconds: 15));
 
-      print('📡 [DRIVE] Status: ${response.statusCode}');
-      print('📡 [DRIVE] Body: ${response.body}');
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final files = data['files'] as List;
-        print('📁 [DRIVE] Folders found: ${files.length}');
         return files.map((f) {
           final owners = f['owners'] as List?;
           final isMine = owners != null && owners.isNotEmpty ? (owners[0]['me'] == true) : true;
@@ -89,7 +81,6 @@ class SyncRemoteDataSourceImpl implements SyncRemoteDataSource {
         throw Exception(error);
       }
     } catch (e) {
-      print('❌ [DRIVE] Error: $e');
       final msg = e.toString().replaceAll('Exception: ', '');
       throw Exception(msg);
     }

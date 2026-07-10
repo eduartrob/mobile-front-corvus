@@ -182,7 +182,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     }
                   },
                   icon: const Icon(Icons.logout, color: Colors.red),
-                  label: Text('Cerrar sesión', style: TextStyle(color: colorScheme.primary)),
+                  label: const Text('Cerrar sesión', style: TextStyle(color: Colors.red)),
                   style: OutlinedButton.styleFrom(
                     side: BorderSide(color: colorScheme.primary),
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -190,130 +190,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               
-              const SizedBox(height: 16),
-              
-              Row(
-                children: [
-                  Expanded(child: Divider(color: Colors.red.withValues(alpha: 0.5))),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Text('Peligro', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-                  ),
-                  Expanded(child: Divider(color: Colors.red.withValues(alpha: 0.5))),
-                ],
-              ),
-              
-              const SizedBox(height: 16),
-              
-              // Borrar cuenta
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () async {
-                    showGeneralDialog(
-                      context: context,
-                      barrierDismissible: true,
-                      barrierLabel: 'Dismiss',
-                      transitionDuration: const Duration(milliseconds: 300),
-                      pageBuilder: (context, animation, secondaryAnimation) {
-                        return Center(
-                          child: Material(
-                            color: Colors.transparent,
-                            child: Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 32),
-                              padding: const EdgeInsets.all(24),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.surface,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.warning_amber_rounded, color: Colors.red, size: 48),
-                                  const SizedBox(height: 16),
-                                  const Text(
-                                    'Eliminar Cuenta',
-                                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  const Text(
-                                    '¿Estás seguro de que deseas eliminar tu cuenta permanentemente? \n\n'
-                                    'Toda tu información personal, habilidades, materias y configuraciones serán eliminadas. '
-                                    'Solo tu historial de actividades quedará registrado de forma anónima.',
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  const SizedBox(height: 24),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: TextButton(
-                                          onPressed: () => Navigator.of(context).pop(),
-                                          child: const Text('Cancelar'),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.red,
-                                            foregroundColor: Colors.white,
-                                          ),
-                                          onPressed: () async {
-                                            Navigator.of(context).pop(); // Close dialog
-                                            showDialog(
-                                              context: context,
-                                              barrierDismissible: false,
-                                              builder: (context) => const Center(
-                                                child: CircularProgressIndicator(),
-                                              ),
-                                            );
-                                            
-                                            final success = await context.read<AuthProvider>().deleteAccount();
-                                            
-                                            if (context.mounted) {
-                                              Navigator.of(context).pop(); // Close loading
-                                              if (success) {
-                                                context.go('/');
-                                              } else {
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  const SnackBar(content: Text('Error al borrar la cuenta. Intenta de nuevo.')),
-                                                );
-                                              }
-                                            }
-                                          },
-                                          child: const Text('Confirmar', style: TextStyle(fontWeight: FontWeight.bold)),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                      transitionBuilder: (context, animation, secondaryAnimation, child) {
-                        return ScaleTransition(
-                          scale: CurvedAnimation(
-                            parent: animation,
-                            curve: Curves.easeOutBack,
-                          ),
-                          child: FadeTransition(
-                            opacity: animation,
-                            child: child,
-                          ),
-                        );
-                      },
-                    );
-                  },
-                  icon: const Icon(Icons.delete_forever, color: Colors.white),
-                  label: const Text('Eliminar cuenta', style: TextStyle(color: Colors.white)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    elevation: 0,
-                  ),
-                ),
-              ),
+
               
               const SizedBox(height: 48),
               

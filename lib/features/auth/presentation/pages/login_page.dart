@@ -13,10 +13,12 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final SecurityService _securityService = SecurityService();
+  late String _currentRole;
 
   @override
   void initState() {
     super.initState();
+    _currentRole = widget.role;
     _securityService.preventScreenshots(true);
   }
 
@@ -24,6 +26,12 @@ class _LoginPageState extends State<LoginPage> {
   void dispose() {
     _securityService.preventScreenshots(false);
     super.dispose();
+  }
+
+  void _handleRoleChanged(String newRole) {
+    setState(() {
+      _currentRole = newRole;
+    });
   }
 
   @override
@@ -38,7 +46,10 @@ class _LoginPageState extends State<LoginPage> {
                            MediaQuery.of(context).padding.bottom,
               ),
               child: Center(
-                child: LoginForm(role: widget.role),
+                child: LoginForm(
+                  role: _currentRole,
+                  onRoleChanged: _handleRoleChanged,
+                ),
               ),
             ),
           ),

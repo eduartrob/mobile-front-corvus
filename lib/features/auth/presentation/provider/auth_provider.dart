@@ -113,11 +113,10 @@ class AuthProvider extends ChangeNotifier {
                 'userId': _currentUser!.id,
                 'fcmToken': fcmToken
               })
-            ).then((r) => print('FCM guardado al restaurar sesión: ${r.statusCode}'))
-            .catchError((e) => print('Error FCM rest: $e'));
+            ).catchError((e) => null);
           }
         } catch(e) {
-          print('Error FCM al restaurar sesión: $e');
+          // FCM restore failed silently
         }
 
       } else {
@@ -163,9 +162,6 @@ class AuthProvider extends ChangeNotifier {
       _status = AuthStatus.authenticated;
       notifyListeners();
     } catch (e, stackTrace) {
-      print('❌ ERROR CRÍTICO EN signInWithGoogle (AuthProvider):');
-      print('Excepción: $e');
-      print('Stack Trace:\n$stackTrace');
       String errorStr = e.toString();
       if (errorStr.contains('USER_NOT_REGISTERED|')) {
         _errorMessage = errorStr.replaceAll('Exception: ', '');
@@ -266,7 +262,7 @@ class AuthProvider extends ChangeNotifier {
         );
       }
     } catch (e) {
-      print('Error al desregistrar FCM: $e');
+      // FCM deregister failed silently
     }
 
     try {
@@ -278,6 +274,7 @@ class AuthProvider extends ChangeNotifier {
     await _storage.delete(key: 'auth_role');
     await _storage.delete(key: 'auth_id');
     await _storage.delete(key: 'auth_email');
+    await _storage.delete(key: 'registered_with_google');
     await _storage.delete(key: 'auth_name');
     await _storage.delete(key: 'auth_photo');
     _currentUser = null;
@@ -304,8 +301,9 @@ class AuthProvider extends ChangeNotifier {
         final university = data['university'];
         
         if (university != null && university['id'] != null) {
-          // Save university ID in storage for future use
+          // Save university ID and name in storage for future use
           await _storage.write(key: 'auth_university_id', value: university['id']);
+          await _storage.write(key: 'auth_university_name', value: university['name']);
           return true;
         }
       }
@@ -314,7 +312,6 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     } catch (e) {
-      print('Error validating university code: $e');
       _errorMessage = 'Error al validar el código';
       notifyListeners();
       return false;
@@ -348,7 +345,30 @@ class AuthProvider extends ChangeNotifier {
       }
       return false;
     } catch (e) {
-      print('Error al actualizar foto de perfil: $e');
+      return false;
+    }
+  }
+
+  Future<bool> deleteProfilePicture() async {
+    try {
+      final token = await _storage.read(key: 'auth_token');
+      if (token == null) return false;
+
+      final response = await apiClient.delete(
+        Uri.parse('${ApiConfig.apiGatewayUrl}/auth/profile-picture'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        if (_currentUser != null) {
+          _currentUser = _currentUser!.copyWith(photoUrl: '');
+        }
+        await _storage.delete(key: 'auth_photo');
+        notifyListeners();
+        return true;
+      }
+      return false;
+    } catch (e) {
       return false;
     }
   }
@@ -369,7 +389,6 @@ class AuthProvider extends ChangeNotifier {
       }
       return false;
     } catch (e) {
-      print('Error al borrar cuenta: $e');
       return false;
     }
   }

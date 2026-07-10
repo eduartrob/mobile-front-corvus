@@ -46,7 +46,10 @@ class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
               alignment: Alignment.center,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.notifications_none),
+                  icon: Icon(
+                    Icons.notifications_none,
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                  ),
                   onPressed: () {
                     context.push('/notifications');
                   },

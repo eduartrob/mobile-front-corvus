@@ -39,6 +39,7 @@ class _SearchPageViewState extends State<_SearchPageView>
   bool _isListening = false;
   final FlutterTts _flutterTts = FlutterTts();
   final FocusNode _searchFocusNode = FocusNode();
+  bool _isHistoryExpanded = false;
 
   final List<Map<String, dynamic>> _materias = [
     {
@@ -239,7 +240,7 @@ class _SearchPageViewState extends State<_SearchPageView>
                                 _isListening ? Icons.mic : Icons.mic_none,
                                 color: _isListening
                                     ? colorScheme.error
-                                    : colorScheme.primary,
+                                    : textColor.withOpacity(0.7),
                               ),
                               onPressed: _toggleListening,
                             ),
@@ -284,13 +285,18 @@ class _SearchPageViewState extends State<_SearchPageView>
     return Consumer<SearchProvider>(
       builder: (context, provider, child) {
         final recentSearches = provider.recentSearches;
+        final showExpandButton = recentSearches.length > 3;
+        final displaySearches = (_isHistoryExpanded || !showExpandButton) 
+            ? recentSearches 
+            : recentSearches.take(3).toList();
+
         return SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (recentSearches.isNotEmpty)
+              if (displaySearches.isNotEmpty)
                 Column(
-                  children: recentSearches.map((query) {
+                  children: displaySearches.map((query) {
                     return Dismissible(
                       key: Key(query),
                       direction: DismissDirection.startToEnd,
@@ -330,103 +336,132 @@ class _SearchPageViewState extends State<_SearchPageView>
                     );
                   }).toList(),
                 ),
-              const SizedBox(height: 15), // Espacio por encima de TODA la sección de tendencias
-              Padding(
-                padding: const EdgeInsets.only(left: 24, right: 24, bottom: 5), // Quitamos el top porque el SizedBox ya hace la separación
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.trending_up_rounded,
-                      color: colorScheme.primary,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Tendencias de Búsqueda',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500, // Grosor medio
-                        color: textColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 2),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Wrap(
-                  spacing: MediaQuery.sizeOf(context).width * 0.015, // Responsivo horizontal (1.5% del ancho)
-                  runSpacing: MediaQuery.sizeOf(context).height * 0.005, // Responsivo vertical (0.5% del alto, muy poco espacio)
-                  children: _tendencias.map((tendencia) {
-                    return ActionChip(
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, // Permite que el runSpacing de 8 sea real
-                      label: Text(
-                        tendencia,
-                        style: TextStyle(color: textColor, fontSize: 13),
-                      ),
-                      avatar: Icon(
-                        Icons.search,
-                        size: 16,
-                        color: colorScheme.primary,
-                      ),
-                      backgroundColor: colorScheme.primaryContainer.withOpacity(0.5),
-                      surfaceTintColor: Colors.transparent,
-                      elevation: 0,
-                      side: BorderSide.none,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+              if (showExpandButton)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 24.0, top: 0.0),
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        minimumSize: Size.zero,
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                       onPressed: () {
-                        _searchController.text = tendencia;
-                        _submitSearch(tendencia);
+                        setState(() {
+                          _isHistoryExpanded = !_isHistoryExpanded;
+                        });
                       },
-                    );
-                  }).toList(),
-                ),
-              ),
-              const SizedBox(height: 15),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Text(
-                  'Materias Disponibles',
-                  style: TextStyle(
-                    fontSize: 16, // Mismo tamaño que Tendencias
-                    fontWeight: FontWeight.w500, // Grosor medio
-                    color: textColor,
+                      child: Text(
+                        _isHistoryExpanded ? 'Contraer' : 'Expandir',
+                        style: TextStyle(
+                          color: colorScheme.primary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 6),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 5,
-                    mainAxisSpacing: 5,
-                    mainAxisExtent: 70, // Alto fijo en píxeles. ¡Ya no crecerán a lo alto si acuestas el teléfono!
+              if (!_isHistoryExpanded) ...[
+                const SizedBox(height: 15), // Espacio por encima de TODA la sección de tendencias
+                Padding(
+                  padding: const EdgeInsets.only(left: 24, right: 24, bottom: 5), // Quitamos el top porque el SizedBox ya hace la separación
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.trending_up_rounded,
+                        color: colorScheme.primary,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Tendencias de Búsqueda',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500, // Grosor medio
+                          color: textColor,
+                        ),
+                      ),
+                    ],
                   ),
-                  itemCount: _materias.length,
-                  itemBuilder: (context, index) {
-                    final mat = _materias[index];
-                    return _buildMateriaCard(
-                      title: mat['title'],
-                      icon: mat['icon'],
-                      iconColor: mat['color'],
-                      textColor: textColor,
-                      colorScheme: colorScheme,
-                      onTap: () {
-                        _searchController.text = 'Dime sobre ${mat['title']}';
-                        _submitSearch(_searchController.text);
-                      },
-                    );
-                  },
                 ),
-              ),
-              const SizedBox(height: 40),
+                const SizedBox(height: 2),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Wrap(
+                    spacing: MediaQuery.sizeOf(context).width * 0.015, // Responsivo horizontal (1.5% del ancho)
+                    runSpacing: MediaQuery.sizeOf(context).height * 0.005, // Responsivo vertical (0.5% del alto, muy poco espacio)
+                    children: _tendencias.map((tendencia) {
+                      return ActionChip(
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, // Permite que el runSpacing de 8 sea real
+                        label: Text(
+                          tendencia,
+                          style: TextStyle(color: textColor, fontSize: 13),
+                        ),
+                        avatar: Icon(
+                          Icons.search,
+                          size: 16,
+                          color: colorScheme.primary,
+                        ),
+                        backgroundColor: colorScheme.primaryContainer.withOpacity(0.5),
+                        surfaceTintColor: Colors.transparent,
+                        elevation: 0,
+                        side: BorderSide.none,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        onPressed: () {
+                          _searchController.text = tendencia;
+                          _submitSearch(tendencia);
+                        },
+                      );
+                    }).toList(),
+                  ),
+                ),
+                const SizedBox(height: 15),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Text(
+                    'Materias Disponibles',
+                    style: TextStyle(
+                      fontSize: 16, // Mismo tamaño que Tendencias
+                      fontWeight: FontWeight.w500, // Grosor medio
+                      color: textColor,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 5,
+                      mainAxisSpacing: 5,
+                      mainAxisExtent: 70, // Alto fijo en píxeles. ¡Ya no crecerán a lo alto si acuestas el teléfono!
+                    ),
+                    itemCount: _materias.length,
+                    itemBuilder: (context, index) {
+                      final mat = _materias[index];
+                      return _buildMateriaCard(
+                        title: mat['title'],
+                        icon: mat['icon'],
+                        iconColor: mat['color'],
+                        textColor: textColor,
+                        colorScheme: colorScheme,
+                        onTap: () {
+                          _searchController.text = 'Dime sobre ${mat['title']}';
+                          _submitSearch(_searchController.text);
+                        },
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 40),
+              ],
             ],
           ),
         );

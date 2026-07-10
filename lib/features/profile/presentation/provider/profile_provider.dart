@@ -3,6 +3,8 @@ import 'package:mobile/features/profile/data/data_source/profile_remote_data_sou
 import 'package:mobile/features/profile/data/models/profile_completo_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/auth_interceptor_client.dart';
+import 'package:mobile/core/services/secure_storage_service.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ProfileProvider extends ChangeNotifier {
   final ProfileRemoteDataSource remoteDataSource;
@@ -25,6 +27,7 @@ class ProfileProvider extends ChangeNotifier {
 
     try {
       _profile = await remoteDataSource.getPerfilCompleto(forceRefresh: forceRefresh);
+
       if (_profile != null && _profile!.isProcessing) {
         _isLoading = false;
         notifyListeners();
@@ -46,6 +49,7 @@ class ProfileProvider extends ChangeNotifier {
       try {
         final newProfile = await remoteDataSource.getPerfilCompleto(forceRefresh: false);
         _profile = newProfile;
+
         if (!_profile!.isProcessing) {
           notifyListeners();
           break;
@@ -63,6 +67,7 @@ class ProfileProvider extends ChangeNotifier {
     required String enrollmentId,
     required String semester,
     required List<String> skills,
+    List<String>? careers,
   }) async {
     _isLoading = true;
     _errorMessage = null;
@@ -74,6 +79,7 @@ class ProfileProvider extends ChangeNotifier {
         enrollmentId: enrollmentId,
         semester: semester,
         skills: skills,
+        careers: careers,
       );
       await fetchProfile(forceRefresh: true);
     } catch (e) {

@@ -169,14 +169,19 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
     
     try {
       // 1. Primero registramos al usuario porque aún no tiene cuenta
+      final Map<String, dynamic> bodyData = {
+        'email': provider.email,
+        'password': provider.password,
+        'roleName': provider.role.toUpperCase() == 'DOCENTE' ? 'PROFESOR' : provider.role.toUpperCase(),
+      };
+      if (provider.googleAuthCode != null) {
+        bodyData['googleEmail'] = provider.email;
+      }
+
       final registerResponse = await http.post(
         Uri.parse('${ApiConfig.apiGatewayUrl}/auth/register'),
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'email': provider.email,
-          'password': provider.password,
-          'roleName': provider.role.toUpperCase(),
-        }),
+        body: json.encode(bodyData),
       );
 
       // Si falla el registro, revisamos el motivo
@@ -186,7 +191,15 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
           if (errData['error'] == 'User already exists') {
             throw Exception('Esta cuenta ya existe. Por favor retrocede e inicia sesión.');
           } else {
-            throw Exception('Error de validación: ${errData['error']}');
+            final errorVal = errData['error'];
+            if (errorVal is List) {
+              final msgs = errorVal.map((e) => e['message']).join(', ');
+              throw Exception('Error de validación: $msgs');
+            } else if (errorVal != null) {
+              throw Exception('Error de validación: $errorVal');
+            } else {
+              throw Exception('Error de validación: ${registerResponse.body}');
+            }
           }
         } else {
           throw Exception('Error del servidor: ${registerResponse.statusCode}');
@@ -239,6 +252,12 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
       );
 
       if (response.statusCode == 200) {
+        if (provider.googleAuthCode != null) {
+          debugPrint('🟢 [GoogleReg] Cuenta registrada con Google — googleEmail guardado en registro.');
+        } else {
+          debugPrint('🟡 [GoogleReg] Cuenta registrada con email/password normal.');
+        }
+
         if (mounted) {
           // Actualizar el estado global para que el router nos deje pasar
           await context.read<AuthProvider>().checkAuthStatus();

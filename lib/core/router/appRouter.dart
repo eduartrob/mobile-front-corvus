@@ -11,6 +11,7 @@ import 'package:mobile/features/auth/presentation/pages/register_page.dart';
 import 'package:mobile/features/auth/presentation/pages/student_university_page.dart';
 import 'package:mobile/features/auth/presentation/pages/student_skills_page.dart';
 import 'package:mobile/features/auth/presentation/pages/teacher_verification_page.dart';
+import 'package:mobile/features/auth/presentation/pages/teacher_info_page.dart';
 import 'package:mobile/features/inspiration/presentation/pages/inspiration_page.dart';
 import 'package:mobile/features/my_project/presentation/pages/my_project_page.dart';
 import 'package:mobile/features/teams/presentation/pages/teams_page.dart';
@@ -98,7 +99,7 @@ class AppRouter extends StatelessWidget {
       routes: [
         GoRoute(
           path: '/',
-          pageBuilder: (context, state) => _buildSlideTransition(const RoleSelectionPage(), state.pageKey),
+          pageBuilder: (context, state) => _buildSlideTransition(const LoginPage(role: 'ALUMNO'), state.pageKey),
         ),
         GoRoute(
           path: '/login',
@@ -129,6 +130,10 @@ class AppRouter extends StatelessWidget {
         GoRoute(
           path: '/register-teacher-verification',
           pageBuilder: (context, state) => _buildSlideTransition(const TeacherVerificationPage(), state.pageKey),
+        ),
+        GoRoute(
+          path: '/register-teacher-info',
+          pageBuilder: (context, state) => _buildSlideTransition(const TeacherInfoPage(), state.pageKey),
         ),
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) {
