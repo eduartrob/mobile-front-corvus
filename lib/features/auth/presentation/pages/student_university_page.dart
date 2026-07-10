@@ -11,6 +11,8 @@ import 'package:mobile/shared/widgets/corvus_button.dart';
 import 'package:mobile/shared/widgets/corvus_label.dart';
 import 'package:mobile/core/network/api_config.dart';
 import 'package:mobile/core/network/auth_interceptor_client.dart';
+import '../widgets/university_autocomplete_field.dart';
+import '../widgets/career_autocomplete_field.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/features/auth/presentation/provider/registration_provider.dart';
 import 'package:provider/provider.dart';
@@ -44,6 +46,9 @@ class _StudentUniversityPageState extends State<StudentUniversityPage> {
 
   bool _isLoading = false;
   String _lastQuery = '';
+  
+  String _selectedUniversityName = '';
+  String _selectedCareerName = '';
 
   @override
   void dispose() {
@@ -64,8 +69,14 @@ class _StudentUniversityPageState extends State<StudentUniversityPage> {
     
     if (provider.fullName.isNotEmpty) _nameController.text = provider.fullName;
     if (provider.matricula.isNotEmpty) _matriculaController.text = provider.matricula;
-    if (provider.universityName.isNotEmpty) _universityController.text = provider.universityName;
-    if (provider.careerName.isNotEmpty) _careerController.text = provider.careerName;
+    if (provider.universityName.isNotEmpty) {
+      _universityController.text = provider.universityName;
+      _selectedUniversityName = provider.universityName;
+    }
+    if (provider.careerName.isNotEmpty) {
+      _careerController.text = provider.careerName;
+      _selectedCareerName = provider.careerName;
+    }
     if (provider.periodNumber.isNotEmpty) _periodNumberController.text = provider.periodNumber;
     if (provider.periodName.isNotEmpty) {
       _selectedPeriod = provider.periodName;
@@ -90,63 +101,6 @@ class _StudentUniversityPageState extends State<StudentUniversityPage> {
     });
   }
 
-  Future<List<String>> _getUniversities(String query) async {
-    if (query.isEmpty || query.length < 2) return [];
-
-    _lastQuery = query;
-    await Future.delayed(const Duration(milliseconds: 300));
-    if (_lastQuery != query) return []; // debounced
-
-    try {
-      final response = await http
-          .get(
-            Uri.parse(
-              '${ApiConfig.apiGatewayUrl}/auth/universities?search=$query',
-            ),
-          )
-          .timeout(const Duration(seconds: 10));
-
-      if (_lastQuery != query) return []; // stale response
-
-      if (response.statusCode == 200) {
-        final List data = json.decode(response.body);
-        return data.map((u) => u['name'].toString()).toList();
-      }
-    } catch (e) {
-      debugPrint("Error fetching universities: $e");
-    }
-    return [];
-  }
-
-  Future<List<String>> _getCareers(String query) async {
-    if (query.isEmpty || query.length < 2) return [];
-
-    _lastQuery = query;
-    await Future.delayed(const Duration(milliseconds: 300));
-    if (_lastQuery != query) return [];
-
-    try {
-      final universityName = Uri.encodeComponent(_universityController.text.trim());
-      final response = await http
-          .get(
-            Uri.parse(
-              '${ApiConfig.apiGatewayUrl}/auth/careers?search=$query&universityId=$universityName',
-            ),
-          )
-          .timeout(const Duration(seconds: 10));
-
-      if (_lastQuery != query) return [];
-
-      if (response.statusCode == 200) {
-        final List data = json.decode(response.body);
-        return data.map((c) => c['name'].toString()).toList();
-      }
-    } catch (e) {
-      debugPrint("Error fetching careers: $e");
-    }
-    return [];
-  }
-
   Future<void> _submitCareer() async {
     FocusScope.of(context).unfocus();
     final name = _nameController.text.trim();
@@ -157,6 +111,20 @@ class _StudentUniversityPageState extends State<StudentUniversityPage> {
     if (name.isEmpty || matricula.isEmpty || universityName.isEmpty || careerName.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Por favor, completa todos los campos requeridos')),
+      );
+      return;
+    }
+
+    if (_selectedUniversityName != universityName || _selectedUniversityName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor, selecciona una universidad válida de la lista sugerida.')),
+      );
+      return;
+    }
+
+    if (_selectedCareerName != careerName || _selectedCareerName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor, selecciona una carrera válida de la lista sugerida.')),
       );
       return;
     }
@@ -245,231 +213,46 @@ class _StudentUniversityPageState extends State<StudentUniversityPage> {
       body: SafeArea(
         child: _isLoading
             ? _buildShimmerLoading(colors, isDark)
-            : SingleChildScrollView(
-                child: AuthLayout(
+            : GestureDetector(
+                onTap: () => FocusScope.of(context).unfocus(),
+                child: SingleChildScrollView(
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.manual,
+                  child: AuthLayout(
                   appTitle: 'Corvus',
                   cardTitle: 'Información institucional',
                   children: [
-                    const Label(text: "Nombre completo"),
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? colors.surfaceContainer
-                            : Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isDark
-                              ? colors.outlineVariant.withValues(
-                                  alpha: 0.5,
-                                )
-                              : const Color(0xFFE2E8F0),
-                        ),
-                      ),
-                      child: TextField(
-                        controller: _nameController,
-                        style: TextStyle(
-                          color: colors.onSurface,
-                          fontSize: 15,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: "Ej. Juan Pérez García",
-                          hintStyle: TextStyle(
-                            color: colors.onSurfaceVariant.withValues(
-                              alpha: 0.6,
-                            ),
-                          ),
-                          border: InputBorder.none,
-                          icon: Icon(
-                            Icons.person,
-                            color: Colors.blueAccent,
-                            size: 20,
-                          ),
-                        ),
-                      ),
+                    InputCompleted(
+                      label: "Nombre completo",
+                      hint: "Ej. Juan Pérez García",
+                      icon: Icons.person,
+                      controller: _nameController,
+                      iconColor: Colors.blueAccent,
                     ),
                     const SizedBox(height: 16),
 
-                    const Label(text: "Matrícula"),
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? colors.surfaceContainer
-                            : Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isDark
-                              ? colors.outlineVariant.withValues(
-                                  alpha: 0.5,
-                                )
-                              : const Color(0xFFE2E8F0),
-                        ),
-                      ),
-                      child: TextField(
-                        controller: _matriculaController,
-                        style: TextStyle(
-                          color: colors.onSurface,
-                          fontSize: 15,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: "Ej. 20230001",
-                          hintStyle: TextStyle(
-                            color: colors.onSurfaceVariant.withValues(
-                              alpha: 0.6,
-                            ),
-                          ),
-                          border: InputBorder.none,
-                          icon: Icon(
-                            Icons.badge,
-                            color: Colors.amber,
-                            size: 20,
-                          ),
-                        ),
-                      ),
+                    InputCompleted(
+                      label: "Matrícula",
+                      hint: "Ej. 20230001",
+                      icon: Icons.badge,
+                      controller: _matriculaController,
+                      iconColor: Colors.amber,
                     ),
                     const SizedBox(height: 16),
 
                     const Label(text: "Nombre de la universidad"),
                     const SizedBox(height: 8),
-                    Autocomplete<String>(
-                      initialValue: TextEditingValue(text: _universityController.text),
-                      optionsBuilder:
-                          (TextEditingValue textEditingValue) async {
-                            return await _getUniversities(
-                              textEditingValue.text,
-                            );
-                          },
-                      onSelected: (String selection) {
-                        _universityController.text = selection;
-                      },
-                      fieldViewBuilder:
-                          (
-                            context,
-                            controller,
-                            focusNode,
-                            onEditingComplete,
-                          ) {
-                            // Add a listener once to sync the text
-                            WidgetsBinding.instance
-                                .addPostFrameCallback((_) {
-                                  if (controller.text !=
-                                      _universityController.text) {
-                                    _universityController.text =
-                                        controller.text;
-                                  }
-                                });
-
-                            return Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 14,
-                              ),
-                              decoration: BoxDecoration(
-                                color: isDark
-                                    ? colors.surfaceContainer
-                                    : Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: isDark
-                                      ? colors.outlineVariant
-                                            .withValues(alpha: 0.5)
-                                      : const Color(0xFFE2E8F0),
-                                ),
-                              ),
-                              child: TextField(
-                                controller: controller,
-                                focusNode: focusNode,
-                                onEditingComplete: () {
-                                  _universityController.text =
-                                      controller.text;
-                                  onEditingComplete();
-                                },
-                                onChanged: (val) {
-                                  _universityController.text = val;
-                                },
-                                style: TextStyle(
-                                  color: colors.onSurface,
-                                  fontSize: 15,
-                                ),
-                                decoration: InputDecoration(
-                                  hintText:
-                                      "Ej. Universidad Nacional...",
-                                  hintStyle: TextStyle(
-                                    color: colors.onSurfaceVariant
-                                        .withValues(alpha: 0.6),
-                                  ),
-                                  border: InputBorder.none,
-                                  icon: Icon(
-                                    Icons.account_balance,
-                                    color: Colors.deepPurpleAccent,
-                                    size: 20,
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                      optionsViewBuilder: (
-                        context,
-                        onSelected,
-                        options,
-                      ) {
-                        return Align(
-                          alignment: Alignment.topLeft,
-                          child: Material(
-                            elevation: 4.0,
-                            borderRadius: BorderRadius.circular(12),
-                            child: Container(
-                              width:
-                                  MediaQuery.of(context).size.width -
-                                  64,
-                              constraints: const BoxConstraints(
-                                maxHeight: 200,
-                              ),
-                              decoration: BoxDecoration(
-                                color: isDark
-                                    ? colors.surfaceContainer
-                                    : Colors.white,
-                                borderRadius: BorderRadius.circular(
-                                  12,
-                                ),
-                              ),
-                              child: ListView.builder(
-                                padding: EdgeInsets.zero,
-                                shrinkWrap: true,
-                                itemCount: options.length,
-                                itemBuilder: (
-                                  BuildContext context,
-                                  int index,
-                                ) {
-                                  final String option =
-                                      options.elementAt(index);
-                                  return InkWell(
-                                    onTap: () {
-                                      onSelected(option);
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(
-                                        16.0,
-                                      ),
-                                      child: Text(
-                                        option,
-                                        style: TextStyle(
-                                          color: colors.onSurface,
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                        );
+                    UniversityAutocompleteField(
+                      controller: _universityController,
+                      isDark: isDark,
+                      colors: colors,
+                      onSelected: (selection) {
+                        if (_selectedUniversityName != selection) {
+                          setState(() {
+                            _selectedUniversityName = selection;
+                            _selectedCareerName = '';
+                            _careerController.clear();
+                          });
+                        }
                       },
                     ),
                     const SizedBox(height: 16),
@@ -497,6 +280,11 @@ class _StudentUniversityPageState extends State<StudentUniversityPage> {
                         child: DropdownButton<String>(
                           value: _selectedPeriod,
                           isExpanded: true,
+                          menuMaxHeight: 250,
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(12),
+                            bottom: Radius.zero,
+                          ),
                           icon: Icon(
                             Icons.keyboard_arrow_down,
                             color: Colors.deepOrange,
@@ -550,97 +338,17 @@ class _StudentUniversityPageState extends State<StudentUniversityPage> {
 
                     const Label(text: "Carrera"),
                     const SizedBox(height: 8),
-                    Autocomplete<String>(
-                      initialValue: TextEditingValue(text: _careerController.text),
-                      optionsBuilder: (TextEditingValue textEditingValue) async {
-                        return await _getCareers(textEditingValue.text);
-                      },
-                      onSelected: (String selection) {
-                        _careerController.text = selection;
-                      },
-                      fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          if (controller.text != _careerController.text) {
-                            _careerController.text = controller.text;
-                          }
-                        });
-
-                        return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14),
-                          decoration: BoxDecoration(
-                            color: isDark ? colors.surfaceContainer : Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: isDark ? colors.outlineVariant.withValues(alpha: 0.5) : const Color(0xFFE2E8F0),
-                            ),
-                          ),
-                          child: TextField(
-                            controller: controller,
-                            focusNode: focusNode,
-                            onEditingComplete: () {
-                              _careerController.text = controller.text;
-                              onEditingComplete();
-                            },
-                            onChanged: (val) {
-                              _careerController.text = val;
-                            },
-                            style: TextStyle(
-                              color: colors.onSurface,
-                              fontSize: 15,
-                            ),
-                            decoration: InputDecoration(
-                              hintText: "Ej. Ingeniería de Software",
-                              hintStyle: TextStyle(
-                                color: colors.onSurfaceVariant.withValues(alpha: 0.6),
-                              ),
-                              border: InputBorder.none,
-                              icon: Icon(
-                                Icons.school,
-                                color: Colors.greenAccent,
-                                size: 20,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                      optionsViewBuilder: (context, onSelected, options) {
-                        return Align(
-                          alignment: Alignment.topLeft,
-                          child: Material(
-                            elevation: 4.0,
-                            borderRadius: BorderRadius.circular(12),
-                            child: Container(
-                              width: MediaQuery.of(context).size.width - 64,
-                              constraints: const BoxConstraints(maxHeight: 200),
-                              decoration: BoxDecoration(
-                                color: isDark ? colors.surfaceContainerHigh : Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: ListView.builder(
-                                padding: EdgeInsets.zero,
-                                itemCount: options.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  final String option = options.elementAt(index);
-                                  return InkWell(
-                                    onTap: () {
-                                      onSelected(option);
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: Text(
-                                        option,
-                                        style: TextStyle(
-                                          color: colors.onSurface,
-                                          fontSize: 15,
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                        );
+                    CareerAutocompleteField(
+                      controller: _careerController,
+                      universityController: _universityController,
+                      isDark: isDark,
+                      colors: colors,
+                      onSelected: (selection) {
+                        if (_selectedCareerName != selection) {
+                          setState(() {
+                            _selectedCareerName = selection;
+                          });
+                        }
                       },
                     ),
                     const SizedBox(height: 32),
@@ -652,6 +360,7 @@ class _StudentUniversityPageState extends State<StudentUniversityPage> {
                   ],
                 ),
               ),
+            ),
       ),
     );
   }

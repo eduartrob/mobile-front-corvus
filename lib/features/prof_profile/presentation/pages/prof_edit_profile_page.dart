@@ -3,21 +3,21 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/profile/presentation/provider/profile_provider.dart';
 import 'package:mobile/features/profile/presentation/pages/edit_field_page.dart';
-import 'package:mobile/features/profile/presentation/pages/edit_skills_page.dart';
 import 'package:mobile/features/profile/presentation/pages/edit_email_page.dart';
+import 'package:mobile/features/prof_profile/presentation/pages/prof_edit_careers_page.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'dart:convert';
 
-class EditProfilePage extends StatefulWidget {
-  const EditProfilePage({super.key});
+class ProfEditProfilePage extends StatefulWidget {
+  const ProfEditProfilePage({super.key});
 
   @override
-  State<EditProfilePage> createState() => _EditProfilePageState();
+  State<ProfEditProfilePage> createState() => _ProfEditProfilePageState();
 }
 
-class _EditProfilePageState extends State<EditProfilePage> {
+class _ProfEditProfilePageState extends State<ProfEditProfilePage> {
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImage() async {
@@ -59,7 +59,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
           final authProvider = context.read<AuthProvider>();
           final bytes = await croppedFile.readAsBytes();
           
-          // Determinar el MIME type básico
           String mimeType = 'image/jpeg';
           if (croppedFile.path.toLowerCase().endsWith('.png')) mimeType = 'image/png';
           if (croppedFile.path.toLowerCase().endsWith('.webp')) mimeType = 'image/webp';
@@ -98,8 +97,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
     
     await provider.updateProfile(
       fullName: field == 'name' ? value : (currentProfile?.alumno ?? ''),
-      enrollmentId: field == 'matricula' ? value : (currentProfile?.matricula ?? ''),
-      semester: field == 'cuatrimestre' ? value : (currentProfile?.cuatrimestre ?? ''),
+      enrollmentId: currentProfile?.matricula ?? '',
+      semester: currentProfile?.cuatrimestre ?? '',
       skills: currentProfile?.habilidades.map((e) => e.habilidad).toList() ?? [],
     );
   }
@@ -195,7 +194,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
         child: Column(
           children: [
             const SizedBox(height: 20),
-            // Foto de perfil
             Center(
               child: Stack(
                 children: [
@@ -243,7 +241,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       title: 'Nombre',
                       label: 'Tu nombre completo',
                       initialValue: profile?.alumno ?? '',
-                      description: 'Este es el nombre que verán los demás usuarios de Corvus en tu perfil y al buscarte.',
+                      description: 'Este es el nombre que verán los demás usuarios de Corvus en tu perfil.',
                       keyboardType: TextInputType.name,
                       onSave: (val) => _updateField('name', val),
                     ),
@@ -253,64 +251,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
             const Divider(indent: 72, endIndent: 16),
             
-            // Matrícula
+            // Universidad (Not editable)
             ListTile(
-              leading: Icon(Icons.badge_outlined, color: colorScheme.onSurfaceVariant),
-              title: Text('Matrícula', style: TextStyle(color: colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.w400)),
+              leading: Icon(Icons.account_balance_outlined, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+              title: Text('Universidad', style: TextStyle(color: colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.w400)),
               subtitle: Text(
-                profile?.matricula ?? 'No especificada',
-                style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14),
-              ),
-              trailing: const Icon(Icons.edit, size: 20),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => EditFieldPage(
-                      title: 'Matrícula',
-                      label: 'Tu matrícula universitaria',
-                      initialValue: profile?.matricula ?? '',
-                      keyboardType: TextInputType.number,
-                      onSave: (val) => _updateField('matricula', val),
-                    ),
-                  ),
-                );
-              },
-            ),
-            const Divider(indent: 72, endIndent: 16),
-            
-            // Cuatrimestre
-            ListTile(
-              leading: Icon(Icons.school_outlined, color: colorScheme.onSurfaceVariant),
-              title: Text('Cuatrimestre', style: TextStyle(color: colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.w400)),
-              subtitle: Text(
-                profile?.cuatrimestre ?? 'No especificado',
-                style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14),
-              ),
-              trailing: const Icon(Icons.edit, size: 20),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => EditFieldPage(
-                      title: 'Cuatrimestre',
-                      label: 'Cuatrimestre actual',
-                      initialValue: profile?.cuatrimestre ?? '',
-                      keyboardType: TextInputType.number,
-                      onSave: (val) => _updateField('cuatrimestre', val),
-                    ),
-                  ),
-                );
-              },
-            ),
-            const Divider(indent: 72, endIndent: 16),
-            
-            // Carrera (Not editable)
-            ListTile(
-              leading: Icon(Icons.book_outlined, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-              title: Text('Carrera', style: TextStyle(color: colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.w400)),
-              subtitle: Text(
-                profile?.carrera ?? 'No especificada',
+                profile?.universidad ?? 'No especificada',
                 style: TextStyle(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5), fontSize: 14),
               ),
             ),
@@ -353,23 +299,32 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
             const Divider(indent: 72, endIndent: 16),
             
-            // Habilidades
+            // Carreras adicionales (mapped as skills)
             ListTile(
-              leading: Icon(Icons.psychology_outlined, color: colorScheme.onSurfaceVariant),
-              title: Text('Habilidades', style: TextStyle(color: colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.w400)),
-              subtitle: Text(
-                profile?.habilidades != null && profile!.habilidades.isNotEmpty
-                    ? profile.habilidades.map((e) => e.habilidad).join(', ')
-                    : 'Agrega tus habilidades',
-                style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14),
+              leading: Icon(Icons.school_outlined, color: colorScheme.onSurfaceVariant),
+              title: Text('Carreras', style: TextStyle(color: colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.w400)),
+              subtitle: Builder(
+                builder: (context) {
+                  final List<String> allCareers = [];
+                  if (profile?.carrera != null && profile!.carrera!.isNotEmpty) {
+                    allCareers.add(profile.carrera!);
+                  }
+                  if (profile?.habilidades != null) {
+                    allCareers.addAll(profile!.habilidades.map((e) => e.habilidad));
+                  }
+                  return Text(
+                    allCareers.isNotEmpty ? allCareers.join(', ') : 'Agrega tus carreras',
+                    style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14),
+                  );
+                },
               ),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => EditSkillsPage(
-                      initialSkills: profile?.habilidades.map((e) => e.habilidad).toList() ?? [],
+                    builder: (context) => ProfEditCareersPage(
+                      initialCareers: profile?.habilidades.map((e) => e.habilidad).toList() ?? [],
                     ),
                   ),
                 );

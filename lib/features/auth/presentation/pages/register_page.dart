@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/core/theme/app_dimens.dart';
@@ -11,6 +12,9 @@ import 'package:provider/provider.dart';
 import 'package:mobile/core/services/security_service.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'dart:math';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:mobile/core/services/secure_storage_service.dart';
+
 class RegisterPage extends StatefulWidget {
   final String role;
   const RegisterPage({super.key, this.role = 'ALUMNO'});
@@ -235,12 +239,16 @@ class _RegisterFormState extends State<_RegisterForm> {
               try {
                 final googleSignIn = GoogleSignIn(
                   scopes: ['email', 'profile'],
+                  serverClientId: kIsWeb ? null : '1078483343139-2fobsjceva5r60i6vrpcg4jbjddmj4uo.apps.googleusercontent.com',
                 );
                 await googleSignIn.signOut(); // Ensure we prompt for account if they want to choose
                 final googleUser = await googleSignIn.signIn();
                 if (googleUser == null) return; // User canceled
 
                 final email = googleUser.email;
+                // Capture the server auth code so the skills page can call
+                // googleLogin after register, which saves google_access_token
+                final authCode = googleUser.serverAuthCode;
                 
                 // Generate a random 12-character password since they will login with Google later
                 const chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
@@ -253,6 +261,7 @@ class _RegisterFormState extends State<_RegisterForm> {
                   email: email,
                   password: randomPassword,
                   role: widget.role,
+                  googleAuthCode: authCode,
                 );
 
                 if (widget.role == 'DOCENTE' || widget.role == 'PROFESOR') {

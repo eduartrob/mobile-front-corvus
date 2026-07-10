@@ -13,15 +13,21 @@ import 'dart:math';
 
 class LoginForm extends StatefulWidget {
   final String role;
-  const LoginForm({super.key, this.role = 'ALUMNO'});
+  final Function(String)? onRoleChanged;
+
+  const LoginForm({
+    super.key,
+    required this.role,
+    this.onRoleChanged,
+  });
 
   @override
   State<LoginForm> createState() => _LoginFormState();
 }
 
 class _LoginFormState extends State<LoginForm> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   @override
   void dispose() {
@@ -30,7 +36,7 @@ class _LoginFormState extends State<LoginForm> {
     super.dispose();
   }
 
-  void _validateAndSubmit() async {
+  Future<void> _validateAndSubmit() async {
     FocusScope.of(context).unfocus();
     final email = _emailController.text.trim();
     final password = _passwordController.text;
@@ -62,7 +68,24 @@ class _LoginFormState extends State<LoginForm> {
       
       final authProvider = context.read<AuthProvider>();
       if (authProvider.status == AuthStatus.authenticated) {
-        if (widget.role == 'DOCENTE' || widget.role == 'PROFESOR') {
+        final actualRole = authProvider.currentUser?.role?.toUpperCase() ?? widget.role.toUpperCase();
+        final uiRole = widget.role.toUpperCase() == 'PROFESOR' ? 'DOCENTE' : widget.role.toUpperCase();
+        final backendRole = actualRole == 'PROFESOR' ? 'DOCENTE' : actualRole;
+
+        if (uiRole != backendRole) {
+          await authProvider.logout();
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Esta cuenta pertenece a un $actualRole. Por favor ingresa desde la sección correcta.'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+          return;
+        }
+
+        if (backendRole == 'DOCENTE') {
           context.pushReplacement('/prof-dash');
         } else {
           context.pushReplacement('/inspiration');
@@ -88,7 +111,90 @@ class _LoginFormState extends State<LoginForm> {
     return AuthLayout(
       appTitle: l10n.appTitle,
       cardTitle: l10n.welcomeBack,
-      cardSubtitle: 'Ingresa como ${widget.role}',
+      customSubtitle: Column(
+        children: [
+          GestureDetector(
+            onHorizontalDragEnd: (details) {
+              if (details.primaryVelocity != null) {
+                final newRole = widget.role == 'ALUMNO' ? 'DOCENTE' : 'ALUMNO';
+                _emailController.clear();
+                _passwordController.clear();
+                widget.onRoleChanged?.call(newRole);
+              }
+            },
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 500),
+              switchInCurve: Curves.easeOutBack,
+              switchOutCurve: Curves.easeInBack,
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(0.8, 0.0), 
+                    end: Offset.zero
+                  ).animate(animation),
+                  child: FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(
+                      scale: Tween<double>(begin: 0.6, end: 1.0).animate(animation),
+                      child: child,
+                    ),
+                  ),
+                );
+              },
+              child: Container(
+                key: ValueKey<String>(widget.role),
+                color: Colors.transparent,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: colors.primary.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        widget.role == 'ALUMNO' ? Icons.school : Icons.co_present,
+                        color: colors.primary,
+                        size: 22,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Ingresa como ${widget.role}',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: colors.primary,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.5,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 2),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.swipe, size: 14, color: colors.outline),
+              const SizedBox(width: 4),
+              Text(
+                'Desliza el texto para cambiar',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: colors.outline,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
       children: [
         InputCompleted(
           label: 'Correo electrónico',
@@ -106,6 +212,24 @@ class _LoginFormState extends State<LoginForm> {
           obscure: true,
           controller: _passwordController,
           iconColor: Colors.redAccent,
+        ),
+        const SizedBox(height: 12),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.info_outline, size: 16, color: colors.primary),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Te recomendamos registrarte con tu correo institucional de la universidad.',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colors.onSurfaceVariant,
+                  height: 1.4,
+                ),
+              ),
+            ),
+          ],
         ),
         Align(
           alignment: Alignment.centerRight,
@@ -165,13 +289,33 @@ class _LoginFormState extends State<LoginForm> {
                         await authProvider.signInWithGoogle();
                         
                         if (authProvider.status == AuthStatus.authenticated) {
-                          if (widget.role == 'DOCENTE' || widget.role == 'PROFESOR') {
+                          final actualRole = authProvider.currentUser?.role?.toUpperCase() ?? widget.role.toUpperCase();
+                          final uiRole = widget.role.toUpperCase() == 'PROFESOR' ? 'DOCENTE' : widget.role.toUpperCase();
+                          final backendRole = actualRole == 'PROFESOR' ? 'DOCENTE' : actualRole;
+
+                          if (uiRole != backendRole) {
+                            await authProvider.logout();
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Esta cuenta pertenece a un $actualRole. Por favor ingresa desde la sección correcta.'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                            return;
+                          }
+
+                          if (backendRole == 'DOCENTE') {
                             context.pushReplacement('/prof-dash');
                           } else {
                             context.pushReplacement('/inspiration');
                           }
                         } else if (authProvider.errorMessage != null && authProvider.errorMessage!.startsWith('USER_NOT_REGISTERED|')) {
-                          final email = authProvider.errorMessage!.split('|').last;
+                          final parts = authProvider.errorMessage!.split('|');
+                          final email = parts[1];
+                          final authCode = parts.length > 2 && parts[2].isNotEmpty ? parts[2] : null;
+
                           final provider = Provider.of<RegistrationProvider>(context, listen: false);
                           
                           const chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
@@ -183,6 +327,7 @@ class _LoginFormState extends State<LoginForm> {
                             email: email,
                             password: randomPassword,
                             role: widget.role,
+                            googleAuthCode: authCode,
                           );
 
                           if (widget.role == 'DOCENTE' || widget.role == 'PROFESOR') {

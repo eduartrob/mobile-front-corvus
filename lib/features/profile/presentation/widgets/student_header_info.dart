@@ -76,10 +76,10 @@ class _StudentHeaderInfoState extends State<StudentHeaderInfo> {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      if (profile != null && profile.isVerified) ...[
+                      if (profile != null && (profile.isVerified || profile.isGoogleLinked)) ...[
                         const SizedBox(width: 4),
                         const Icon(Icons.check_circle, color: Colors.green, size: 16),
-                      ] else if (profile != null && !profile.isVerified) ...[
+                      ] else if (profile != null && !profile.isVerified && !profile.isGoogleLinked) ...[
                         const SizedBox(width: 4),
                         SizedBox(
                           width: 24,
@@ -193,106 +193,130 @@ class _StudentHeaderInfoState extends State<StudentHeaderInfo> {
                         ),
                       ),
                   ],
-                  if (profile != null && !profile.isGoogleLinked) ...[
-                    const SizedBox(height: 16),
-                    Material(
-                      color: Theme.of(context).brightness == Brightness.dark 
-                          ? colorScheme.surfaceContainer 
-                          : Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      child: InkWell(
-                        onTap: profileProvider.isLoading ? null : () async {
-                          try {
-                            final googleSignIn = GoogleSignIn(
-                              scopes: ['email', 'profile'],
-                              serverClientId: kIsWeb ? null : '1078483343139-2fobsjceva5r60i6vrpcg4jbjddmj4uo.apps.googleusercontent.com',
-                            );
-                            try {
-                              await googleSignIn.disconnect();
-                            } catch (_) {
-                              await googleSignIn.signOut();
-                            }
-                            final googleUser = await googleSignIn.signIn();
-                            if (googleUser == null) return;
-
-                            String? authCode = googleUser.serverAuthCode;
-                            if (authCode == null) {
-                              final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-                              authCode = googleAuth.idToken ?? googleAuth.accessToken;
-                            }
-                            
-                            if (authCode == null) {
-                              throw Exception('No se pudo obtener el token de Google');
-                            }
-                            
-                            await profileProvider.linkGoogleAccount(authCode);
-                            if (!context.mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Cuenta vinculada exitosamente'), backgroundColor: Colors.green),
-                            );
-                          } catch (e) {
-                            if (!context.mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Error al vincular: $e'), backgroundColor: Colors.red),
-                            );
-                          }
-                        },
-                        borderRadius: BorderRadius.circular(12),
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
+                  Builder(
+                    builder: (context) {
+                      final bool isLinked = profile?.isGoogleLinked == true || 
+                          (profile?.googleEmail != null && profile!.googleEmail!.isNotEmpty);
+                      
+                      if (profile != null && !isLinked) {
+                        return Column(
+                          children: [
+                            const SizedBox(height: 16),
+                            Material(
                               color: Theme.of(context).brightness == Brightness.dark 
-                                  ? colorScheme.outlineVariant.withValues(alpha: 0.3) 
-                                  : const Color(0xFFE2E8F0),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SvgPicture.asset(
-                                'assets/icons/google.svg',
-                                width: 20,
-                                height: 20,
-                              ),
-                              const SizedBox(width: 12),
-                              Text(
-                                'Vincular cuenta de Google',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: colorScheme.onSurface,
+                                  ? colorScheme.surfaceContainer 
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              child: InkWell(
+                                onTap: profileProvider.isLoading ? null : () async {
+                                  try {
+                                    final googleSignIn = GoogleSignIn(
+                                      scopes: ['email', 'profile'],
+                                      serverClientId: kIsWeb ? null : '1078483343139-2fobsjceva5r60i6vrpcg4jbjddmj4uo.apps.googleusercontent.com',
+                                    );
+                                    try {
+                                      await googleSignIn.disconnect();
+                                    } catch (_) {
+                                      await googleSignIn.signOut();
+                                    }
+                                    final googleUser = await googleSignIn.signIn();
+                                    if (googleUser == null) return;
+
+                                    String? authCode = googleUser.serverAuthCode;
+                                    if (authCode == null) {
+                                      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+                                      authCode = googleAuth.idToken ?? googleAuth.accessToken;
+                                    }
+                                    
+                                    if (authCode == null) {
+                                      throw Exception('No se pudo obtener el token de Google');
+                                    }
+                                    
+                                    await profileProvider.linkGoogleAccount(authCode);
+                                    if (!context.mounted) return;
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Cuenta vinculada exitosamente'), backgroundColor: Colors.green),
+                                    );
+                                  } catch (e) {
+                                    if (!context.mounted) return;
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Error al vincular: $e'), backgroundColor: Colors.red),
+                                    );
+                                  }
+                                },
+                                borderRadius: BorderRadius.circular(12),
+                                child: Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: Theme.of(context).brightness == Brightness.dark 
+                                          ? colorScheme.outlineVariant.withValues(alpha: 0.3) 
+                                          : const Color(0xFFE2E8F0),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      SvgPicture.asset(
+                                        'assets/icons/google.svg',
+                                        width: 20,
+                                        height: 20,
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        'Vincular cuenta de Google',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: colorScheme.onSurface,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ] else if (profile?.isGoogleLinked == true) ...[
-                    const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.green.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.check_circle, color: Colors.green, size: 16),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Vinculado con Google', 
-                            style: TextStyle(color: Colors.green[700], fontWeight: FontWeight.bold, fontSize: 13),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                            ),
+                          ],
+                        );
+                      } else if (isLinked) {
+                        return Column(
+                          children: [
+                            const SizedBox(height: 16),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.green.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/icons/google.svg',
+                                    width: 16,
+                                    height: 16,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Text(
+                                    'Cuenta de Google vinculada',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.green,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    }
+                  ),
                 ],
               );
             },

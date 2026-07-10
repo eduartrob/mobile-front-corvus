@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/features/profile/presentation/provider/profile_provider.dart';
 import 'package:mobile/core/theme/theme_provider.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/core/theme/app_dimens.dart';
 import 'package:mobile/core/constants/app_version.dart';
 import '../widgets/prof_header_info.dart';
-import '../widgets/prof_stats_card.dart';
-import '../widgets/drive_sync_modal.dart';
+import 'package:mobile/features/profile/presentation/pages/settings_page.dart' as mobile;
+import 'package:mobile/features/profile/presentation/pages/app_update_page.dart' as mobile;
+import 'package:mobile/features/prof_profile/presentation/pages/prof_drive_sync_page.dart';
+import 'package:mobile/features/prof_profile/presentation/pages/prof_load_projects_page.dart';
+import 'package:mobile/features/prof_profile/presentation/pages/prof_edit_profile_page.dart' as mobile;
 
 class ProfProfilePage extends StatefulWidget {
   const ProfProfilePage({super.key});
@@ -18,30 +22,15 @@ class ProfProfilePage extends StatefulWidget {
 }
 
 class _ProfProfilePageState extends State<ProfProfilePage> {
-  bool course1Enabled = true;
-  bool course2Enabled = true;
-  bool course3Enabled = false;
-  bool _isSyncing = false;
-
-  void _showUpcomingFeature(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(l10n.featureUpcoming),
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<ProfileProvider>().fetchProfile();
+      }
+    });
   }
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -49,465 +38,175 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
     final l10n = AppLocalizations.of(context)!;
     final authProvider = context.watch<AuthProvider>();
     final user = authProvider.currentUser;
+    final profileProvider = context.watch<ProfileProvider>();
+    final isProcessing = profileProvider.profile?.isProcessing == true;
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const mobile.ProfEditProfilePage()),
+              );
+              if (mounted) {
+                context.read<ProfileProvider>().fetchProfile(forceRefresh: true);
+                context.read<AuthProvider>().checkAuthStatus();
+              }
+            },
+          ),
+        ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppDimens.screenMargin),
-        child: Column(
-          children: [
-            ProfHeaderInfo(user: user),
-            const SizedBox(height: 32),
-            const ProfStatsCard(),
-            
-            const SizedBox(height: 32),
-            
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Course\nAccess',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    height: 1.2,
+      body: RefreshIndicator(
+        onRefresh: () => context.read<ProfileProvider>().fetchProfile(),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(AppDimens.screenMargin),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ProfHeaderInfo(user: user),
+              
+              if (isProcessing) ...[
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                ),
-                InkWell(
-                  onTap: () => _showUpcomingFeature(context),
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: colorScheme.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      'Permissions\nManagement',
-                      textAlign: TextAlign.right,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: colorScheme.primary,
-                        height: 1.2,
+                  child: Row(
+                    children: [
+                      CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(colorScheme.onPrimaryContainer),
                       ),
-                    ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Text(
+                          "La IA de Corvus está analizando tu perfil en segundo plano. Esto tomará unos segundos...",
+                          style: TextStyle(
+                            color: colorScheme.onPrimaryContainer,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
-            ),
-            
-            const SizedBox(height: 16),
-            
-            Container(
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
-              ),
-              child: Column(
-                children: [
-                  _buildCourseToggle(
+              
+              const SizedBox(height: 24),
+              const Divider(height: 1),
+              
+              // Sincronizar con Google Drive
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                leading: Icon(Icons.sync, color: colorScheme.onSurfaceVariant, size: 28),
+                title: const Text('Sincronizar con Google Drive', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
+                subtitle: const Text('Conecta tus materiales para la IA'),
+                onTap: () {
+                  Navigator.push(
                     context,
-                    icon: Icons.code,
-                    title: 'Software Engineering I',
-                    subtitle: 'Undergraduate Core | 84 Students',
-                    value: course1Enabled,
-                    onChanged: (val) {
-                      setState(() => course1Enabled = val);
-                      _showUpcomingFeature(context);
-                    },
-                  ),
-                  Divider(height: 1, color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
-                  _buildCourseToggle(
-                    context,
-                    icon: Icons.storage,
-                    title: 'Advanced Databases',
-                    subtitle: 'Graduate Level | 42 Students',
-                    value: course2Enabled,
-                    iconColor: Colors.orange,
-                    onChanged: (val) {
-                      setState(() => course2Enabled = val);
-                      _showUpcomingFeature(context);
-                    },
-                  ),
-                  Divider(height: 1, color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
-                  _buildCourseToggle(
-                    context,
-                    icon: Icons.psychology,
-                    title: 'AI Ethics',
-                    subtitle: 'Elective Seminar | 116 Students',
-                    value: course3Enabled,
-                    iconColor: Colors.lightBlue,
-                    onChanged: (val) {
-                      setState(() => course3Enabled = val);
-                      _showUpcomingFeature(context);
-                    },
-                  ),
-                ],
-              ),
-            ),
-            
-            const SizedBox(height: 12),
-            Text(
-              '* Toggling access immediately revokes student submission capabilities for the specific course.',
-              style: TextStyle(
-                fontSize: 12,
-                fontStyle: FontStyle.italic,
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-            
-            const SizedBox(height: 32),
-            
-            // Classroom Synchronization Section
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: colorScheme.primaryContainer.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: colorScheme.primary.withValues(alpha: 0.3)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.sync, color: colorScheme.primary),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Sincronización con Google Classroom',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.onSurface,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Sincroniza tus materiales para que la Búsqueda Inteligente (RAG) funcione. '
-                    'Para garantizar tu privacidad, la aplicación solicitará permisos estrictamente de "Solo Lectura". '
-                    'No podremos modificar ni eliminar ningún archivo tuyo.',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: colorScheme.onSurfaceVariant,
-                      height: 1.4,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton.icon(
-                      onPressed: _isSyncing ? null : () async {
-                        setState(() {
-                          _isSyncing = true;
-                        });
-                        
-                        final authProvider = context.read<AuthProvider>();
-                        try {
-                          final success = await authProvider.requestClassroomScopes();
-                          
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                            if (success) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('¡Materiales sincronizados correctamente!'),
-                                  backgroundColor: Colors.green,
-                                  behavior: SnackBarBehavior.floating,
-                                ),
-                              );
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Autorización cancelada o fallida.'),
-                                  backgroundColor: Colors.redAccent,
-                                  behavior: SnackBarBehavior.floating,
-                                ),
-                              );
-                            }
-                          }
-                        } finally {
-                          if (mounted) {
-                            setState(() {
-                              _isSyncing = false;
-                            });
-                          }
-                        }
-                      },
-                      icon: _isSyncing 
-                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) 
-                          : const Icon(Icons.school),
-                      label: Text(
-                        _isSyncing ? 'Sincronizando... por favor espera' : 'Autorizar y Sincronizar Material',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colorScheme.primary,
-                        foregroundColor: colorScheme.onPrimary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            
-            const SizedBox(height: 32),
-            
-            // Historical Projects Synchronization Section
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: colorScheme.secondaryContainer.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: colorScheme.secondary.withValues(alpha: 0.3)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.folder_shared, color: colorScheme.secondary),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Proyectos Históricos',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.onSurface,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Para incluir proyectos históricos, comparte tu carpeta de Google Drive otorgando permisos de "Lector" al siguiente correo:',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: colorScheme.onSurfaceVariant,
-                      height: 1.4,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: colorScheme.surface,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: colorScheme.outlineVariant),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: SelectableText(
-                            'corvus-backend@corvus-376d3.iam.gserviceaccount.com',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: colorScheme.onSurface,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'El panel de administración detectará automáticamente la carpeta compartida.',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontStyle: FontStyle.italic,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            
-            const SizedBox(height: 32),
-            
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.palette, color: colorScheme.primary),
-                      const SizedBox(width: 8),
-                      Text(
-                        l10n.appearance,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: SegmentedButton<ThemeMode>(
-                      segments: [
-                        ButtonSegment(
-                          value: ThemeMode.system,
-                          icon: const Icon(Icons.settings),
-                          label: Text(l10n.themeSystem),
-                        ),
-                        ButtonSegment(
-                          value: ThemeMode.light,
-                          icon: const Icon(Icons.wb_sunny),
-                          label: Text(l10n.themeLight),
-                        ),
-                        ButtonSegment(
-                          value: ThemeMode.dark,
-                          icon: const Icon(Icons.nightlight_round),
-                          label: Text(l10n.themeDark),
-                        ),
-                      ],
-                      selected: {context.watch<ThemeProvider>().themeMode},
-                      onSelectionChanged: (Set<ThemeMode> newSelection) {
-                        context.read<ThemeProvider>().setThemeMode(newSelection.first);
-                      },
-                      style: ButtonStyle(
-                        side: WidgetStateProperty.all(BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.5))),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            
-            
-            
-            const SizedBox(height: 24),            
-            SizedBox(
-              width: double.infinity,
-              height: 55,
-              child: ElevatedButton.icon(
-                onPressed: () async {
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (context) => const Center(
-                      child: CircularProgressIndicator(),
-                    ),
+                    MaterialPageRoute(builder: (context) => const ProfDriveSyncPage()),
                   );
-                  
-                  await context.read<AuthProvider>().logout();
-                  
-                  if (context.mounted) {
-                    Navigator.of(context).pop();
-                    context.go('/');
-                  }
                 },
-                icon: const Icon(Icons.logout, size: 24),
-                label: Text(
-                  l10n.logout,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colorScheme.errorContainer,
-                  foregroundColor: colorScheme.error,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+              ),
+              
+              // Cómo cargar los proyectos
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                leading: Icon(Icons.folder_shared, color: colorScheme.onSurfaceVariant, size: 28),
+                title: const Text('Cómo cargar los proyectos', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
+                subtitle: const Text('Instrucciones para proyectos históricos'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ProfLoadProjectsPage()),
+                  );
+                },
+              ),
+              
+              // Apariencia
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                leading: Icon(Icons.palette_outlined, color: colorScheme.onSurfaceVariant, size: 28),
+                title: const Text('Apariencia', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
+                subtitle: const Text('Estilo de la aplicación, tema oscuro o claro'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const mobile.SettingsPage()),
+                  );
+                },
+              ),
+              
+              // Actualización de la aplicación
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                leading: Icon(Icons.system_update, color: colorScheme.onSurfaceVariant, size: 28),
+                title: const Text('Actualización de la aplicación', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const mobile.AppUpdatePage()),
+                  );
+                },
+              ),
+              
+              const SizedBox(height: 24),
+              
+              // Cerrar sesión
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () async {
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) => const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                    
+                    await context.read<AuthProvider>().logout();
+                    
+                    if (context.mounted) {
+                      Navigator.of(context).pop();
+                      context.go('/');
+                    }
+                  },
+                  icon: const Icon(Icons.logout, color: Colors.red),
+                  label: const Text('Cerrar sesión', style: TextStyle(color: Colors.red)),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: colorScheme.primary),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                 ),
               ),
-            ),
-            
-            const SizedBox(height: 24),
-            Column(
-              children: [
-                Text(
-                  'Versión ${AppVersion.version}',
-                  style: TextStyle(
-                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
+              
+
+              
+              const SizedBox(height: 48),
+              
+              Center(
+                child: Text(
                   '© 2026 Corvus. Todos los derechos reservados.',
                   style: TextStyle(
-                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                     fontSize: 12,
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 40),
-          ],
+              ),
+              
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
-      ),
-    );
-  }
-
-  // _buildMetricCard extracted to ProfStatsCard
-
-  Widget _buildCourseToggle(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-    Color? iconColor,
-  }) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: (iconColor ?? colorScheme.primary).withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: iconColor ?? colorScheme.primary),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
-                ),
-              ],
-            ),
-          ),
-          Switch(
-            value: value,
-            onChanged: onChanged,
-            activeThumbColor: colorScheme.primary,
-          ),
-        ],
       ),
     );
   }
