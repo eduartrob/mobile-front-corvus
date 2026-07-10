@@ -113,11 +113,10 @@ class AuthProvider extends ChangeNotifier {
                 'userId': _currentUser!.id,
                 'fcmToken': fcmToken
               })
-            ).then((r) => print('FCM guardado al restaurar sesión: ${r.statusCode}'))
-            .catchError((e) => print('Error FCM rest: $e'));
+            ).catchError((e) => null);
           }
         } catch(e) {
-          print('Error FCM al restaurar sesión: $e');
+          // FCM restore failed silently
         }
 
       } else {
@@ -163,9 +162,6 @@ class AuthProvider extends ChangeNotifier {
       _status = AuthStatus.authenticated;
       notifyListeners();
     } catch (e, stackTrace) {
-      print('❌ ERROR CRÍTICO EN signInWithGoogle (AuthProvider):');
-      print('Excepción: $e');
-      print('Stack Trace:\n$stackTrace');
       String errorStr = e.toString();
       if (errorStr.contains('USER_NOT_REGISTERED|')) {
         _errorMessage = errorStr.replaceAll('Exception: ', '');
@@ -266,7 +262,7 @@ class AuthProvider extends ChangeNotifier {
         );
       }
     } catch (e) {
-      print('Error al desregistrar FCM: $e');
+      // FCM deregister failed silently
     }
 
     try {
@@ -316,7 +312,6 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     } catch (e) {
-      print('Error validating university code: $e');
       _errorMessage = 'Error al validar el código';
       notifyListeners();
       return false;
@@ -350,7 +345,6 @@ class AuthProvider extends ChangeNotifier {
       }
       return false;
     } catch (e) {
-      print('Error al actualizar foto de perfil: $e');
       return false;
     }
   }
@@ -375,7 +369,6 @@ class AuthProvider extends ChangeNotifier {
       }
       return false;
     } catch (e) {
-      print('Error al borrar foto de perfil: $e');
       return false;
     }
   }
@@ -396,7 +389,6 @@ class AuthProvider extends ChangeNotifier {
       }
       return false;
     } catch (e) {
-      print('Error al borrar cuenta: $e');
       return false;
     }
   }

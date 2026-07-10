@@ -25,10 +25,15 @@ class _ProfEditCareersPageState extends State<ProfEditCareersPage> {
     final profile = Provider.of<ProfileProvider>(context, listen: false).profile;
     _universityController = TextEditingController(text: profile?.universidad ?? '');
     
-    _selectedCareers = [
-      if (profile?.carrera != null && profile!.carrera!.isNotEmpty) profile.carrera!,
-      ...widget.initialCareers,
-    ];
+    // Build unique list: main career first, then extra careers (skills)
+    final allCareers = <String>{};
+    if (profile?.carrera != null && profile!.carrera!.isNotEmpty) {
+      allCareers.add(profile.carrera!);
+    }
+    for (final c in widget.initialCareers) {
+      if (c.isNotEmpty) allCareers.add(c);
+    }
+    _selectedCareers = allCareers.toList();
   }
 
   @override

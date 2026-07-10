@@ -16,7 +16,6 @@ class ProfileRemoteDataSource {
 
       if (response.statusCode == 200) {
         final bodyText = utf8.decode(response.bodyBytes);
-        print('🔵 [DEBUG] RAW PROFILE: $bodyText');
         final body = json.decode(bodyText);
         return ProfileCompletoModel.fromJson(body);
       } else {
