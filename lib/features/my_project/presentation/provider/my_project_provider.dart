@@ -440,8 +440,6 @@ class MyProjectProvider extends ChangeNotifier {
   
   void reset(String userId) {
     _statusTimer?.cancel();
-    _initialized = false;
-    _state = ProjectState.initial;
     _selectedFile = null;
     _fileName = null;
     _fileSize = null;
@@ -450,10 +448,35 @@ class MyProjectProvider extends ChangeNotifier {
     _errorMessage = null;
     _documentTypeError = null;
     _localDataSource.clearDetailedAnalysis(userId);
-    // Re-init immediately to go to error (upload) state instead of staying initial
-    _initialized = false;
-    init(userId);
+    
+    // Set to error state so the UploadZoneWidget is shown
+    _state = ProjectState.error;
     notifyListeners();
+  }
+
+  Future<bool> sendFinalReview(String teamId) async {
+    if (_detailedAnalysis == null) {
+       _errorMessage = 'No hay análisis disponible para enviar.';
+       notifyListeners();
+       return false;
+    }
+
+    try {
+      await _dataSource.sendFinalReview(teamId, _detailedAnalysis!);
+      await _notificationService.showResultNotification(
+        'Enviado con éxito', 
+        'Tu propuesta ha sido enviada a revisión final.'
+      );
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      await _notificationService.showResultNotification(
+        'Error al enviar', 
+        _errorMessage ?? 'Hubo un error al enviar la revisión final.'
+      );
+      notifyListeners();
+      return false;
+    }
   }
 
   @override

@@ -11,6 +11,7 @@ import 'package:mobile/core/constants/app_version.dart';
 import 'package:mobile/features/profile/presentation/provider/profile_provider.dart';
 import '../widgets/student_header_info.dart';
 import 'package:mobile/features/profile/presentation/pages/skills_section_page.dart' as mobile;
+import 'package:mobile/features/profile/presentation/pages/saved_projects_page.dart';
 import 'package:mobile/features/profile/presentation/pages/recent_activity_section_page.dart' as mobile;
 import 'package:mobile/features/profile/presentation/pages/app_update_page.dart' as mobile;
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
@@ -128,6 +129,20 @@ class _ProfilePageState extends State<ProfilePage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const mobile.RecentActivitySectionPage()),
+                  );
+                },
+              ),
+              
+              // Guardados
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                leading: Icon(Icons.bookmark, color: colorScheme.onSurfaceVariant, size: 28),
+                title: const Text('Guardados', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
+                subtitle: const Text('Tus propuestas de proyectos para después'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SavedProjectsPage()),
                   );
                 },
               ),
