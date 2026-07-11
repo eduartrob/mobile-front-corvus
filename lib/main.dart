@@ -24,6 +24,10 @@ import 'package:mobile/core/services/notification_service.dart';
 import 'package:mobile/firebase_options.dart';
 import 'package:mobile/core/theme/theme_provider.dart';
 import 'package:mobile/core/services/firebase_messaging_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mobile/features/profile/data/repositories/saved_projects_repository.dart';
+import 'package:mobile/features/profile/presentation/providers/saved_projects_provider.dart';
+import 'package:mobile/features/prof_reviews/presentation/provider/prof_reviews_provider.dart';
 
 void _handleNotificationTap(RemoteMessage message) {
   final context = rootNavigatorKey.currentContext;
@@ -55,6 +59,11 @@ void main() async {
   final notificationsProvider = NotificationsProvider()..fetchNotifications();
   final teamsProvider = TeamsProvider();
   final profileProvider = ProfileProvider();
+  final profReviewsProvider = ProfReviewsProvider();
+  
+  final prefs = await SharedPreferences.getInstance();
+  final savedProjectsRepo = SavedProjectsRepository(prefs);
+  final savedProjectsProvider = SavedProjectsProvider(savedProjectsRepo);
 
   await Future.wait([
     // Firebase: ~200-500ms (conexión a servidores de Google)
@@ -155,6 +164,8 @@ void main() async {
         ChangeNotifierProvider.value(value: notificationsProvider),
         ChangeNotifierProvider.value(value: profileProvider),
         ChangeNotifierProvider(create: (_) => RegistrationProvider()),
+        ChangeNotifierProvider.value(value: savedProjectsProvider),
+        ChangeNotifierProvider.value(value: profReviewsProvider),
       ],
       child: const MyApp(),
     ),

@@ -4,6 +4,7 @@ import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/features/my_project/presentation/provider/my_project_provider.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
 import 'package:mobile/features/my_project/presentation/widgets/upload_zone_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/uploaded_file_item_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/fast_rag_analysis_widget.dart';
@@ -376,22 +377,7 @@ class _ProjectPageBody extends StatelessWidget {
         const SizedBox(height: 12),
 
         if (provider.state == ProjectState.preValidated) ...[
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: OutlinedButton(
-              onPressed: () => provider.reset(userId),
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(color: colorScheme.outlineVariant),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              child: Text(
-                l10n.deleteDraft,
-                style: TextStyle(color: colorScheme.onSurface),
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
+
           SizedBox(
             width: double.infinity,
             height: 50,
@@ -408,7 +394,44 @@ class _ProjectPageBody extends StatelessWidget {
           ),
         ],
 
-        if (provider.state == ProjectState.detailedAnalysis)
+        if (provider.state == ProjectState.detailedAnalysis) ...[
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton.icon(
+              onPressed: () async {
+                final teamsProvider = context.read<TeamsProvider>();
+                if (teamsProvider.myTeam == null) {
+                  await teamsProvider.fetchMyTeam();
+                }
+                
+                final myTeam = teamsProvider.myTeam;
+                if (myTeam == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No tienes un equipo asignado.')));
+                  return;
+                }
+
+                final isLeader = myTeam.members.isNotEmpty && myTeam.members[0].id == userId;
+                if (!isLeader) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Solo el líder puede enviar la propuesta a revisión final.')));
+                  return;
+                }
+
+                final success = await provider.sendFinalReview(myTeam.id);
+                if (success) {
+                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Enviado a revisión final exitosamente.')));
+                }
+              },
+              icon: const Icon(Icons.send, size: 18),
+              label: const Text('Enviar a Revisión Final', style: TextStyle(fontWeight: FontWeight.bold)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colorScheme.primary,
+                foregroundColor: colorScheme.onPrimary,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
             height: 50,
@@ -424,6 +447,7 @@ class _ProjectPageBody extends StatelessWidget {
               ),
             ),
           ),
+        ],
       ],
     );
   }
