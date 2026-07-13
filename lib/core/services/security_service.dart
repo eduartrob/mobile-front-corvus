@@ -11,8 +11,8 @@ class SecurityService {
     if (Platform.isAndroid) {
       try {
         await _channel.invokeMethod('preventScreenshots', {'prevent': prevent});
-      } on PlatformException catch (e) {
-        debugPrint("Error configuring screen protection: '${e.message}'.");
+      } catch (e) {
+        debugPrint("Error configuring screen protection: '${e.toString()}'.");
       }
     }
   }
@@ -24,8 +24,8 @@ class SecurityService {
       try {
         final bool isEnabled = await _channel.invokeMethod('isUsbDebuggingEnabled');
         return isEnabled;
-      } on PlatformException catch (e) {
-        debugPrint("Error checking USB Debugging: '${e.message}'.");
+      } catch (e) {
+        debugPrint("Error checking USB Debugging: '${e.toString()}'.");
       }
     }
     return false;

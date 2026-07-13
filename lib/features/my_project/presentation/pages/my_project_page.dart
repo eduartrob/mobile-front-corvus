@@ -319,6 +319,77 @@ class _ProjectPageBody extends StatelessWidget {
         if (provider.state == ProjectState.error && provider.documentTypeError == null)
           UploadZoneWidget(provider: provider),
 
+        if (provider.state == ProjectState.detailedAnalysis && provider.detailedAnalysis != null)
+          Builder(
+            builder: (context) {
+              final ollamaAnalysis = provider.detailedAnalysis!['ollama_analysis'] as Map<String, dynamic>? ?? {};
+              String? extractedProjectName = ollamaAnalysis['projectName'] ?? ollamaAnalysis['title'];
+              if (extractedProjectName == null) {
+                final textWithProjectName = (ollamaAnalysis['verdict'] as String?) ?? (ollamaAnalysis['semantic_collision_risk']?['explanation'] as String?);
+                if (textWithProjectName != null) {
+                  final match = RegExp(r"El proyecto '([^']+)'").firstMatch(textWithProjectName);
+                  if (match != null && match.groupCount >= 1) {
+                    extractedProjectName = match.group(1);
+                  }
+                }
+              }
+              final projectName = extractedProjectName ?? provider.fileName?.replaceAll('.pdf', '') ?? 'Propuesta sin título';
+
+              final teamsProvider = context.watch<TeamsProvider>();
+              final myTeam = teamsProvider.myTeam;
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    projectName,
+                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, height: 1.2),
+                  ),
+                  const SizedBox(height: 16),
+                  if (myTeam != null)
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.group, color: colorScheme.primary, size: 20),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Equipo: ${myTeam.name}',
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          const Text('Integrantes:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                          const SizedBox(height: 4),
+                          ...myTeam.members.map((m) => Padding(
+                            padding: const EdgeInsets.only(bottom: 4),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.person_outline, size: 16),
+                                const SizedBox(width: 8),
+                                Expanded(child: Text(m.name, style: const TextStyle(fontSize: 14))),
+                              ],
+                            ),
+                          )),
+                        ],
+                      ),
+                    ),
+                  const SizedBox(height: 16),
+                ],
+              );
+            },
+          ),
+
         if (provider.state != ProjectState.initial &&
             provider.state != ProjectState.error &&
             provider.fileName != null)
@@ -372,7 +443,9 @@ class _ProjectPageBody extends StatelessWidget {
           ),
 
         if (provider.state == ProjectState.detailedAnalysis && provider.detailedAnalysis != null)
-          DetailedAnalysisWidget(data: provider.detailedAnalysis!['ollama_analysis'] ?? {}),
+          DetailedAnalysisWidget(
+            data: Map<String, dynamic>.from(provider.detailedAnalysis!['ollama_analysis'] as Map? ?? {}),
+          ),
 
         const SizedBox(height: 12),
 
@@ -407,19 +480,38 @@ class _ProjectPageBody extends StatelessWidget {
                 
                 final myTeam = teamsProvider.myTeam;
                 if (myTeam == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No tienes un equipo asignado.')));
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No tienes un equipo asignado. Ve a la pestaña Equipos primero.')));
+                  }
                   return;
                 }
-
-                final isLeader = myTeam.members.isNotEmpty && myTeam.members[0].id == userId;
+                
+                final auth = context.read<AuthProvider>();
+                final isLeader = myTeam.members.isNotEmpty && (myTeam.members[0].id == userId || myTeam.members[0].email == auth.currentUser?.email);
                 if (!isLeader) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Solo el líder puede enviar la propuesta a revisión final.')));
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Solo el líder del equipo puede enviar la propuesta a revisión final.'),
+                        backgroundColor: Colors.orange,
+                      )
+                    );
+                  }
                   return;
                 }
 
-                final success = await provider.sendFinalReview(myTeam.id);
-                if (success) {
-                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Enviado a revisión final exitosamente.')));
+                final success = await provider.sendFinalReview(
+                  teamId: myTeam.id,
+                  teamName: myTeam.name,
+                  memberNames: myTeam.members.map((m) => m.name).toList(),
+                );
+                if (success && context.mounted) {
+                   ScaffoldMessenger.of(context).showSnackBar(
+                     const SnackBar(
+                       content: Text('✅ Propuesta enviada a revisión final exitosamente.'),
+                       backgroundColor: Colors.green,
+                     ),
+                   );
                 }
               },
               icon: const Icon(Icons.send, size: 18),

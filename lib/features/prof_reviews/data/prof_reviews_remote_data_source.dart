@@ -58,9 +58,13 @@ class ProfReviewsRemoteDataSource {
         final bodyText = utf8.decode(response.bodyBytes);
         try {
           final errorJson = json.decode(bodyText);
-          throw Exception(errorJson['message'] ?? bodyText);
-        } catch (_) {
-          throw Exception(bodyText);
+          final errors = errorJson['errors'] != null ? ' - ${jsonEncode(errorJson['errors'])}' : '';
+          throw Exception('${errorJson['message'] ?? bodyText}$errors');
+        } catch (e) {
+          if (e is FormatException) {
+            throw Exception(bodyText);
+          }
+          rethrow;
         }
       }
     } catch (e) {

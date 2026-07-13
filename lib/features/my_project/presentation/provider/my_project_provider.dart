@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:mobile/features/my_project/data/my_project_remote_data_source.dart';
+import 'package:mobile/features/my_project/data/my_project_remote_data_source.dart';
 import 'package:mobile/features/my_project/data/my_project_local_data_source.dart';
+import 'package:mobile/features/my_project/data/datasources/cloudinary_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/auth_interceptor_client.dart';
 import 'package:mobile/core/services/notification_service.dart';
@@ -104,6 +106,9 @@ class MyProjectProvider extends ChangeNotifier {
         _detailedAnalysis = localAnalysis;
         _fileName = localAnalysis['original_file_name'] ?? 'documento_analizado.pdf';
         _fileSize = localAnalysis['original_file_size'] ?? 'Local';
+        // Clear any previous validation errors
+        _documentTypeError = null;
+        _errorMessage = null;
         _state = ProjectState.detailedAnalysis;
         notifyListeners();
         return;
@@ -130,7 +135,7 @@ class MyProjectProvider extends ChangeNotifier {
         final result = await _dataSource.getAnalysisResult(userId);
         if (result['status'] != 'pending' && result['status'] != 'error') {
           // If it's detailed analysis result
-          if (result.containsKey('general_feedback')) {
+          if (result.containsKey('general_feedback') || result.containsKey('innovation_index') || result.containsKey('semantic_collision_risk')) {
               await _applyAnalysisResult(userId, result, null);
           } else {
               _quickAnalysis = result;
@@ -408,6 +413,9 @@ class MyProjectProvider extends ChangeNotifier {
     if (_fileSize != null) result['original_file_size'] = _fileSize;
     
     _detailedAnalysis = result;
+    // Clear any lingering validation errors — analysis succeeded
+    _documentTypeError = null;
+    _errorMessage = null;
     _state = ProjectState.detailedAnalysis;
     await _localDataSource.saveDetailedAnalysis(userId, result);
     await _notificationService.showAnalysisCompleteNotification(
@@ -454,7 +462,11 @@ class MyProjectProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> sendFinalReview(String teamId) async {
+  Future<bool> sendFinalReview({
+    required String teamId,
+    required String teamName,
+    required List<String> memberNames,
+  }) async {
     if (_detailedAnalysis == null) {
        _errorMessage = 'No hay análisis disponible para enviar.';
        notifyListeners();
@@ -462,10 +474,33 @@ class MyProjectProvider extends ChangeNotifier {
     }
 
     try {
-      await _dataSource.sendFinalReview(teamId, _detailedAnalysis!);
+      String? uploadedFileUrl;
+      
+      // Attempt to upload the file to Cloudinary if we have it locally
+      if (_selectedFile != null) {
+        await _notificationService.showIndeterminateProgressNotification(
+          title: 'Subiendo documento...', 
+          message: 'Guardando el documento en la nube de forma segura'
+        );
+        uploadedFileUrl = await CloudinaryService.uploadFile(_selectedFile!.path);
+      }
+
+      // Build an enriched proposal_data with all required context for teachers
+      final enrichedProposalData = {
+        'team_info': {
+          'name': teamName,
+          'members': memberNames,
+        },
+        'file_name': _fileName ?? 'propuesta.pdf',
+        if (uploadedFileUrl != null) 'file_url': uploadedFileUrl,
+        'file_size': _fileSize,
+        'ai_analysis': _detailedAnalysis,
+      };
+
+      await _dataSource.sendFinalReview(teamId, enrichedProposalData);
       await _notificationService.showResultNotification(
-        'Enviado con éxito', 
-        'Tu propuesta ha sido enviada a revisión final.'
+        '✅ Enviado con éxito', 
+        'Tu propuesta ha sido enviada a revisión final con el equipo y el análisis.'
       );
       return true;
     } catch (e) {
