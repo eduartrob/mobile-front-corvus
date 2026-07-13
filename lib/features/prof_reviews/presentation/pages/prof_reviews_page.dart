@@ -22,6 +22,36 @@ class _ProfReviewsPageState extends State<ProfReviewsPage> {
     });
   }
 
+  String _getTranslatedStatus(String status) {
+    switch (status) {
+      case 'PENDING': return 'PENDIENTE';
+      case 'APPROVED': return 'APROBADA';
+      case 'REJECTED': return 'RECHAZADA';
+      case 'SUMMONED': return 'CITADA';
+      default: return status;
+    }
+  }
+
+  Color _getStatusBgColor(String status, ColorScheme colorScheme) {
+    switch (status) {
+      case 'PENDING': return colorScheme.tertiaryContainer;
+      case 'APPROVED': return Colors.green.withOpacity(0.2);
+      case 'REJECTED': return Colors.red.withOpacity(0.2);
+      case 'SUMMONED': return Colors.orange.withOpacity(0.2);
+      default: return colorScheme.surfaceContainerHighest;
+    }
+  }
+
+  Color _getStatusTextColor(String status, ColorScheme colorScheme) {
+    switch (status) {
+      case 'PENDING': return colorScheme.onTertiaryContainer;
+      case 'APPROVED': return Colors.green.shade800;
+      case 'REJECTED': return Colors.red.shade800;
+      case 'SUMMONED': return Colors.orange.shade800;
+      default: return colorScheme.onSurfaceVariant;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -47,7 +77,24 @@ class _ProfReviewsPageState extends State<ProfReviewsPage> {
                       itemBuilder: (context, index) {
                         final review = reviews[index];
                         final data = review.proposalData;
-                        final projectName = data['projectName'] ?? data['title'] ?? 'Propuesta sin título';
+                        final aiAnalysis = data['ai_analysis'] as Map<String, dynamic>? ?? {};
+                        final ollamaAnalysis = aiAnalysis['ollama_analysis'] as Map<String, dynamic>? ?? {};
+                        final teamInfo = data['team_info'] as Map<String, dynamic>? ?? {};
+
+                        String? extractedProjectName = ollamaAnalysis['projectName'] ?? ollamaAnalysis['title'];
+                        if (extractedProjectName == null) {
+                          final textWithProjectName = (ollamaAnalysis['verdict'] as String?) ?? (ollamaAnalysis['semantic_collision_risk']?['explanation'] as String?);
+                          if (textWithProjectName != null) {
+                            final match = RegExp(r"El proyecto '([^']+)'").firstMatch(textWithProjectName);
+                            if (match != null && match.groupCount >= 1) {
+                              extractedProjectName = match.group(1);
+                            }
+                          }
+                        }
+                        
+                        final projectName = extractedProjectName ?? data['file_name']?.toString().replaceAll('.pdf', '') ?? 'Propuesta sin título';
+                        final teamName = teamInfo['name'] ?? 'Equipo sin nombre';
+                        final membersList = teamInfo['members'] as List<dynamic>? ?? [];
                         final dateStr = DateFormat('dd MMM yyyy').format(review.createdAt);
 
                         return Card(
@@ -78,15 +125,15 @@ class _ProfReviewsPageState extends State<ProfReviewsPage> {
                                       Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                         decoration: BoxDecoration(
-                                          color: review.status == 'PENDING' ? colorScheme.tertiaryContainer : colorScheme.surfaceContainerHighest,
+                                          color: _getStatusBgColor(review.status, colorScheme),
                                           borderRadius: BorderRadius.circular(8),
                                         ),
                                         child: Text(
-                                          review.status,
+                                          _getTranslatedStatus(review.status),
                                           style: TextStyle(
                                             fontSize: 10,
                                             fontWeight: FontWeight.bold,
-                                            color: review.status == 'PENDING' ? colorScheme.onTertiaryContainer : colorScheme.onSurfaceVariant,
+                                            color: _getStatusTextColor(review.status, colorScheme),
                                           ),
                                         ),
                                       ),
@@ -109,12 +156,50 @@ class _ProfReviewsPageState extends State<ProfReviewsPage> {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    'Equipo ID: ${review.teamId}',
+                                    'Equipo: $teamName',
                                     style: TextStyle(
                                       fontSize: 14,
+                                      fontWeight: FontWeight.w600,
                                       color: colorScheme.onSurfaceVariant,
                                     ),
                                   ),
+                                  if (membersList.isNotEmpty) ...[
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Integrantes: ${membersList.join(', ')}',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: colorScheme.onSurfaceVariant,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                  if (review.status == 'SUMMONED' && review.appointmentDate != null) ...[
+                                    const SizedBox(height: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: Colors.orange.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Icon(Icons.event, size: 14, color: Colors.orange),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            DateFormat('dd/MM/yyyy hh:mm a').format(review.appointmentDate!.toLocal()),
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.orange.shade800,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ],
                               ),
                             ),
