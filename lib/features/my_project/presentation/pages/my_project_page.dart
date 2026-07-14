@@ -5,6 +5,7 @@ import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/features/my_project/presentation/provider/my_project_provider.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
+import 'package:mobile/features/profile/presentation/provider/profile_provider.dart';
 import 'package:mobile/features/my_project/presentation/widgets/innovation_card.dart';
 import 'package:mobile/features/my_project/presentation/pages/project_defense_chat_page.dart';
 import 'package:mobile/features/my_project/presentation/widgets/upload_zone_widget.dart';
@@ -522,11 +523,19 @@ class _ProjectPageBody extends StatelessWidget {
                   final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ProjectDefenseChatPage(
-                        userId: userId,
-                        proposalSummary: provider.detailedAnalysis?['verdict'] ?? 'Propuesta de innovación',
-                        analysisResult: provider.detailedAnalysis ?? {},
-                      ),
+                      builder: (context) {
+                        final teamsProvider = context.read<TeamsProvider>();
+                        final profileProvider = context.read<ProfileProvider>();
+                        final teamId = teamsProvider.myTeam?.id ?? '';
+                        final studentName = profileProvider.profile?.nombres ?? 'Estudiante';
+                        
+                        return ProjectDefenseChatPage(
+                          teamId: teamId,
+                          studentName: studentName,
+                          proposalSummary: provider.detailedAnalysis?['verdict'] ?? 'Propuesta de innovación',
+                          analysisResult: provider.detailedAnalysis ?? {},
+                        );
+                      },
                     ),
                   );
                   if (result != null && result is List<Map<String, String>>) {

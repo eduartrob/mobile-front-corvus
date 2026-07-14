@@ -90,4 +90,25 @@ class ProfReviewsProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<bool> evaluateProject(String reviewId, String comment, bool isApproved) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final updated = await _dataSource.evaluateProject(reviewId, comment, isApproved);
+      final index = _reviews.indexWhere((r) => r.id == reviewId);
+      if (index != -1) {
+        _reviews[index] = updated;
+      }
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }

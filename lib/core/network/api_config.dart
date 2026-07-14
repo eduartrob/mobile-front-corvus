@@ -1,6 +1,6 @@
 class ApiConfig {
-  static const String apiGatewayUrl = 'https://corvus.eduartrob.site/api/v1';
-  //static const String apiGatewayUrl = 'https://corvus.eduartrob.site:8443/api/v1';
+  //static const String apiGatewayUrl = 'https://corvus.eduartrob.site/api/v1';
+  static const String apiGatewayUrl = 'https://corvus.eduartrob.site:8443/api/v1';
 
   static const String authGoogleEndpoint = '/auth/google';
   

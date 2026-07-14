@@ -30,6 +30,7 @@ import 'package:mobile/features/profile/presentation/providers/saved_projects_pr
 import 'package:mobile/features/prof_reviews/presentation/provider/prof_reviews_provider.dart';
 import 'package:mobile/features/prof_dash/presentation/provider/prof_dash_provider.dart';
 import 'package:mobile/features/prof_history/presentation/provider/prof_history_provider.dart';
+import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
 
 void _handleNotificationTap(RemoteMessage message) {
   final context = rootNavigatorKey.currentContext;
@@ -172,6 +173,7 @@ void main() async {
         ChangeNotifierProvider.value(value: profReviewsProvider),
         ChangeNotifierProvider.value(value: profHistoryProvider),
         ChangeNotifierProvider(create: (_) => ProfDashboardProvider(authProvider: authProvider)),
+        ChangeNotifierProvider(create: (_) => ProjectProvider()),
       ],
       child: const MyApp(),
     ),

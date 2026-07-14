@@ -14,6 +14,10 @@ import 'package:mobile/features/auth/presentation/pages/teacher_verification_pag
 import 'package:mobile/features/auth/presentation/pages/teacher_info_page.dart';
 
 import 'package:mobile/features/inspiration/presentation/pages/inspiration_page.dart';
+import 'package:mobile/features/my_project/presentation/pages/project_defense_chat_page.dart';
+import 'package:mobile/features/projects/presentation/pages/student_join_project_page.dart';
+import 'package:mobile/features/projects/presentation/pages/prof_create_project_page.dart';
+
 import 'package:mobile/features/my_project/presentation/pages/my_project_page.dart';
 import 'package:mobile/features/teams/presentation/pages/teams_page.dart';
 import 'package:mobile/features/teams/presentation/pages/manage_team_page.dart';
@@ -179,6 +183,14 @@ class _AppRouterState extends State<AppRouter> {
             final skills = (extra['skills'] as List<dynamic>?)?.cast<String>() ?? [];
             return _buildSlideTransition(StudentSkillsPage(suggestedSkills: skills), state.pageKey);
           },
+        ),
+        GoRoute(
+          path: '/join-project',
+          pageBuilder: (context, state) => _buildSlideUpTransition(const StudentJoinProjectPage(), state.pageKey),
+        ),
+        GoRoute(
+          path: '/prof-create-project',
+          pageBuilder: (context, state) => _buildSlideUpTransition(const ProfCreateProjectPage(), state.pageKey),
         ),
         GoRoute(
           path: '/register-teacher-verification',

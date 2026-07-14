@@ -6,14 +6,16 @@ import 'package:provider/provider.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 
 class ProjectDefenseChatPage extends StatefulWidget {
-  final String userId;
+  final String teamId;
+  final String studentName;
   final String proposalSummary;
   final Map<String, dynamic> analysisResult;
   final String? authToken;
 
   const ProjectDefenseChatPage({
     super.key,
-    required this.userId,
+    required this.teamId,
+    required this.studentName,
     required this.proposalSummary,
     required this.analysisResult,
     this.authToken,
@@ -49,7 +51,7 @@ class _ProjectDefenseChatPageState extends State<ProjectDefenseChatPage> {
       if (token != null) headers['Authorization'] = 'Bearer $token';
       
       final body = jsonEncode({
-        'user_id': widget.userId,
+        'team_id': widget.teamId,
         'proposal_summary': widget.proposalSummary,
         'analysis_result': widget.analysisResult,
       });
@@ -96,6 +98,7 @@ class _ProjectDefenseChatPageState extends State<ProjectDefenseChatPage> {
       final body = jsonEncode({
         'session_id': _sessionId,
         'user_message': text,
+        'student_name': widget.studentName,
       });
 
       final response = await http.post(url, headers: headers, body: body).timeout(const Duration(seconds: 40));

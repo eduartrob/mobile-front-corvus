@@ -147,6 +147,17 @@ class _ProfilePageState extends State<ProfilePage> {
                 },
               ),
               
+              // Unirse a Proyecto
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                leading: Icon(Icons.group_add, color: colorScheme.primary, size: 28),
+                title: Text('Unirse a Proyecto', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16, color: colorScheme.primary)),
+                subtitle: const Text('Ingresa un código para unirte al proyecto de tu clase'),
+                onTap: () {
+                  context.push('/join-project');
+                },
+              ),
+              
               // Apariencia
               ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),

@@ -38,6 +38,25 @@ class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
     }
   }
 
+  void _evaluateProject(bool isApproved, String comment) async {
+    final provider = context.read<ProfReviewsProvider>();
+    final success = await provider.evaluateProject(
+      widget.review.id, 
+      comment, 
+      isApproved
+    );
+    if (success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Evaluación registrada exitosamente'))
+      );
+      Navigator.pop(context);
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(provider.errorMessage ?? 'Error al registrar evaluación'))
+      );
+    }
+  }
+
   void _showReasonDialog(String status) {
     final reasonController = TextEditingController();
     showDialog(
@@ -58,7 +77,7 @@ class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
             FilledButton(
               onPressed: () {
                 Navigator.pop(ctx);
-                _updateStatus(status, reason: reasonController.text);
+                _evaluateProject(status == 'APPROVED', reasonController.text);
               },
               child: const Text('Confirmar')
             )

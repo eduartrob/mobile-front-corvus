@@ -97,6 +97,24 @@ class _ProfDashPageState extends State<ProfDashPage> {
                 ),
                 const SizedBox(height: 24),
 
+                // Botón Crear Proyecto
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      context.push('/prof-create-project');
+                    },
+                    icon: const Icon(Icons.add),
+                    label: const Text('Crear Proyecto (Clase)'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: colorScheme.primary,
+                      foregroundColor: colorScheme.onPrimary,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
                 // Tarjeta de Atención Requerida
                 Container(
                   padding: const EdgeInsets.all(20),
