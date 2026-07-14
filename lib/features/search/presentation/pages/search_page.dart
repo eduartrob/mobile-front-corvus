@@ -562,6 +562,7 @@ class _SearchPageViewState extends State<_SearchPageView>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
+                        constraints: const BoxConstraints(maxHeight: 450),
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -578,6 +579,7 @@ class _SearchPageViewState extends State<_SearchPageView>
                           ),
                         ),
                         child: Column(
+                          mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
@@ -600,37 +602,41 @@ class _SearchPageViewState extends State<_SearchPageView>
                               ],
                             ),
                             const SizedBox(height: 12),
-                            MarkdownBody(
-                              data: provider.currentResult!.summary,
-                              styleSheet: MarkdownStyleSheet(
-                                p: TextStyle(
-                                  color: textColor.withOpacity(0.9),
-                                  height: 1.5,
-                                  fontSize: 15,
-                                ),
-                                listBullet: TextStyle(
-                                  color: textColor.withOpacity(0.9),
-                                  fontSize: 15,
-                                ),
-                                strong: TextStyle(
-                                  color: textColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15,
-                                ),
-                                h1: TextStyle(
-                                  color: textColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
-                                ),
-                                h2: TextStyle(
-                                  color: textColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
-                                h3: TextStyle(
-                                  color: textColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                            Flexible(
+                              child: SingleChildScrollView(
+                                child: MarkdownBody(
+                                  data: provider.currentResult!.summary,
+                                  styleSheet: MarkdownStyleSheet(
+                                    p: TextStyle(
+                                      color: textColor.withOpacity(0.9),
+                                      height: 1.5,
+                                      fontSize: 15,
+                                    ),
+                                    listBullet: TextStyle(
+                                      color: textColor.withOpacity(0.9),
+                                      fontSize: 15,
+                                    ),
+                                    strong: TextStyle(
+                                      color: textColor,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                    ),
+                                    h1: TextStyle(
+                                      color: textColor,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20,
+                                    ),
+                                    h2: TextStyle(
+                                      color: textColor,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                    ),
+                                    h3: TextStyle(
+                                      color: textColor,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),

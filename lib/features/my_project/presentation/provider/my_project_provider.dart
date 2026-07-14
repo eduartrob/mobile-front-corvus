@@ -45,10 +45,19 @@ class MyProjectProvider extends ChangeNotifier {
   String? get fileSize => _fileSize;
 
   Map<String, dynamic>? _quickAnalysis;
-  Map<String, dynamic>? get quickAnalysis => _quickAnalysis;
-
   Map<String, dynamic>? _detailedAnalysis;
+  bool _hasPassedDefense = false;
+  List<Map<String, String>> _defenseChatHistory = [];
+
+  Map<String, dynamic>? get quickAnalysis => _quickAnalysis;
   Map<String, dynamic>? get detailedAnalysis => _detailedAnalysis;
+  bool get hasPassedDefense => _hasPassedDefense;
+  
+  void setDefensePassed(List<Map<String, String>> history) {
+    _hasPassedDefense = true;
+    _defenseChatHistory = history;
+    notifyListeners();
+  }
 
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
@@ -66,8 +75,31 @@ class MyProjectProvider extends ChangeNotifier {
   bool _initialized = false;
   bool _isScreenVisible = false;
   bool get isScreenVisible => _isScreenVisible;
+  Timer? _backgroundTimer;
+
   void setScreenVisible(bool value) {
     _isScreenVisible = value;
+    if (value) {
+      _startBackgroundPolling();
+    } else {
+      _stopBackgroundPolling();
+    }
+  }
+
+  void _startBackgroundPolling() {
+    _stopBackgroundPolling();
+    _backgroundTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+      if (_state != ProjectState.analyzing && _state != ProjectState.uploading) {
+        _fetchConfig().then((_) {
+          notifyListeners();
+        });
+      }
+    });
+  }
+
+  void _stopBackgroundPolling() {
+    _backgroundTimer?.cancel();
+    _backgroundTimer = null;
   }
   
   List<String> _allowedExtensions = ['pdf', 'md', 'txt'];
@@ -121,8 +153,8 @@ class MyProjectProvider extends ChangeNotifier {
     }
   }
   
-  Future<void> init(String userId) async {
-    if (_initialized) return;
+  Future<void> init(String userId, {bool forceRefresh = false}) async {
+    if (_initialized && !forceRefresh) return;
     _initialized = true;
     
     try {
@@ -480,6 +512,8 @@ class MyProjectProvider extends ChangeNotifier {
     _fileSize = null;
     _quickAnalysis = null;
     _detailedAnalysis = null;
+    _hasPassedDefense = false;
+    _defenseChatHistory = [];
     _errorMessage = null;
     _documentTypeError = null;
     _localDataSource.clearDetailedAnalysis(userId);
@@ -522,6 +556,7 @@ class MyProjectProvider extends ChangeNotifier {
         if (uploadedFileUrl != null) 'file_url': uploadedFileUrl,
         'file_size': _fileSize,
         'ai_analysis': _detailedAnalysis,
+        if (_hasPassedDefense) 'defense_chat_history': _defenseChatHistory,
       };
 
       await _dataSource.sendFinalReview(teamId, enrichedProposalData);

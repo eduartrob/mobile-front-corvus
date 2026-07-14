@@ -108,7 +108,7 @@ class TeamsRemoteDataSource {
   }
 
   // 🔍 GET /clustering/teams/suggestions
-  Future<List<Student>> getSuggestions({String? skill, String? search}) async {
+  Future<List<Student>> getSuggestions({String? skill, String? search, bool showAll = false}) async {
     var uriString = '${ApiConfig.apiGatewayUrl}/teams/suggestions';
     final queryParams = <String>[];
     if (skill != null && skill.isNotEmpty && skill.toLowerCase() != 'all skills') {
@@ -116,6 +116,9 @@ class TeamsRemoteDataSource {
     }
     if (search != null && search.isNotEmpty) {
       queryParams.add('search=${Uri.encodeComponent(search)}');
+    }
+    if (showAll) {
+      queryParams.add('show_all=true');
     }
     
     if (queryParams.isNotEmpty) {

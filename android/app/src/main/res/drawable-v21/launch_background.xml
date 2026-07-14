@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Splash nativo: logo Corvus sobre fondo blanco -->
+<!-- Splash nativo: logo2.png sobre fondo blanco -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Fondo blanco como el login -->
     <item>
@@ -7,11 +7,13 @@
             <solid android:color="#FFFFFF" />
         </shape>
     </item>
-    <!-- Logo de Corvus convertido de logo.svg centrado -->
+    <!-- Logo de Corvus (logo2.png) centrado -->
     <item
         android:width="200dp"
         android:height="200dp"
         android:gravity="center">
-        <inset android:drawable="@drawable/corvus_logo" />
+        <bitmap
+            android:src="@drawable/logo2"
+            android:gravity="center" />
     </item>
 </layer-list>

@@ -128,13 +128,14 @@ class TeamsProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchSuggestions({String? skill, String? search}) async {
+  Future<void> fetchSuggestions({String? skill, String? search, bool showAll = false}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      _suggestions = await remoteDataSource.getSuggestions(skill: skill, search: search);
+      final results = await remoteDataSource.getSuggestions(skill: skill, search: search, showAll: showAll);
+      _suggestions = results.where((s) => s.id != null).toList();
     } catch (e) {
       _errorMessage = e.toString();
     } finally {

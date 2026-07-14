@@ -1,0 +1,245 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:mobile/shared/widgets/corvus_top_bar.dart';
+import 'package:mobile/features/prof_dash/presentation/provider/prof_directory_provider.dart';
+import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/features/teams/data/models/team_model.dart';
+import 'package:mobile/features/student_directory/domain/entities/student.dart';
+import 'package:mobile/features/student_directory/presentation/widgets/student_card.dart';
+
+class ProfDirectoryPage extends StatelessWidget {
+  const ProfDirectoryPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => ProfDirectoryProvider(
+        authProvider: context.read<AuthProvider>(),
+      )..loadDirectory(),
+      child: const _ProfDirectoryPageView(),
+    );
+  }
+}
+
+class _ProfDirectoryPageView extends StatefulWidget {
+  const _ProfDirectoryPageView();
+
+  @override
+  State<_ProfDirectoryPageView> createState() => _ProfDirectoryPageViewState();
+}
+
+class _ProfDirectoryPageViewState extends State<_ProfDirectoryPageView> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final provider = context.watch<ProfDirectoryProvider>();
+
+    return Scaffold(
+      backgroundColor: colorScheme.surface,
+      appBar: CorvusTopBar(
+        titleWidget: Text(
+          'Directorio del Salón',
+          style: TextStyle(
+            color: colorScheme.onSurface,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+        ),
+      ),
+      body: Column(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: colorScheme.surface,
+              border: Border(
+                bottom: BorderSide(
+                  color: colorScheme.outlineVariant.withOpacity(0.4),
+                  width: 1,
+                ),
+              ),
+            ),
+            child: TabBar(
+              controller: _tabController,
+              indicatorColor: colorScheme.primary,
+              indicatorWeight: 3,
+              labelColor: colorScheme.onSurface,
+              labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+              unselectedLabelColor: colorScheme.onSurfaceVariant.withOpacity(0.7),
+              unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal, fontSize: 15),
+              tabs: const [
+                Tab(text: 'Equipos Formados'),
+                Tab(text: 'Sin Equipo'),
+              ],
+            ),
+          ),
+          Expanded(
+            child: provider.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : provider.errorMessage != null
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(provider.errorMessage!, style: TextStyle(color: colorScheme.error)),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: provider.loadDirectory,
+                              child: const Text('Reintentar'),
+                            ),
+                          ],
+                        ),
+                      )
+                    : TabBarView(
+                        controller: _tabController,
+                        children: [
+                          _buildTeamsList(provider.directoryData?.teams ?? [], colorScheme),
+                          _buildStudentsList(provider.directoryData?.studentsWithoutTeam ?? []),
+                        ],
+                      ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTeamsList(List<TeamModel> teams, ColorScheme colorScheme) {
+    if (teams.isEmpty) {
+      return Center(
+        child: Text(
+          'No hay equipos formados.',
+          style: TextStyle(color: colorScheme.onSurfaceVariant),
+        ),
+      );
+    }
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: teams.length,
+      itemBuilder: (context, index) {
+        final team = teams[index];
+        return Card(
+          elevation: 0,
+          margin: const EdgeInsets.only(bottom: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(color: colorScheme.outlineVariant),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        team.name,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '${team.members.length} / ${team.maxMembers} alumnos',
+                        style: TextStyle(
+                          color: colorScheme.onPrimaryContainer,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  team.project?['title'] ?? 'Sin proyecto',
+                  style: TextStyle(
+                    color: colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                if (team.members.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  const Text('Integrantes:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: team.members.map((member) {
+                      return Chip(
+                        avatar: CircleAvatar(
+                          backgroundImage: member.avatarUrl != null ? NetworkImage(member.avatarUrl!) : null,
+                          child: member.avatarUrl == null ? const Icon(Icons.person, size: 16) : null,
+                        ),
+                        label: Text(member.name ?? 'Sin nombre', style: const TextStyle(fontSize: 12)),
+                        backgroundColor: colorScheme.surfaceContainerHighest,
+                        side: BorderSide.none,
+                      );
+                    }).toList(),
+                  ),
+                ]
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildStudentsList(List<Student> students) {
+    if (students.isEmpty) {
+      return Center(
+        child: Text(
+          'No hay alumnos sin equipo.',
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+        ),
+      );
+    }
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: students.length,
+      itemBuilder: (context, index) {
+        final student = students[index];
+        // student.email is not available in Student model from teams_model
+        // But we can use StudentCard just passing what we have.
+        // Wait, StudentCard might require specific provider. Let's just build a custom ListTile to avoid issues.
+        return Card(
+          elevation: 0,
+          margin: const EdgeInsets.only(bottom: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+          ),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundImage: student.avatarUrl != null ? NetworkImage(student.avatarUrl!) : null,
+              child: student.avatarUrl == null ? const Icon(Icons.person) : null,
+            ),
+            title: Text(student.name ?? student.username ?? 'Sin nombre', style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: student.tags.isNotEmpty 
+                ? Text(student.tags.join(', '), maxLines: 1, overflow: TextOverflow.ellipsis)
+                : const Text('Sin habilidades destacadas'),
+          ),
+        );
+      },
+    );
+  }
+}

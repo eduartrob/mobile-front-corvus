@@ -73,18 +73,21 @@ class _RoleSelectionPageState extends State<RoleSelectionPage>
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                Image.asset('assets/icons/logo2.png', height: 72),
+                const SizedBox(height: 16),
                 Text(
-                  l10n.selectRole,
+                  '¡Bienvenido a Corvus!',
                   style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 32,
+                    fontWeight: FontWeight.w700,
                     color: colors.onSurface,
+                    letterSpacing: -0.5,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 16),
                 Text(
-                  l10n.roleSelectionSubtitle,
+                  'Plataforma de innovación diseñada para revolucionar la evaluación, validación y acompañamiento de proyectos universitarios.',
                   style: TextStyle(
                     fontSize: 15,
                     color: colors.onSurfaceVariant,
@@ -92,7 +95,7 @@ class _RoleSelectionPageState extends State<RoleSelectionPage>
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 40),
                 ScaleTransition(
                   scale: Tween<double>(begin: 0.9, end: 1.0).animate(
                     CurvedAnimation(

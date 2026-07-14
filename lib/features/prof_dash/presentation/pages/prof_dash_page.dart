@@ -5,6 +5,7 @@ import 'package:mobile/shared/widgets/corvus_metric_card.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/features/prof_dash/presentation/provider/prof_dash_provider.dart';
+import 'package:mobile/features/prof_dash/presentation/pages/prof_directory_page.dart';
 
 class ProfDashPage extends StatefulWidget {
   const ProfDashPage({super.key});
@@ -278,7 +279,12 @@ class _ProfDashPageState extends State<ProfDashPage> {
                       SizedBox(
                         width: double.infinity,
                         child: OutlinedButton(
-                          onPressed: () => _showUpcomingFeature(context, l10n),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const ProfDirectoryPage()),
+                            );
+                          },
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             side: BorderSide(color: colorScheme.outline),
