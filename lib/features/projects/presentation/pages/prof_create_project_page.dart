@@ -28,7 +28,7 @@ class _ProfCreateProjectPageState extends State<ProfCreateProjectPage> {
     final name = _nameController.text.trim();
     if (name.isEmpty) return;
 
-    final token = context.read<AuthProvider>().accessToken;
+    final token = context.read<AuthProvider>().currentUser?.token;
     if (token == null) return;
 
     final provider = context.read<ProjectProvider>();

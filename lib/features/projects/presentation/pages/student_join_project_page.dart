@@ -25,7 +25,7 @@ class _StudentJoinProjectPageState extends State<StudentJoinProjectPage> {
     final code = _codeController.text.trim();
     if (code.isEmpty) return;
 
-    final token = context.read<AuthProvider>().accessToken;
+    final token = context.read<AuthProvider>().currentUser?.token;
     if (token == null) return;
 
     final provider = context.read<ProjectProvider>();

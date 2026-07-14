@@ -527,7 +527,7 @@ class _ProjectPageBody extends StatelessWidget {
                         final teamsProvider = context.read<TeamsProvider>();
                         final profileProvider = context.read<ProfileProvider>();
                         final teamId = teamsProvider.myTeam?.id ?? '';
-                        final studentName = profileProvider.profile?.nombres ?? 'Estudiante';
+                        final studentName = profileProvider.profile?.alumno ?? 'Estudiante';
                         
                         return ProjectDefenseChatPage(
                           teamId: teamId,
