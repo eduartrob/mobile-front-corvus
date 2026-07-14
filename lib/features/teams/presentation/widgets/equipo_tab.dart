@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:mobile/core/theme/app_dimens.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
+import 'package:mobile/features/my_project/presentation/provider/my_project_provider.dart';
 import 'package:mobile/features/teams/data/models/team_model.dart';
 import 'team_members_list.dart';
 import 'dashed_border_painter.dart';
@@ -25,6 +26,7 @@ class EquipoTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final user = context.watch<AuthProvider>().currentUser;
+    final projectProvider = context.watch<MyProjectProvider>();
     final currentUserId = user?.id ?? '';
 
     return Consumer<TeamsProvider>(
@@ -57,13 +59,18 @@ class EquipoTab extends StatelessWidget {
           socialLinks: [],
         );
 
-        final missingCount = 3 - displayTeam.members.length;
+        final maxMembers = projectProvider.maxTeamMembers;
+        final missingCount = maxMembers - displayTeam.members.length;
 
         return SingleChildScrollView(
           padding: const EdgeInsets.all(AppDimens.screenMargin),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (teamsProvider.finalReviewStatus != null)
+                _buildProposalStatusBanner(context, teamsProvider.finalReviewStatus!),
+              if (teamsProvider.finalReviewStatus != null)
+                const SizedBox(height: 16),
               // Project detail box with dashed border
               CustomPaint(
                 painter: DashedBorderPainter(
@@ -222,6 +229,102 @@ class EquipoTab extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildProposalStatusBanner(BuildContext context, Map<String, dynamic> statusData) {
+    final status = statusData['status'] as String? ?? 'UNKNOWN';
+    final colorScheme = Theme.of(context).colorScheme;
+    
+    Color bgColor;
+    Color fgColor;
+    IconData icon;
+    String title;
+    String subtitle = 'El profesorado revisará pronto tu proyecto.';
+
+    switch (status) {
+      case 'PENDING':
+        bgColor = Colors.amber.shade100;
+        fgColor = Colors.amber.shade900;
+        icon = Icons.hourglass_empty;
+        title = 'Propuesta Enviada';
+        break;
+      case 'APPROVED':
+        bgColor = Colors.green.shade100;
+        fgColor = Colors.green.shade800;
+        icon = Icons.check_circle;
+        title = 'Propuesta Aprobada';
+        subtitle = '¡Felicidades! Pueden continuar con el proyecto.';
+        break;
+      case 'REJECTED':
+        bgColor = colorScheme.errorContainer;
+        fgColor = colorScheme.onErrorContainer;
+        icon = Icons.cancel;
+        title = 'Propuesta Rechazada';
+        subtitle = statusData['reason'] ?? 'La propuesta no cumple con los criterios académicos.';
+        break;
+      case 'SUMMONED':
+        bgColor = Colors.blue.shade100;
+        fgColor = Colors.blue.shade900;
+        icon = Icons.calendar_month;
+        title = 'Citados a Revisión';
+        final date = statusData['appointment_date'] != null 
+            ? DateTime.tryParse(statusData['appointment_date']) 
+            : null;
+        if (date != null) {
+          subtitle = 'Fecha: ${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}\n';
+        } else {
+          subtitle = '';
+        }
+        if (statusData['location_link'] != null) {
+          subtitle += 'Lugar/Enlace: ${statusData['location_link']}';
+        }
+        break;
+      default:
+        bgColor = colorScheme.surfaceContainerHighest;
+        fgColor = colorScheme.onSurfaceVariant;
+        icon = Icons.info;
+        title = 'Estado de propuesta desconocido';
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: fgColor.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: fgColor, size: 28),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: fgColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    color: fgColor.withValues(alpha: 0.8),
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

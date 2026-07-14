@@ -398,7 +398,8 @@ class InspirationOrg extends StatelessWidget {
         unselectedFontSize: 10,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.lightbulb),
+            icon: Icon(Icons.auto_awesome_outlined),
+            activeIcon: Icon(Icons.auto_awesome),
             label: 'Inspiration',
           ),
           BottomNavigationBarItem(

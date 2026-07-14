@@ -46,14 +46,14 @@ class BlueOceanDetailPage extends StatelessWidget {
             margin: const EdgeInsets.only(right: 16),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.orange.withValues(alpha: 0.1),
+              color: colorScheme.secondaryContainer,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
               children: [
-                const Icon(Icons.auto_awesome, size: 14, color: Colors.orange),
+                Icon(Icons.auto_awesome, size: 14, color: colorScheme.secondary),
                 const SizedBox(width: 4),
-                Text(isEn ? 'AI Generated' : 'AI Generado', style: TextStyle(fontSize: 12, color: Colors.orange.shade800, fontWeight: FontWeight.w600)),
+                Text(isEn ? 'AI Generated' : 'AI Generado', style: TextStyle(fontSize: 12, color: colorScheme.onSecondaryContainer, fontWeight: FontWeight.w600)),
               ],
             ),
           )
@@ -77,7 +77,7 @@ class BlueOceanDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            BlueOceanSectionTitle(title: isEn ? 'Main Finding' : 'Hallazgo Principal', icon: Icons.insights, color: Colors.orange),
+            BlueOceanSectionTitle(title: isEn ? 'Main Finding' : 'Hallazgo Principal', icon: Icons.insights, color: colorScheme.secondary),
             GlassContainer(
               blur: 0,
               opacity: 0.5,
@@ -89,7 +89,7 @@ class BlueOceanDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            BlueOceanSectionTitle(title: isEn ? 'Methodological Suggestions' : 'Sugerencias de Abordaje Metodológico', icon: Icons.schema_outlined, color: Colors.blue),
+            BlueOceanSectionTitle(title: isEn ? 'Methodological Suggestions' : 'Sugerencias de Abordaje Metodológico', icon: Icons.schema_outlined, color: colorScheme.primary),
             if (sugerencias.isEmpty)
               Text(isEn ? 'No suggestions available.' : 'Sin sugerencias disponibles.')
             else
@@ -112,19 +112,19 @@ class BlueOceanDetailPage extends StatelessWidget {
                   FeasibilityMetricBar(
                     label: isEn ? 'Originality' : 'Originalidad',
                     value: metricas['originalidad'] ?? 0,
-                    color: Colors.blue,
+                    color: colorScheme.primary,
                   ),
                   const SizedBox(height: 16),
                   FeasibilityMetricBar(
                     label: isEn ? 'Data Availability' : 'Disponibilidad de Datos',
                     value: metricas['disponibilidad_datos'] ?? 0,
-                    color: Colors.brown,
+                    color: colorScheme.secondary,
                   ),
                   const SizedBox(height: 16),
                   FeasibilityMetricBar(
                     label: isEn ? 'Academic Relevance' : 'Relevancia Académica',
                     value: metricas['relevancia_academica'] ?? 0,
-                    color: Colors.black87,
+                    color: colorScheme.tertiary,
                   ),
                 ],
               ),

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:mobile/core/network/api_config.dart';
 import 'package:mobile/features/profile/presentation/provider/profile_provider.dart';
 
 class EditSkillsPage extends StatefulWidget {
@@ -14,8 +17,10 @@ class EditSkillsPage extends StatefulWidget {
 class _EditSkillsPageState extends State<EditSkillsPage> {
   late List<String> _selectedSkills;
   bool _isLoading = false;
+  bool _isFetchingSkills = false;
+  List<String> _displaySkills = [];
 
-  final List<String> _allSkills = [
+  final List<String> _fallbackSkills = [
     'Resolución de problemas', 'Trabajo en equipo', 'Comunicación', 'Liderazgo', 'Pensamiento crítico', 'Adaptabilidad', 'Organización', 'Creatividad',
     'Desarrollo Web', 'Desarrollo Móvil', 'Bases de Datos', 'Machine Learning', 'Inteligencia Artificial', 'Diseño UI/UX', 'Análisis de Datos', 'Gestión de Proyectos',
     'Marketing Digital', 'Ventas', 'Finanzas', 'Contabilidad', 'Recursos Humanos', 'Redes', 'Seguridad Informática', 'Cloud Computing',
@@ -34,6 +39,53 @@ class _EditSkillsPageState extends State<EditSkillsPage> {
   void initState() {
     super.initState();
     _selectedSkills = List.from(widget.initialSkills);
+    _displaySkills = List.from(_fallbackSkills);
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchDynamicSkills();
+    });
+  }
+
+  Future<void> _fetchDynamicSkills() async {
+    final provider = Provider.of<ProfileProvider>(context, listen: false);
+    final careerName = provider.profile?.carrera;
+    
+    if (careerName == null || careerName.trim().isEmpty) return;
+    
+    setState(() {
+      _isFetchingSkills = true;
+    });
+    
+    try {
+      final response = await http
+          .post(
+            Uri.parse('${ApiConfig.apiGatewayUrl}/auth/careers/resolve'),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode({'careerName': careerName}),
+          )
+          .timeout(const Duration(seconds: 40));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final List<String> fetchedSkills = List<String>.from(data['skills']);
+        
+        if (fetchedSkills.isNotEmpty && mounted) {
+          setState(() {
+            final uniqueSkills = Set<String>.from(fetchedSkills);
+            uniqueSkills.addAll(_fallbackSkills);
+            _displaySkills = uniqueSkills.take(100).toList();
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint("Error fetching dynamic skills: $e");
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isFetchingSkills = false;
+        });
+      }
+    }
   }
 
   void _toggleSkill(String skill) {
@@ -126,7 +178,7 @@ class _EditSkillsPageState extends State<EditSkillsPage> {
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
 
-    final sortedSkills = List<String>.from(_allSkills)
+    final sortedSkills = List<String>.from(_displaySkills)
       ..sort((a, b) {
         final aSelected = _selectedSkills.contains(a);
         final bSelected = _selectedSkills.contains(b);
@@ -158,7 +210,24 @@ class _EditSkillsPageState extends State<EditSkillsPage> {
                       style: TextStyle(color: colors.onSurfaceVariant, fontSize: 14),
                     ),
                     const SizedBox(height: 16),
-                    Wrap(
+                    if (_isFetchingSkills)
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 24.0),
+                          child: Column(
+                            children: [
+                              const CircularProgressIndicator(),
+                              const SizedBox(height: 12),
+                              Text(
+                                'Buscando habilidades con IA...',
+                                style: TextStyle(color: colors.primary, fontSize: 13),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    else
+                      Wrap(
                       spacing: 8,
                       runSpacing: 8,
                       children: sortedSkills.map((skill) {

@@ -122,6 +122,174 @@ abstract class AppLocalizations {
   /// **'Iniciando sesión...'**
   String get signingIn;
 
+  /// No description provided for @login.
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciar sesión'**
+  String get login;
+
+  /// No description provided for @register.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrarse'**
+  String get register;
+
+  /// No description provided for @email.
+  ///
+  /// In es, this message translates to:
+  /// **'Correo electrónico'**
+  String get email;
+
+  /// No description provided for @password.
+  ///
+  /// In es, this message translates to:
+  /// **'Contraseña'**
+  String get password;
+
+  /// No description provided for @confirmPassword.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmar contraseña'**
+  String get confirmPassword;
+
+  /// No description provided for @forgotPassword.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Olvidaste tu contraseña?'**
+  String get forgotPassword;
+
+  /// No description provided for @noAccount.
+  ///
+  /// In es, this message translates to:
+  /// **'¿No tienes una cuenta?'**
+  String get noAccount;
+
+  /// No description provided for @haveAccount.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Ya tienes una cuenta?'**
+  String get haveAccount;
+
+  /// No description provided for @loginWithEmail.
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciar sesión con correo'**
+  String get loginWithEmail;
+
+  /// No description provided for @registerWithEmail.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrarse con correo'**
+  String get registerWithEmail;
+
+  /// No description provided for @orContinueWith.
+  ///
+  /// In es, this message translates to:
+  /// **'o continuar con'**
+  String get orContinueWith;
+
+  /// No description provided for @orRegisterWith.
+  ///
+  /// In es, this message translates to:
+  /// **'o registrarse con'**
+  String get orRegisterWith;
+
+  /// No description provided for @student.
+  ///
+  /// In es, this message translates to:
+  /// **'Alumno'**
+  String get student;
+
+  /// No description provided for @teacher.
+  ///
+  /// In es, this message translates to:
+  /// **'Docente'**
+  String get teacher;
+
+  /// No description provided for @selectRole.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona tu rol'**
+  String get selectRole;
+
+  /// No description provided for @roleSelectionSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Elige cómo quieres acceder a Corvus hoy.'**
+  String get roleSelectionSubtitle;
+
+  /// No description provided for @loginAsStudent.
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciar sesión como Alumno'**
+  String get loginAsStudent;
+
+  /// No description provided for @loginAsTeacher.
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciar sesión como Docente'**
+  String get loginAsTeacher;
+
+  /// No description provided for @registerAsStudent.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrarse como Alumno'**
+  String get registerAsStudent;
+
+  /// No description provided for @registerAsTeacher.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrarse como Docente'**
+  String get registerAsTeacher;
+
+  /// No description provided for @welcomeTo.
+  ///
+  /// In es, this message translates to:
+  /// **'Bienvenido a'**
+  String get welcomeTo;
+
+  /// No description provided for @universityEmailHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Se recomienda correo institucional'**
+  String get universityEmailHint;
+
+  /// No description provided for @swipeToChange.
+  ///
+  /// In es, this message translates to:
+  /// **'Desliza para cambiar de rol'**
+  String get swipeToChange;
+
+  /// No description provided for @invalidEmail.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor ingresa un correo válido'**
+  String get invalidEmail;
+
+  /// No description provided for @invalidPassword.
+  ///
+  /// In es, this message translates to:
+  /// **'La contraseña debe tener al menos 6 caracteres'**
+  String get invalidPassword;
+
+  /// No description provided for @passwordMismatch.
+  ///
+  /// In es, this message translates to:
+  /// **'Las contraseñas no coinciden'**
+  String get passwordMismatch;
+
+  /// No description provided for @requiredField.
+  ///
+  /// In es, this message translates to:
+  /// **'Este campo es obligatorio'**
+  String get requiredField;
+
+  /// No description provided for @termsOfUse.
+  ///
+  /// In es, this message translates to:
+  /// **'Al continuar, aceptas nuestros'**
+  String get termsOfUse;
+
   /// No description provided for @unknownError.
   ///
   /// In es, this message translates to:
@@ -157,6 +325,24 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Corvus'**
   String get appTitle;
+
+  /// No description provided for @and.
+  ///
+  /// In es, this message translates to:
+  /// **'y'**
+  String get and;
+
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In es, this message translates to:
+  /// **'Política de Privacidad'**
+  String get privacyPolicy;
+
+  /// No description provided for @termsOfService.
+  ///
+  /// In es, this message translates to:
+  /// **'Términos de Servicio'**
+  String get termsOfService;
 
   /// No description provided for @navInspiration.
   ///

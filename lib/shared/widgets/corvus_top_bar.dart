@@ -26,14 +26,10 @@ class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
       scrolledUnderElevation: 0,
       titleSpacing: showLogo && titleWidget == null ? 16.0 : 0.0,
       title: titleWidget ?? (showLogo 
-          ? SvgPicture.asset(
-              'assets/icons/logo.svg',
+          ? Image.asset(
+              'assets/icons/logo2.png',
               height: 32,
               width: 32,
-              colorFilter: ColorFilter.mode(
-                Theme.of(context).colorScheme.primary,
-                BlendMode.srcIn,
-              ),
             ) 
           : null),
       actions: hideActions ? const [] : [

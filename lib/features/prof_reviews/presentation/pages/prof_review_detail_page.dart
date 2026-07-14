@@ -18,12 +18,13 @@ class ProfReviewDetailPage extends StatefulWidget {
 }
 
 class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
-  void _updateStatus(String status, {String? appointmentDate}) async {
+  void _updateStatus(String status, {String? appointmentDate, String? reason}) async {
     final provider = context.read<ProfReviewsProvider>();
     final success = await provider.updateStatus(
       widget.review.id, 
       status, 
-      appointmentDate: appointmentDate
+      appointmentDate: appointmentDate,
+      reason: reason
     );
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -35,6 +36,36 @@ class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
         SnackBar(content: Text(provider.errorMessage ?? 'Error al actualizar'))
       );
     }
+  }
+
+  void _showReasonDialog(String status) {
+    final reasonController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: Text(status == 'APPROVED' ? 'Motivo de Aprobación' : 'Motivo de Rechazo'),
+          content: TextField(
+            controller: reasonController,
+            decoration: const InputDecoration(
+              hintText: 'Ingresa el motivo (opcional)',
+              border: OutlineInputBorder()
+            ),
+            maxLines: 3,
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancelar')),
+            FilledButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                _updateStatus(status, reason: reasonController.text);
+              },
+              child: const Text('Confirmar')
+            )
+          ],
+        );
+      }
+    );
   }
 
   void _showSummonDialog(AppLocalizations l10n) {
@@ -417,7 +448,7 @@ class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
                             child: SizedBox(
                               height: 45,
                               child: ElevatedButton.icon(
-                                onPressed: () => _updateStatus('REJECTED'),
+                                onPressed: () => _showReasonDialog('REJECTED'),
                                 icon: const Icon(Icons.close),
                                 label: Text(l10n.reject),
                                 style: ElevatedButton.styleFrom(
@@ -433,7 +464,7 @@ class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
                             child: SizedBox(
                               height: 45,
                               child: ElevatedButton.icon(
-                                onPressed: () => _updateStatus('APPROVED'),
+                                onPressed: () => _showReasonDialog('APPROVED'),
                                 icon: const Icon(Icons.check),
                                 label: Text(l10n.approve),
                                 style: ElevatedButton.styleFrom(

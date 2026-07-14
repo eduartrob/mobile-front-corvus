@@ -69,6 +69,7 @@ class TeamModel {
   final List<TeamMemberModel> members;
   final List<SocialLinkModel> socialLinks;
   final Map<String, dynamic>? project;
+  final int maxMembers;
 
   const TeamModel({
     required this.id,
@@ -77,6 +78,7 @@ class TeamModel {
     required this.members,
     required this.socialLinks,
     this.project,
+    this.maxMembers = 3,
   });
 
   factory TeamModel.fromJson(Map<String, dynamic> json) {
@@ -90,6 +92,7 @@ class TeamModel {
       members: membersList.map((m) => TeamMemberModel.fromJson(m)).toList(),
       socialLinks: linksList.map((l) => SocialLinkModel.fromJson(l)).toList(),
       project: json['project'] as Map<String, dynamic>?,
+      maxMembers: json['maxMembers'] ?? 3,
     );
   }
 
@@ -107,6 +110,7 @@ class TeamModel {
       }).toList(),
       'socialLinks': socialLinks.map((l) => l.toJson()).toList(),
       'project': project,
+      'maxMembers': maxMembers,
     };
   }
 }

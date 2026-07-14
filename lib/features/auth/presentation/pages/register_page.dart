@@ -1,19 +1,17 @@
+import 'dart:math' show Random;
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/core/theme/app_dimens.dart';
-import 'package:mobile/l10n/app_localizations.dart';
-import 'package:mobile/shared/widgets/corvus_input_completed.dart';
-import 'package:mobile/shared/widgets/corvus_button.dart';
-import 'package:mobile/shared/widgets/auth_layout.dart';
-import 'package:mobile/features/auth/presentation/provider/registration_provider.dart';
-import 'package:provider/provider.dart';
-import 'package:mobile/core/services/security_service.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'dart:math';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:mobile/core/services/secure_storage_service.dart';
+import 'package:mobile/core/services/security_service.dart';
+import 'package:mobile/features/auth/presentation/provider/registration_provider.dart';
+import 'package:mobile/l10n/app_localizations.dart';
+import 'package:mobile/shared/widgets/auth_action_button.dart';
+import 'package:mobile/shared/widgets/auth_scaffold.dart';
+import 'package:mobile/shared/widgets/corvus_input_completed.dart';
+import 'package:mobile/shared/widgets/role_selector.dart';
+import 'package:mobile/shared/widgets/social_auth_button.dart';
+import 'package:provider/provider.dart';
 
 class RegisterPage extends StatefulWidget {
   final String role;
@@ -25,72 +23,27 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final SecurityService _securityService = SecurityService();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  late String _currentRole;
 
   @override
   void initState() {
     super.initState();
+    _currentRole = widget.role;
     _securityService.preventScreenshots(true);
-  }
 
-  @override
-  void dispose() {
-    _securityService.preventScreenshots(false);
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height - 
-                         MediaQuery.of(context).padding.top - 
-                         MediaQuery.of(context).padding.bottom,
-            ),
-            child: Center(
-              child: _RegisterForm(role: widget.role),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _RegisterForm extends StatefulWidget {
-  final String role;
-  const _RegisterForm({required this.role});
-
-  @override
-  State<_RegisterForm> createState() => _RegisterFormState();
-}
-
-class _RegisterFormState extends State<_RegisterForm> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<RegistrationProvider>(context, listen: false);
-      
       if (provider.email.isNotEmpty) _emailController.text = provider.email;
       if (provider.password.isNotEmpty) {
         _passwordController.text = provider.password;
         _confirmPasswordController.text = provider.password;
       }
-      
-      _emailController.addListener(() {
-        provider.email = _emailController.text;
-      });
-      _passwordController.addListener(() {
-        provider.password = _passwordController.text;
-      });
-      provider.role = widget.role;
+      _emailController.addListener(() => provider.email = _emailController.text);
+      _passwordController.addListener(() => provider.password = _passwordController.text);
+      provider.role = _currentRole;
     });
   }
 
@@ -99,248 +52,226 @@ class _RegisterFormState extends State<_RegisterForm> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _securityService.preventScreenshots(false);
     super.dispose();
+  }
+
+  void _handleRoleChanged(String newRole) {
+    setState(() {
+      _currentRole = newRole;
+      _emailController.clear();
+      _passwordController.clear();
+      _confirmPasswordController.clear();
+    });
+    final provider = Provider.of<RegistrationProvider>(context, listen: false);
+    provider.role = _currentRole;
+  }
+
+  bool _validateInputs() {
+    final l10n = AppLocalizations.of(context)!;
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+
+    if (email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+      _showSnack(l10n.requiredField);
+      return false;
+    }
+
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(email)) {
+      _showSnack(l10n.invalidEmail);
+      return false;
+    }
+
+    if (password.length < 6) {
+      _showSnack(l10n.invalidPassword);
+      return false;
+    }
+
+    if (password != confirmPassword) {
+      _showSnack(l10n.passwordMismatch);
+      return false;
+    }
+
+    return true;
+  }
+
+  void _showSnack(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  void _continueRegistration() {
+    FocusScope.of(context).unfocus();
+    if (!_validateInputs()) return;
+
+    final provider = Provider.of<RegistrationProvider>(context, listen: false);
+    provider.setRegisterData(
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+      role: _currentRole,
+    );
+
+    if (_currentRole == 'DOCENTE' || _currentRole == 'PROFESOR') {
+      if (mounted) context.push('/register-teacher-verification');
+    } else {
+      if (mounted) context.push('/register-student-university');
+    }
+  }
+
+  Future<void> _handleGoogleRegister() async {
+    try {
+      final googleSignIn = GoogleSignIn(
+        scopes: ['email', 'profile'],
+        serverClientId: kIsWeb
+            ? null
+            : '1078483343139-2fobsjceva5r60i6vrpcg4jbjddmj4uo.apps.googleusercontent.com',
+      );
+      await googleSignIn.signOut();
+      final googleUser = await googleSignIn.signIn();
+      if (googleUser == null || !mounted) return;
+
+      final email = googleUser.email;
+      final authCode = googleUser.serverAuthCode;
+
+      const chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+      final rnd = Random();
+      final randomPassword = String.fromCharCodes(Iterable.generate(
+          12, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
+
+      final provider = Provider.of<RegistrationProvider>(context, listen: false);
+      provider.setRegisterData(
+        email: email,
+        password: randomPassword,
+        role: _currentRole,
+        googleAuthCode: authCode,
+      );
+
+      if (!mounted) return;
+      if (_currentRole == 'DOCENTE' || _currentRole == 'PROFESOR') {
+        context.push('/register-teacher-verification');
+      } else {
+        context.push('/register-student-university');
+      }
+    } catch (e) {
+      if (mounted) _showSnack('Error con Google: $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    
-    return AuthLayout(
-      appTitle: 'Corvus',
-      cardTitle: 'Crear Cuenta',
-      cardSubtitle: 'Registrándote como ${widget.role}',
-      children: [
-        InputCompleted(
-          label: "Correo Electrónico",
-          hint: "ejemplo@acaderag.com",
-          icon: Icons.mail,
-          controller: _emailController,
-          iconColor: Colors.blueAccent,
-        ),
-        if (widget.role == 'ALUMNO') ...[
-          const SizedBox(height: 6),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Icon(Icons.info_outline, size: 14, color: Colors.blue),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Text(
-                  'Te recomendamos registrarte con tu correo institucional de la universidad.',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: colors.onSurfaceVariant,
-                  ),
-                ),
-              ),
-            ],
+
+    return AuthScaffold(
+      bottomAlign: true,
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            l10n.register,
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: colors.onSurface,
+            ),
+            textAlign: TextAlign.center,
           ),
-        ],
-        const SizedBox(height: 16),
-        InputCompleted(
-          label: "Contraseña",
-          hint: "••••••••",
-          icon: Icons.lock,
-          obscure: true,
-          controller: _passwordController,
-          iconColor: Colors.redAccent,
-        ),
-        const SizedBox(height: 16),
-        InputCompleted(
-          label: "Repetir Contraseña",
-          hint: "••••••••",
-          icon: Icons.lock_reset,
-          obscure: true,
-          controller: _confirmPasswordController,
-          iconColor: Colors.redAccent,
-        ),
-        const SizedBox(height: 32),
-        
-        CorvusButton(
-          text: "Continuar",
-          onPressed: () {
-            FocusScope.of(context).unfocus();
-            final email = _emailController.text.trim();
-            final password = _passwordController.text;
-            final confirmPassword = _confirmPasswordController.text;
-
-            if (email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Por favor, completa todos los campos')),
-              );
-              return;
-            }
-
-            final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-            if (!emailRegex.hasMatch(email)) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Por favor, ingresa un correo válido')),
-              );
-              return;
-            }
-
-            if (password.length < 6) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('La contraseña debe tener al menos 6 caracteres')),
-              );
-              return;
-            }
-
-            if (password != confirmPassword) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Las contraseñas no coinciden')),
-              );
-              return;
-            }
-
-            // Save to provider
-            final provider = Provider.of<RegistrationProvider>(context, listen: false);
-            provider.setRegisterData(
-              email: email,
-              password: password,
-              role: widget.role,
-            );
-
-            if (widget.role == 'DOCENTE' || widget.role == 'PROFESOR') {
-              context.push('/register-teacher-verification');
-            } else {
-              context.push('/register-student-university');
-            }
-          },
-        ),
-        const SizedBox(height: 24),
-        
-        Row(
-          children: [
-            Expanded(child: Divider(color: colors.outlineVariant.withValues(alpha: 0.3))),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Text(
-                'O registrarse con',
-                style: TextStyle(
-                  color: colors.onSurfaceVariant,
-                  fontSize: 12,
+          const SizedBox(height: 6),
+          Center(
+            child: Container(
+              height: 3,
+              width: 36,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [colors.primary, colors.tertiary],
                 ),
+                borderRadius: BorderRadius.circular(2),
               ),
             ),
-            Expanded(child: Divider(color: colors.outlineVariant.withValues(alpha: 0.3))),
-          ],
-        ),
-        const SizedBox(height: 16),
-        
-        Material(
-          color: isDark ? colors.surfaceContainer : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          child: InkWell(
-            onTap: () async {
-              try {
-                final googleSignIn = GoogleSignIn(
-                  scopes: ['email', 'profile'],
-                  serverClientId: kIsWeb ? null : '1078483343139-2fobsjceva5r60i6vrpcg4jbjddmj4uo.apps.googleusercontent.com',
-                );
-                await googleSignIn.signOut(); // Ensure we prompt for account if they want to choose
-                final googleUser = await googleSignIn.signIn();
-                if (googleUser == null) return; // User canceled
-
-                final email = googleUser.email;
-                // Capture the server auth code so the skills page can call
-                // googleLogin after register, which saves google_access_token
-                final authCode = googleUser.serverAuthCode;
-                
-                // Generate a random 12-character password since they will login with Google later
-                const chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
-                final rnd = Random();
-                final randomPassword = String.fromCharCodes(Iterable.generate(
-                  12, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
-
-                final provider = Provider.of<RegistrationProvider>(context, listen: false);
-                provider.setRegisterData(
-                  email: email,
-                  password: randomPassword,
-                  role: widget.role,
-                  googleAuthCode: authCode,
-                );
-
-                if (widget.role == 'DOCENTE' || widget.role == 'PROFESOR') {
-                  context.push('/register-teacher-verification');
-                } else {
-                  context.push('/register-student-university');
-                }
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Error con Google: $e')),
-                );
-              }
-            },
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: isDark 
-                      ? colors.outlineVariant.withValues(alpha: 0.3) 
-                      : const Color(0xFFE2E8F0),
-                ),
-              ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '${l10n.registerAsStudent.replaceFirst(l10n.student, '')}${_currentRole == 'ALUMNO' ? l10n.student : l10n.teacher}',
+            style: TextStyle(
+              fontSize: 14,
+              color: colors.onSurfaceVariant,
+              height: 1.4,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 28),
+          RoleSelector(
+            selectedRole: _currentRole,
+            onRoleChanged: _handleRoleChanged,
+          ),
+          const SizedBox(height: 24),
+          InputCompleted(
+            label: l10n.email,
+            hint: 'ejemplo@acaderag.com',
+            icon: Icons.mail_outline,
+            controller: _emailController,
+            keyboardType: TextInputType.emailAddress,
+            iconColor: colors.primary,
+          ),
+          if (_currentRole == 'ALUMNO') ...[
+            const SizedBox(height: 6),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SvgPicture.asset(
-                  'assets/icons/google.svg',
-                  width: 20,
-                  height: 20,
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  l10n.continueWithGoogle,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: colors.onSurface,
+                Icon(Icons.info_outline, size: 14, color: colors.primary),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    l10n.universityEmailHint,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: colors.onSurfaceVariant,
+                    ),
                   ),
                 ),
               ],
             ),
-          ),
-        ),
-        ),
-        
-        const SizedBox(height: 24),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              '¿Ya tienes cuenta? ',
-              style: TextStyle(
-                color: colors.onSurfaceVariant,
-                fontSize: 14,
-              ),
-            ),
-            InkWell(
-              onTap: () {
-                context.pop();
-              },
-              borderRadius: BorderRadius.circular(4),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
-                child: Text(
-                  'Inicia sesión',
-                  style: TextStyle(
-                    color: colors.primary,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
           ],
-        ),
-      ],
+          const SizedBox(height: 16),
+          InputCompleted(
+            label: l10n.password,
+            hint: '••••••••',
+            icon: Icons.lock_outline,
+            obscure: true,
+            controller: _passwordController,
+            iconColor: colors.primary,
+          ),
+          const SizedBox(height: 16),
+          InputCompleted(
+            label: l10n.confirmPassword,
+            hint: '••••••••',
+            icon: Icons.lock_reset_outlined,
+            obscure: true,
+            controller: _confirmPasswordController,
+            iconColor: colors.primary,
+          ),
+          const SizedBox(height: 24),
+          AuthActionButton(
+            text: l10n.register,
+            icon: Icons.arrow_forward,
+            onPressed: _continueRegistration,
+          ),
+          const SizedBox(height: 24),
+          AuthDivider(label: l10n.orRegisterWith),
+          const SizedBox(height: 16),
+          SocialAuthButton(
+            onTap: _handleGoogleRegister,
+          ),
+          const SizedBox(height: 24),
+          AuthFooter(
+            primaryText: '${l10n.haveAccount} ',
+            actionText: l10n.login,
+            onActionTap: () => context.pop(),
+          ),
+        ],
+      ),
     );
   }
 }

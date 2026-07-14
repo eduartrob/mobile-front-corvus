@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/core/theme/app_dimens.dart';
 import 'package:mobile/shared/widgets/corvus_button.dart';
 import 'package:mobile/core/network/api_config.dart';
 import 'package:mobile/core/network/auth_interceptor_client.dart';
@@ -12,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobile/core/services/security_service.dart';
+import 'package:mobile/shared/widgets/auth_layout.dart';
 
 class StudentSkillsPage extends StatefulWidget {
   final List<String> suggestedSkills;
@@ -293,167 +292,66 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
     final colors = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: colors.onSurface),
-          onPressed: () {
-            // Force save
-            Provider.of<RegistrationProvider>(context, listen: false).setSkills(_selectedSkills);
-            context.pop();
-          },
+    return AuthLayout(
+      appTitle: 'Corvus',
+      cardTitle: 'Selecciona tus habilidades',
+      customSubtitle: Text(
+        'Elige hasta 10 habilidades que deseas obtener o mejorar en tu carrera. (${_selectedSkills.length}/10)',
+        style: TextStyle(
+          fontSize: 14,
+          color: colors.onSurfaceVariant,
+          height: 1.5,
         ),
+        textAlign: TextAlign.center,
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppDimens.screenMargin,
-              vertical: 24.0,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? colors.surfaceContainerHighest.withValues(alpha: 0.5)
-                        : colors.primaryContainer.withValues(alpha: 0.4),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: SvgPicture.asset('assets/icons/logo.svg'),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Corvus',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w800,
-                    color: colors.onSurface,
-                    letterSpacing: -1,
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.only(top: 8, bottom: 24),
-                  height: 4,
-                  width: 40,
-                  decoration: BoxDecoration(
-                    color: colors.primary,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: isDark ? colors.surface : Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(
-                      color: isDark
-                          ? colors.outlineVariant.withValues(alpha: 0.2)
-                          : const Color(0xFFE2E8F0),
-                      width: 1,
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back, color: colors.onSurface),
+        onPressed: () {
+          Provider.of<RegistrationProvider>(context, listen: false).setSkills(_selectedSkills);
+          context.pop();
+        },
+      ),
+      children: [
+        AnimatedSize(
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeOutCubic,
+          child: Container(
+            constraints: const BoxConstraints(maxHeight: 350),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  if (_selectedSkills.isNotEmpty) ...[
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      alignment: WrapAlignment.center,
+                      children: _selectedSkills.map((skill) {
+                        return _buildSkillChip(skill, true, colors, isDark);
+                      }).toList(),
                     ),
-                    boxShadow: isDark
-                        ? [
-                            BoxShadow(
-                              color: const Color(
-                                0xFF6366F1,
-                              ).withValues(alpha: 0.22),
-                              blurRadius: 50,
-                              spreadRadius: 2,
-                              offset: const Offset(0, 8),
-                            ),
-                          ]
-                        : [
-                            BoxShadow(
-                              color: const Color(
-                                0xFF3B82F6,
-                              ).withValues(alpha: 0.18),
-                              blurRadius: 40,
-                              spreadRadius: 2,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
+                    const SizedBox(height: 24),
+                  ],
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    alignment: WrapAlignment.center,
+                    children: _displaySkills
+                        .where((s) => !_selectedSkills.contains(s))
+                        .map((skill) {
+                      return _buildSkillChip(skill, false, colors, isDark);
+                    }).toList(),
                   ),
-                  child: Column(
-                    children: [
-                      Text(
-                        'Selecciona tus habilidades',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: colors.onSurface,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Elige hasta 10 habilidades que deseas obtener o mejorar en tu carrera. (${_selectedSkills.length}/10)',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: colors.onSurfaceVariant,
-                          height: 1.5,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 32),
-
-                      AnimatedSize(
-                        duration: const Duration(milliseconds: 400),
-                        curve: Curves.easeOutCubic,
-                        child: Container(
-                          constraints: const BoxConstraints(maxHeight: 350),
-                          child: SingleChildScrollView(
-                            child: Column(
-                              children: [
-                                if (_selectedSkills.isNotEmpty) ...[
-                                  Wrap(
-                                    spacing: 12,
-                                    runSpacing: 12,
-                                    alignment: WrapAlignment.center,
-                                    children: _selectedSkills.map((skill) {
-                                      return _buildSkillChip(skill, true, colors, isDark);
-                                    }).toList(),
-                                  ),
-                                  const SizedBox(height: 24),
-                                ],
-                                Wrap(
-                                  spacing: 12,
-                                  runSpacing: 12,
-                                  alignment: WrapAlignment.center,
-                                  children: _displaySkills
-                                      .where((s) => !_selectedSkills.contains(s))
-                                      .map((skill) {
-                                    return _buildSkillChip(skill, false, colors, isDark);
-                                  }).toList(),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 48),
-                      CorvusButton(
-                        text: _isLoading ? "Guardando..." : "Finalizar",
-                        onPressed: _isLoading ? () {} : _submitProfile,
-                      ),
-                      const SizedBox(height: 24),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
-      ),
+        const SizedBox(height: 48),
+        CorvusButton(
+          text: _isLoading ? "Guardando..." : "Finalizar",
+          onPressed: _isLoading ? () {} : _submitProfile,
+        ),
+      ],
     );
   }
 }

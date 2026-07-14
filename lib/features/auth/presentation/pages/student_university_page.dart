@@ -2,15 +2,11 @@ import 'dart:convert';
 import 'dart:math' as Math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/core/theme/app_dimens.dart';
-import 'package:mobile/shared/widgets/corvus_input.dart';
 import 'package:mobile/shared/widgets/corvus_input_completed.dart';
 import 'package:mobile/shared/widgets/corvus_button.dart';
 import 'package:mobile/shared/widgets/corvus_label.dart';
 import 'package:mobile/core/network/api_config.dart';
-import 'package:mobile/core/network/auth_interceptor_client.dart';
 import '../widgets/university_autocomplete_field.dart';
 import '../widgets/career_autocomplete_field.dart';
 import 'package:http/http.dart' as http;
@@ -191,15 +187,20 @@ class _StudentUniversityPageState extends State<StudentUniversityPage> {
     final colors = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+    if (_isLoading) {
+      return Scaffold(
+        body: _buildShimmerLoading(colors, isDark),
+      );
+    }
+
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: AuthLayout(
+        appTitle: 'Corvus',
+        cardTitle: 'Información institucional',
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: colors.onSurface),
           onPressed: () {
-            // Force save just in case
             final provider = Provider.of<RegistrationProvider>(context, listen: false);
             provider.fullName = _nameController.text;
             provider.matricula = _matriculaController.text;
@@ -209,18 +210,7 @@ class _StudentUniversityPageState extends State<StudentUniversityPage> {
             context.pop();
           },
         ),
-      ),
-      body: SafeArea(
-        child: _isLoading
-            ? _buildShimmerLoading(colors, isDark)
-            : GestureDetector(
-                onTap: () => FocusScope.of(context).unfocus(),
-                child: SingleChildScrollView(
-                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.manual,
-                  child: AuthLayout(
-                  appTitle: 'Corvus',
-                  cardTitle: 'Información institucional',
-                  children: [
+        children: [
                     InputCompleted(
                       label: "Nombre completo",
                       hint: "Ej. Juan Pérez García",
@@ -268,13 +258,6 @@ class _StudentUniversityPageState extends State<StudentUniversityPage> {
                             ? colors.surfaceContainer
                             : Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isDark
-                              ? colors.outlineVariant.withValues(
-                                  alpha: 0.5,
-                                )
-                              : const Color(0xFFE2E8F0),
-                        ),
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
@@ -357,10 +340,7 @@ class _StudentUniversityPageState extends State<StudentUniversityPage> {
                       text: "Siguiente",
                       onPressed: _submitCareer,
                     ),
-                  ],
-                ),
-              ),
-            ),
+        ],
       ),
     );
   }
@@ -378,13 +358,9 @@ class _StudentUniversityPageState extends State<StudentUniversityPage> {
               builder: (context, value, child) {
                 return Opacity(
                   opacity: 0.5 + (0.5 * Math.sin(value * Math.pi * 2)),
-                  child: SvgPicture.asset(
-                    'assets/icons/logo.svg',
+                  child: Image.asset(
+                    'assets/icons/logo2.png',
                     width: 80,
-                    colorFilter: ColorFilter.mode(
-                      colors.primary,
-                      BlendMode.srcIn,
-                    ),
                   ),
                 );
               },

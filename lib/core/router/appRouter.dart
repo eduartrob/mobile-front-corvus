@@ -12,6 +12,7 @@ import 'package:mobile/features/auth/presentation/pages/student_university_page.
 import 'package:mobile/features/auth/presentation/pages/student_skills_page.dart';
 import 'package:mobile/features/auth/presentation/pages/teacher_verification_page.dart';
 import 'package:mobile/features/auth/presentation/pages/teacher_info_page.dart';
+
 import 'package:mobile/features/inspiration/presentation/pages/inspiration_page.dart';
 import 'package:mobile/features/my_project/presentation/pages/my_project_page.dart';
 import 'package:mobile/features/teams/presentation/pages/teams_page.dart';
@@ -32,6 +33,49 @@ import 'package:mobile/features/notifications/presentation/pages/notifications_p
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
+CustomTransitionPage _buildFadeTransition(Widget child, LocalKey key) {
+  return CustomTransitionPage(
+    key: key,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 280),
+    reverseTransitionDuration: const Duration(milliseconds: 200),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeTransition(
+        opacity: CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOut,
+        ),
+        child: child,
+      );
+    },
+  );
+}
+
+CustomTransitionPage _buildSlideUpTransition(Widget child, LocalKey key) {
+  return CustomTransitionPage(
+    key: key,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 350),
+    reverseTransitionDuration: const Duration(milliseconds: 250),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0.0, 1.0),
+          end: Offset.zero,
+        ).animate(CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic,
+        )),
+        child: FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
+      );
+    },
+  );
+}
+
 CustomTransitionPage _buildSlideTransition(Widget child, LocalKey key) {
   return CustomTransitionPage(
     key: key,
@@ -51,7 +95,8 @@ CustomTransitionPage _buildSlideTransition(Widget child, LocalKey key) {
   );
 }
 
-class AppRouter extends StatelessWidget {
+
+class AppRouter extends StatefulWidget {
   final ThemeData? appTheme;
   final ThemeData? darkTheme;
   final ThemeMode? themeMode;
@@ -59,10 +104,18 @@ class AppRouter extends StatelessWidget {
   const AppRouter({super.key, this.appTheme, this.darkTheme, this.themeMode});
 
   @override
-  Widget build(BuildContext context) {
+  State<AppRouter> createState() => _AppRouterState();
+}
+
+class _AppRouterState extends State<AppRouter> {
+  late final GoRouter _router;
+
+  @override
+  void initState() {
+    super.initState();
     final authProvider = context.read<AuthProvider>();
 
-    final GoRouter router = GoRouter(
+    _router = GoRouter(
       navigatorKey: rootNavigatorKey,
       initialLocation: '/',
       debugLogDiagnostics: true,
@@ -99,25 +152,25 @@ class AppRouter extends StatelessWidget {
       routes: [
         GoRoute(
           path: '/',
-          pageBuilder: (context, state) => _buildSlideTransition(const LoginPage(role: 'ALUMNO'), state.pageKey),
+          pageBuilder: (context, state) => _buildFadeTransition(const RoleSelectionPage(), state.pageKey),
         ),
         GoRoute(
           path: '/login',
           pageBuilder: (context, state) {
             final role = state.extra as String? ?? 'ALUMNO';
-            return _buildSlideTransition(LoginPage(role: role), state.pageKey);
+            return _buildSlideUpTransition(LoginPage(role: role), state.pageKey);
           },
         ),
         GoRoute(
           path: '/register',
           pageBuilder: (context, state) {
             final role = state.extra as String? ?? 'ALUMNO';
-            return _buildSlideTransition(RegisterPage(role: role), state.pageKey);
+            return _buildSlideUpTransition(RegisterPage(role: role), state.pageKey);
           },
         ),
         GoRoute(
           path: '/register-student-university',
-          pageBuilder: (context, state) => _buildSlideTransition(const StudentUniversityPage(), state.pageKey),
+          pageBuilder: (context, state) => _buildFadeTransition(const StudentUniversityPage(), state.pageKey),
         ),
         GoRoute(
           path: '/register-student-skills',
@@ -247,13 +300,17 @@ class AppRouter extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Corvus',
-      theme: appTheme ?? ThemeData.light(),
-      darkTheme: darkTheme ?? ThemeData.dark(),
-      themeMode: themeMode ?? ThemeMode.light,
+      theme: widget.appTheme ?? ThemeData.light(),
+      darkTheme: widget.darkTheme ?? ThemeData.dark(),
+      themeMode: widget.themeMode ?? ThemeMode.light,
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -261,7 +318,9 @@ class AppRouter extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: AppLocalizations.supportedLocales,
-      routerConfig: router,
+      routerConfig: _router,
+      // Evita conflictos de Hero tags duplicados en SnackBars durante transiciones
+      builder: (context, child) => HeroControllerScope.none(child: child!),
     );
   }
 }

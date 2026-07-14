@@ -1,92 +1,12 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
 import 'team_members_list.dart';
 
-class SugerenciasTab extends StatefulWidget {
-  const SugerenciasTab({super.key});
-
-  @override
-  State<SugerenciasTab> createState() => _SugerenciasTabState();
-}
-
-class _SugerenciasTabState extends State<SugerenciasTab> {
-  String _selectedSkill = 'All Skills';
-  String _searchQuery = '';
-  Timer? _debounce;
-  final TextEditingController _searchController = TextEditingController();
-
-  final List<String> _skills = [
-    'All Skills',
-    'React',
-    'Python',
-    'AI/ML',
-    'UI/UX',
-    'Flutter',
-    'Go',
-  ];
-
-  @override
-  void dispose() {
-    _debounce?.cancel();
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  void _onSearchChanged(String query, TeamsProvider provider) {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () {
-      setState(() {
-        _searchQuery = query;
-      });
-      provider.fetchSuggestions(skill: _selectedSkill, search: _searchQuery);
-    });
-  }
-
-  void _showFilterSheet(BuildContext context, TeamsProvider provider) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return Container(
-          padding: const EdgeInsets.symmetric(vertical: 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Filtrar por Tecnología',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              Flexible(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: _skills.length,
-                  itemBuilder: (context, index) {
-                    final skill = _skills[index];
-                    return ListTile(
-                      title: Text(skill),
-                      trailing: _selectedSkill == skill ? const Icon(Icons.check, color: Colors.blue) : null,
-                      onTap: () {
-                        setState(() {
-                          _selectedSkill = skill;
-                        });
-                        provider.fetchSuggestions(skill: _selectedSkill, search: _searchQuery);
-                        Navigator.pop(context);
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+class SugerenciasTab extends StatelessWidget {
+  final bool isFiltering;
+  
+  const SugerenciasTab({super.key, this.isFiltering = false});
 
   @override
   Widget build(BuildContext context) {
@@ -95,64 +15,10 @@ class _SugerenciasTabState extends State<SugerenciasTab> {
     return Consumer<TeamsProvider>(
       builder: (context, provider, child) {
         final suggestions = provider.suggestions;
-        final isFiltering = _selectedSkill != 'All Skills' || _searchQuery.isNotEmpty;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Search Bar and Filter
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      onChanged: (val) => _onSearchChanged(val, provider),
-                      decoration: InputDecoration(
-                        hintText: 'Buscar compañero...',
-                        prefixIcon: const Icon(Icons.search),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: colorScheme.outlineVariant),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: colorScheme.outlineVariant),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: colorScheme.primary),
-                        ),
-                        filled: true,
-                        fillColor: colorScheme.surface,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  InkWell(
-                    onTap: () => _showFilterSheet(context, provider),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: _selectedSkill != 'All Skills' ? colorScheme.primaryContainer : colorScheme.surface,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: _selectedSkill != 'All Skills' ? colorScheme.primary : colorScheme.outlineVariant,
-                        ),
-                      ),
-                      child: Icon(
-                        Icons.filter_list,
-                        color: _selectedSkill != 'All Skills' ? colorScheme.onPrimaryContainer : colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            
             // Header Text (Recomendados vs Resultados)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -189,7 +55,7 @@ class _SugerenciasTabState extends State<SugerenciasTab> {
                                 ),
                                 const SizedBox(height: 16),
                                 ElevatedButton.icon(
-                                  onPressed: () => provider.fetchSuggestions(skill: _selectedSkill, search: _searchQuery),
+                                  onPressed: () => provider.fetchSuggestions(), // TeamProvider will use previous values if modified or we just let it fetch default
                                   icon: const Icon(Icons.refresh),
                                   label: const Text('Reintentar'),
                                 ),
@@ -199,7 +65,7 @@ class _SugerenciasTabState extends State<SugerenciasTab> {
                         )
                       : suggestions.isEmpty
                           ? RefreshIndicator(
-                              onRefresh: () => provider.fetchSuggestions(skill: _selectedSkill, search: _searchQuery),
+                              onRefresh: () => provider.fetchSuggestions(),
                               child: ListView(
                                 physics: const AlwaysScrollableScrollPhysics(),
                                 children: [
@@ -219,7 +85,7 @@ class _SugerenciasTabState extends State<SugerenciasTab> {
                               ),
                             )
                           : RefreshIndicator(
-                              onRefresh: () => provider.fetchSuggestions(skill: _selectedSkill, search: _searchQuery),
+                              onRefresh: () => provider.fetchSuggestions(),
                               child: ListView.builder(
                                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                                 itemCount: suggestions.length,

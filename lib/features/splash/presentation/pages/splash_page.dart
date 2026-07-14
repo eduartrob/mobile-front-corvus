@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:provider/provider.dart';
@@ -108,8 +107,8 @@ class _SplashPageState extends State<SplashPage>
                 opacity: _logoOpacity.value,
                 child: Transform.scale(
                   scale: _logoScale.value,
-                  child: SvgPicture.asset(
-                    'assets/icons/logo.svg',
+                  child: Image.asset(
+                    'assets/icons/logo2.png',
                     width: 120,
                     height: 120,
                   ),

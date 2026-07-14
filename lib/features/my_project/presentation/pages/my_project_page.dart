@@ -5,6 +5,8 @@ import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/features/my_project/presentation/provider/my_project_provider.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
+import 'package:mobile/features/my_project/presentation/widgets/innovation_card.dart';
+import 'package:mobile/features/my_project/presentation/pages/project_defense_chat_page.dart';
 import 'package:mobile/features/my_project/presentation/widgets/upload_zone_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/uploaded_file_item_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/fast_rag_analysis_widget.dart';
@@ -74,28 +76,33 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
     );
 
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: const CorvusTopBar(),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          final provider = context.read<MyProjectProvider>();
-          await provider.init(userId);
-        },
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppDimens.screenMargin),
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _ProjectPageHeader(userId: userId),
+      body: SafeArea(
+        bottom: false,
+        child: RefreshIndicator(
+          onRefresh: () async {
+            final provider = context.read<MyProjectProvider>();
+            await provider.init(userId, forceRefresh: true);
+          },
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: AppDimens.screenMargin),
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 12),
+                _ProjectPageHeader(userId: userId),
 
-            const SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-            RepaintBoundary(
-              child: _ProjectPageBody(userId: userId),
-            ),
+              RepaintBoundary(
+                child: _ProjectPageBody(userId: userId),
+              ),
 
-            const SizedBox(height: 100),
-          ],
+              const SizedBox(height: 100),
+            ],
+          ),
         ),
       ),
       ),
@@ -118,6 +125,7 @@ class _ProjectPageHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
               child: Text(
@@ -125,9 +133,9 @@ class _ProjectPageHeader extends StatelessWidget {
                     ? l10n.detailedAnalysisTitle
                     : l10n.preValidationTitle,
                 style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: colorScheme.onSurface.withValues(alpha: 0.85),
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurface,
                 ),
               ),
             ),
@@ -143,11 +151,18 @@ class _ProjectPageHeader extends StatelessWidget {
               ),
               textStyle: TextStyle(color: colorScheme.onInverseSurface, fontSize: 14),
               child: IconButton(
-                icon: Icon(Icons.info_outline, color: colorScheme.onSurfaceVariant),
+                icon: Icon(Icons.info_outline, color: colorScheme.onSurfaceVariant, size: 20),
                 onPressed: () {}, // Tooltip handles tap
               ),
             ),
           ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          state == ProjectState.detailedAnalysis
+              ? l10n.detailedAnalysisDesc
+              : l10n.preValidationDesc,
+          style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
         ),
       ],
     );
@@ -280,9 +295,36 @@ class _ProjectPageBody extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final provider = context.watch<MyProjectProvider>();
 
-    return Column(
-      children: [
-        if (provider.errorMessage != null && provider.documentTypeError == null)
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 500),
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        return FadeTransition(
+          opacity: animation,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.1),
+              end: Offset.zero,
+            ).animate(CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+            )),
+            child: child,
+          ),
+        );
+      },
+      layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
+        return Stack(
+          alignment: Alignment.topCenter,
+          children: <Widget>[
+            ...previousChildren,
+            if (currentChild != null) currentChild,
+          ],
+        );
+      },
+      child: Column(
+        key: ValueKey('project_page_body_base'),
+        children: [
+          if (provider.errorMessage != null && provider.documentTypeError == null)
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(color: colorScheme.errorContainer, borderRadius: BorderRadius.circular(12)),
@@ -304,16 +346,19 @@ class _ProjectPageBody extends StatelessWidget {
             ),
           ),
 
-        if (provider.documentTypeError != null)
-          InvalidDocumentWidget(
-            provider: provider,
-            userId: userId,
-            specificError: provider.documentTypeError!,
-          ),
+          if (provider.documentTypeError != null)
+            InvalidDocumentWidget(
+              provider: provider,
+              userId: userId,
+              specificError: provider.documentTypeError!,
+            ),
 
-        // Show skeleton while loading initial state (provider is initializing in background)
-        if (provider.state == ProjectState.initial)
-          const _ProjectLoadingSkeleton(),
+          // Show skeleton while loading initial state (provider is initializing in background)
+          if (provider.state == ProjectState.initial)
+            const _ProjectLoadingSkeleton(),
+
+        if (provider.state != ProjectState.initial)
+          _ProjectRequirementsWidget(provider: provider),
 
         // Show upload zone only after init resolved AND there's an error (no analysis found)
         if (provider.state == ProjectState.error && provider.documentTypeError == null)
@@ -468,61 +513,91 @@ class _ProjectPageBody extends StatelessWidget {
         ],
 
         if (provider.state == ProjectState.detailedAnalysis) ...[
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: ElevatedButton.icon(
-              onPressed: () async {
-                final teamsProvider = context.read<TeamsProvider>();
-                if (teamsProvider.myTeam == null) {
-                  await teamsProvider.fetchMyTeam();
-                }
-                
-                final myTeam = teamsProvider.myTeam;
-                if (myTeam == null) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No tienes un equipo asignado. Ve a la pestaña Equipos primero.')));
+          if (!provider.hasPassedDefense)
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProjectDefenseChatPage(
+                        userId: userId,
+                        proposalSummary: provider.detailedAnalysis?['verdict'] ?? 'Propuesta de innovación',
+                        analysisResult: provider.detailedAnalysis ?? {},
+                      ),
+                    ),
+                  );
+                  if (result != null && result is List<Map<String, String>>) {
+                    provider.setDefensePassed(result);
                   }
-                  return;
-                }
-                
-                final auth = context.read<AuthProvider>();
-                final isLeader = myTeam.members.isNotEmpty && (myTeam.members[0].id == userId || myTeam.members[0].email == auth.currentUser?.email);
-                if (!isLeader) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Solo el líder del equipo puede enviar la propuesta a revisión final.'),
-                        backgroundColor: Colors.orange,
-                      )
-                    );
+                },
+                icon: const Icon(Icons.security, size: 18),
+                label: const Text('Defender Propuesta ante IA', style: TextStyle(fontWeight: FontWeight.bold)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colorScheme.tertiary,
+                  foregroundColor: colorScheme.onTertiary,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            )
+          else
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  final teamsProvider = context.read<TeamsProvider>();
+                  if (teamsProvider.myTeam == null) {
+                    await teamsProvider.fetchMyTeam();
                   }
-                  return;
-                }
+                  
+                  final myTeam = teamsProvider.myTeam;
+                  if (myTeam == null) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No tienes un equipo asignado. Ve a la pestaña Equipos primero.')));
+                    }
+                    return;
+                  }
+                  
+                  final auth = context.read<AuthProvider>();
+                  final isLeader = myTeam.members.isNotEmpty && (myTeam.members[0].id == userId || myTeam.members[0].email == auth.currentUser?.email);
+                  if (!isLeader) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Solo el líder del equipo puede enviar la propuesta a revisión final.'),
+                          backgroundColor: Colors.orange,
+                        )
+                      );
+                    }
+                    return;
+                  }
 
-                final success = await provider.sendFinalReview(
-                  teamId: myTeam.id,
-                  teamName: myTeam.name,
-                  memberNames: myTeam.members.map((m) => m.name).toList(),
-                );
-                if (success && context.mounted) {
-                   ScaffoldMessenger.of(context).showSnackBar(
-                     const SnackBar(
-                       content: Text('✅ Propuesta enviada a revisión final exitosamente.'),
-                       backgroundColor: Colors.green,
-                     ),
-                   );
-                }
-              },
-              icon: const Icon(Icons.send, size: 18),
-              label: const Text('Enviar a Revisión Final', style: TextStyle(fontWeight: FontWeight.bold)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: colorScheme.primary,
-                foregroundColor: colorScheme.onPrimary,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  final success = await provider.sendFinalReview(
+                    teamId: myTeam.id,
+                    teamName: myTeam.name,
+                    memberNames: myTeam.members.map((m) => m.name).toList(),
+                  );
+                  if (success && context.mounted) {
+                     ScaffoldMessenger.of(context).showSnackBar(
+                       const SnackBar(
+                         content: Text('✅ Propuesta enviada a revisión final exitosamente.'),
+                         backgroundColor: Colors.green,
+                       ),
+                     );
+                  }
+                },
+                icon: const Icon(Icons.send, size: 18),
+                label: const Text('Enviar a Revisión Final', style: TextStyle(fontWeight: FontWeight.bold)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
               ),
             ),
-          ),
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
@@ -541,6 +616,7 @@ class _ProjectPageBody extends StatelessWidget {
           ),
         ],
       ],
+    ),
     );
   }
 }
@@ -596,6 +672,157 @@ class _PreValidationLoadingTextWidget extends StatelessWidget {
             ),
             textAlign: TextAlign.center,
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProjectRequirementsWidget extends StatelessWidget {
+  final MyProjectProvider provider;
+
+  const _ProjectRequirementsWidget({required this.provider});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: colorScheme.secondaryContainer.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: colorScheme.secondary.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.assignment, color: colorScheme.secondary, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Requisitos del Profesor',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          if (provider.projectSections.isNotEmpty) ...[
+            Text(
+              'Estructura esperada:',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                color: colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: provider.projectSections.map((sectionMap) {
+                final name = sectionMap['nombre'] as String? ?? '';
+                final isObligatory = sectionMap['obligatoria'] as bool? ?? false;
+                final descripcion = sectionMap['descripcion'] as String?;
+
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              name,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                                color: colorScheme.onSurface,
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: isObligatory ? colorScheme.primaryContainer.withValues(alpha: 0.5) : colorScheme.surfaceContainerHighest,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              isObligatory ? 'Obligatoria' : 'Opcional',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                color: isObligatory ? colorScheme.onPrimaryContainer : colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (descripcion != null && descripcion.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          descripcion,
+                          style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
+                        ),
+                      ],
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 16),
+          ],
+          if (provider.exclusionRules.isNotEmpty) ...[
+            Text(
+              'Temas bloqueados:',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                color: colorScheme.error,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: provider.exclusionRules.map((rule) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: colorScheme.errorContainer.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: colorScheme.error.withValues(alpha: 0.5)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.block, size: 12, color: colorScheme.error),
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: Text(
+                          rule,
+                          style: TextStyle(fontSize: 12, color: colorScheme.onErrorContainer),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
         ],
       ),
     );
