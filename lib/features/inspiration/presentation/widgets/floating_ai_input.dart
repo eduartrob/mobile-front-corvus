@@ -264,9 +264,16 @@ class _FloatingAiInputState extends State<FloatingAiInput>
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      _ideaResult!,
-                      style: TextStyle(fontSize: 14, color: colorScheme.onSurface),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxHeight: MediaQuery.of(context).size.height * 0.45,
+                      ),
+                      child: SingleChildScrollView(
+                        child: Text(
+                          _ideaResult!,
+                          style: TextStyle(fontSize: 14, color: colorScheme.onSurface),
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 16),
                     Align(
