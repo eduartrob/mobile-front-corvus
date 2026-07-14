@@ -1,6 +1,10 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:provider/provider.dart';
+import 'package:mobile/features/inspiration/presentation/provider/inspiration_provider.dart';
 
 class FloatingAiInput extends StatefulWidget {
   final bool isVisible;
@@ -16,6 +20,11 @@ class _FloatingAiInputState extends State<FloatingAiInput>
     with SingleTickerProviderStateMixin {
   bool _isMinimized = false;
   bool _isInitialized = false;
+  
+  bool _isLoading = false;
+  String? _ideaResult;
+  final TextEditingController _textController = TextEditingController();
+  
   late AnimationController _animController;
   late Animation<Offset> _slideAnim;
   late Animation<double> _fadeAnim;
@@ -63,6 +72,7 @@ class _FloatingAiInputState extends State<FloatingAiInput>
   @override
   void dispose() {
     _animController.dispose();
+    _textController.dispose();
     super.dispose();
   }
 
@@ -90,7 +100,7 @@ class _FloatingAiInputState extends State<FloatingAiInput>
             alignment: Alignment.bottomLeft,
             children: <Widget>[
               ...previousChildren,
-              ?currentChild,
+              if (currentChild != null) currentChild,
             ],
           );
         },
@@ -154,93 +164,144 @@ class _FloatingAiInputState extends State<FloatingAiInput>
             ),
             boxShadow: [
               BoxShadow(
-              color: Color(0x595B8DEF), // softBlue ~35% opacity
-              blurRadius: 18,
-              spreadRadius: 0,
-              offset: Offset(4, 6),
-            ),
-          ],
-        ),
-        child: const Icon(
-          Icons.auto_awesome,
-          color: Colors.white,
-          size: 26,
+                color: Color(0x595B8DEF),
+                blurRadius: 18,
+                spreadRadius: 0,
+                offset: Offset(4, 6),
+              ),
+            ],
+          ),
+          child: const Icon(
+            Icons.auto_awesome,
+            color: Colors.white,
+            size: 26,
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
-  // ─── Expanded glass card ────────────────────────────────────────────────────
+  // ─── Expanded floating card ─────────────────────────────────────────────────
   Widget _buildExpandedState(ColorScheme colorScheme, AppLocalizations l10n) {
     return SlideTransition(
       position: _slideAnim,
       child: FadeTransition(
         opacity: _fadeAnim,
-        child: Container(
-          key: const ValueKey('expanded'),
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.12),
-                blurRadius: 24,
-                spreadRadius: 0,
-                offset: const Offset(0, 8),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+            child: Container(
+              key: const ValueKey('expanded'),
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFF5B8DEF).withValues(alpha: 0.32),
+                    const Color(0xFF4A7DE0).withValues(alpha: 0.26),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.55),
+                  width: 1,
+                ),
               ),
-            ],
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainer,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                    // ── Header row ──
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.auto_awesome,
-                                color: colorScheme.secondary, size: 18),
-                            const SizedBox(width: 8),
-                            Text(
-                              l10n.generateIdeas,
-                              style: TextStyle(
-                                color: colorScheme.secondary,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // ── Header row ──
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF5B8DEF).withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                          ],
-                        ),
-                        InkWell(
-                          onTap: () async {
-                            FocusScope.of(context).unfocus();
-                            setState(() => _isMinimized = true);
-                            final prefs = await SharedPreferences.getInstance();
-                            await prefs.setBool('floating_ai_minimized', true);
-                          },
-                          borderRadius: BorderRadius.circular(20),
-                          child: Padding(
-                            padding: const EdgeInsets.all(4.0),
-                            child: Icon(Icons.close,
-                                color: colorScheme.onSurfaceVariant, size: 20),
+                            child: const Icon(Icons.auto_awesome,
+                                color: Color(0xFF5B8DEF), size: 18),
                           ),
+                          const SizedBox(width: 10),
+                          Text(
+                            l10n.generateIdeas,
+                            style: TextStyle(
+                              color: colorScheme.onSurface.withValues(alpha: 0.85),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      InkWell(
+                        onTap: () async {
+                          FocusScope.of(context).unfocus();
+                          setState(() => _isMinimized = true);
+                          final prefs = await SharedPreferences.getInstance();
+                          await prefs.setBool('floating_ai_minimized', true);
+                        },
+                        borderRadius: BorderRadius.circular(20),
+                        child: Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: Icon(Icons.close,
+                              color: colorScheme.onSurfaceVariant, size: 20),
                         ),
-                      ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  if (_ideaResult != null) ...[
+                    // Result view
+                    Text(
+                      "Veredicto del Asesor AI",
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 8),
                     Text(
+                      _ideaResult!,
+                      style: TextStyle(fontSize: 14, color: colorScheme.onSurface),
+                    ),
+                    const SizedBox(height: 16),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            _ideaResult = null;
+                            _textController.clear();
+                          });
+                        },
+                        icon: const Icon(Icons.refresh, size: 16),
+                        label: const Text("Consultar otra idea"),
+                      ),
+                    ),
+                  ] else if (_isLoading) ...[
+                    // Loading view
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24.0),
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
+                    Center(
+                      child: Text(
+                        "Analizando reglas y proyectos similares...",
+                        style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
+                      ),
+                    ),
+                  ] else ...[
+                    // Default input view
+                    Text(
                       l10n.lookingForSomethingDifferent,
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.w700, color: colorScheme.onSurface),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -252,9 +313,8 @@ class _FloatingAiInputState extends State<FloatingAiInput>
                     // ── Search input ──
                     Container(
                       decoration: BoxDecoration(
-                        color: colorScheme.surfaceContainerHighest
-                            .withValues(alpha: 0.7),
-                        borderRadius: BorderRadius.circular(12),
+                        color: colorScheme.surface,
+                        borderRadius: BorderRadius.circular(16),
                       ),
                       child: Row(
                         children: [
@@ -263,42 +323,33 @@ class _FloatingAiInputState extends State<FloatingAiInput>
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 16.0),
                               child: TextField(
+                                controller: _textController,
                                 decoration: InputDecoration(
                                   hintText: l10n.searchPlaceholder,
                                   border: InputBorder.none,
                                   hintStyle: TextStyle(
                                       color: colorScheme.onSurfaceVariant),
                                 ),
-                                style: const TextStyle(fontSize: 14),
+                                style: TextStyle(fontSize: 14, color: colorScheme.onSurface),
+                                onSubmitted: (_) => _submitIdea(context),
                               ),
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: const EdgeInsets.all(6.0),
                             child: Material(
-                              color: colorScheme.primary,
-                              borderRadius: BorderRadius.circular(8),
+                              color: const Color(0xFF5B8DEF),
+                              borderRadius: BorderRadius.circular(12),
                               child: InkWell(
-                                onTap: () {
-                                  FocusScope.of(context).unfocus();
-                                  ScaffoldMessenger.of(context)
-                                      .hideCurrentSnackBar();
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(l10n.featureUpcoming),
-                                      behavior: SnackBarBehavior.floating,
-                                      duration: const Duration(seconds: 2),
-                                    ),
-                                  );
-                                },
-                                borderRadius: BorderRadius.circular(8),
+                                onTap: () => _submitIdea(context),
+                                borderRadius: BorderRadius.circular(12),
                                 child: Container(
-                                  padding: const EdgeInsets.all(8),
+                                  padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: Icon(Icons.send,
-                                      color: colorScheme.onPrimary, size: 18),
+                                  child: const Icon(Icons.send,
+                                      color: Colors.white, size: 18),
                                 ),
                               ),
                             ),
@@ -307,11 +358,32 @@ class _FloatingAiInputState extends State<FloatingAiInput>
                       ),
                     ),
                   ],
-                ),
+                ],
               ),
             ),
           ),
-        );
+        ),
+      ),
+    );
+  }
+
+  Future<void> _submitIdea(BuildContext context) async {
+    final text = _textController.text.trim();
+    if (text.isEmpty) return;
+    
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _isLoading = true;
+    });
+
+    final provider = context.read<InspirationProvider>();
+    final result = await provider.validateIdea(text);
+    
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+        _ideaResult = result;
+      });
+    }
   }
 }
-

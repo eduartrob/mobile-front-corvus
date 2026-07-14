@@ -154,4 +154,23 @@ class MyProjectRemoteDataSource {
       throw Exception(msg);
     }
   }
+
+  Future<Map<String, dynamic>?> getFinalReviewStatus(String teamId) async {
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/final-reviews/team/$teamId');
+
+    try {
+      final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
+      final response = await client.get(url, headers: headers).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        return json.decode(utf8.decode(response.bodyBytes))['review'];
+      } else if (response.statusCode == 404) {
+        return null;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      return null;
+    }
+  }
 }

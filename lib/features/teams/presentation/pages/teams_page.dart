@@ -39,13 +39,14 @@ class _TeamsPageState extends State<TeamsPage> {
       length: 3,
       initialIndex: widget.initialTabIndex,
       child: Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: const CorvusTopBar(),
         body: Column(
           children: [
             // TabBar container
             Container(
               decoration: BoxDecoration(
-                color: colorScheme.surface,
+                color: Theme.of(context).colorScheme.surface,
                 border: Border(
                   bottom: BorderSide(
                     color: colorScheme.outlineVariant.withValues(alpha: 0.4),

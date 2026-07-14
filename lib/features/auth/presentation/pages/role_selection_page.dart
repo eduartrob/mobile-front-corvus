@@ -1,8 +1,12 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/core/theme/app_dimens.dart';
 import 'package:mobile/core/services/security_service.dart';
+import 'package:mobile/l10n/app_localizations.dart';
+import 'package:mobile/shared/widgets/auth_action_button.dart';
+import 'package:mobile/shared/widgets/auth_scaffold.dart';
+import 'package:mobile/shared/widgets/role_selector.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class RoleSelectionPage extends StatefulWidget {
   const RoleSelectionPage({super.key});
@@ -11,187 +15,217 @@ class RoleSelectionPage extends StatefulWidget {
   State<RoleSelectionPage> createState() => _RoleSelectionPageState();
 }
 
-class _RoleSelectionPageState extends State<RoleSelectionPage> {
+class _RoleSelectionPageState extends State<RoleSelectionPage>
+    with TickerProviderStateMixin {
   final SecurityService _securityService = SecurityService();
+  String _selectedRole = 'ALUMNO';
+  late AnimationController _animationController;
+  late AnimationController _orbController; // orbes de fondo
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
     super.initState();
     _securityService.preventScreenshots(true);
+
+    // Animación de entrada de UI
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.08),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+        parent: _animationController, curve: Curves.easeOutCubic));
+    _animationController.forward();
   }
 
   @override
   void dispose() {
     _securityService.preventScreenshots(false);
+    _animationController.dispose();
     super.dispose();
+  }
+
+  void _navigateToLogin() {
+    context.push('/login', extra: _selectedRole);
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final colors = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isStudent = _selectedRole.toUpperCase() == 'ALUMNO';
 
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height -
-                  MediaQuery.of(context).padding.top -
-                  MediaQuery.of(context).padding.bottom,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: AppDimens.screenMargin, vertical: 48.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 64,
-                    height: 64,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? colors.surfaceContainerHighest.withValues(alpha: 0.5)
-                          : colors.primaryContainer.withValues(alpha: 0.4),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: SvgPicture.asset(
-                      'assets/icons/logo.svg',
-                    ),
+    return AuthScaffold(
+      showLogo: false,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+      child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: SlideTransition(
+            position: _slideAnimation,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  l10n.selectRole,
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                    color: colors.onSurface,
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Corvus',
-                    style: TextStyle(
-                      fontSize: 36,
-                      fontWeight: FontWeight.w800,
-                      color: colors.onSurface,
-                      letterSpacing: -1,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  l10n.roleSelectionSubtitle,
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: colors.onSurfaceVariant,
+                    height: 1.4,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 32),
+                ScaleTransition(
+                  scale: Tween<double>(begin: 0.9, end: 1.0).animate(
+                    CurvedAnimation(
+                      parent: _animationController,
+                      curve: const Interval(0.2, 0.6, curve: Curves.easeOutBack),
                     ),
                   ),
-                  Container(
-                    margin: const EdgeInsets.only(top: 8, bottom: 40),
-                    height: 4,
-                    width: 48,
-                    decoration: BoxDecoration(
-                      color: colors.primary,
-                      borderRadius: BorderRadius.circular(2),
+                  child: RoleSelector(
+                    selectedRole: _selectedRole,
+                    onRoleChanged: (role) => setState(() => _selectedRole = role),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                ScaleTransition(
+                  scale: Tween<double>(begin: 0.9, end: 1.0).animate(
+                    CurvedAnimation(
+                      parent: _animationController,
+                      curve: const Interval(0.4, 0.8, curve: Curves.easeOutBack),
                     ),
                   ),
-                  Text(
-                    'Bienvenido de nuevo',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: colors.onSurface,
+                  child: _RolePreview(isStudent: isStudent, colors: colors),
+                ),
+                const SizedBox(height: 40),
+                ScaleTransition(
+                  scale: Tween<double>(begin: 0.8, end: 1.0).animate(
+                    CurvedAnimation(
+                      parent: _animationController,
+                      curve: const Interval(0.6, 1.0, curve: Curves.easeOutBack),
                     ),
-                    textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Selecciona el rol con el que\ndeseas ingresar a la plataforma',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: colors.onSurfaceVariant,
-                      height: 1.5,
+                  child: FadeTransition(
+                    opacity: Tween<double>(begin: 0.7, end: 1.0).animate(
+                      CurvedAnimation(
+                        parent: _animationController,
+                        curve: const Interval(0.6, 1.0),
+                      ),
                     ),
-                    textAlign: TextAlign.center,
+                    child: AuthActionButton(
+                      text: 'Iniciar',
+                      icon: Icons.arrow_forward_rounded,
+                      onPressed: _navigateToLogin,
+                    ),
                   ),
-                  const SizedBox(height: 48),
-                  _RoleButton(
-                    title: 'Alumno',
-                    icon: Icons.person,
-                    onTap: () {
-                      context.push('/login', extra: 'ALUMNO');
-                    },
-                    isDark: isDark,
-                    colors: colors,
-                    customIconColor: Colors.blueAccent,
-                  ),
-                  const SizedBox(height: 24),
-                  _RoleButton(
-                    title: 'Docente',
-                    icon: Icons.school,
-                    onTap: () {
-                      context.push('/login', extra: 'DOCENTE');
-                    },
-                    isDark: isDark,
-                    colors: colors,
-                    customIconColor: Colors.purpleAccent,
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 24),
+                AuthFooter(
+                  primaryText: '${l10n.termsOfUse} ',
+                  actionText: l10n.termsOfService,
+                  onActionTap: () async {
+                    final url = Uri.parse(
+                        'https://eduartrob.github.io/CORVUS/pages/terminos.html');
+                    await launchUrl(url, mode: LaunchMode.externalApplication);
+                  },
+                ),
+              ],
             ),
           ),
         ),
-      ),
     );
   }
 }
 
-class _RoleButton extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  final VoidCallback onTap;
-  final bool isDark;
+class _RolePreview extends StatelessWidget {
+  final bool isStudent;
   final ColorScheme colors;
-  final Color? customIconColor;
 
-  const _RoleButton({
-    required this.title,
-    required this.icon,
-    required this.onTap,
-    required this.isDark,
-    required this.colors,
-    this.customIconColor,
-  });
+  const _RolePreview({required this.isStudent, required this.colors});
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 24),
-        decoration: BoxDecoration(
-          color: isDark ? colors.surface : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isDark
-                ? colors.outlineVariant.withValues(alpha: 0.2)
-                : const Color(0xFFE2E8F0),
-            width: 1,
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 350),
+      transitionBuilder: (child, animation) {
+        return FadeTransition(
+          opacity: animation,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.08),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
           ),
-          boxShadow: isDark
-              ? [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.2),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+        );
+      },
+      child: Container(
+        key: ValueKey<bool>(isStudent),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: isStudent
+              ? colors.primaryContainer.withValues(alpha: 0.4)
+              : colors.tertiaryContainer.withValues(alpha: 0.4),
+          borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: customIconColor ?? colors.primary, size: 28),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: (isStudent ? colors.primary : colors.tertiary)
+                    .withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                isStudent ? Icons.school : Icons.co_present,
+                color: isStudent ? colors.primary : colors.tertiary,
+                size: 28,
+              ),
+            ),
             const SizedBox(width: 16),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: colors.onSurfaceVariant,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    isStudent ? 'Acceso para Alumnos' : 'Acceso para Docentes',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: colors.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    isStudent
+                        ? 'Explora proyectos, forma equipos y desarrolla tu propuesta académica.'
+                        : 'Revisa propuestas, gestiona reglas y supervisa el progreso de tus alumnos.',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: colors.onSurfaceVariant,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

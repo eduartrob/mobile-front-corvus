@@ -30,14 +30,7 @@ class CustomAnimatedBottomNavBar extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
-            Theme.of(context).colorScheme.primary.withValues(alpha: 0.02),
-          ],
-        ),
+        color: Theme.of(context).colorScheme.surfaceContainer,
       ),
       child: SafeArea(
         top: false,
@@ -77,6 +70,7 @@ class _CustomNavItemState extends State<CustomNavItem> with TickerProviderStateM
   late Animation<double> _bounceAnimation;
   late Animation<double> _rotateAnimation;
   late Animation<double> _scaleAnimation;
+  bool _isPressed = false;
 
   @override
   void initState() {
@@ -93,7 +87,7 @@ class _CustomNavItemState extends State<CustomNavItem> with TickerProviderStateM
       TweenSequenceItem(tween: Tween(begin: 0.0, end: -2.0).chain(CurveTween(curve: Curves.easeOutQuad)), weight: 20),
       TweenSequenceItem(tween: Tween(begin: -2.0, end: 0.0).chain(CurveTween(curve: Curves.easeInQuad)), weight: 20),
     ]).animate(CurvedAnimation(
-      parent: _controller, 
+      parent: _controller,
       curve: const Interval(0.0, 0.8),
     ));
 
@@ -129,20 +123,20 @@ class _CustomNavItemState extends State<CustomNavItem> with TickerProviderStateM
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final color = widget.isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant;
+    final color = widget.isSelected ? colorScheme.onPrimaryContainer : colorScheme.onSurfaceVariant;
 
-    return Material(
-      color: Colors.transparent,
-      child: InkResponse(
-        onTap: widget.onTap,
-        radius: 30,
-        splashColor: colorScheme.primary.withValues(alpha: 0.1),
-        highlightColor: colorScheme.primary.withValues(alpha: 0.05),
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, child) {
-            return SizedBox(
-              width: 70,
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) {
+        setState(() => _isPressed = false);
+        widget.onTap();
+      },
+      onTapCancel: () => setState(() => _isPressed = false),
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          return SizedBox(
+            width: 70,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -160,18 +154,28 @@ class _CustomNavItemState extends State<CustomNavItem> with TickerProviderStateM
                               width: 32,
                               height: 32,
                               decoration: BoxDecoration(
-                                color: colorScheme.primaryContainer, // Quitamos la opacidad para que el color sea sólido y más visible
-                                borderRadius: BorderRadius.circular(8),
+                                color: colorScheme.primaryContainer,
+                                borderRadius: BorderRadius.circular(12),
                               ),
                             ),
                           ),
                         ),
-                      Transform.translate(
-                        offset: Offset(0, _bounceAnimation.value),
-                        child: Icon(
-                          widget.isSelected ? widget.item.activeIcon : widget.item.icon,
-                          color: widget.isSelected ? colorScheme.onPrimaryContainer : color,
-                          size: 24,
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 120),
+                        curve: Curves.easeInOut,
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: _isPressed ? colorScheme.primary.withValues(alpha: 0.12) : Colors.transparent,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Transform.translate(
+                          offset: Offset(0, _bounceAnimation.value),
+                          child: Icon(
+                            widget.isSelected ? widget.item.activeIcon : widget.item.icon,
+                            color: widget.isSelected ? colorScheme.onPrimaryContainer : color,
+                            size: 24,
+                          ),
                         ),
                       ),
                     ],
@@ -193,7 +197,6 @@ class _CustomNavItemState extends State<CustomNavItem> with TickerProviderStateM
           );
         },
       ),
-    ),
-  );
-}
+    );
+  }
 }

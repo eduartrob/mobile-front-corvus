@@ -32,6 +32,26 @@ class TeamsRemoteDataSource {
     return null;
   }
 
+  // 📝 GET /final-reviews/team/<teamId>
+  Future<Map<String, dynamic>?> getFinalReviewStatus(String teamId) async {
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/final-reviews/team/$teamId');
+
+    try {
+      final response = await client.get(url, headers: ApiConfig.defaultHeaders).timeout(ApiConfig.connectionTimeout);
+
+      if (response.statusCode == 200) {
+        final body = json.decode(utf8.decode(response.bodyBytes));
+        return body['review'];
+      } else if (response.statusCode == 404) {
+        return null;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      return null;
+    }
+  }
+
   // 👥 PUT /teams/my-team
   Future<TeamModel> updateTeam(String name, String description, List<SocialLinkModel> socialLinks) async {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}/teams/my-team');

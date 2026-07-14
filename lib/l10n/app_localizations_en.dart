@@ -21,6 +21,91 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signingIn => 'Signing in...';
 
   @override
+  String get login => 'Log In';
+
+  @override
+  String get register => 'Sign Up';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get confirmPassword => 'Confirm Password';
+
+  @override
+  String get forgotPassword => 'Forgot password?';
+
+  @override
+  String get noAccount => 'Don\'t have an account?';
+
+  @override
+  String get haveAccount => 'Already have an account?';
+
+  @override
+  String get loginWithEmail => 'Log in with email';
+
+  @override
+  String get registerWithEmail => 'Sign up with email';
+
+  @override
+  String get orContinueWith => 'or continue with';
+
+  @override
+  String get orRegisterWith => 'or sign up with';
+
+  @override
+  String get student => 'Student';
+
+  @override
+  String get teacher => 'Teacher';
+
+  @override
+  String get selectRole => 'Select your role';
+
+  @override
+  String get roleSelectionSubtitle =>
+      'Choose how you want to access Corvus today.';
+
+  @override
+  String get loginAsStudent => 'Log in as Student';
+
+  @override
+  String get loginAsTeacher => 'Log in as Teacher';
+
+  @override
+  String get registerAsStudent => 'Sign up as Student';
+
+  @override
+  String get registerAsTeacher => 'Sign up as Teacher';
+
+  @override
+  String get welcomeTo => 'Welcome to';
+
+  @override
+  String get universityEmailHint => 'University email recommended';
+
+  @override
+  String get swipeToChange => 'Swipe to change role';
+
+  @override
+  String get invalidEmail => 'Please enter a valid email';
+
+  @override
+  String get invalidPassword => 'Password must be at least 6 characters';
+
+  @override
+  String get passwordMismatch => 'Passwords do not match';
+
+  @override
+  String get requiredField => 'This field is required';
+
+  @override
+  String get termsOfUse => 'By continuing, you agree to our';
+
+  @override
   String get unknownError => 'An unknown error occurred';
 
   @override
@@ -38,6 +123,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appTitle => 'Corvus';
+
+  @override
+  String get and => 'and';
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get termsOfService => 'Terms of Service';
 
   @override
   String get navInspiration => 'Inspiration';

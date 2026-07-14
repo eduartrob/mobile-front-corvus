@@ -37,7 +37,7 @@ class ProfReviewsRemoteDataSource {
   Future<FinalReviewModel> updateReviewStatus(
     String id, 
     String status, 
-    {String? appointmentDate, String? locationLink}
+    {String? appointmentDate, String? locationLink, String? reason}
   ) async {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}/final-reviews/$id/status');
 
@@ -48,6 +48,7 @@ class ProfReviewsRemoteDataSource {
       final bodyMap = <String, dynamic>{'status': status};
       if (appointmentDate != null) bodyMap['appointment_date'] = appointmentDate;
       if (locationLink != null) bodyMap['location_link'] = locationLink;
+      if (reason != null) bodyMap['reason'] = reason;
 
       final response = await client.patch(url, headers: headers, body: jsonEncode(bodyMap)).timeout(const Duration(seconds: 15));
 

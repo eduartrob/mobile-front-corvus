@@ -111,4 +111,23 @@ class InspirationRemoteDataSource {
       'https://ui-avatars.com/api/?name=${Uri.encodeComponent(names[i])}&background=${colors[i]}&color=fff'
     );
   }
+
+  Future<String> validateIdea(String idea) async {
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/validate-idea');
+    try {
+      final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
+      final body = json.encode({'idea': idea});
+      final response = await client.post(url, headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(utf8.decode(response.bodyBytes));
+        return data['result'] ?? 'Sin respuesta.';
+      } else {
+        return 'Ocurrió un error de conexión al validar la idea.';
+      }
+    } catch (e) {
+      debugPrint('Error en validateIdea: $e');
+      return 'Error al validar la idea. Inténtalo más tarde.';
+    }
+  }
 }

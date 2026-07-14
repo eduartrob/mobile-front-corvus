@@ -24,7 +24,6 @@ class ProfLoadProjectsPage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: colorScheme.secondaryContainer.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: colorScheme.secondary.withValues(alpha: 0.3)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,7 +57,6 @@ class ProfLoadProjectsPage extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: colorScheme.surface,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: colorScheme.outlineVariant),
                     ),
                     child: Row(
                       children: [

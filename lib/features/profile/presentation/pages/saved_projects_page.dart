@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/profile/presentation/providers/saved_projects_provider.dart';
-import 'package:mobile/features/inspiration/presentation/widgets/project_card.dart';
-import 'package:mobile/features/inspiration/presentation/pages/blue_ocean_detail_page.dart';
+import 'package:mobile/shared/widgets/project_card.dart';
 
 class SavedProjectsPage extends StatelessWidget {
   const SavedProjectsPage({super.key});
@@ -43,17 +42,7 @@ class SavedProjectsPage extends StatelessWidget {
                 final project = projects[index];
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12.0),
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => BlueOceanDetailPage(project: project),
-                        ),
-                      );
-                    },
-                    child: ProjectCard(project: project),
-                  ),
+                  child: ProjectCard(project: project),
                 );
               },
             ),

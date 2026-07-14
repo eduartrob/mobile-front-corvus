@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:mobile/shared/widgets/corvus_input_completed.dart';
 import 'package:mobile/shared/widgets/corvus_button.dart';
 import 'package:mobile/shared/widgets/auth_layout.dart';
 import 'package:mobile/core/services/security_service.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
-import 'package:mobile/features/auth/presentation/provider/registration_provider.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:mobile/core/network/api_config.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:provider/provider.dart';
+
 class TeacherVerificationPage extends StatefulWidget {
   const TeacherVerificationPage({super.key});
 
@@ -71,55 +67,40 @@ class _TeacherVerificationPageState extends State<TeacherVerificationPage> {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: colors.onSurface),
-          onPressed: () {
-            context.pop();
-          },
-        ),
+    return AuthLayout(
+      appTitle: 'Corvus',
+      cardTitle: 'Verificación Docente',
+      cardSubtitle: 'Ingresa el código de verificación que tu universidad te ha proporcionado para validar tu rol como docente.',
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back, color: colors.onSurface),
+        onPressed: () => context.pop(),
       ),
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            child: AuthLayout(
-              appTitle: 'Corvus',
-              cardTitle: 'Verificación Docente',
-              cardSubtitle: 'Ingresa el código de verificación que tu universidad te ha proporcionado para validar tu rol como docente.',
-              children: [
-                InputCompleted(
-                  label: "Código de Verificación",
-                  hint: "Ej. A7B2X9",
-                  icon: Icons.vpn_key,
-                  iconColor: Colors.deepPurple,
-                  controller: _codeController,
-                ),
-                if (_errorText != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0, left: 16.0),
-                    child: Text(
-                      _errorText!,
-                      style: TextStyle(color: colors.error, fontSize: 12),
-                    ),
-                  ),
-                const SizedBox(height: 32),
-                
-                CorvusButton(
-                  text: _isLoading ? "Validando..." : "Verificar y Continuar",
-                  onPressed: _isLoading ? () {} : () {
-                    FocusScope.of(context).unfocus();
-                    _validateCode();
-                  },
-                ),
-              ],
+      children: [
+        InputCompleted(
+          label: "Código de Verificación",
+          hint: "Ej. A7B2X9",
+          icon: Icons.vpn_key,
+          iconColor: Colors.deepPurple,
+          controller: _codeController,
+        ),
+        if (_errorText != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0, left: 16.0),
+            child: Text(
+              _errorText!,
+              style: TextStyle(color: colors.error, fontSize: 12),
             ),
           ),
+        const SizedBox(height: 32),
+        
+        CorvusButton(
+          text: _isLoading ? "Validando..." : "Verificar y Continuar",
+          onPressed: _isLoading ? () {} : () {
+            FocusScope.of(context).unfocus();
+            _validateCode();
+          },
         ),
-      ),
+      ],
     );
   }
 }

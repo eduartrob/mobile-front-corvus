@@ -2,11 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/shared/widgets/corvus_metric_card.dart';
-import 'package:mobile/shared/widgets/corvus_progress_item.dart';
-import 'package:mobile/shared/widgets/corvus_alert_item.dart';
+import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mobile/features/prof_dash/presentation/provider/prof_dash_provider.dart';
 
-class ProfDashPage extends StatelessWidget {
+class ProfDashPage extends StatefulWidget {
   const ProfDashPage({super.key});
+
+  @override
+  State<ProfDashPage> createState() => _ProfDashPageState();
+}
+
+class _ProfDashPageState extends State<ProfDashPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ProfDashboardProvider>().loadDashboardStats();
+    });
+  }
 
   void _showUpcomingFeature(BuildContext context, AppLocalizations l10n) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -26,134 +40,313 @@ class ProfDashPage extends StatelessWidget {
 
     return Scaffold(
       appBar: const CorvusTopBar(),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: CorvusMetricCard(
-                    label: 'EQUIPOS FORMADOS',
-                    value: '12',
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: CorvusMetricCard(
-                    label: 'PROPUESTAS LISTAS',
-                    value: '8 de 12 equipos',
-                    icon: Icons.description_outlined,
-                  ),
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 24),
-            
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
-              ),
+      body: Consumer<ProfDashboardProvider>(
+        builder: (context, provider, child) {
+          if (provider.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (provider.errorMessage != null) {
+            return Center(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Row(
+                  Text(provider.errorMessage!, style: TextStyle(color: colorScheme.error)),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => provider.loadDashboardStats(),
+                    child: const Text('Reintentar'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          final data = provider.dashboardData;
+          if (data == null) {
+            return const Center(child: Text('No hay datos disponibles.'));
+          }
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: CorvusMetricCard(
+                        label: 'EQUIPOS FORMADOS',
+                        value: '${data.totalTeams}',
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: CorvusMetricCard(
+                        label: 'PROPUESTAS LISTAS',
+                        value: '${data.readyProposals} de ${data.totalTeams} equipos',
+                        icon: Icons.description_outlined,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                // Tarjeta de Atención Requerida
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.bar_chart, color: colorScheme.primary),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'Avance General',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: colorScheme.tertiaryContainer,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Icon(Icons.notifications_active_outlined,
+                                size: 18, color: colorScheme.tertiary),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            'Atención Requerida',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.onSurface,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      if (data.alerts.isEmpty)
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: colorScheme.secondaryFixedDim.withValues(alpha: 0.5),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.check_circle_outline,
+                                  size: 20, color: colorScheme.secondaryFixed),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  'Todo al día. No hay elementos que requieran atención inmediata.',
+                                  style: TextStyle(
+                                    color: colorScheme.onSecondaryFixedVariant,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        ...data.alerts.map((alert) {
+                          // Seleccionar icono y paleta pastel por tipo de alerta
+                          IconData iconData = Icons.info_outline;
+                          if (alert.icon == 'error_outline') iconData = Icons.error_outline;
+                          if (alert.icon == 'warning_amber') iconData = Icons.warning_amber;
+
+                          Color bgColor = colorScheme.primaryContainer;
+                          Color fgColor = colorScheme.primary;
+                          if (alert.color == 'error') {
+                            bgColor = colorScheme.errorContainer;
+                            fgColor = colorScheme.error;
+                          } else if (alert.color == 'warning') {
+                            bgColor = colorScheme.tertiaryContainer;
+                            fgColor = colorScheme.tertiary;
+                          } else {
+                            bgColor = colorScheme.secondaryFixedDim;
+                            fgColor = colorScheme.secondaryFixed;
+                          }
+
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 10.0),
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: bgColor.withValues(alpha: 0.5),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(iconData, size: 20, color: fgColor),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      alert.text,
+                                      style: TextStyle(
+                                        color: colorScheme.onSurface,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          onPressed: () => context.go('/prof-reviews'),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: colorScheme.primary,
+                            foregroundColor: colorScheme.onPrimary,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            l10n.viewReports,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.2,
+                            ),
+                          ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
-                  CorvusProgressItem(
-                    label: 'Fase de Investigación',
-                    percentage: 85,
+                ),
+
+                const SizedBox(height: 24),
+
+                // Tarjeta de Métricas Rápidas
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  const SizedBox(height: 16),
-                  CorvusProgressItem(
-                    label: 'Definición del RAG',
-                    percentage: 60,
-                  ),
-                  const SizedBox(height: 16),
-                  CorvusProgressItem(
-                    label: 'Implementación Técnica',
-                    percentage: 25,
-                  ),
-                ],
-              ),
-            ),
-            
-            const SizedBox(height: 24),
-            
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Atención Requerida',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  CorvusAlertItem(
-                    icon: Icons.error_outline,
-                    iconColor: colorScheme.error,
-                    text: 'Equipo Delta - Propuesta rechazada, requiere feedback.',
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    child: Divider(),
-                  ),
-                  CorvusAlertItem(
-                    icon: Icons.info_outline,
-                    iconColor: colorScheme.primary,
-                    text: 'Revisión de pares - 3 equipos han completado la etapa.',
-                  ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () => _showUpcomingFeature(context, l10n),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colorScheme.primary,
-                        foregroundColor: colorScheme.onPrimary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: colorScheme.tertiaryFixedDim,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Icon(Icons.insights_outlined,
+                                size: 18, color: colorScheme.tertiaryFixed),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            'Métricas Rápidas',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.onSurface,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      _MetricRow(
+                        icon: Icons.group,
+                        bgColor: colorScheme.primaryContainer,
+                        fgColor: colorScheme.primary,
+                        text: '${data.metrics.studentsWithTeam} Alumnos con equipo',
+                      ),
+                      const SizedBox(height: 10),
+                      _MetricRow(
+                        icon: Icons.person_off,
+                        bgColor: colorScheme.errorContainer,
+                        fgColor: colorScheme.error,
+                        text: '${data.metrics.studentsWithoutTeam} Alumnos rezagados (sin equipo)',
+                      ),
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton(
+                          onPressed: () => _showUpcomingFeature(context, l10n),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            side: BorderSide(color: colorScheme.outline),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            foregroundColor: colorScheme.primary,
+                          ),
+                          child: const Text(
+                            'Ver Directorio de Alumnos Rezagados',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.2,
+                            ),
+                          ),
                         ),
                       ),
-                      child: Text(l10n.viewReports),
-                    ),
+                    ],
                   ),
-                ],
+                ),
+
+                const SizedBox(height: 100),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _MetricRow extends StatelessWidget {
+  final IconData icon;
+  final Color bgColor;
+  final Color fgColor;
+  final String text;
+
+  const _MetricRow({
+    required this.icon,
+    required this.bgColor,
+    required this.fgColor,
+    required this.text,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: bgColor.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: fgColor),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                color: colorScheme.onSurface,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
               ),
             ),
-            
-            const SizedBox(height: 100),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/l10n/app_localizations.dart';
@@ -88,6 +89,7 @@ class _ProfRulesPageView extends StatelessWidget {
     await provider.saveConfig(
       authorName: user?.name,
       authorPhotoUrl: user?.photoUrl,
+      authorId: user?.id,
     );
     if (context.mounted) {
       if (provider.errorMessage != null) {
@@ -223,6 +225,7 @@ class _ExclusionRulesTab extends StatelessWidget {
                             await provider.saveConfig(
                               authorName: user?.name,
                               authorPhotoUrl: user?.photoUrl,
+                              authorId: user?.id,
                             );
                             
                             messenger.hideCurrentSnackBar();
@@ -306,7 +309,9 @@ class _ProjectStructureTab extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
+          const _TeamLimitsEditor(),
+          const SizedBox(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -321,11 +326,6 @@ class _ProjectStructureTab extends StatelessWidget {
                     onPressed: provider.isLoading ? null : () => _addSectionDialog(context, provider),
                     icon: Icon(Icons.add_circle, color: colorScheme.primary),
                     tooltip: 'Añadir sección manual',
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: provider.isLoading ? null : () => _generateSectionsDialog(context, provider),
-                    icon: const Icon(Icons.auto_awesome),
-                    label: const Text('IA'),
                   ),
                 ],
               ),
@@ -352,6 +352,7 @@ class _ProjectStructureTab extends StatelessWidget {
                 final name = section['nombre'] ?? '';
                 final isObligatory = section['obligatoria'] ?? false;
                 final keywords = (section['keywords'] as List<dynamic>?)?.map((e) => e.toString()).join(', ') ?? '';
+                final descripcion = section['descripcion'] as String?;
 
                 return Card(
                   margin: const EdgeInsets.only(bottom: 12),
@@ -395,6 +396,14 @@ class _ProjectStructureTab extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 8),
+                        const SizedBox(height: 8),
+                        if (descripcion != null && descripcion.isNotEmpty) ...[
+                          Text(
+                            descripcion,
+                            style: TextStyle(fontSize: 14, color: colorScheme.onSurface),
+                          ),
+                          const SizedBox(height: 4),
+                        ],
                         Text(
                           'Palabras clave: $keywords',
                           style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
@@ -414,6 +423,7 @@ class _ProjectStructureTab extends StatelessWidget {
 
   void _addSectionDialog(BuildContext context, ProfRulesProvider provider) {
     final nameController = TextEditingController();
+    final descController = TextEditingController();
 
     bool isObligatory = true;
     final colorScheme = Theme.of(context).colorScheme;
@@ -481,6 +491,28 @@ class _ProjectStructureTab extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
+
+                      // TextField de Descripción
+                      TextField(
+                        controller: descController,
+                        maxLines: 2,
+                        decoration: InputDecoration(
+                          labelText: 'Descripción (Opcional)',
+                          hintText: 'Ej. Escribe un resumen de...',
+                          filled: true,
+                          fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
                       
 
                       
@@ -527,8 +559,9 @@ class _ProjectStructureTab extends StatelessWidget {
                               ),
                               onPressed: () {
                                 final name = nameController.text.trim();
+                                final desc = descController.text.trim();
                                 if (name.isNotEmpty) {
-                                  provider.addSection(name, [], isObligatory);
+                                  provider.addSection(name, [], isObligatory, descripcion: desc);
                                   Navigator.pop(ctx);
                                 }
                               },
@@ -545,31 +578,6 @@ class _ProjectStructureTab extends StatelessWidget {
           },
         );
       },
-    );
-  }
-
-  void _generateSectionsDialog(BuildContext context, ProfRulesProvider provider) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Generar con IA'),
-        content: const Text(
-          'Esto reemplazará las secciones actuales con una estructura sugerida por el modelo de IA configurado para un proyecto integrador. ¿Deseas continuar?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
-          ),
-          FilledButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              provider.generateSectionsWithAI();
-            },
-            child: const Text('Generar'),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -664,3 +672,131 @@ class _ProfRulesLoadingSkeletonState extends State<_ProfRulesLoadingSkeleton> wi
   }
 }
 
+class _TeamLimitsEditor extends StatefulWidget {
+  const _TeamLimitsEditor();
+
+  @override
+  State<_TeamLimitsEditor> createState() => _TeamLimitsEditorState();
+}
+
+class _TeamLimitsEditorState extends State<_TeamLimitsEditor> {
+  late TextEditingController _minController;
+  late TextEditingController _maxController;
+  late FocusNode _minFocus;
+  late FocusNode _maxFocus;
+
+  @override
+  void initState() {
+    super.initState();
+    final provider = context.read<ProfRulesProvider>();
+    _minController = TextEditingController(text: provider.minTeamMembers.toString());
+    _maxController = TextEditingController(text: provider.maxTeamMembers.toString());
+    _minFocus = FocusNode()..addListener(_onFocusChange);
+    _maxFocus = FocusNode()..addListener(_onFocusChange);
+  }
+
+  @override
+  void dispose() {
+    _minController.dispose();
+    _maxController.dispose();
+    _minFocus.dispose();
+    _maxFocus.dispose();
+    super.dispose();
+  }
+
+  void _onFocusChange() {
+    if (!_minFocus.hasFocus && !_maxFocus.hasFocus) {
+      int min = int.tryParse(_minController.text) ?? 1;
+      int max = int.tryParse(_maxController.text) ?? 5;
+
+      if (min < 1) min = 1;
+      if (max < min) max = min;
+
+      if (_minController.text != min.toString()) {
+        _minController.text = min.toString();
+      }
+      if (_maxController.text != max.toString()) {
+        _maxController.text = max.toString();
+      }
+      
+      _updateLimits();
+    }
+  }
+
+  void _updateLimits() {
+    final provider = context.read<ProfRulesProvider>();
+    final min = int.tryParse(_minController.text) ?? 1;
+    final max = int.tryParse(_maxController.text) ?? 5;
+    provider.updateTeamLimits(min, max);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
+      ),
+      elevation: 0,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Límites de Integrantes por Equipo',
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Define la cantidad mínima y máxima de alumnos permitidos por cada proyecto.',
+              style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _minController,
+                    focusNode: _minFocus,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration: InputDecoration(
+                      labelText: 'Mínimo',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    ),
+                    onChanged: (_) => _updateLimits(),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text('a', style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+                Expanded(
+                  child: TextField(
+                    controller: _maxController,
+                    focusNode: _maxFocus,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration: InputDecoration(
+                      labelText: 'Máximo',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    ),
+                    onChanged: (_) => _updateLimits(),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Icon(Icons.group, color: colorScheme.onSurfaceVariant),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

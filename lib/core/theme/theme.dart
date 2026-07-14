@@ -5,84 +5,104 @@ class MaterialTheme {
 
   const MaterialTheme(this.textTheme);
 
-  
   static ColorScheme lightScheme() {
     return const ColorScheme(
       brightness: Brightness.light,
-      primary: Color(0xFF1E40AF),
+      // Primary: azul lavanda pastel
+      primary: Color(0xFF6B7CE8),
       onPrimary: Color(0xFFFFFFFF),
-      primaryContainer: Color(0xFFDBEAFE),
-      onPrimaryContainer: Color(0xFF00288E),
-      
-      secondary: Color(0xFF795900),
+      primaryContainer: Color(0xFFE3E7FB),
+      onPrimaryContainer: Color(0xFF1E2868),
+
+      // Secondary: gris cálido pastel
+      secondary: Color(0xFF9CA3B8),
       onSecondary: Color(0xFFFFFFFF),
-      secondaryContainer: Color(0xFFFFC329),
-      onSecondaryContainer: Color(0xFF6F5100),
-      
-      tertiary: Color(0xFF323537),
+      secondaryContainer: Color(0xFFEAE7DE),
+      onSecondaryContainer: Color(0xFF1A1A1A),
+
+      // Tertiary: durazno pastel (acento cálido)
+      tertiary: Color(0xFFE89B6C),
       onTertiary: Color(0xFFFFFFFF),
-      tertiaryContainer: Color(0xFF484C4E),
-      onTertiaryContainer: Color(0xFFB9BCBE),
-      
-      error: Color(0xFFB91C1C),
+      tertiaryContainer: Color(0xFFFAE0CE),
+      onTertiaryContainer: Color(0xFF4A2510),
+
+      // Acento menta pastel
+      secondaryFixed: Color(0xFF7FC4A8),
+      onSecondaryFixed: Color(0xFFFFFFFF),
+      secondaryFixedDim: Color(0xFFD1F0E1),
+      onSecondaryFixedVariant: Color(0xFF0E3D2A),
+
+      // Acento lavanda pastel
+      tertiaryFixed: Color(0xFFB8A0D9),
+      onTertiaryFixed: Color(0xFFFFFFFF),
+      tertiaryFixedDim: Color(0xFFEAE0F7),
+      onTertiaryFixedVariant: Color(0xFF352570),
+
+      // Error coral pastel (no rojo saturado)
+      error: Color(0xFFE57373),
       onError: Color(0xFFFFFFFF),
-      errorContainer: Color(0xFFFFDAD6),
-      onErrorContainer: Color(0xFF93000A),
-      
-      surface: Color(0xFFF8F9FF),
-      onSurface: Color(0xFF0D1C2E),
-      surfaceContainerHighest: Color(0xFFD5E3FC),
-      surfaceContainer: Color(0xFFEFF4FF),
-      surfaceContainerLow: Color(0xFFF8F9FF),
-      onSurfaceVariant: Color(0xFF444653),
-      
-      outline: Color(0xFF94A3B8),
-      outlineVariant: Color(0xFFC4C5D5),
-      
+      errorContainer: Color(0xFFFFE0DE),
+      onErrorContainer: Color(0xFF7A1F1F),
+
+      // Fondo blanco neutro
+      surface: Color(0xFFFFFFFF),
+      onSurface: Color(0xFF1A1A1A),
+      surfaceContainerHighest: Color(0xFFE8E8E8),
+      surfaceContainerHigh: Color(0xFFF0F0F0),
+      surfaceContainer: Color(0xFFF5F5F5),
+      surfaceContainerLow: Color(0xFFFAFAFA),
+      surfaceContainerLowest: Color(0xFFFFFFFF),
+      onSurfaceVariant: Color(0xFF5C5C5C),
+
+      outline: Color(0xFFD8D4C7),
+      outlineVariant: Color(0xFFE5E2D6),
+
       shadow: Color(0xFF000000),
       scrim: Color(0xFF000000),
-      inverseSurface: Color(0xFF233144),
-      inversePrimary: Color(0xFFB8C4FF),
+      inverseSurface: Color(0xFF1A1A1A),
+      inversePrimary: Color(0xFFB8C4F0),
     );
   }
 
   static ColorScheme darkScheme() {
     return const ColorScheme(
       brightness: Brightness.dark,
-      primary: Color(0xFF6366F1),
-      onPrimary: Color(0xFFFFFFFF),
-      primaryContainer: Color(0xFF1E40AF),
+      primary: Color(0xFF93C5FD),
+      onPrimary: Color(0xFF0F172A),
+      primaryContainer: Color(0xFF1E3A8A),
       onPrimaryContainer: Color(0xFFDBEAFE),
-      
-      secondary: Color(0xFFF9BD22),
-      onSecondary: Color(0xFF261A00),
-      secondaryContainer: Color(0xFF5C4300),
-      onSecondaryContainer: Color(0xFFFFC329),
-      
-      tertiary: Color(0xFFE0E3E5),
-      onTertiary: Color(0xFF191C1E),
-      tertiaryContainer: Color(0xFF323537),
-      onTertiaryContainer: Color(0xFFE0E3E5),
-      
-      error: Color(0xFFFFB4AB),
-      onError: Color(0xFF690005),
-      errorContainer: Color(0xFF93000A),
-      onErrorContainer: Color(0xFFFFDAD6),
-      
-      surface: Color(0xFF0B1326),
-      onSurface: Color(0xFFEAF1FF),
-      surfaceContainerHighest: Color(0xFF31394D),
-      surfaceContainer: Color(0xFF131B2E),
-      surfaceContainerLow: Color(0xFF0B1326), 
-      onSurfaceVariant: Color(0xFFB9BCBE),
-      
-      outline: Color(0xFF757684),
-      outlineVariant: Color(0xFF475569),
-      
+
+      secondary: Color(0xFF94A3B8),
+      onSecondary: Color(0xFF0F172A),
+      secondaryContainer: Color(0xFF334155),
+      onSecondaryContainer: Color(0xFFF1F5F9),
+
+      tertiary: Color(0xFF6DD5C3),
+      onTertiary: Color(0xFF0F172A),
+      tertiaryContainer: Color(0xFF115E59),
+      onTertiaryContainer: Color(0xFFCCFBF1),
+
+      error: Color(0xFFFCA5A5),
+      onError: Color(0xFF450A0A),
+      errorContainer: Color(0xFF991B1B),
+      onErrorContainer: Color(0xFFFFE4E1),
+
+      surface: Color(0xFF0F172A),
+      onSurface: Color(0xFFF8FAFC),
+      surfaceContainerHighest: Color(0xFF475569),
+      surfaceContainerHigh: Color(0xFF475569),
+      surfaceContainer: Color(0xFF334155),
+      surfaceContainerLow: Color(0xFF1E293B),
+      surfaceContainerLowest: Color(0xFF0B1120),
+      onSurfaceVariant: Color(0xFF94A3B8),
+
+      outline: Color(0xFF475569),
+      outlineVariant: Color(0xFF334155),
+
       shadow: Color(0xFF000000),
       scrim: Color(0xFF000000),
-      inverseSurface: Color(0xFFF8F9FF),
-      inversePrimary: Color(0xFF1E40AF),
+      inverseSurface: Color(0xFFF8FAFC),
+      inversePrimary: Color(0xFF6B7CE8),
     );
   }
 
@@ -98,11 +118,30 @@ class MaterialTheme {
      ),
      scaffoldBackgroundColor: colorScheme.surface,
      canvasColor: colorScheme.surface,
+     dividerTheme: DividerThemeData(
+       color: colorScheme.outlineVariant,
+       space: 1,
+       thickness: 1,
+     ),
+     cardTheme: CardThemeData(
+       color: colorScheme.surfaceContainerLow,
+       elevation: 0,
+       shape: RoundedRectangleBorder(
+         borderRadius: BorderRadius.circular(20),
+       ),
+     ),
      appBarTheme: AppBarTheme(
        backgroundColor: colorScheme.surface,
-       foregroundColor: colorScheme.primary,
+       foregroundColor: colorScheme.onSurface,
        elevation: 0,
        scrolledUnderElevation: 0,
+     ),
+     bottomNavigationBarTheme: BottomNavigationBarThemeData(
+       backgroundColor: colorScheme.surfaceContainerLowest,
+       elevation: 0,
+       selectedItemColor: colorScheme.onPrimaryContainer,
+       unselectedItemColor: colorScheme.onSurfaceVariant,
+       type: BottomNavigationBarType.fixed,
      ),
   );
 

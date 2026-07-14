@@ -18,6 +18,7 @@ class TeamsProvider extends ChangeNotifier {
       : remoteDataSource = remoteDataSource ?? TeamsRemoteDataSource(client: apiClient);
 
   TeamModel? _myTeam;
+  Map<String, dynamic>? _finalReviewStatus;
   List<Student> _suggestions = [];
   List<Solicitud> _requests = [];
   bool _isLoading = false;
@@ -25,6 +26,7 @@ class TeamsProvider extends ChangeNotifier {
   SolicitudFilter _selectedFilter = SolicitudFilter.recibidas;
 
   TeamModel? get myTeam => _myTeam;
+  Map<String, dynamic>? get finalReviewStatus => _finalReviewStatus;
   List<Student> get suggestions => _suggestions;
   List<Solicitud> get requests => _requests;
   bool get isLoading => _isLoading;
@@ -53,6 +55,11 @@ class TeamsProvider extends ChangeNotifier {
 
     try {
       _myTeam = await remoteDataSource.getMyTeam();
+      if (_myTeam != null) {
+        _finalReviewStatus = await remoteDataSource.getFinalReviewStatus(_myTeam!.id);
+      } else {
+        _finalReviewStatus = null;
+      }
     } catch (e) {
       _errorMessage = e.toString();
     } finally {
@@ -159,8 +166,13 @@ class TeamsProvider extends ChangeNotifier {
 
     try {
       await remoteDataSource.sendInvitation(studentId);
-      fetchSuggestions();
+      
+      // Eliminar al estudiante de las sugerencias locales inmediatamente
+      _suggestions.removeWhere((student) => student.id == studentId);
+      
       fetchRequests();
+      // Ya no llamamos fetchSuggestions sin parámetros aquí
+      // para evitar perder el filtro actual que tenía el usuario.
     } catch (e) {
       _errorMessage = e.toString();
       rethrow;

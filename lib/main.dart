@@ -28,6 +28,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile/features/profile/data/repositories/saved_projects_repository.dart';
 import 'package:mobile/features/profile/presentation/providers/saved_projects_provider.dart';
 import 'package:mobile/features/prof_reviews/presentation/provider/prof_reviews_provider.dart';
+import 'package:mobile/features/prof_dash/presentation/provider/prof_dash_provider.dart';
+import 'package:mobile/features/prof_history/presentation/provider/prof_history_provider.dart';
 
 void _handleNotificationTap(RemoteMessage message) {
   final context = rootNavigatorKey.currentContext;
@@ -60,6 +62,7 @@ void main() async {
   final teamsProvider = TeamsProvider();
   final profileProvider = ProfileProvider();
   final profReviewsProvider = ProfReviewsProvider();
+  final profHistoryProvider = ProfHistoryProvider(client: apiClient);
   
   final prefs = await SharedPreferences.getInstance();
   final savedProjectsRepo = SavedProjectsRepository(prefs);
@@ -140,6 +143,7 @@ void main() async {
         
         inspirationProvider.loadProjects(forceRefresh: true);
         profRulesProvider.fetchData();
+        profHistoryProvider.fetchHistory();
         notificationsProvider.fetchNotifications(); // Recargar notificaciones al cambiar a alumno
         teamsProvider.fetchMyTeam();
         profileProvider.fetchProfile();
@@ -166,6 +170,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => RegistrationProvider()),
         ChangeNotifierProvider.value(value: savedProjectsProvider),
         ChangeNotifierProvider.value(value: profReviewsProvider),
+        ChangeNotifierProvider.value(value: profHistoryProvider),
+        ChangeNotifierProvider(create: (_) => ProfDashboardProvider(authProvider: authProvider)),
       ],
       child: const MyApp(),
     ),

@@ -36,7 +36,7 @@ class ProfReviewsProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> updateStatus(String reviewId, String status, {String? appointmentDate, String? locationLink}) async {
+  Future<bool> updateStatus(String reviewId, String status, {String? appointmentDate, String? locationLink, String? reason}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -46,7 +46,8 @@ class ProfReviewsProvider extends ChangeNotifier {
         reviewId, 
         status, 
         appointmentDate: appointmentDate,
-        locationLink: locationLink
+        locationLink: locationLink,
+        reason: reason
       );
       
       final index = _reviews.indexWhere((r) => r.id == reviewId);

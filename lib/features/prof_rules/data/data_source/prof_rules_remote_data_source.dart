@@ -78,7 +78,7 @@ class ProfRulesRemoteDataSource {
     }
   }
 
-  Future<void> updateConfig(List<String> allowedExtensions, String llmProvider, String driveFolderId, List<String> exclusionRules, List<Map<String, dynamic>> projectSections, {String? authorName, String? authorPhotoUrl}) async {
+  Future<void> updateConfig(List<String> allowedExtensions, String llmProvider, String driveFolderId, List<String> exclusionRules, List<Map<String, dynamic>> projectSections, int minTeamMembers, int maxTeamMembers, {String? authorName, String? authorPhotoUrl, String? authorId}) async {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/config');
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
@@ -91,8 +91,11 @@ class ProfRulesRemoteDataSource {
         "drive_folder_id": driveFolderId,
         "exclusion_rules": exclusionRules,
         "project_sections": projectSections,
+        "min_team_members": minTeamMembers,
+        "max_team_members": maxTeamMembers,
         if (authorName != null) "authorName": authorName,
         if (authorPhotoUrl != null) "authorPhotoUrl": authorPhotoUrl,
+        if (authorId != null) "authorId": authorId,
       });
 
       final response = await client.post(url, headers: headers, body: body).timeout(const Duration(seconds: 15));
@@ -104,23 +107,7 @@ class ProfRulesRemoteDataSource {
     }
   }
 
-  Future<List<Map<String, dynamic>>> generateSectionsWithAI() async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/generate-sections');
-    try {
-      final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
 
-
-
-      final response = await client.post(url, headers: headers).timeout(const Duration(seconds: 60));
-      if (response.statusCode == 200) {
-        final data = json.decode(utf8.decode(response.bodyBytes));
-        return List<Map<String, dynamic>>.from(data['sections'] ?? []);
-      }
-      throw Exception('Failed to generate sections: ${response.statusCode}');
-    } catch (e) {
-      throw Exception('Error generating sections: $e');
-    }
-  }
 
   Future<void> notifyRulesUpdate() async {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/notify-rules');

@@ -75,22 +75,49 @@ class MyProjectProvider extends ChangeNotifier {
   
   String get allowedExtensionsString => _allowedExtensions.join(', ');
 
+  List<String> _exclusionRules = [];
+  List<String> get exclusionRules => _exclusionRules;
+
+  List<Map<String, dynamic>> _projectSections = [];
+  List<Map<String, dynamic>> get projectSections => _projectSections;
+
+  int _maxTeamMembers = 3;
+  int get maxTeamMembers => _maxTeamMembers;
+
   Future<void> _fetchConfig() async {
     try {
       // Intentamos obtener la configuración del admin panel
       final response = await apiClient.get(Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/config'));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        if (data != null && data['allowed_extensions'] != null) {
-          final List<dynamic> exts = data['allowed_extensions'];
-          _allowedExtensions = exts
-              .map((e) => e.toString().replaceAll('.', '').trim().toLowerCase())
-              .where((e) => e.isNotEmpty)
-              .toList();
+        if (data != null) {
+          if (data['allowed_extensions'] != null) {
+            final List<dynamic> exts = data['allowed_extensions'];
+            _allowedExtensions = exts
+                .map((e) => e.toString().replaceAll('.', '').trim().toLowerCase())
+                .where((e) => e.isNotEmpty)
+                .toList();
+          }
+          if (data['exclusion_rules'] != null) {
+            _exclusionRules = (data['exclusion_rules'] as List).map((e) => e.toString()).toList();
+          }
+          if (data['project_sections'] != null) {
+            try {
+              _projectSections = (data['project_sections'] as List)
+                  .map((e) => Map<String, dynamic>.from(e as Map))
+                  .toList();
+            } catch (parseError) {
+              _errorMessage = "Error parsing sections: $parseError";
+            }
+          }
+          if (data['max_team_members'] != null) {
+            _maxTeamMembers = int.tryParse(data['max_team_members'].toString()) ?? 3;
+          }
         }
       }
     } catch (e) {
       debugPrint("Error fetching config, using defaults: $e");
+      _errorMessage = "Fetch error: $e";
     }
   }
   
