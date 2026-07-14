@@ -26,6 +26,12 @@ class ProfRulesProvider extends ChangeNotifier {
   List<Map<String, dynamic>> _projectSections = [];
   List<Map<String, dynamic>> get projectSections => _projectSections;
 
+  int _minTeamMembers = 1;
+  int get minTeamMembers => _minTeamMembers;
+
+  int _maxTeamMembers = 5;
+  int get maxTeamMembers => _maxTeamMembers;
+
   List<dynamic> _clusterStats = [];
   List<dynamic> get clusterStats => _clusterStats;
 
@@ -74,6 +80,9 @@ class ProfRulesProvider extends ChangeNotifier {
       _projectSections = [];
     }
 
+    _minTeamMembers = config['min_team_members'] ?? 1;
+    _maxTeamMembers = config['max_team_members'] ?? 5;
+
     _clusterStats = statsData['clusters_detail'] ?? [];
     notifyListeners();
   }
@@ -99,12 +108,16 @@ class ProfRulesProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addSection(String name, List<String> keywords, bool isObligatory) {
-    _projectSections.add({
+  void addSection(String name, List<String> keywords, bool isObligatory, {String? descripcion}) {
+    final newSection = <String, dynamic>{
       "nombre": name,
       "keywords": keywords,
       "obligatoria": isObligatory,
-    });
+    };
+    if (descripcion != null && descripcion.isNotEmpty) {
+      newSection["descripcion"] = descripcion;
+    }
+    _projectSections.add(newSection);
     notifyListeners();
   }
 
@@ -121,24 +134,14 @@ class ProfRulesProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
-
-  Future<void> generateSectionsWithAI() async {
-    _isLoading = true;
-    _errorMessage = null;
+  
+  void updateTeamLimits(int min, int max) {
+    _minTeamMembers = min;
+    _maxTeamMembers = max;
     notifyListeners();
-
-    try {
-      final generated = await remoteDataSource.generateSectionsWithAI();
-      _projectSections = generated;
-    } catch (e) {
-      _errorMessage = 'Error generando con IA: ${e.toString()}';
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
   }
 
-  Future<void> saveConfig({String? authorName, String? authorPhotoUrl}) async {
+  Future<void> saveConfig({String? authorName, String? authorPhotoUrl, String? authorId}) async {
     _isSaving = true;
     _errorMessage = null;
     notifyListeners();
@@ -150,8 +153,11 @@ class ProfRulesProvider extends ChangeNotifier {
         _driveFolderId,
         _exclusionRules,
         _projectSections,
+        _minTeamMembers,
+        _maxTeamMembers,
         authorName: authorName,
         authorPhotoUrl: authorPhotoUrl,
+        authorId: authorId,
       );
     } catch (e) {
       _errorMessage = e.toString();

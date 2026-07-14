@@ -108,4 +108,8 @@ class InspirationProvider extends ChangeNotifier {
     }
     return null;
   }
+
+  Future<String> validateIdea(String idea) async {
+    return await _dataSource.validateIdea(idea);
+  }
 }

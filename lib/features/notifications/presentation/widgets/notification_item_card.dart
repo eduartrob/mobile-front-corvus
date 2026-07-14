@@ -209,6 +209,18 @@ class _NotificationItemCardState extends State<NotificationItemCard> with Single
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        if (notification.authorName != null && notification.authorName!.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 2),
+                            child: Text(
+                              notification.authorName!,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: colorScheme.primary,
+                              ),
+                            ),
+                          ),
                         if (title.isNotEmpty)
                           Text(
                             title,

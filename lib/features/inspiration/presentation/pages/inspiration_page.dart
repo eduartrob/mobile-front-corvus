@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mobile/l10n/app_localizations.dart';
+import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/features/notifications/presentation/provider/notifications_provider.dart';
 import 'package:mobile/features/inspiration/presentation/provider/inspiration_provider.dart';
 import 'package:mobile/core/theme/app_dimens.dart';
-import 'package:mobile/shared/widgets/corvus_top_bar.dart';
-import 'package:mobile/features/inspiration/presentation/widgets/project_card.dart';
+import 'package:mobile/shared/widgets/project_card.dart';
 import 'package:mobile/features/inspiration/presentation/widgets/floating_ai_input.dart';
 
 class InspirationPage extends StatefulWidget {
@@ -27,12 +28,8 @@ class _InspirationPageState extends State<InspirationPage> {
   }
 
   void _scrollListener() {
-    final direction = _scrollController.position.userScrollDirection;
-    if (direction == ScrollDirection.reverse && _isFloatingInputVisible) {
-      setState(() => _isFloatingInputVisible = false);
-    } else if (direction == ScrollDirection.forward && !_isFloatingInputVisible) {
-      setState(() => _isFloatingInputVisible = true);
-    }
+    // El usuario pidió que la tarjeta no desaparezca al deslizar.
+    // Solo se ocultará al picarle al botón de cerrar.
   }
 
   @override
@@ -49,8 +46,7 @@ class _InspirationPageState extends State<InspirationPage> {
     final projectCount = context.select<InspirationProvider, int>((p) => p.projects.length);
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: const CorvusTopBar(),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Stack(
         children: [
           Container(
@@ -68,21 +64,31 @@ class _InspirationPageState extends State<InspirationPage> {
                 child: CustomScrollView(
                   controller: _scrollController,
                   slivers: [
+                    // AppBar sliver que se oculta al hacer scroll hacia arriba
+                    const _SliverTopBar(),
+
+                    // Contenido superior (welcome + header fijo de sección)
                     SliverPadding(
                       padding: const EdgeInsets.symmetric(horizontal: AppDimens.screenMargin),
                       sliver: SliverToBoxAdapter(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 12),
                             if (showWelcome)
                               _WelcomeCard(onDismiss: () => context.read<InspirationProvider>().dismissWelcome()),
-                            const _SectionHeader(),
                           ],
                         ),
                       ),
                     ),
 
+                    // Header de sección pinned: queda fijo al scroll
+                    SliverPersistentHeader(
+                      pinned: true,
+                      delegate: _SectionHeaderDelegate(),
+                    ),
+
+                    // Lista de proyectos
                     SliverPadding(
                       padding: const EdgeInsets.symmetric(horizontal: AppDimens.screenMargin),
                       sliver: (isLoading && projectCount == 0)
@@ -130,6 +136,136 @@ class _InspirationPageState extends State<InspirationPage> {
   }
 }
 
+/// AppBar como sliver que se oculta al hacer scroll hacia arriba
+/// y vuelve a aparecer al hacer scroll hacia abajo.
+class _SliverTopBar extends StatelessWidget {
+  const _SliverTopBar();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return SliverAppBar(
+      backgroundColor: colorScheme.surface,
+      scrolledUnderElevation: 0,
+      floating: true,
+      snap: true,
+      pinned: false,
+      elevation: 0,
+      automaticallyImplyLeading: false,
+      title: Image.asset(
+        'assets/icons/logo2.png',
+        height: 32,
+        width: 32,
+      ),
+      actions: const [
+        _NotificationsAction(),
+        _ProfileAction(),
+        SizedBox(width: 8),
+      ],
+    );
+  }
+}
+
+class _NotificationsAction extends StatelessWidget {
+  const _NotificationsAction();
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<NotificationsProvider>(
+      builder: (context, notificationsProvider, child) {
+        final unreadCount = notificationsProvider.unreadCount;
+        return Stack(
+          clipBehavior: Clip.none,
+          alignment: Alignment.center,
+          children: [
+            IconButton(
+              icon: Icon(
+                Icons.notifications_none,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+              onPressed: () {
+                context.push('/notifications');
+              },
+            ),
+            if (unreadCount > 0)
+              Positioned(
+                right: 8,
+                top: 8,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    unreadCount.toString(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _ProfileAction extends StatelessWidget {
+  const _ProfileAction();
+
+  @override
+  Widget build(BuildContext context) {
+    final photoUrl = context.select<AuthProvider, String?>((a) => a.currentUser?.photoUrl);
+    final role = context.select<AuthProvider, String?>((a) => a.role);
+
+    if (photoUrl != null && photoUrl.isNotEmpty) {
+      return Padding(
+        padding: const EdgeInsets.only(right: 16.0),
+        child: Material(
+          type: MaterialType.circle,
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => _navigateToProfile(context, role),
+            customBorder: const CircleBorder(),
+            child: CircleAvatar(
+              backgroundImage: NetworkImage(photoUrl),
+              radius: 18,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(right: 16.0),
+      child: GestureDetector(
+        onTap: () => _navigateToProfile(context, role),
+        child: const CircleAvatar(
+          radius: 18,
+          child: Icon(Icons.person),
+        ),
+      ),
+    );
+  }
+
+  void _navigateToProfile(BuildContext context, String? role) {
+    if (role == 'PROFESOR') {
+      if (GoRouterState.of(context).matchedLocation != '/prof-profile') {
+        context.push('/prof-profile');
+      }
+    } else {
+      if (GoRouterState.of(context).matchedLocation != '/profile') {
+        context.push('/profile');
+      }
+    }
+  }
+}
+
 // -# 
 class _WelcomeCard extends StatelessWidget {
   final VoidCallback onDismiss;
@@ -153,13 +289,6 @@ class _WelcomeCard extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: colorScheme.shadow.withValues(alpha: 0.15),
-              blurRadius: 24,
-              offset: const Offset(0, 10),
-            ),
-          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,33 +328,47 @@ class _WelcomeCard extends StatelessWidget {
 }
 
 // -# 
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader();
-
+class _SectionHeaderDelegate extends SliverPersistentHeaderDelegate {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          l10n.unexploredProjects,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            color: colorScheme.onSurface.withValues(alpha: 0.85),
+
+    return Container(
+      color: colorScheme.surface,
+      padding: const EdgeInsets.symmetric(horizontal: AppDimens.screenMargin)
+          .copyWith(top: 12, bottom: 12),
+      alignment: Alignment.centerLeft,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            l10n.unexploredProjects,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          l10n.unexploredProjectsDesc,
-          style: TextStyle(fontSize: 14, color: colorScheme.onSurfaceVariant),
-        ),
-        const SizedBox(height: 16),
-      ],
+          const SizedBox(height: 4),
+          Text(
+            l10n.unexploredProjectsDesc,
+            style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+          ),
+        ],
+      ),
     );
   }
+
+  @override
+  double get maxExtent => 72;
+
+  @override
+  double get minExtent => 72;
+
+  @override
+  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) => false;
 }
 
 class _SkeletonLoaderList extends StatefulWidget {
@@ -270,45 +413,60 @@ class _SkeletonLoaderListState extends State<_SkeletonLoaderList> with SingleTic
     );
   }
 
+
   Widget _buildSkeletonCard(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final color = colorScheme.surfaceContainerHighest;
+    final color = colorScheme.surfaceContainer;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0), // Mismo margen inferior que ProjectCard
+      padding: const EdgeInsets.only(bottom: 16.0),
       child: Container(
-        padding: const EdgeInsets.all(16), // Mismo padding interno
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(16), // Mismo radio de borde
+          color: colorScheme.surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.25),
+            color: colorScheme.outline.withValues(alpha: 0.12),
             width: 1,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: colorScheme.shadow.withValues(alpha: 0.06),
+              blurRadius: 20,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Container(width: 100, height: 24, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12))),
-                const SizedBox(width: 8),
-                Container(width: 80, height: 24, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12))),
-              ],
-            ),
+            Container(width: 180, height: 18, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(9))),
+            const SizedBox(height: 8),
+            Container(width: double.infinity, height: 13, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4))),
+            const SizedBox(height: 6),
+            Container(width: double.infinity, height: 13, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4))),
+            const SizedBox(height: 6),
+            Container(width: 200, height: 13, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4))),
             const SizedBox(height: 16),
-            Container(width: double.infinity, height: 24, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4))),
-            const SizedBox(height: 12),
-            Container(width: double.infinity, height: 12, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4))),
-            const SizedBox(height: 6),
-            Container(width: double.infinity, height: 12, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4))),
-            const SizedBox(height: 6),
-            Container(width: 200, height: 12, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4))),
-            const SizedBox(height: 24),
+            Divider(height: 1, color: colorScheme.outline.withValues(alpha: 0.12)),
+            const SizedBox(height: 14),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: List.generate(3, (_) => Container(
+                width: 100,
+                height: 28,
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              )),
+            ),
+            const SizedBox(height: 18),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(width: 60, height: 24, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12))),
-                Container(width: 100, height: 32, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(16))),
+                Container(width: 60, height: 14, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(7))),
+                Container(width: 44, height: 44, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12))),
               ],
             ),
           ],

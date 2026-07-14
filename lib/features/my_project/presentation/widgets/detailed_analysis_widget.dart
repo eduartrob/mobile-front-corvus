@@ -23,7 +23,7 @@ class DetailedAnalysisWidget extends StatelessWidget {
         ? (rawInnovation['score'] is num ? (rawInnovation['score'] as num).toInt() : int.tryParse(rawInnovation['score'].toString().replaceAll(RegExp(r'[^0-9]'), '')) ?? 0)
         : (rawInnovation is num ? rawInnovation.toInt() : int.tryParse(rawInnovation?.toString() ?? '0') ?? 0);
         
-    final metrics = data['quality_metrics'] ?? {};
+    final metrics = Map<String, dynamic>.from(data['quality_metrics'] as Map? ?? {});
     final collisionRiskObj = data['semantic_collision_risk'];
     final collisionRisk = collisionRiskObj is Map ? (collisionRiskObj['alert_type'] ?? 'No detectado') : (data['collision_risk_assessment'] ?? 'No detectado');
     final String collisionExplanation = collisionRiskObj is Map ? (collisionRiskObj['explanation'] ?? '') : '';

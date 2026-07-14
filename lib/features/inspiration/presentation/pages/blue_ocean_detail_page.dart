@@ -4,6 +4,8 @@ import 'package:mobile/features/inspiration/presentation/widgets/glass_container
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/features/inspiration/presentation/widgets/sugerencias_card.dart';
 import 'package:mobile/features/inspiration/presentation/widgets/blue_ocean_header.dart';
+import 'package:provider/provider.dart';
+import 'package:mobile/features/profile/presentation/providers/saved_projects_provider.dart';
 
 class BlueOceanDetailPage extends StatelessWidget {
   final ProjectEntity project;
@@ -14,6 +16,9 @@ class BlueOceanDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
+    
+    final savedProjectsProvider = context.watch<SavedProjectsProvider>();
+    final isSaved = savedProjectsProvider.isSaved(project.id);
     
     final isEn = Localizations.localeOf(context).languageCode == 'en';
 
@@ -41,14 +46,14 @@ class BlueOceanDetailPage extends StatelessWidget {
             margin: const EdgeInsets.only(right: 16),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.orange.withValues(alpha: 0.1),
+              color: colorScheme.secondaryContainer,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
               children: [
-                const Icon(Icons.auto_awesome, size: 14, color: Colors.orange),
+                Icon(Icons.auto_awesome, size: 14, color: colorScheme.secondary),
                 const SizedBox(width: 4),
-                Text(isEn ? 'AI Generated' : 'AI Generado', style: TextStyle(fontSize: 12, color: Colors.orange.shade800, fontWeight: FontWeight.w600)),
+                Text(isEn ? 'AI Generated' : 'AI Generado', style: TextStyle(fontSize: 12, color: colorScheme.onSecondaryContainer, fontWeight: FontWeight.w600)),
               ],
             ),
           )
@@ -72,7 +77,7 @@ class BlueOceanDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            BlueOceanSectionTitle(title: isEn ? 'Main Finding' : 'Hallazgo Principal', icon: Icons.insights, color: Colors.orange),
+            BlueOceanSectionTitle(title: isEn ? 'Main Finding' : 'Hallazgo Principal', icon: Icons.insights, color: colorScheme.secondary),
             GlassContainer(
               blur: 0,
               opacity: 0.5,
@@ -84,7 +89,7 @@ class BlueOceanDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            BlueOceanSectionTitle(title: isEn ? 'Methodological Suggestions' : 'Sugerencias de Abordaje Metodológico', icon: Icons.schema_outlined, color: Colors.blue),
+            BlueOceanSectionTitle(title: isEn ? 'Methodological Suggestions' : 'Sugerencias de Abordaje Metodológico', icon: Icons.schema_outlined, color: colorScheme.primary),
             if (sugerencias.isEmpty)
               Text(isEn ? 'No suggestions available.' : 'Sin sugerencias disponibles.')
             else
@@ -107,49 +112,56 @@ class BlueOceanDetailPage extends StatelessWidget {
                   FeasibilityMetricBar(
                     label: isEn ? 'Originality' : 'Originalidad',
                     value: metricas['originalidad'] ?? 0,
-                    color: Colors.blue,
+                    color: colorScheme.primary,
                   ),
                   const SizedBox(height: 16),
                   FeasibilityMetricBar(
                     label: isEn ? 'Data Availability' : 'Disponibilidad de Datos',
                     value: metricas['disponibilidad_datos'] ?? 0,
-                    color: Colors.brown,
+                    color: colorScheme.secondary,
                   ),
                   const SizedBox(height: 16),
                   FeasibilityMetricBar(
                     label: isEn ? 'Academic Relevance' : 'Relevancia Académica',
                     value: metricas['relevancia_academica'] ?? 0,
-                    color: Colors.black87,
+                    color: colorScheme.tertiary,
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 32),
 
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () => _showComingSoon(context, l10n),
-                icon: const Icon(Icons.rocket_launch, color: Colors.white),
-                label: Text(isEn ? 'Use this idea' : 'Usar esta idea', style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colorScheme.primary,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
+
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed: () => _showComingSoon(context, l10n),
-                icon: Icon(Icons.bookmark_border, color: colorScheme.primary),
-                label: Text(isEn ? 'Save for later' : 'Guardar para después', style: TextStyle(color: colorScheme.primary, fontSize: 16, fontWeight: FontWeight.w600)),
+                onPressed: () {
+                  context.read<SavedProjectsProvider>().toggleSave(project);
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(isSaved ? 'Removido de guardados' : 'Guardado para después'),
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                },
+                icon: Icon(
+                  isSaved ? Icons.bookmark : Icons.bookmark_border, 
+                  color: colorScheme.primary
+                ),
+                label: Text(
+                  isSaved 
+                    ? (isEn ? 'Saved' : 'Guardado') 
+                    : (isEn ? 'Save for later' : 'Guardar para después'), 
+                  style: TextStyle(color: colorScheme.primary, fontSize: 16, fontWeight: FontWeight.w600)
+                ),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   side: BorderSide(color: colorScheme.primary.withValues(alpha: 0.5)),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  backgroundColor: isSaved ? colorScheme.primary.withValues(alpha: 0.1) : null,
                 ),
               ),
             ),

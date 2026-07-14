@@ -34,7 +34,6 @@ class _ProfDriveSyncPageState extends State<ProfDriveSyncPage> {
               decoration: BoxDecoration(
                 color: colorScheme.primaryContainer.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: colorScheme.primary.withValues(alpha: 0.3)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

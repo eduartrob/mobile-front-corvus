@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import '../provider/notifications_provider.dart';
 import '../widgets/notification_item_card.dart';
+import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 
 class NotificationsPage extends StatefulWidget {
   static bool isOpen = false;
@@ -47,7 +48,14 @@ class _NotificationsView extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final provider = context.watch<NotificationsProvider>();
-    final notifications = provider.notifications;
+    final auth = context.read<AuthProvider>();
+    
+    // Filter out student-specific notifications if the user is a PROFESSOR
+    final notifications = provider.notifications.where((n) {
+      if ((auth.role == 'PROFESOR' || auth.role == 'DOCENTE') && n.message.startsWith('Actualización de Propuesta')) return false;
+      return true;
+    }).toList();
+    
     final isSelecting = provider.isSelectionMode;
 
     return PopScope(

@@ -22,6 +22,92 @@ class AppLocalizationsEs extends AppLocalizations {
   String get signingIn => 'Iniciando sesión...';
 
   @override
+  String get login => 'Iniciar sesión';
+
+  @override
+  String get register => 'Registrarse';
+
+  @override
+  String get email => 'Correo electrónico';
+
+  @override
+  String get password => 'Contraseña';
+
+  @override
+  String get confirmPassword => 'Confirmar contraseña';
+
+  @override
+  String get forgotPassword => '¿Olvidaste tu contraseña?';
+
+  @override
+  String get noAccount => '¿No tienes una cuenta?';
+
+  @override
+  String get haveAccount => '¿Ya tienes una cuenta?';
+
+  @override
+  String get loginWithEmail => 'Iniciar sesión con correo';
+
+  @override
+  String get registerWithEmail => 'Registrarse con correo';
+
+  @override
+  String get orContinueWith => 'o continuar con';
+
+  @override
+  String get orRegisterWith => 'o registrarse con';
+
+  @override
+  String get student => 'Alumno';
+
+  @override
+  String get teacher => 'Docente';
+
+  @override
+  String get selectRole => 'Selecciona tu rol';
+
+  @override
+  String get roleSelectionSubtitle =>
+      'Elige cómo quieres acceder a Corvus hoy.';
+
+  @override
+  String get loginAsStudent => 'Iniciar sesión como Alumno';
+
+  @override
+  String get loginAsTeacher => 'Iniciar sesión como Docente';
+
+  @override
+  String get registerAsStudent => 'Registrarse como Alumno';
+
+  @override
+  String get registerAsTeacher => 'Registrarse como Docente';
+
+  @override
+  String get welcomeTo => 'Bienvenido a';
+
+  @override
+  String get universityEmailHint => 'Se recomienda correo institucional';
+
+  @override
+  String get swipeToChange => 'Desliza para cambiar de rol';
+
+  @override
+  String get invalidEmail => 'Por favor ingresa un correo válido';
+
+  @override
+  String get invalidPassword =>
+      'La contraseña debe tener al menos 6 caracteres';
+
+  @override
+  String get passwordMismatch => 'Las contraseñas no coinciden';
+
+  @override
+  String get requiredField => 'Este campo es obligatorio';
+
+  @override
+  String get termsOfUse => 'Al continuar, aceptas nuestros';
+
+  @override
   String get unknownError => 'Ocurrió un error desconocido';
 
   @override
@@ -39,6 +125,15 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get appTitle => 'Corvus';
+
+  @override
+  String get and => 'y';
+
+  @override
+  String get privacyPolicy => 'Política de Privacidad';
+
+  @override
+  String get termsOfService => 'Términos de Servicio';
 
   @override
   String get navInspiration => 'Inspiración';

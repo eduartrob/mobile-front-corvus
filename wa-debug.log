@@ -1,0 +1,8 @@
+[2026-07-11T08:03:24.450Z] [SYS] Iniciando socket WhatsApp...
+[2026-07-11T08:03:25.119Z] [SYS] Usando versión WA v2.3000.1035194821, isLatest: true
+[2026-07-11T08:03:29.402Z] [SYS] Conexión cerrada. Status: 401. Reconectando: false. Error: Connection Failure
+[2026-07-11T08:03:29.402Z] [SYS] Sesión cerrada permanentemente por el usuario.
+[2026-07-11T08:07:12.232Z] [SYS] Iniciando socket WhatsApp...
+[2026-07-11T08:07:12.890Z] [SYS] Usando versión WA v2.3000.1035194821, isLatest: true
+[2026-07-11T08:07:14.213Z] [SYS] Conexión cerrada. Status: 401. Reconectando: false. Error: Connection Failure
+[2026-07-11T08:07:14.214Z] [SYS] Sesión cerrada permanentemente por el usuario.

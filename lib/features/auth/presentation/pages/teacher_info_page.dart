@@ -11,6 +11,7 @@ import 'package:mobile/shared/widgets/corvus_button.dart';
 import 'package:mobile/features/auth/presentation/provider/registration_provider.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/auth/presentation/widgets/career_autocomplete_field.dart';
+import 'package:mobile/core/services/security_service.dart';
 
 class TeacherInfoPage extends StatefulWidget {
   const TeacherInfoPage({super.key});
@@ -20,6 +21,7 @@ class TeacherInfoPage extends StatefulWidget {
 }
 
 class _TeacherInfoPageState extends State<TeacherInfoPage> {
+  final SecurityService _securityService = SecurityService();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _careerSearchController = TextEditingController();
   final TextEditingController _universityIdController = TextEditingController();
@@ -33,6 +35,7 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
   @override
   void initState() {
     super.initState();
+    _securityService.preventScreenshots(true);
     _loadUniversityData();
   }
 
@@ -52,6 +55,7 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
 
   @override
   void dispose() {
+    _securityService.preventScreenshots(false);
     _nameController.dispose();
     _careerSearchController.dispose();
     _universityIdController.dispose();
@@ -207,24 +211,15 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
     final colors = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: colors.onSurface),
-          onPressed: () => context.pop(),
-        ),
+    return AuthLayout(
+      appTitle: 'Corvus',
+      cardTitle: 'Tus Datos',
+      cardSubtitle: 'Comencemos a personalizar tu perfil docente en Corvus.',
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back, color: colors.onSurface),
+        onPressed: () => context.pop(),
       ),
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            child: AuthLayout(
-              appTitle: 'Corvus',
-              cardTitle: 'Tus Datos',
-              cardSubtitle: 'Comencemos a personalizar tu perfil docente en Corvus.',
-              children: [
+      children: [
                 if (_universityName != null)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 24.0),
@@ -233,7 +228,6 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
                       decoration: BoxDecoration(
                         color: isDark ? colors.surfaceContainer : colors.primaryContainer.withOpacity(0.3),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: colors.primary.withOpacity(0.5)),
                       ),
                       child: Row(
                         children: [
@@ -336,10 +330,6 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
                   onPressed: _isLoading ? () {} : _submitProfile,
                 ),
               ],
-            ),
-          ),
-        ),
-      ),
-    );
+            );
   }
 }

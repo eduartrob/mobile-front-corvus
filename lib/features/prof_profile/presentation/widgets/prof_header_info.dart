@@ -243,11 +243,6 @@ class _ProfHeaderInfoState extends State<ProfHeaderInfo> {
                                   padding: const EdgeInsets.symmetric(vertical: 12),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: Theme.of(context).brightness == Brightness.dark 
-                                          ? colorScheme.outlineVariant.withValues(alpha: 0.3) 
-                                          : const Color(0xFFE2E8F0),
-                                    ),
                                   ),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -282,7 +277,6 @@ class _ProfHeaderInfoState extends State<ProfHeaderInfo> {
                               decoration: BoxDecoration(
                                 color: Colors.green.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,

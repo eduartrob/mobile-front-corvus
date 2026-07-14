@@ -123,4 +123,54 @@ class MyProjectRemoteDataSource {
       await client.post(url, headers: headers);
     } catch (_) {}
   }
+
+  Future<Map<String, dynamic>> sendFinalReview(String teamId, Map<String, dynamic> proposalData) async {
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/final-reviews');
+
+    try {
+      final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
+      headers['Content-Type'] = 'application/json';
+
+      final body = jsonEncode({
+        'team_id': teamId,
+        'proposal_data': proposalData,
+      });
+
+      final response = await client.post(url, headers: headers, body: body).timeout(const Duration(seconds: 15));
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return json.decode(utf8.decode(response.bodyBytes));
+      } else {
+        final bodyText = utf8.decode(response.bodyBytes);
+        try {
+          final errorJson = json.decode(bodyText);
+          throw Exception(errorJson['message'] ?? bodyText);
+        } catch (_) {
+          throw Exception(bodyText);
+        }
+      }
+    } catch (e) {
+      final msg = e.toString().replaceAll('Exception: ', '');
+      throw Exception(msg);
+    }
+  }
+
+  Future<Map<String, dynamic>?> getFinalReviewStatus(String teamId) async {
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/final-reviews/team/$teamId');
+
+    try {
+      final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
+      final response = await client.get(url, headers: headers).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        return json.decode(utf8.decode(response.bodyBytes))['review'];
+      } else if (response.statusCode == 404) {
+        return null;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      return null;
+    }
+  }
 }

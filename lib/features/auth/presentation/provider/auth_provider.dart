@@ -102,6 +102,7 @@ class AuthProvider extends ChangeNotifier {
         try {
           final fcmToken = await FirebaseMessaging.instance.getToken();
           if (fcmToken != null && _currentUser != null && _currentUser!.id.isNotEmpty) {
+            FirebaseMessaging.instance.subscribeToTopic('user_${_currentUser!.id}');
             final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/notifications/device');
             http.post(
               uri,
@@ -260,6 +261,9 @@ class AuthProvider extends ChangeNotifier {
           },
           body: jsonEncode({'fcmToken': fcmToken})
         );
+      }
+      if (_currentUser != null) {
+        await FirebaseMessaging.instance.unsubscribeFromTopic('user_${_currentUser!.id}');
       }
     } catch (e) {
       // FCM deregister failed silently

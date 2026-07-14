@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:mobile/features/my_project/data/my_project_remote_data_source.dart';
+import 'package:mobile/features/my_project/data/my_project_remote_data_source.dart';
 import 'package:mobile/features/my_project/data/my_project_local_data_source.dart';
+import 'package:mobile/features/my_project/data/datasources/cloudinary_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/auth_interceptor_client.dart';
 import 'package:mobile/core/services/notification_service.dart';
@@ -43,10 +45,19 @@ class MyProjectProvider extends ChangeNotifier {
   String? get fileSize => _fileSize;
 
   Map<String, dynamic>? _quickAnalysis;
-  Map<String, dynamic>? get quickAnalysis => _quickAnalysis;
-
   Map<String, dynamic>? _detailedAnalysis;
+  bool _hasPassedDefense = false;
+  List<Map<String, String>> _defenseChatHistory = [];
+
+  Map<String, dynamic>? get quickAnalysis => _quickAnalysis;
   Map<String, dynamic>? get detailedAnalysis => _detailedAnalysis;
+  bool get hasPassedDefense => _hasPassedDefense;
+  
+  void setDefensePassed(List<Map<String, String>> history) {
+    _hasPassedDefense = true;
+    _defenseChatHistory = history;
+    notifyListeners();
+  }
 
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
@@ -64,8 +75,31 @@ class MyProjectProvider extends ChangeNotifier {
   bool _initialized = false;
   bool _isScreenVisible = false;
   bool get isScreenVisible => _isScreenVisible;
+  Timer? _backgroundTimer;
+
   void setScreenVisible(bool value) {
     _isScreenVisible = value;
+    if (value) {
+      _startBackgroundPolling();
+    } else {
+      _stopBackgroundPolling();
+    }
+  }
+
+  void _startBackgroundPolling() {
+    _stopBackgroundPolling();
+    _backgroundTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+      if (_state != ProjectState.analyzing && _state != ProjectState.uploading) {
+        _fetchConfig().then((_) {
+          notifyListeners();
+        });
+      }
+    });
+  }
+
+  void _stopBackgroundPolling() {
+    _backgroundTimer?.cancel();
+    _backgroundTimer = null;
   }
   
   List<String> _allowedExtensions = ['pdf', 'md', 'txt'];
@@ -73,27 +107,54 @@ class MyProjectProvider extends ChangeNotifier {
   
   String get allowedExtensionsString => _allowedExtensions.join(', ');
 
+  List<String> _exclusionRules = [];
+  List<String> get exclusionRules => _exclusionRules;
+
+  List<Map<String, dynamic>> _projectSections = [];
+  List<Map<String, dynamic>> get projectSections => _projectSections;
+
+  int _maxTeamMembers = 3;
+  int get maxTeamMembers => _maxTeamMembers;
+
   Future<void> _fetchConfig() async {
     try {
       // Intentamos obtener la configuración del admin panel
       final response = await apiClient.get(Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/config'));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        if (data != null && data['allowed_extensions'] != null) {
-          final List<dynamic> exts = data['allowed_extensions'];
-          _allowedExtensions = exts
-              .map((e) => e.toString().replaceAll('.', '').trim().toLowerCase())
-              .where((e) => e.isNotEmpty)
-              .toList();
+        if (data != null) {
+          if (data['allowed_extensions'] != null) {
+            final List<dynamic> exts = data['allowed_extensions'];
+            _allowedExtensions = exts
+                .map((e) => e.toString().replaceAll('.', '').trim().toLowerCase())
+                .where((e) => e.isNotEmpty)
+                .toList();
+          }
+          if (data['exclusion_rules'] != null) {
+            _exclusionRules = (data['exclusion_rules'] as List).map((e) => e.toString()).toList();
+          }
+          if (data['project_sections'] != null) {
+            try {
+              _projectSections = (data['project_sections'] as List)
+                  .map((e) => Map<String, dynamic>.from(e as Map))
+                  .toList();
+            } catch (parseError) {
+              _errorMessage = "Error parsing sections: $parseError";
+            }
+          }
+          if (data['max_team_members'] != null) {
+            _maxTeamMembers = int.tryParse(data['max_team_members'].toString()) ?? 3;
+          }
         }
       }
     } catch (e) {
       debugPrint("Error fetching config, using defaults: $e");
+      _errorMessage = "Fetch error: $e";
     }
   }
   
-  Future<void> init(String userId) async {
-    if (_initialized) return;
+  Future<void> init(String userId, {bool forceRefresh = false}) async {
+    if (_initialized && !forceRefresh) return;
     _initialized = true;
     
     try {
@@ -104,6 +165,9 @@ class MyProjectProvider extends ChangeNotifier {
         _detailedAnalysis = localAnalysis;
         _fileName = localAnalysis['original_file_name'] ?? 'documento_analizado.pdf';
         _fileSize = localAnalysis['original_file_size'] ?? 'Local';
+        // Clear any previous validation errors
+        _documentTypeError = null;
+        _errorMessage = null;
         _state = ProjectState.detailedAnalysis;
         notifyListeners();
         return;
@@ -130,7 +194,7 @@ class MyProjectProvider extends ChangeNotifier {
         final result = await _dataSource.getAnalysisResult(userId);
         if (result['status'] != 'pending' && result['status'] != 'error') {
           // If it's detailed analysis result
-          if (result.containsKey('general_feedback')) {
+          if (result.containsKey('general_feedback') || result.containsKey('innovation_index') || result.containsKey('semantic_collision_risk')) {
               await _applyAnalysisResult(userId, result, null);
           } else {
               _quickAnalysis = result;
@@ -408,6 +472,9 @@ class MyProjectProvider extends ChangeNotifier {
     if (_fileSize != null) result['original_file_size'] = _fileSize;
     
     _detailedAnalysis = result;
+    // Clear any lingering validation errors — analysis succeeded
+    _documentTypeError = null;
+    _errorMessage = null;
     _state = ProjectState.detailedAnalysis;
     await _localDataSource.saveDetailedAnalysis(userId, result);
     await _notificationService.showAnalysisCompleteNotification(
@@ -440,20 +507,73 @@ class MyProjectProvider extends ChangeNotifier {
   
   void reset(String userId) {
     _statusTimer?.cancel();
-    _initialized = false;
-    _state = ProjectState.initial;
     _selectedFile = null;
     _fileName = null;
     _fileSize = null;
     _quickAnalysis = null;
     _detailedAnalysis = null;
+    _hasPassedDefense = false;
+    _defenseChatHistory = [];
     _errorMessage = null;
     _documentTypeError = null;
     _localDataSource.clearDetailedAnalysis(userId);
-    // Re-init immediately to go to error (upload) state instead of staying initial
-    _initialized = false;
-    init(userId);
+    
+    // Set to error state so the UploadZoneWidget is shown
+    _state = ProjectState.error;
     notifyListeners();
+  }
+
+  Future<bool> sendFinalReview({
+    required String teamId,
+    required String teamName,
+    required List<String> memberNames,
+  }) async {
+    if (_detailedAnalysis == null) {
+       _errorMessage = 'No hay análisis disponible para enviar.';
+       notifyListeners();
+       return false;
+    }
+
+    try {
+      String? uploadedFileUrl;
+      
+      // Attempt to upload the file to Cloudinary if we have it locally
+      if (_selectedFile != null) {
+        await _notificationService.showIndeterminateProgressNotification(
+          title: 'Subiendo documento...', 
+          message: 'Guardando el documento en la nube de forma segura'
+        );
+        uploadedFileUrl = await CloudinaryService.uploadFile(_selectedFile!.path);
+      }
+
+      // Build an enriched proposal_data with all required context for teachers
+      final enrichedProposalData = {
+        'team_info': {
+          'name': teamName,
+          'members': memberNames,
+        },
+        'file_name': _fileName ?? 'propuesta.pdf',
+        if (uploadedFileUrl != null) 'file_url': uploadedFileUrl,
+        'file_size': _fileSize,
+        'ai_analysis': _detailedAnalysis,
+        if (_hasPassedDefense) 'defense_chat_history': _defenseChatHistory,
+      };
+
+      await _dataSource.sendFinalReview(teamId, enrichedProposalData);
+      await _notificationService.showResultNotification(
+        '✅ Enviado con éxito', 
+        'Tu propuesta ha sido enviada a revisión final con el equipo y el análisis.'
+      );
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      await _notificationService.showResultNotification(
+        'Error al enviar', 
+        _errorMessage ?? 'Hubo un error al enviar la revisión final.'
+      );
+      notifyListeners();
+      return false;
+    }
   }
 
   @override

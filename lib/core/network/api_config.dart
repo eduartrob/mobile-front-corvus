@@ -1,7 +1,6 @@
 class ApiConfig {
   static const String apiGatewayUrl = 'https://corvus.eduartrob.site/api/v1';
-  
-//  static const String apiGatewayUrl = 'https://corvus.eduartrob.site:8443/api/v1';
+  //static const String apiGatewayUrl = 'https://corvus.eduartrob.site:8443/api/v1';
 
   static const String authGoogleEndpoint = '/auth/google';
   
@@ -11,4 +10,8 @@ class ApiConfig {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   };
+
+  // Cloudinary constants
+  static const String cloudinaryCloudName = 'zpqp1swt';
+  static const String cloudinaryUploadPreset = 'corvus_unsigned';
 }
