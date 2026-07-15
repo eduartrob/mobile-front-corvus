@@ -208,7 +208,7 @@ class MyProjectProvider extends ChangeNotifier {
       final draft = await _dataSource.checkDraft(userId);
       if (draft.isNotEmpty && draft['status'] != 'not_found') {
         _quickAnalysis = draft;
-        _fileName = 'borrador_guardado.pdf';
+        _fileName = draft['filename'] ?? 'borrador_guardado.pdf';
         _fileSize = 'Local';
         _state = ProjectState.preValidated;
         notifyListeners();
