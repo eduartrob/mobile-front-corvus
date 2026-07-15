@@ -23,9 +23,13 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final SecurityService _securityService = SecurityService();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+
+  String? _emailError;
+  String? _passwordError;
+  String? _confirmPasswordError;
   late String _currentRole;
 
   @override
@@ -62,6 +66,9 @@ class _RegisterPageState extends State<RegisterPage> {
       _emailController.clear();
       _passwordController.clear();
       _confirmPasswordController.clear();
+      _emailError = null;
+      _passwordError = null;
+      _confirmPasswordError = null;
     });
     final provider = Provider.of<RegistrationProvider>(context, listen: false);
     provider.role = _currentRole;
@@ -70,31 +77,50 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _validateInputs() {
     final l10n = AppLocalizations.of(context)!;
     final email = _emailController.text.trim();
-    final password = _passwordController.text;
-    final confirmPassword = _confirmPasswordController.text;
+    // Trim passwords to prevent accidental trailing spaces
+    final password = _passwordController.text.trim();
+    final confirmPassword = _confirmPasswordController.text.trim();
 
-    if (email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-      _showSnack(l10n.requiredField);
-      return false;
+    setState(() {
+      _emailError = null;
+      _passwordError = null;
+      _confirmPasswordError = null;
+    });
+
+    bool isValid = true;
+
+    if (email.isEmpty) {
+      setState(() => _emailError = l10n.requiredField);
+      isValid = false;
+    } else {
+      final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+      if (!emailRegex.hasMatch(email)) {
+        setState(() => _emailError = l10n.invalidEmail);
+        isValid = false;
+      }
     }
 
-    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    if (!emailRegex.hasMatch(email)) {
-      _showSnack(l10n.invalidEmail);
-      return false;
+    if (password.isEmpty) {
+      setState(() => _passwordError = l10n.requiredField);
+      isValid = false;
+    } else if (password.length < 6) {
+      setState(() => _passwordError = l10n.invalidPassword);
+      isValid = false;
     }
 
-    if (password.length < 6) {
-      _showSnack(l10n.invalidPassword);
-      return false;
+    if (confirmPassword.isEmpty) {
+      setState(() => _confirmPasswordError = l10n.requiredField);
+      isValid = false;
+    } else if (password != confirmPassword) {
+      setState(() => _confirmPasswordError = l10n.passwordMismatch);
+      isValid = false;
     }
 
-    if (password != confirmPassword) {
-      _showSnack(l10n.passwordMismatch);
-      return false;
+    if (!isValid) {
+      _showSnack(l10n.requiredField); // Or just show the generic snackbar
     }
 
-    return true;
+    return isValid;
   }
 
   void _showSnack(String message) {
@@ -214,6 +240,7 @@ class _RegisterPageState extends State<RegisterPage> {
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
             iconColor: colors.primary,
+            errorText: _emailError,
           ),
           if (_currentRole == 'ALUMNO') ...[
             const SizedBox(height: 6),
@@ -242,6 +269,7 @@ class _RegisterPageState extends State<RegisterPage> {
             obscure: true,
             controller: _passwordController,
             iconColor: colors.primary,
+            errorText: _passwordError,
           ),
           const SizedBox(height: 16),
           InputCompleted(
@@ -251,6 +279,7 @@ class _RegisterPageState extends State<RegisterPage> {
             obscure: true,
             controller: _confirmPasswordController,
             iconColor: colors.primary,
+            errorText: _confirmPasswordError,
           ),
           const SizedBox(height: 24),
           AuthActionButton(
