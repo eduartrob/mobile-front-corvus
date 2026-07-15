@@ -26,6 +26,9 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   late String _currentRole;
+  
+  bool _isEmailLoading = false;
+  bool _isGoogleLoading = false;
 
   @override
   void initState() {
@@ -84,6 +87,8 @@ class _LoginPageState extends State<LoginPage> {
     FocusScope.of(context).unfocus();
     if (!_validateInputs()) return;
 
+    setState(() => _isEmailLoading = true);
+
     final authProvider = context.read<AuthProvider>();
     await authProvider.loginWithEmail(
       _emailController.text.trim(),
@@ -91,6 +96,7 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     if (!mounted) return;
+    setState(() => _isEmailLoading = false);
 
     if (authProvider.status == AuthStatus.authenticated) {
       _navigateBasedOnRole(authProvider);
@@ -100,11 +106,14 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _handleGoogleLogin() async {
+    setState(() => _isGoogleLoading = true);
+
     final authProvider = context.read<AuthProvider>();
     final l10n = AppLocalizations.of(context)!;
     await authProvider.signInWithGoogle();
 
     if (!mounted) return;
+    setState(() => _isGoogleLoading = false);
 
     if (authProvider.status == AuthStatus.authenticated) {
       _navigateBasedOnRole(authProvider);
@@ -273,7 +282,7 @@ class _LoginPageState extends State<LoginPage> {
               return AuthActionButton(
                 text: l10n.login,
                 icon: Icons.arrow_forward,
-                isLoading: authProvider.status == AuthStatus.loading,
+                isLoading: _isEmailLoading,
                 onPressed: authProvider.status == AuthStatus.loading ? null : _handleEmailLogin,
               );
             },
@@ -284,7 +293,7 @@ class _LoginPageState extends State<LoginPage> {
           Consumer<AuthProvider>(
             builder: (context, authProvider, _) {
               return SocialAuthButton(
-                isLoading: authProvider.status == AuthStatus.loading,
+                isLoading: _isGoogleLoading,
                 onTap: authProvider.status == AuthStatus.loading ? null : _handleGoogleLogin,
               );
             },
