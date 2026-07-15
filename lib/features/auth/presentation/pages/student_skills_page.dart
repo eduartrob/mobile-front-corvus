@@ -39,27 +39,12 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
   void initState() {
     super.initState();
     _securityService.preventScreenshots(true);
-    final List<String> allSkills = [
-      'Resolución de problemas', 'Trabajo en equipo', 'Comunicación', 'Liderazgo', 'Pensamiento crítico', 'Adaptabilidad', 'Organización', 'Creatividad',
-      'Desarrollo Web', 'Desarrollo Móvil', 'Bases de Datos', 'Machine Learning', 'Inteligencia Artificial', 'Diseño UI/UX', 'Análisis de Datos', 'Gestión de Proyectos',
-      'Marketing Digital', 'Ventas', 'Finanzas', 'Contabilidad', 'Recursos Humanos', 'Redes', 'Seguridad Informática', 'Cloud Computing',
-      'Python', 'Java', 'JavaScript', 'TypeScript', 'C++', 'C#', 'PHP', 'Ruby', 'Swift', 'Kotlin', 'Dart', 'Go', 'Rust',
-      'React', 'Angular', 'Vue.js', 'Node.js', 'Express', 'Django', 'Flask', 'Spring Boot', 'Laravel', 'ASP.NET',
-      'SQL', 'NoSQL', 'MongoDB', 'PostgreSQL', 'MySQL', 'Firebase', 'AWS', 'Google Cloud', 'Azure', 'Docker', 'Kubernetes',
-      'Git', 'Metodologías Ágiles', 'Scrum', 'Kanban', 'Inglés', 'Oratoria', 'Negociación', 'Empatía', 'Gestión del tiempo',
-      'Edición de Video', 'Edición de Fotografía', 'Ilustración', 'Animación 3D', 'Copywriting', 'SEO', 'SEM',
-      'Investigación', 'Redacción Académica', 'Estadística', 'Matemáticas', 'Física', 'Química', 'Biología', 'Medicina',
-      'Derecho', 'Psicología', 'Sociología', 'Historia', 'Filosofía', 'Arte', 'Música', 'Idiomas',
-      'Diseño Gráfico', 'Arquitectura', 'Ingeniería Civil', 'Ingeniería Mecánica', 'Ingeniería Eléctrica', 'Ingeniería Industrial',
-      'Mecatrónica', 'Robótica', 'Electrónica', 'Telecomunicaciones', 'Automatización', 'Internet de las Cosas (IoT)'
-    ];
-
     if (widget.suggestedSkills.isNotEmpty) {
       // Usar solo las sugeridas por el backend
       final Set<String> uniqueSkills = Set.from(widget.suggestedSkills);
       _displaySkills = uniqueSkills.toList();
     } else {
-      _displaySkills = allSkills;
+      _displaySkills = [];
     }
     
     WidgetsBinding.instance.addPostFrameCallback((_) {
