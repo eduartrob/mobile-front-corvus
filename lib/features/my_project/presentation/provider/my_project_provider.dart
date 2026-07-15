@@ -232,6 +232,11 @@ class MyProjectProvider extends ChangeNotifier {
       );
 
       if (result != null && result.files.single.path != null) {
+        _errorMessage = '';
+        _documentTypeError = '';
+        _serverPhaseMessage = '';
+        _serverPhase = 0;
+        _quickAnalysis = null;
         final file = File(result.files.single.path!);
         final bytes = await file.length();
         
