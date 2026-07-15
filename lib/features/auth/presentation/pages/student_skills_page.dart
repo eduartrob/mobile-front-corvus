@@ -55,12 +55,11 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
     ];
 
     if (widget.suggestedSkills.isNotEmpty) {
-      // Put suggested skills first, then append the rest without duplicates
+      // Usar solo las sugeridas por el backend
       final Set<String> uniqueSkills = Set.from(widget.suggestedSkills);
-      uniqueSkills.addAll(allSkills);
-      _displaySkills = uniqueSkills.take(100).toList();
+      _displaySkills = uniqueSkills.toList();
     } else {
-      _displaySkills = allSkills.take(100).toList();
+      _displaySkills = allSkills;
     }
     
     WidgetsBinding.instance.addPostFrameCallback((_) {

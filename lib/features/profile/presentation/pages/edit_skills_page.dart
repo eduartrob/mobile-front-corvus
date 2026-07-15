@@ -72,8 +72,7 @@ class _EditSkillsPageState extends State<EditSkillsPage> {
         if (fetchedSkills.isNotEmpty && mounted) {
           setState(() {
             final uniqueSkills = Set<String>.from(fetchedSkills);
-            uniqueSkills.addAll(_fallbackSkills);
-            _displaySkills = uniqueSkills.take(100).toList();
+            _displaySkills = uniqueSkills.toList();
           });
         }
       }
