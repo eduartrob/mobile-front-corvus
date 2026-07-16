@@ -15,6 +15,9 @@ import 'package:mobile/features/my_project/presentation/widgets/detailed_analysi
 import 'package:mobile/features/my_project/presentation/widgets/animated_loading_text_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/invalid_document_widget.dart';
 
+import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mobile/shared/widgets/corvus_button.dart';
 import 'package:mobile/core/theme/app_dimens.dart';
 
 class MyProjectPage extends StatelessWidget {
@@ -40,12 +43,18 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<MyProjectProvider>();
+      final token = context.read<AuthProvider>().currentUser?.token;
+      
       provider.setScreenVisible(true);
       if (provider.state == ProjectState.initial) {
         final userId = context.read<AuthProvider>().currentUser?.id;
         if (userId != null) {
           provider.init(userId);
         }
+      }
+
+      if (token != null) {
+        context.read<ProjectProvider>().loadMyProjects(token);
       }
     });
   }
@@ -86,26 +95,69 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
             final provider = context.read<MyProjectProvider>();
             await provider.init(userId, forceRefresh: true);
           },
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: AppDimens.screenMargin),
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 12),
-                _ProjectPageHeader(userId: userId),
+          child: Consumer<ProjectProvider>(
+            builder: (context, projectProvider, child) {
+              if (projectProvider.isLoading && projectProvider.myProjects.isEmpty) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-              const SizedBox(height: 24),
+              if (projectProvider.myProjects.isEmpty) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.class_outlined, size: 80, color: Theme.of(context).colorScheme.primary),
+                        const SizedBox(height: 24),
+                        Text(
+                          'Aún no perteneces a ningún proyecto',
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Para poder formar un equipo y subir tu propuesta, primero debes unirte a la clase de tu profesor usando su Código de Acceso.',
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 48),
+                        CorvusButton(
+                          text: 'Unirse a un Proyecto',
+                          onPressed: () => context.push('/join-project'),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
 
-              RepaintBoundary(
-                child: _ProjectPageBody(userId: userId),
-              ),
+              return SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: AppDimens.screenMargin),
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 12),
+                    _ProjectPageHeader(userId: userId),
 
-              const SizedBox(height: 100),
-            ],
+                    const SizedBox(height: 24),
+
+                    RepaintBoundary(
+                      child: _ProjectPageBody(userId: userId),
+                    ),
+
+                    const SizedBox(height: 100),
+                  ],
+                ),
+              );
+            },
           ),
         ),
-      ),
       ),
     );
   }
@@ -295,6 +347,9 @@ class _ProjectPageBody extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
     final provider = context.watch<MyProjectProvider>();
+    final teamsProvider = context.watch<TeamsProvider>();
+    final finalReviewStatus = teamsProvider.finalReviewStatus;
+    final isUnderReview = finalReviewStatus != null && finalReviewStatus['status'] != 'REJECTED';
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 500),
@@ -381,7 +436,6 @@ class _ProjectPageBody extends StatelessWidget {
               }
               final projectName = extractedProjectName ?? provider.fileName?.replaceAll('.pdf', '') ?? 'Propuesta sin título';
 
-              final teamsProvider = context.watch<TeamsProvider>();
               final myTeam = teamsProvider.myTeam;
 
               return Column(
@@ -514,8 +568,31 @@ class _ProjectPageBody extends StatelessWidget {
         ],
 
         if (provider.state == ProjectState.detailedAnalysis) ...[
-          if (!provider.hasPassedDefense)
-            SizedBox(
+          if (isUnderReview)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.only(top: 16),
+              decoration: BoxDecoration(
+                color: colorScheme.secondaryContainer,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  Icon(Icons.rate_review, color: colorScheme.onSecondaryContainer, size: 32),
+                  const SizedBox(height: 8),
+                  Text('Propuesta en Revisión Final', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: colorScheme.onSecondaryContainer)),
+                  const SizedBox(height: 8),
+                  Text('Tu equipo ya ha enviado esta propuesta a revisión final. Estado actual: ${finalReviewStatus['status']}', 
+                    style: TextStyle(color: colorScheme.onSecondaryContainer),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            )
+          else ...[
+            if (!provider.hasPassedDefense)
+              SizedBox(
               width: double.infinity,
               height: 50,
               child: ElevatedButton.icon(
@@ -532,6 +609,7 @@ class _ProjectPageBody extends StatelessWidget {
                         return ProjectDefenseChatPage(
                           teamId: teamId,
                           studentName: studentName,
+                          teamMembers: teamsProvider.myTeam?.members.map((m) => m.name).toList(),
                           proposalSummary: provider.detailedAnalysis?['verdict'] ?? 'Propuesta de innovación',
                           analysisResult: provider.detailedAnalysis ?? {},
                         );
@@ -590,12 +668,15 @@ class _ProjectPageBody extends StatelessWidget {
                     memberNames: myTeam.members.map((m) => m.name).toList(),
                   );
                   if (success && context.mounted) {
-                     ScaffoldMessenger.of(context).showSnackBar(
-                       const SnackBar(
-                         content: Text('✅ Propuesta enviada a revisión final exitosamente.'),
-                         backgroundColor: Colors.green,
-                       ),
-                     );
+                     await teamsProvider.fetchMyTeam();
+                     if (context.mounted) {
+                       ScaffoldMessenger.of(context).showSnackBar(
+                         const SnackBar(
+                           content: Text('✅ Propuesta enviada a revisión final exitosamente.'),
+                           backgroundColor: Colors.green,
+                         ),
+                       );
+                     }
                   }
                 },
                 icon: const Icon(Icons.send, size: 18),
@@ -623,6 +704,7 @@ class _ProjectPageBody extends StatelessWidget {
               ),
             ),
           ),
+          ],
         ],
       ],
     ),
