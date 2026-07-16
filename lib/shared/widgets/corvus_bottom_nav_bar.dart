@@ -126,6 +126,7 @@ class _CustomNavItemState extends State<CustomNavItem> with TickerProviderStateM
     final color = widget.isSelected ? colorScheme.onPrimaryContainer : colorScheme.onSurfaceVariant;
 
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTapDown: (_) => setState(() => _isPressed = true),
       onTapUp: (_) {
         setState(() => _isPressed = false);

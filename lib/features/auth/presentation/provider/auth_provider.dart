@@ -81,10 +81,14 @@ class AuthProvider extends ChangeNotifier {
             if (userData != null) {
               final updatedPhotoUrl = userData['photoUrl'];
               final updatedName = userData['name'];
+              final updatedUniversityId = userData['universityId'] as String?;
+              final updatedCareerId = userData['careerId'] as String?;
               
               _currentUser = _currentUser!.copyWith(
                 photoUrl: updatedPhotoUrl,
                 name: updatedName,
+                universityId: updatedUniversityId,
+                careerId: updatedCareerId,
               );
               
               if (updatedPhotoUrl != null) {
@@ -215,7 +219,6 @@ class AuthProvider extends ChangeNotifier {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
       _status = AuthStatus.error;
       notifyListeners();
-      throw e;
     }
   }
 

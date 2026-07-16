@@ -65,24 +65,14 @@ class _ProfMainLayoutState extends State<ProfMainLayout> {
           onTap: _onItemTapped,
           items: [
             CustomNavItemData(
-              icon: Icons.dashboard_outlined,
-              activeIcon: Icons.dashboard,
-              label: l10n.profNavDash,
+              icon: Icons.class_outlined,
+              activeIcon: Icons.class_,
+              label: 'Proyectos',
             ),
             CustomNavItemData(
-              icon: Icons.reviews_outlined,
-              activeIcon: Icons.reviews,
-              label: l10n.profNavReviews,
-            ),
-            CustomNavItemData(
-              icon: Icons.gavel_outlined,
-              activeIcon: Icons.gavel,
-              label: l10n.profNavRules,
-            ),
-            CustomNavItemData(
-              icon: Icons.history_outlined,
-              activeIcon: Icons.history,
-              label: l10n.profNavHistory,
+              icon: Icons.people_outline,
+              activeIcon: Icons.people,
+              label: 'Directorio',
             ),
           ],
         ),

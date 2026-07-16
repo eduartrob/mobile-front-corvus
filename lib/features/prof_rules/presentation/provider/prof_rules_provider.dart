@@ -35,11 +35,11 @@ class ProfRulesProvider extends ChangeNotifier {
   List<dynamic> _clusterStats = [];
   List<dynamic> get clusterStats => _clusterStats;
 
-  Future<void> fetchData() async {
+  Future<void> fetchData({String? projectId}) async {
     // 1. Intentar cargar desde el caché rápido (sin loader invasivo)
     try {
-      final config = await remoteDataSource.getConfig(forceRefresh: false);
-      final statsData = await remoteDataSource.getClusterStats(forceRefresh: false);
+      final config = await remoteDataSource.getConfig(forceRefresh: false, projectId: projectId);
+      final statsData = await remoteDataSource.getClusterStats(forceRefresh: false, projectId: projectId);
       _updateState(config, statsData);
     } catch (e) {
       // Ignoramos errores de caché
@@ -53,8 +53,8 @@ class ProfRulesProvider extends ChangeNotifier {
 
     // 2. Traer datos frescos de la red en segundo plano
     try {
-      final config = await remoteDataSource.getConfig(forceRefresh: true);
-      final statsData = await remoteDataSource.getClusterStats(forceRefresh: true);
+      final config = await remoteDataSource.getConfig(forceRefresh: true, projectId: projectId);
+      final statsData = await remoteDataSource.getClusterStats(forceRefresh: true, projectId: projectId);
       _updateState(config, statsData);
       _errorMessage = null;
     } catch (e) {
@@ -141,7 +141,7 @@ class ProfRulesProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> saveConfig({String? authorName, String? authorPhotoUrl, String? authorId}) async {
+  Future<void> saveConfig({String? projectId, String? authorName, String? authorPhotoUrl, String? authorId}) async {
     _isSaving = true;
     _errorMessage = null;
     notifyListeners();
@@ -158,6 +158,7 @@ class ProfRulesProvider extends ChangeNotifier {
         authorName: authorName,
         authorPhotoUrl: authorPhotoUrl,
         authorId: authorId,
+        projectId: projectId,
       );
     } catch (e) {
       _errorMessage = e.toString();

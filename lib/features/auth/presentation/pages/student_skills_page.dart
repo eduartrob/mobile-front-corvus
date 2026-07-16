@@ -104,8 +104,8 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
         borderRadius: BorderRadius.circular(20),
         child: Padding(
           padding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 10,
+            horizontal: 12,
+            vertical: 6,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -121,7 +121,7 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
               Text(
                 skill,
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 12,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                   color: isSelected ? colors.primary : colors.onSurfaceVariant,
                 ),
@@ -306,8 +306,8 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
                 children: [
                   if (_selectedSkills.isNotEmpty) ...[
                     Wrap(
-                      spacing: 12,
-                      runSpacing: 12,
+                      spacing: 6,
+                      runSpacing: 8,
                       alignment: WrapAlignment.center,
                       children: _selectedSkills.map((skill) {
                         return _buildSkillChip(skill, true, colors, isDark);
@@ -316,8 +316,8 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
                     const SizedBox(height: 24),
                   ],
                   Wrap(
-                    spacing: 12,
-                    runSpacing: 12,
+                    spacing: 6,
+                    runSpacing: 8,
                     alignment: WrapAlignment.center,
                     children: _displaySkills
                         .where((s) => !_selectedSkills.contains(s))

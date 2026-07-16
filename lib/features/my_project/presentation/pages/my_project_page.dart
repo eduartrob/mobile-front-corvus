@@ -49,6 +49,9 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
       if (provider.state == ProjectState.initial) {
         final userId = context.read<AuthProvider>().currentUser?.id;
         final teamId = context.read<TeamsProvider>().myTeam?.id;
+        final universityId = context.read<AuthProvider>().currentUser?.universityId;
+        final careerId = context.read<AuthProvider>().currentUser?.careerId;
+        provider.setContext(universityId: universityId, careerId: careerId);
         if (userId != null && teamId != null) {
           provider.init(userId, teamId);
         }
@@ -536,7 +539,7 @@ class _ProjectPageBody extends StatelessWidget {
                 const RepaintBoundary(child: _PreValidationLoadingTextWidget()),
                 const SizedBox(height: 32),
                 OutlinedButton.icon(
-                  onPressed: () => provider.cancelAnalysis(userId),
+                  onPressed: () => provider.cancelAnalysis(userId, context.read<TeamsProvider>().myTeam?.id ?? ''),
                   icon: const Icon(Icons.cancel_outlined),
                   label: const Text('Cancelar'),
                   style: OutlinedButton.styleFrom(
@@ -561,7 +564,7 @@ class _ProjectPageBody extends StatelessWidget {
                 const RepaintBoundary(child: AnimatedLoadingTextWidget()),
                 const SizedBox(height: 48),
                 OutlinedButton.icon(
-                  onPressed: () => provider.cancelAnalysis(userId),
+                  onPressed: () => provider.cancelAnalysis(userId, context.read<TeamsProvider>().myTeam?.id ?? ''),
                   icon: const Icon(Icons.cancel_outlined),
                   label: const Text('Cancelar Análisis'),
                   style: OutlinedButton.styleFrom(
@@ -700,6 +703,9 @@ class _ProjectPageBody extends StatelessWidget {
                     teamId: myTeam.id,
                     teamName: myTeam.name,
                     memberNames: myTeam.members.map((m) => m.name).toList(),
+                    universityName: myTeam.project?['university_name'] ?? 'General',
+                    careerName: myTeam.project?['career_name'] ?? 'General',
+                    professorName: myTeam.project?['professor_name'] ?? 'Profesor',
                   );
                   if (success && context.mounted) {
                      await teamsProvider.fetchMyTeam();

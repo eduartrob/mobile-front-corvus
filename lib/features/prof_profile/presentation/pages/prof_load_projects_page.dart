@@ -82,6 +82,32 @@ class ProfLoadProjectsPage extends StatelessWidget {
                       color: colorScheme.onSurfaceVariant,
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: colorScheme.errorContainer.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: colorScheme.error.withOpacity(0.3)),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.warning_amber_rounded, size: 20, color: colorScheme.error),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Importante: El correo de la cuenta de Google Drive desde la que compartes la carpeta DEBE ser el mismo correo con el que estás registrado en Corvus (ya sea tu correo principal o secundario). Si usas otro correo, el sistema no podrá detectar que la carpeta te pertenece.',
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              color: colorScheme.onErrorContainer,
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),

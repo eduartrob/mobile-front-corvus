@@ -6,9 +6,13 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/features/prof_dash/presentation/provider/prof_dash_provider.dart';
 import 'package:mobile/features/prof_dash/presentation/pages/prof_directory_page.dart';
+import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
+import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 
 class ProfDashPage extends StatefulWidget {
-  const ProfDashPage({super.key});
+  final String projectId;
+  
+  const ProfDashPage({super.key, required this.projectId});
 
   @override
   State<ProfDashPage> createState() => _ProfDashPageState();
@@ -19,7 +23,7 @@ class _ProfDashPageState extends State<ProfDashPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ProfDashboardProvider>().loadDashboardStats();
+      context.read<ProfDashboardProvider>().loadDashboardStats(projectId: widget.projectId);
     });
   }
 
@@ -40,7 +44,16 @@ class _ProfDashPageState extends State<ProfDashPage> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: const CorvusTopBar(),
+      appBar: CorvusTopBar(
+        extraActions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              context.push('/prof-project/${widget.projectId}/config');
+            },
+          ),
+        ],
+      ),
       body: Consumer<ProfDashboardProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading) {
@@ -55,7 +68,7 @@ class _ProfDashPageState extends State<ProfDashPage> {
                   Text(provider.errorMessage!, style: TextStyle(color: colorScheme.error)),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () => provider.loadDashboardStats(),
+                    onPressed: () => provider.loadDashboardStats(projectId: widget.projectId),
                     child: const Text('Reintentar'),
                   ),
                 ],
@@ -94,24 +107,6 @@ class _ProfDashPageState extends State<ProfDashPage> {
                       ),
                     ),
                   ],
-                ),
-                const SizedBox(height: 24),
-
-                // Botón Crear Proyecto
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      context.push('/prof-create-project');
-                    },
-                    icon: const Icon(Icons.add),
-                    label: const Text('Crear Proyecto (Clase)'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: colorScheme.primary,
-                      foregroundColor: colorScheme.onPrimary,
-                    ),
-                  ),
                 ),
                 const SizedBox(height: 24),
 
@@ -223,7 +218,7 @@ class _ProfDashPageState extends State<ProfDashPage> {
                       SizedBox(
                         width: double.infinity,
                         child: FilledButton(
-                          onPressed: () => context.go('/prof-reviews'),
+                          onPressed: () => context.go('/prof-project/${widget.projectId}/reviews'),
                           style: FilledButton.styleFrom(
                             backgroundColor: colorScheme.primary,
                             foregroundColor: colorScheme.onPrimary,

@@ -49,7 +49,7 @@ class ProjectApi {
     }
   }
 
-  Future<List<dynamic>> getMyProjects({required String token}) async {
+  Future<Map<String, dynamic>> getMyProjects({required String token}) async {
     final response = await http.get(
       Uri.parse('${ApiConfig.apiGatewayUrl}/projects/my-projects'),
       headers: {
@@ -59,10 +59,74 @@ class ProjectApi {
     ).timeout(ApiConfig.connectionTimeout);
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      final jsonResponse = jsonDecode(response.body);
-      return jsonResponse['projects'] ?? [];
+      return jsonDecode(response.body);
     } else {
       throw Exception('Error al obtener proyectos: ${response.statusCode} - ${response.body}');
     }
+  }
+
+  Future<Map<String, dynamic>> updateProject({
+    required String projectId,
+    required String name,
+    required String token,
+  }) async {
+    final response = await http.put(
+      Uri.parse('${ApiConfig.apiGatewayUrl}/projects/$projectId'),
+      headers: {
+        ...ApiConfig.defaultHeaders,
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({'name': name}),
+    ).timeout(ApiConfig.connectionTimeout);
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Error al actualizar proyecto: ${response.statusCode} - ${response.body}');
+    }
+  }
+
+  Future<List<dynamic>> getProjectStudents({
+    required String projectId,
+    required String token,
+  }) async {
+    final response = await http.get(
+      Uri.parse('${ApiConfig.apiGatewayUrl}/projects/$projectId/students'),
+      headers: {
+        ...ApiConfig.defaultHeaders,
+        'Authorization': 'Bearer $token',
+      },
+    ).timeout(ApiConfig.connectionTimeout);
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      final jsonResponse = jsonDecode(response.body);
+      return jsonResponse['students'] ?? [];
+    } else {
+      throw Exception('Error al obtener alumnos: ${response.statusCode} - ${response.body}');
+    }
+  }
+
+  Future<bool> acceptInvitation({required String projectId, required String token}) async {
+    final response = await http.post(
+      Uri.parse('${ApiConfig.apiGatewayUrl}/projects/$projectId/collaborators/accept'),
+      headers: {
+        ...ApiConfig.defaultHeaders,
+        'Authorization': 'Bearer $token',
+      },
+    ).timeout(ApiConfig.connectionTimeout);
+    
+    return response.statusCode >= 200 && response.statusCode < 300;
+  }
+
+  Future<bool> rejectInvitation({required String projectId, required String token}) async {
+    final response = await http.delete(
+      Uri.parse('${ApiConfig.apiGatewayUrl}/projects/$projectId/collaborators/reject'),
+      headers: {
+        ...ApiConfig.defaultHeaders,
+        'Authorization': 'Bearer $token',
+      },
+    ).timeout(ApiConfig.connectionTimeout);
+    
+    return response.statusCode >= 200 && response.statusCode < 300;
   }
 }

@@ -15,7 +15,9 @@ import 'package:mobile/features/auth/presentation/pages/teacher_info_page.dart';
 
 import 'package:mobile/features/inspiration/presentation/pages/inspiration_page.dart';
 import 'package:mobile/features/my_project/presentation/pages/project_defense_chat_page.dart';
+import 'package:mobile/features/my_project/presentation/pages/team_chat_page.dart';
 import 'package:mobile/features/projects/presentation/pages/student_join_project_page.dart';
+import 'package:mobile/features/projects/presentation/pages/student_qr_scanner_page.dart';
 import 'package:mobile/features/projects/presentation/pages/prof_create_project_page.dart';
 
 import 'package:mobile/features/my_project/presentation/pages/my_project_page.dart';
@@ -31,6 +33,12 @@ import 'package:mobile/features/prof_profile/presentation/pages/prof_profile_pag
 import 'package:mobile/features/profile/presentation/pages/activity_history_page.dart';
 import 'package:mobile/core/router/main_layout.dart';
 import 'package:mobile/core/router/prof_main_layout.dart';
+import 'package:mobile/core/router/project_layout.dart';
+import 'package:mobile/core/router/prof_project_layout.dart';
+import 'package:mobile/features/projects/presentation/pages/my_projects_dashboard_page.dart';
+import 'package:mobile/features/projects/presentation/pages/prof_projects_dashboard_page.dart';
+import 'package:mobile/features/projects/presentation/pages/prof_project_settings_page.dart';
+import 'package:mobile/features/projects/presentation/pages/prof_project_config_page.dart';
 
 import 'package:mobile/features/student_directory/presentation/pages/student_directory_page.dart';
 import 'package:mobile/features/notifications/presentation/pages/notifications_page.dart';
@@ -189,6 +197,10 @@ class _AppRouterState extends State<AppRouter> {
           pageBuilder: (context, state) => _buildSlideUpTransition(const StudentJoinProjectPage(), state.pageKey),
         ),
         GoRoute(
+          path: '/student-qr-scanner',
+          pageBuilder: (context, state) => _buildSlideUpTransition(const StudentQRScannerPage(), state.pageKey),
+        ),
+        GoRoute(
           path: '/prof-create-project',
           pageBuilder: (context, state) => _buildSlideUpTransition(const ProfCreateProjectPage(), state.pageKey),
         ),
@@ -216,8 +228,8 @@ class _AppRouterState extends State<AppRouter> {
             StatefulShellBranch(
               routes: [
                 GoRoute(
-                  path: '/my-project',
-                  builder: (context, state) => const MyProjectPage(),
+                  path: '/projects',
+                  builder: (context, state) => const MyProjectsDashboardPage(),
                 ),
               ],
             ),
@@ -229,56 +241,73 @@ class _AppRouterState extends State<AppRouter> {
                 ),
               ],
             ),
-            StatefulShellBranch(
-              routes: [
-                GoRoute(
-                  path: '/teams',
-                  builder: (context, state) {
-                    final tab = state.uri.queryParameters['tab'];
-                    return TeamsPage(initialTabIndex: int.tryParse(tab ?? '0') ?? 0);
-                  },
-                ),
-              ],
+          ],
+        ),
+
+        ShellRoute(
+          builder: (context, state, child) {
+            final projectId = state.pathParameters['id'] ?? '';
+            return ProjectLayout(projectId: projectId, child: child);
+          },
+          routes: [
+            GoRoute(
+              path: '/project/:id/teams',
+              builder: (context, state) {
+                final tab = state.uri.queryParameters['tab'];
+                return TeamsPage(initialTabIndex: int.tryParse(tab ?? '0') ?? 0);
+              },
+            ),
+            GoRoute(
+              path: '/project/:id/proposal',
+              builder: (context, state) => const MyProjectPage(),
+            ),
+            GoRoute(
+              path: '/project/:id/chat',
+              builder: (context, state) => const TeamChatPage(),
             ),
           ],
         ),
 
-        StatefulShellRoute.indexedStack(
-          builder: (context, state, navigationShell) {
-            return ProfMainLayout(navigationShell: navigationShell);
+        GoRoute(
+          path: '/prof-dash',
+          builder: (context, state) => const ProfProjectsDashboardPage(),
+        ),
+
+        // Nivel 2: Proyecto del Profesor
+        ShellRoute(
+          builder: (context, state, child) {
+            final projectId = state.pathParameters['projectId'] ?? '';
+            return ProfProjectLayout(projectId: projectId, child: child);
           },
-          branches: [
-            StatefulShellBranch(
-              routes: [
-                GoRoute(
-                  path: '/prof-dash',
-                  builder: (context, state) => const ProfDashPage(),
-                ),
-              ],
+          routes: [
+            GoRoute(
+              path: '/prof-project/:projectId/dashboard',
+              builder: (context, state) {
+                final projectId = state.pathParameters['projectId']!;
+                return ProfDashPage(projectId: projectId);
+              },
             ),
-            StatefulShellBranch(
-              routes: [
-                GoRoute(
-                  path: '/prof-reviews',
-                  builder: (context, state) => const ProfReviewsPage(),
-                ),
-              ],
+            GoRoute(
+              path: '/prof-project/:projectId/reviews',
+              pageBuilder: (context, state) => _buildSlideUpTransition(ProfReviewsPage(projectId: state.pathParameters['projectId']!), state.pageKey),
             ),
-            StatefulShellBranch(
-              routes: [
-                GoRoute(
-                  path: '/prof-rules',
-                  builder: (context, state) => const ProfRulesPage(),
-                ),
-              ],
+            GoRoute(
+              path: '/prof-project/:projectId/config',
+              pageBuilder: (context, state) => _buildSlideUpTransition(ProfProjectConfigPage(projectId: state.pathParameters['projectId']!), state.pageKey),
             ),
-            StatefulShellBranch(
-              routes: [
-                GoRoute(
-                  path: '/prof-history',
-                  builder: (context, state) => const ProfHistoryPage(),
-                ),
-              ],
+            GoRoute(
+              path: '/prof-project/:projectId/rules',
+              builder: (context, state) {
+                final projectId = state.pathParameters['projectId']!;
+                return ProfRulesPage(projectId: projectId);
+              },
+            ),
+            GoRoute(
+              path: '/prof-project/:projectId/settings',
+              builder: (context, state) {
+                final projectId = state.pathParameters['projectId']!;
+                return ProfProjectSettingsPage(projectId: projectId);
+              },
             ),
           ],
         ),
@@ -316,7 +345,6 @@ class _AppRouterState extends State<AppRouter> {
 
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Corvus',
@@ -333,6 +361,19 @@ class _AppRouterState extends State<AppRouter> {
       routerConfig: _router,
       // Evita conflictos de Hero tags duplicados en SnackBars durante transiciones
       builder: (context, child) => HeroControllerScope.none(child: child!),
+    );
+  }
+}
+
+class _MockChatPage extends StatelessWidget {
+  const _MockChatPage();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Text('Chat Grupal con IA (En construcción)'),
+      ),
     );
   }
 }

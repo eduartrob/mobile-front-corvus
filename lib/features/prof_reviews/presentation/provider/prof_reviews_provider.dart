@@ -21,13 +21,13 @@ class ProfReviewsProvider extends ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
-  Future<void> fetchReviews() async {
+  Future<void> fetchReviews({String? projectId}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      _reviews = await _dataSource.getFinalReviews();
+      _reviews = await _dataSource.getFinalReviews(projectId: projectId);
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
     } finally {

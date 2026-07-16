@@ -20,7 +20,7 @@ class ProfDashboardProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  Future<void> loadDashboardStats() async {
+  Future<void> loadDashboardStats({String? projectId}) async {
     if (authProvider.role?.toUpperCase() != 'PROFESOR' && authProvider.role?.toUpperCase() != 'DOCENTE') {
       return;
     }
@@ -30,7 +30,10 @@ class ProfDashboardProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final url = Uri.parse('${ApiConfig.apiGatewayUrl}/professors/dashboard');
+      final urlStr = projectId != null 
+        ? '${ApiConfig.apiGatewayUrl}/professors/dashboard?projectId=$projectId'
+        : '${ApiConfig.apiGatewayUrl}/professors/dashboard';
+      final url = Uri.parse(urlStr);
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
       
       final token = authProvider.currentUser?.token;

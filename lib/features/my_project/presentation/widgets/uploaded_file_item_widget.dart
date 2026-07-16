@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/my_project/presentation/provider/my_project_provider.dart';
+import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
 
 class UploadedFileItemWidget extends StatelessWidget {
   final MyProjectProvider provider;

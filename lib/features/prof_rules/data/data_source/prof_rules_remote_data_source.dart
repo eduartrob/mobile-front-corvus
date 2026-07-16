@@ -9,7 +9,7 @@ class ProfRulesRemoteDataSource {
 
   ProfRulesRemoteDataSource({required this.client});
 
-  Future<Map<String, dynamic>> getConfig({bool forceRefresh = false}) async {
+  Future<Map<String, dynamic>> getConfig({bool forceRefresh = false, String? projectId}) async {
     final cacheKey = 'cached_prof_config';
     final etagKey = 'etag_prof_config';
 
@@ -20,7 +20,10 @@ class ProfRulesRemoteDataSource {
       }
     }
 
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/config');
+    final urlStr = projectId != null
+      ? '${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/config?projectId=$projectId'
+      : '${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/config';
+    final url = Uri.parse(urlStr);
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
 
@@ -51,7 +54,7 @@ class ProfRulesRemoteDataSource {
     }
   }
 
-  Future<Map<String, dynamic>> getClusterStats({bool forceRefresh = false}) async {
+  Future<Map<String, dynamic>> getClusterStats({bool forceRefresh = false, String? projectId}) async {
     final cacheKey = 'cached_cluster_stats';
     if (!forceRefresh) {
       final cached = await _storage.read(key: cacheKey);
@@ -60,7 +63,10 @@ class ProfRulesRemoteDataSource {
       }
     }
 
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/clusters-stats');
+    final urlStr = projectId != null
+      ? '${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/clusters-stats?projectId=$projectId'
+      : '${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/clusters-stats';
+    final url = Uri.parse(urlStr);
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
 
@@ -78,8 +84,11 @@ class ProfRulesRemoteDataSource {
     }
   }
 
-  Future<void> updateConfig(List<String> allowedExtensions, String llmProvider, String driveFolderId, List<String> exclusionRules, List<Map<String, dynamic>> projectSections, int minTeamMembers, int maxTeamMembers, {String? authorName, String? authorPhotoUrl, String? authorId}) async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/config');
+  Future<void> updateConfig(List<String> allowedExtensions, String llmProvider, String driveFolderId, List<String> exclusionRules, List<Map<String, dynamic>> projectSections, int minTeamMembers, int maxTeamMembers, {String? authorName, String? authorPhotoUrl, String? authorId, String? projectId}) async {
+    final urlStr = projectId != null
+      ? '${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/config?projectId=$projectId'
+      : '${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/config';
+    final url = Uri.parse(urlStr);
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
 

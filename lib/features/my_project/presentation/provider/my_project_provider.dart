@@ -57,6 +57,14 @@ class MyProjectProvider extends ChangeNotifier {
   Map<String, dynamic>? get quickAnalysis => _quickAnalysis;
   Map<String, dynamic>? get detailedAnalysis => _detailedAnalysis;
   bool get hasPassedDefense => _hasPassedDefense;
+
+  // Context for plagiarism isolation
+  String? _universityId;
+  String? _careerId;
+  void setContext({String? universityId, String? careerId}) {
+    _universityId = universityId;
+    _careerId = careerId;
+  }
   
   void setDefensePassed(List<Map<String, String>> history) {
     _hasPassedDefense = true;
@@ -308,7 +316,11 @@ class MyProjectProvider extends ChangeNotifier {
         );
       }
 
-      final response = await _dataSource.preValidateProposal(_selectedFile!.path, teamId, userId, userName);
+      final response = await _dataSource.preValidateProposal(
+        _selectedFile!.path, teamId, userId, userName,
+        universityId: _universityId,
+        careerId: _careerId,
+      );
       
       if (response['status'] == 'pending') {
           _serverPhase = 1;
@@ -571,6 +583,9 @@ class MyProjectProvider extends ChangeNotifier {
     required String teamId,
     required String teamName,
     required List<String> memberNames,
+    required String universityName,
+    required String careerName,
+    required String professorName,
   }) async {
     if (_detailedAnalysis == null) {
        _errorMessage = 'No hay análisis disponible para enviar.';
@@ -587,7 +602,16 @@ class MyProjectProvider extends ChangeNotifier {
           title: 'Subiendo documento...', 
           message: 'Guardando el documento en la nube de forma segura'
         );
-        uploadedFileUrl = await CloudinaryService.uploadFile(_selectedFile!.path);
+        final cleanUniv = universityName.replaceAll(' ', '_');
+        final cleanCareer = careerName.replaceAll(' ', '_');
+        final cleanProf = professorName.replaceAll(' ', '_');
+        final cleanTeam = teamName.replaceAll(' ', '_');
+        final folderPath = 'Corvus/$cleanUniv/$cleanCareer/$cleanProf/$cleanTeam';
+
+        uploadedFileUrl = await CloudinaryService.uploadFile(
+          _selectedFile!.path,
+          folder: folderPath
+        );
       }
 
       // Build an enriched proposal_data with all required context for teachers

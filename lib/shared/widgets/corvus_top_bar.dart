@@ -9,12 +9,14 @@ class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showLogo;
   final Widget? titleWidget;
   final bool hideActions;
+  final List<Widget>? extraActions;
 
   const CorvusTopBar({
     super.key,
     this.showLogo = true,
     this.titleWidget,
     this.hideActions = false,
+    this.extraActions,
   });
 
   @override
@@ -33,6 +35,7 @@ class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
             ) 
           : null),
       actions: hideActions ? const [] : [
+        if (extraActions != null) ...extraActions!,
         // Notifications Bell
         Consumer<NotificationsProvider>(
           builder: (context, notificationsProvider, child) {

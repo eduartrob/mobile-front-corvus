@@ -331,8 +331,9 @@ class AuthFooter extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (primaryText != null && actionText != null)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               Text(
                 primaryText!,
@@ -340,6 +341,7 @@ class AuthFooter extends StatelessWidget {
                   fontSize: 14,
                   color: colors.onSurfaceVariant,
                 ),
+                textAlign: TextAlign.center,
               ),
               TextButton(
                 onPressed: onActionTap,
@@ -355,6 +357,7 @@ class AuthFooter extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                     color: colors.primary,
                   ),
+                  textAlign: TextAlign.center,
                 ),
               ),
             ],

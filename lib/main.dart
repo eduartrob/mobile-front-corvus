@@ -108,7 +108,10 @@ void main() async {
   // If already authenticated (stored session), preload data immediately
   final userId = authProvider.currentUser?.id;
   if (userId != null) {
-    myProjectProvider.init(userId);
+    teamsProvider.fetchMyTeam().then((_) {
+      final teamId = teamsProvider.myTeam?.id ?? '';
+      myProjectProvider.init(userId, teamId);
+    });
     final jwtToken = authProvider.currentUser?.token;
     if (jwtToken != null) {
       linkedFoldersProvider.loadFolders(jwtToken);
@@ -131,7 +134,10 @@ void main() async {
     if (authProvider.status == AuthStatus.authenticated) {
       final uid = authProvider.currentUser?.id;
       if (uid != null) {
-        myProjectProvider.init(uid); // init() has an _initialized guard; safe to call
+        teamsProvider.fetchMyTeam().then((_) {
+          final teamId = teamsProvider.myTeam?.id ?? '';
+          myProjectProvider.init(uid, teamId);
+        });
         final token = authProvider.currentUser?.token;
         if (token != null) {
           linkedFoldersProvider.loadFolders(token);

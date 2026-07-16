@@ -159,6 +159,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw Exception(errorData['error'] ?? 'Error desconocido del servidor');
       }
     } catch (e) {
+      if (e is Exception) {
+        rethrow;
+      }
       throw Exception('Excepción durante loginWithEmail: $e');
     }
   }

@@ -8,8 +8,11 @@ class ProfReviewsRemoteDataSource {
 
   ProfReviewsRemoteDataSource({required this.client});
 
-  Future<List<FinalReviewModel>> getFinalReviews() async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/final-reviews');
+  Future<List<FinalReviewModel>> getFinalReviews({String? projectId}) async {
+    final urlStr = projectId != null 
+        ? '${ApiConfig.apiGatewayUrl}/final-reviews?projectId=$projectId'
+        : '${ApiConfig.apiGatewayUrl}/final-reviews';
+    final url = Uri.parse(urlStr);
 
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);

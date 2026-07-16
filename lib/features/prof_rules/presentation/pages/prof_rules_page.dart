@@ -11,16 +11,31 @@ import 'package:animated_list_plus/transitions.dart';
 import 'package:http/http.dart' as http;
 
 class ProfRulesPage extends StatelessWidget {
-  const ProfRulesPage({super.key});
+  final String projectId;
+  const ProfRulesPage({super.key, required this.projectId});
 
   @override
   Widget build(BuildContext context) {
-    return const _ProfRulesPageView();
+    return _ProfRulesPageView(projectId: projectId);
   }
 }
 
-class _ProfRulesPageView extends StatelessWidget {
-  const _ProfRulesPageView();
+class _ProfRulesPageView extends StatefulWidget {
+  final String projectId;
+  const _ProfRulesPageView({required this.projectId});
+
+  @override
+  State<_ProfRulesPageView> createState() => _ProfRulesPageViewState();
+}
+
+class _ProfRulesPageViewState extends State<_ProfRulesPageView> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ProfRulesProvider>().fetchData(projectId: widget.projectId);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,11 +61,11 @@ class _ProfRulesPageView extends StatelessWidget {
                       Tab(text: 'Estructura del Proyecto'),
                     ],
                   ),
-                  const Expanded(
+                  Expanded(
                     child: TabBarView(
                       children: [
-                        _ExclusionRulesTab(),
-                        _ProjectStructureTab(),
+                        _ExclusionRulesTab(projectId: widget.projectId),
+                        _ProjectStructureTab(projectId: widget.projectId),
                       ],
                     ),
                   ),
@@ -87,6 +102,7 @@ class _ProfRulesPageView extends StatelessWidget {
   void _saveRules(BuildContext context, ProfRulesProvider provider) async {
     final user = context.read<AuthProvider>().currentUser;
     await provider.saveConfig(
+      projectId: widget.projectId,
       authorName: user?.name,
       authorPhotoUrl: user?.photoUrl,
       authorId: user?.id,
@@ -106,7 +122,8 @@ class _ProfRulesPageView extends StatelessWidget {
 }
 
 class _ExclusionRulesTab extends StatelessWidget {
-  const _ExclusionRulesTab();
+  final String projectId;
+  const _ExclusionRulesTab({required this.projectId});
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +144,7 @@ class _ExclusionRulesTab extends StatelessWidget {
     });
 
     return RefreshIndicator(
-      onRefresh: () => provider.fetchData(),
+      onRefresh: () => provider.fetchData(projectId: projectId),
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         physics: const AlwaysScrollableScrollPhysics(),
@@ -223,6 +240,7 @@ class _ExclusionRulesTab extends StatelessWidget {
                             final user = context.read<AuthProvider>().currentUser;
                             provider.toggleExclusionRule(clusterName);
                             await provider.saveConfig(
+                              projectId: projectId,
                               authorName: user?.name,
                               authorPhotoUrl: user?.photoUrl,
                               authorId: user?.id,
@@ -263,7 +281,8 @@ class _ExclusionRulesTab extends StatelessWidget {
 }
 
 class _ProjectStructureTab extends StatelessWidget {
-  const _ProjectStructureTab();
+  final String projectId;
+  const _ProjectStructureTab({required this.projectId});
 
   @override
   Widget build(BuildContext context) {
@@ -271,7 +290,7 @@ class _ProjectStructureTab extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return RefreshIndicator(
-      onRefresh: () => provider.fetchData(),
+      onRefresh: () => provider.fetchData(projectId: projectId),
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         physics: const AlwaysScrollableScrollPhysics(),

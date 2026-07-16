@@ -7,7 +7,8 @@ import 'package:mobile/features/prof_reviews/presentation/pages/prof_review_deta
 import 'package:intl/intl.dart';
 
 class ProfReviewsPage extends StatefulWidget {
-  const ProfReviewsPage({super.key});
+  final String projectId;
+  const ProfReviewsPage({super.key, required this.projectId});
 
   @override
   State<ProfReviewsPage> createState() => _ProfReviewsPageState();
@@ -18,7 +19,7 @@ class _ProfReviewsPageState extends State<ProfReviewsPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ProfReviewsProvider>().fetchReviews();
+      context.read<ProfReviewsProvider>().fetchReviews(projectId: widget.projectId);
     });
   }
 
