@@ -48,6 +48,11 @@ class MyProjectProvider extends ChangeNotifier {
   Map<String, dynamic>? _detailedAnalysis;
   bool _hasPassedDefense = false;
   List<Map<String, String>> _defenseChatHistory = [];
+  
+  // Persist chat state so leaving the page doesn't restart it
+  String? _activeSessionId;
+  List<Map<String, dynamic>> _activeChatMessages = [];
+  int _activeMessageCount = 0;
 
   Map<String, dynamic>? get quickAnalysis => _quickAnalysis;
   Map<String, dynamic>? get detailedAnalysis => _detailedAnalysis;
@@ -56,7 +61,21 @@ class MyProjectProvider extends ChangeNotifier {
   void setDefensePassed(List<Map<String, String>> history) {
     _hasPassedDefense = true;
     _defenseChatHistory = history;
+    _activeSessionId = null;
+    _activeChatMessages = [];
+    _activeMessageCount = 0;
     notifyListeners();
+  }
+
+  String? get activeSessionId => _activeSessionId;
+  List<Map<String, dynamic>> get activeChatMessages => _activeChatMessages;
+  int get activeMessageCount => _activeMessageCount;
+
+  void saveActiveSession(String sessionId, List<Map<String, dynamic>> messages, int messageCount) {
+    _activeSessionId = sessionId;
+    _activeChatMessages = messages;
+    _activeMessageCount = messageCount;
+    // Don't call notifyListeners here to avoid building while navigating
   }
 
   String? _errorMessage;
@@ -153,7 +172,7 @@ class MyProjectProvider extends ChangeNotifier {
     }
   }
   
-  Future<void> init(String userId, {bool forceRefresh = false}) async {
+  Future<void> init(String userId, String teamId, {bool forceRefresh = false}) async {
     if (_initialized && !forceRefresh) return;
     _initialized = true;
     
@@ -173,29 +192,30 @@ class MyProjectProvider extends ChangeNotifier {
         return;
       }
 
-      final status = await _dataSource.getAnalysisStatus(userId);
+      final status = await _dataSource.getAnalysisStatus(teamId);
       final phase = (status['phase'] as num?)?.toInt() ?? 0;
+      final uploadedBy = status['uploaded_by'] as String?;
       
       if (phase >= 1 && phase < 5) {
         _state = ProjectState.uploading;
         _serverPhase = phase;
         _serverPhaseMessage = status['message'] ?? '';
-        _startPolling(userId, null);
+        _startPolling(userId, teamId, null);
         notifyListeners();
         return;
       } else if (phase >= 5 && phase <= 8) {
         _state = ProjectState.analyzing;
         _serverPhase = phase;
         _serverPhaseMessage = status['message'] ?? '';
-        _startPolling(userId, null);
+        _startPolling(userId, teamId, null);
         notifyListeners();
         return;
       } else if (phase == 9) {
-        final result = await _dataSource.getAnalysisResult(userId);
+        final result = await _dataSource.getAnalysisResult(teamId);
         if (result['status'] != 'pending' && result['status'] != 'error') {
           // If it's detailed analysis result
           if (result.containsKey('general_feedback') || result.containsKey('innovation_index') || result.containsKey('semantic_collision_risk')) {
-              await _applyAnalysisResult(userId, result, null);
+              await _applyAnalysisResult(userId, teamId, result, null);
           } else {
               _quickAnalysis = result;
               _state = ProjectState.preValidated;
@@ -205,7 +225,7 @@ class MyProjectProvider extends ChangeNotifier {
         }
       }
 
-      final draft = await _dataSource.checkDraft(userId);
+      final draft = await _dataSource.checkDraft(teamId);
       if (draft.isNotEmpty && draft['status'] != 'not_found') {
         _quickAnalysis = draft;
         _fileName = draft['filename'] ?? 'borrador_guardado.pdf';
@@ -224,7 +244,7 @@ class MyProjectProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> pickFile(String userId, AppLocalizations l10n) async {
+  Future<void> pickFile(String userId, String teamId, String userName, AppLocalizations l10n) async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -255,7 +275,7 @@ class MyProjectProvider extends ChangeNotifier {
         _state = ProjectState.uploading;
         notifyListeners();
 
-        await _preValidate(userId, l10n);
+        await _preValidate(userId, teamId, userName, l10n);
       }
     } catch (e) {
       _errorMessage = 'Error seleccionando archivo: ${e.toString().replaceAll('Exception: ', '')}';
@@ -264,7 +284,7 @@ class MyProjectProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> _preValidate(String userId, AppLocalizations l10n) async {
+  Future<void> _preValidate(String userId, String teamId, String userName, AppLocalizations l10n) async {
     try {
       if (_selectedFile == null) return;
       
@@ -275,12 +295,12 @@ class MyProjectProvider extends ChangeNotifier {
         );
       }
 
-      final response = await _dataSource.preValidateProposal(_selectedFile!.path, userId);
+      final response = await _dataSource.preValidateProposal(_selectedFile!.path, teamId, userId, userName);
       
       if (response['status'] == 'pending') {
           _serverPhase = 1;
           _serverPhaseMessage = response['message'] ?? '';
-          _startPolling(userId, l10n);
+          _startPolling(userId, teamId, l10n);
           notifyListeners();
       } else {
           _quickAnalysis = response;
@@ -319,7 +339,7 @@ class MyProjectProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> submitForReview(String userId, AppLocalizations l10n) async {
+  Future<void> submitForReview(String userId, String teamId, AppLocalizations l10n) async {
     _state = ProjectState.analyzing;
     _serverPhase = 5;
     _serverPhaseMessage = '';
@@ -332,7 +352,7 @@ class MyProjectProvider extends ChangeNotifier {
         phase: l10n.notifAnalysisStartBody
       );
 
-      await _dataSource.analyzeDraftDetailed(userId);
+      await _dataSource.analyzeDraftDetailed(teamId);
     } catch (e) {
       _statusTimer?.cancel();
       _notificationService.cancelAnalysisNotification();
@@ -345,10 +365,10 @@ class MyProjectProvider extends ChangeNotifier {
       return;
     }
 
-    _startPolling(userId, l10n);
+    _startPolling(userId, teamId, l10n);
   }
 
-  void _startPolling(String userId, AppLocalizations? l10n) {
+  void _startPolling(String userId, String teamId, AppLocalizations? l10n) {
     _statusTimer?.cancel();
     _statusTimer = Timer.periodic(const Duration(seconds: 1), (_) async {
       if (_state != ProjectState.analyzing && _state != ProjectState.uploading) {
@@ -356,7 +376,7 @@ class MyProjectProvider extends ChangeNotifier {
         return;
       }
 
-      final status = await _dataSource.getAnalysisStatus(userId);
+      final status = await _dataSource.getAnalysisStatus(teamId);
       
       if (_state != ProjectState.analyzing && _state != ProjectState.uploading) return;
       
@@ -396,23 +416,23 @@ class MyProjectProvider extends ChangeNotifier {
 
       if (phase == 9) {
         _statusTimer?.cancel();
-        final result = await _dataSource.getAnalysisResult(userId);
+        final result = await _dataSource.getAnalysisResult(teamId);
         if (_state != ProjectState.analyzing && _state != ProjectState.uploading) return;
 
         if (result['status'] == 'pending') {
           await Future.delayed(const Duration(seconds: 2));
           if (_state != ProjectState.analyzing && _state != ProjectState.uploading) return;
-          final retryResult = await _dataSource.getAnalysisResult(userId);
+          final retryResult = await _dataSource.getAnalysisResult(teamId);
           
           if (_state == ProjectState.analyzing) {
               if (retryResult['status'] != 'pending') {
-                  _applyAnalysisResult(userId, retryResult, l10n);
+                  _applyAnalysisResult(userId, teamId, retryResult, l10n);
               }
           } else {
               if (retryResult['status'] != 'pending') {
                   _quickAnalysis = retryResult;
               } else if (_quickAnalysis == null || _quickAnalysis!.isEmpty || _quickAnalysis?['status'] == 'pending') {
-                  final draft = await _dataSource.checkDraft(userId);
+                  final draft = await _dataSource.checkDraft(teamId);
                   if (draft.isNotEmpty && draft['status'] != 'not_found') {
                       _quickAnalysis = draft;
                   }
@@ -426,7 +446,7 @@ class MyProjectProvider extends ChangeNotifier {
           }
         } else {
           if (_state == ProjectState.analyzing) {
-              _applyAnalysisResult(userId, result, l10n);
+              _applyAnalysisResult(userId, teamId, result, l10n);
           } else {
               _quickAnalysis = result;
               _state = ProjectState.preValidated;
@@ -460,7 +480,7 @@ class MyProjectProvider extends ChangeNotifier {
     });
   }
 
-  Future<void> _applyAnalysisResult(String userId, Map<String, dynamic> result, AppLocalizations? l10n) async {
+  Future<void> _applyAnalysisResult(String userId, String teamId, Map<String, dynamic> result, AppLocalizations? l10n) async {
     _notificationService.cancelAnalysisNotification();
     
     if (result['status'] == 'error' || result['status'] == 'warning') {
@@ -489,7 +509,7 @@ class MyProjectProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> cancelAnalysis(String userId) async {
+  Future<void> cancelAnalysis(String userId, String teamId) async {
     _statusTimer?.cancel();
     _state = ProjectState.error;
     _selectedFile = null;
@@ -502,7 +522,7 @@ class MyProjectProvider extends ChangeNotifier {
     try {
       await _notificationService.cancelAnalysisNotification();
       await _notificationService.cancelSyncNotification();
-      await _dataSource.cancelAnalysis(userId);
+      await _dataSource.cancelAnalysis(teamId);
     } catch (e) {
       debugPrint("Error canceling analysis: $e");
     } finally {

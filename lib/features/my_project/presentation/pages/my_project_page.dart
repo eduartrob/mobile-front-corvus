@@ -48,8 +48,9 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
       provider.setScreenVisible(true);
       if (provider.state == ProjectState.initial) {
         final userId = context.read<AuthProvider>().currentUser?.id;
-        if (userId != null) {
-          provider.init(userId);
+        final teamId = context.read<TeamsProvider>().myTeam?.id;
+        if (userId != null && teamId != null) {
+          provider.init(userId, teamId);
         }
       }
 
@@ -93,7 +94,10 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
         child: RefreshIndicator(
           onRefresh: () async {
             final provider = context.read<MyProjectProvider>();
-            await provider.init(userId, forceRefresh: true);
+            final teamId = context.read<TeamsProvider>().myTeam?.id;
+            if (teamId != null) {
+              await provider.init(userId, teamId, forceRefresh: true);
+            }
           },
           child: Consumer<ProjectProvider>(
             builder: (context, projectProvider, child) {
@@ -350,6 +354,9 @@ class _ProjectPageBody extends StatelessWidget {
     final teamsProvider = context.watch<TeamsProvider>();
     final finalReviewStatus = teamsProvider.finalReviewStatus;
     final isUnderReview = finalReviewStatus != null && finalReviewStatus['status'] != 'REJECTED';
+    final auth = context.read<AuthProvider>();
+    final isLeader = teamsProvider.myTeam != null && teamsProvider.myTeam!.members.isNotEmpty && 
+                    (teamsProvider.myTeam!.members[0].id == userId || teamsProvider.myTeam!.members[0].email == auth.currentUser?.email);
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 500),
@@ -418,7 +425,23 @@ class _ProjectPageBody extends StatelessWidget {
 
         // Show upload zone only after init resolved AND there's an error (no analysis found)
         if (provider.state == ProjectState.error && provider.documentTypeError == null)
-          UploadZoneWidget(provider: provider),
+          if (isLeader)
+            UploadZoneWidget(provider: provider)
+          else
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Center(
+                child: Text(
+                  'Esperando a que el líder del equipo suba la propuesta.',
+                  style: TextStyle(color: colorScheme.onSurfaceVariant),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
 
         if (provider.state == ProjectState.detailedAnalysis && provider.detailedAnalysis != null)
           Builder(
@@ -445,6 +468,14 @@ class _ProjectPageBody extends StatelessWidget {
                     projectName,
                     style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, height: 1.2),
                   ),
+                  if (provider.detailedAnalysis?['uploaded_by'] != null || provider.quickAnalysis?['uploaded_by'] != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        'Subido por: ${provider.detailedAnalysis?['uploaded_by'] ?? provider.quickAnalysis?['uploaded_by']}',
+                        style: TextStyle(fontSize: 14, color: colorScheme.onSurfaceVariant),
+                      ),
+                    ),
                   const SizedBox(height: 16),
                   if (myTeam != null)
                     Container(
@@ -555,8 +586,11 @@ class _ProjectPageBody extends StatelessWidget {
             width: double.infinity,
             height: 50,
             child: ElevatedButton.icon(
-              onPressed: () => provider.submitForReview(userId, l10n),
-              icon: const Icon(Icons.send, size: 18),
+              onPressed: () {
+                final teamId = context.read<TeamsProvider>().myTeam?.id ?? '';
+                provider.submitForReview(userId, teamId, l10n);
+              },
+              icon: const Icon(Icons.analytics, size: 18),
               label: Text(l10n.sendForReview, style: const TextStyle(fontWeight: FontWeight.bold)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: colorScheme.primary,
@@ -629,7 +663,7 @@ class _ProjectPageBody extends StatelessWidget {
                 ),
               ),
             )
-          else
+          else if (isLeader)
             SizedBox(
               width: double.infinity,
               height: 50,
