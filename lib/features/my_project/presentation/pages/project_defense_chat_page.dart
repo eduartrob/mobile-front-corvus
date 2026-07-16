@@ -224,7 +224,7 @@ class _ProjectDefenseChatPageState extends State<ProjectDefenseChatPage> {
   }
 
   void _checkIfPassed(String aiMessage) {
-    if (aiMessage.contains('[DEFENSA_SUPERADA]')) {
+    if (aiMessage.contains('DEFENSA_SUPERADA') || aiMessage.contains('DEFENSA APROBADA')) {
       setState(() {
         _defensePassed = true;
       });
