@@ -143,6 +143,39 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
                 );
               }
 
+              final teamsProvider = context.watch<TeamsProvider>();
+              final currentTeamId = teamsProvider.myTeam?.id;
+
+              if (currentTeamId == null) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.group_off_outlined, size: 80, color: Theme.of(context).colorScheme.primary),
+                        const SizedBox(height: 24),
+                        Text(
+                          'No tienes un equipo',
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Debes unirte o crear un equipo en la pestaña de Equipos para poder enviar una propuesta.',
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+
               return SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: AppDimens.screenMargin),
                 physics: const AlwaysScrollableScrollPhysics(),

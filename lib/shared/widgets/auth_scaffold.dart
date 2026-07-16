@@ -11,6 +11,7 @@ class AuthScaffold extends StatelessWidget {
   final String? role;
   /// Painter opcional para fondo animado (se renderiza aislado con RepaintBoundary)
   final CustomPainter? backgroundPainter;
+  final Widget? leading;
 
   const AuthScaffold({
     super.key,
@@ -20,6 +21,7 @@ class AuthScaffold extends StatelessWidget {
     this.bottomAlign = false,
     this.role,
     this.backgroundPainter,
+    this.leading,
   });
 
   @override
@@ -104,6 +106,12 @@ class AuthScaffold extends StatelessWidget {
                 ],
               ),
             ),
+            if (leading != null)
+              Positioned(
+                top: topPad + 12,
+                left: 16,
+                child: leading!,
+              ),
             // Card blanca llega hasta el fondo
             Positioned(
               top: headerHeight,

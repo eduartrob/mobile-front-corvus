@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:mobile/features/prof_profile/presentation/provider/linked_folders_provider.dart';
+import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 
 class ProfLoadProjectsPage extends StatelessWidget {
   const ProfLoadProjectsPage({super.key});
@@ -14,9 +17,17 @@ class ProfLoadProjectsPage extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
+      body: RefreshIndicator(
+        onRefresh: () async {
+          final token = context.read<AuthProvider>().currentUser?.token;
+          if (token != null) {
+            await context.read<LinkedFoldersProvider>().loadFolders(token);
+          }
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
@@ -111,8 +122,93 @@ class ProfLoadProjectsPage extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 32),
+            Text(
+              'Carpetas Asociadas',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Consumer<LinkedFoldersProvider>(
+              builder: (context, provider, child) {
+                final folders = provider.folders;
+                if (folders.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 32.0),
+                      child: Text(
+                        'Aún no hay carpetas asociadas.',
+                        style: TextStyle(
+                          color: colorScheme.onSurfaceVariant,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                return ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: folders.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final folder = folders[index];
+                    final isSyncing = folder['status'] == 'syncing';
+                    
+                    return Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: colorScheme.surface,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: colorScheme.outlineVariant),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            isSyncing ? Icons.sync : Icons.folder_special,
+                            color: isSyncing ? colorScheme.primary : colorScheme.secondary,
+                            size: 28,
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  folder['name'] ?? 'Carpeta sin nombre',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: colorScheme.onSurface,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  isSyncing ? 'Sincronizando...' : 'Sincronizada correctamente',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: isSyncing 
+                                      ? colorScheme.primary 
+                                      : Colors.green.shade600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
           ],
         ),
+      ),
       ),
     );
   }

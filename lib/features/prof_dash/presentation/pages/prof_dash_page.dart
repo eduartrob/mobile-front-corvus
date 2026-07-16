@@ -295,7 +295,7 @@ class _ProfDashPageState extends State<ProfDashPage> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const ProfDirectoryPage()),
+                              MaterialPageRoute(builder: (context) => ProfDirectoryPage(projectId: widget.projectId)),
                             );
                           },
                           style: OutlinedButton.styleFrom(

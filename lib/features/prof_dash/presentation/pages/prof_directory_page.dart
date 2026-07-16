@@ -8,13 +8,15 @@ import 'package:mobile/features/student_directory/domain/entities/student.dart';
 import 'package:mobile/features/student_directory/presentation/widgets/student_card.dart';
 
 class ProfDirectoryPage extends StatelessWidget {
-  const ProfDirectoryPage({super.key});
+  final String projectId;
+  const ProfDirectoryPage({super.key, required this.projectId});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => ProfDirectoryProvider(
         authProvider: context.read<AuthProvider>(),
+        projectId: projectId,
       )..loadDirectory(),
       child: const _ProfDirectoryPageView(),
     );
