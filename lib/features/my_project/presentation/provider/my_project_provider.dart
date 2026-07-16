@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
-import 'package:mobile/features/my_project/data/my_project_remote_data_source.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile/features/my_project/data/my_project_remote_data_source.dart';
 import 'package:mobile/features/my_project/data/my_project_local_data_source.dart';
 import 'package:mobile/features/my_project/data/datasources/cloudinary_service.dart';
@@ -230,6 +230,16 @@ class MyProjectProvider extends ChangeNotifier {
         _quickAnalysis = draft;
         _fileName = draft['filename'] ?? 'borrador_guardado.pdf';
         _fileSize = 'Local';
+        
+        final prefs = await SharedPreferences.getInstance();
+        final savedPath = prefs.getString('draft_file_path_$userId');
+        if (savedPath != null) {
+          final savedFile = File(savedPath);
+          if (await savedFile.exists()) {
+            _selectedFile = savedFile;
+          }
+        }
+
         _state = ProjectState.preValidated;
         notifyListeners();
       } else {
@@ -269,6 +279,9 @@ class MyProjectProvider extends ChangeNotifier {
 
         _selectedFile = file;
         _fileName = result.files.single.name;
+        
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('draft_file_path_$userId', file.path);
         
         _fileSize = '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
         
@@ -543,6 +556,12 @@ class MyProjectProvider extends ChangeNotifier {
     _documentTypeError = null;
     _localDataSource.clearDetailedAnalysis(userId);
     
+    try {
+      SharedPreferences.getInstance().then((prefs) {
+        prefs.remove('draft_file_path_$userId');
+      });
+    } catch (_) {}
+
     // Set to error state so the UploadZoneWidget is shown
     _state = ProjectState.error;
     notifyListeners();
