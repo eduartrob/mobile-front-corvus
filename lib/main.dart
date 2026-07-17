@@ -36,7 +36,14 @@ void _handleNotificationTap(RemoteMessage message) {
   final context = rootNavigatorKey.currentContext;
   if (context != null) {
     if (message.data['type'] == 'TEAM_INVITE') {
-      context.push('/teams?tab=1'); // tab 1 is Solicitudes
+      final projectId = message.data['projectId'] ?? 
+          context.read<MyProjectProvider>().project?.id;
+          
+      if (projectId != null) {
+        context.push('/project/$projectId/teams?tab=1'); // tab 1 is Solicitudes
+      } else {
+        context.push('/inspiration');
+      }
     } else {
       context.push('/notifications?highlightLatest=true');
     }
