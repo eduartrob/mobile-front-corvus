@@ -23,19 +23,41 @@ class ProfProjectLayout extends StatelessWidget {
     final currentIndex = _calculateSelectedIndex(context);
     if (index == currentIndex) return;
 
-    switch (index) {
-      case 0:
+    if (currentIndex == 0 && index != 0) {
+      // Tablero → tab secundario: PUSH para preservar la pila del root navigator
+      switch (index) {
+        case 1: context.push('/prof-project/$projectId/reviews'); break;
+        case 2: context.push('/prof-project/$projectId/rules'); break;
+        case 3: context.push('/prof-project/$projectId/settings'); break;
+      }
+    } else if (index == 0 && currentIndex != 0) {
+      // Tab secundario → Tablero: POP si hay algo en la pila
+      if (context.canPop()) {
+        context.pop();
+      } else {
         context.go('/prof-project/$projectId/dashboard');
-        break;
-      case 1:
-        context.go('/prof-project/$projectId/reviews');
-        break;
-      case 2:
-        context.go('/prof-project/$projectId/rules');
-        break;
-      case 3:
-        context.go('/prof-project/$projectId/settings');
-        break;
+      }
+    } else {
+      // Cambio entre tabs secundarios: pop el actual y push el nuevo en microtask
+      if (context.canPop()) {
+        context.pop();
+        Future.microtask(() {
+          if (!context.mounted) return;
+          switch (index) {
+            case 1: context.push('/prof-project/$projectId/reviews'); break;
+            case 2: context.push('/prof-project/$projectId/rules'); break;
+            case 3: context.push('/prof-project/$projectId/settings'); break;
+          }
+        });
+      } else {
+        // Fallback: go() si no hay nada que popear
+        switch (index) {
+          case 0: context.go('/prof-project/$projectId/dashboard'); break;
+          case 1: context.go('/prof-project/$projectId/reviews'); break;
+          case 2: context.go('/prof-project/$projectId/rules'); break;
+          case 3: context.go('/prof-project/$projectId/settings'); break;
+        }
+      }
     }
   }
 
@@ -48,20 +70,18 @@ class ProfProjectLayout extends StatelessWidget {
       onPopInvokedWithResult: (bool didPop, Object? result) {
         if (didPop) return;
         final location = GoRouterState.of(context).uri.path;
-        final currentIdx = _calculateSelectedIndex(context);
-        // Si estamos en /config (página empujada sobre el tablero),
-        // regresar al tablero del proyecto, no salir al dashboard.
         Future.microtask(() {
           if (!context.mounted) return;
           if (location.endsWith('/config')) {
-            _onItemTapped(context, 0);
-          } else if (currentIdx != 0) {
-            // Estamos en un tab secundario (reviews, rules, settings).
-            // Regresar al tablero de forma sincrónica para evitar carreras.
-            _onItemTapped(context, 0);
+            // /config fue empujado sobre el tablero: solo pop
+            if (context.canPop()) context.pop();
           } else {
-            // Ya estamos en el tablero: salir al dashboard de proyectos.
-            context.go('/prof-dash');
+            // Para cualquier tab: pop si hay algo en la pila, sino ir a prof-dash
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/prof-dash');
+            }
           }
         });
       },

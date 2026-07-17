@@ -20,16 +20,38 @@ class ProjectLayout extends StatelessWidget {
     final currentIndex = _calculateSelectedIndex(context);
     if (index == currentIndex) return;
 
-    switch (index) {
-      case 0:
+    if (currentIndex == 0 && index != 0) {
+      // Mi Equipo → tab secundario: PUSH para preservar la pila
+      switch (index) {
+        case 1: context.push('/project/$projectId/proposal'); break;
+        case 2: context.push('/project/$projectId/chat'); break;
+      }
+    } else if (index == 0 && currentIndex != 0) {
+      // Tab secundario → Mi Equipo: POP si hay algo en la pila
+      if (context.canPop()) {
+        context.pop();
+      } else {
         context.go('/project/$projectId/teams');
-        break;
-      case 1:
-        context.go('/project/$projectId/proposal');
-        break;
-      case 2:
-        context.go('/project/$projectId/chat');
-        break;
+      }
+    } else {
+      // Cambio entre tabs secundarios: pop y push en microtask
+      if (context.canPop()) {
+        context.pop();
+        Future.microtask(() {
+          if (!context.mounted) return;
+          switch (index) {
+            case 1: context.push('/project/$projectId/proposal'); break;
+            case 2: context.push('/project/$projectId/chat'); break;
+          }
+        });
+      } else {
+        // Fallback: go() si no hay nada que popear
+        switch (index) {
+          case 0: context.go('/project/$projectId/teams'); break;
+          case 1: context.go('/project/$projectId/proposal'); break;
+          case 2: context.go('/project/$projectId/chat'); break;
+        }
+      }
     }
   }
 
@@ -41,15 +63,15 @@ class ProjectLayout extends StatelessWidget {
       canPop: false,
       onPopInvokedWithResult: (bool didPop, Object? result) {
         if (didPop) return;
-        final currentIdx = _calculateSelectedIndex(context);
         Future.microtask(() {
           if (!context.mounted) return;
-          if (currentIdx != 0) {
-            // Si estamos en Propuesta o Chat, regresar a Mi Equipo
-            _onItemTapped(context, 0);
-          } else {
-            // Si estamos en Mi Equipo, desapilar para regresar a Proyectos
+          // Pop siempre: desde tab secundario regresa a Mi Equipo,
+          // desde Mi Equipo regresa a /projects
+          if (context.canPop()) {
             context.pop();
+          } else {
+            // No hay nada que popear: ir a la lista de proyectos
+            context.go('/projects');
           }
         });
       },
