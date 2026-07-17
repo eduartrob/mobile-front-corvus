@@ -28,19 +28,20 @@ class CustomAnimatedBottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainer,
       ),
       child: SafeArea(
         top: false,
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: List.generate(items.length, (index) {
-            return CustomNavItem(
-              item: items[index],
-              isSelected: currentIndex == index,
-              onTap: () => onTap(index),
+            return Expanded(
+              child: CustomNavItem(
+                item: items[index],
+                isSelected: currentIndex == index,
+                onTap: () => onTap(index),
+              ),
             );
           }),
         ),
@@ -136,8 +137,9 @@ class _CustomNavItemState extends State<CustomNavItem> with TickerProviderStateM
       child: AnimatedBuilder(
         animation: _controller,
         builder: (context, child) {
-          return SizedBox(
-            width: 70,
+          return Container(
+            color: Colors.transparent,
+            padding: const EdgeInsets.symmetric(vertical: 8),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
