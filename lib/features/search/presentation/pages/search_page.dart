@@ -157,16 +157,10 @@ class _SearchPageViewState extends State<_SearchPageView>
 
     final textColor = colorScheme.onSurface;
 
-    // canPop: true cuando no hay resultados y el teclado está cerrado
-    // → el back pasa al MainLayout que lo maneja (navega a Inspiración o snackbar de salida)
-    // canPop: false cuando hay resultados o teclado abierto
-    // → interceptamos para limpiar resultados u ocultar teclado
-    final shouldInterceptBack = _hasResults || _searchFocusNode.hasFocus;
-
     return PopScope(
-      canPop: !shouldInterceptBack,
+      canPop: false, // NUNCA permitir pop nativo aquí porque destruye la rama de go_router
       onPopInvokedWithResult: (didPop, dynamic result) {
-        if (didPop) return; // canPop era true, ya se hizo pop
+        if (didPop) return;
         if (_searchFocusNode.hasFocus) {
           _searchFocusNode.unfocus();
         } else if (_hasResults) {
@@ -174,6 +168,9 @@ class _SearchPageViewState extends State<_SearchPageView>
           setState(() => _hasResults = false);
           context.read<SearchProvider>().clearSearch();
           _searchController.clear();
+        } else {
+          // Si no hay resultados ni teclado, navegamos manualmente a la pestaña principal
+          context.go('/inspiration');
         }
       },
       child: Scaffold(
