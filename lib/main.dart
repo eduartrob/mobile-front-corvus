@@ -36,8 +36,9 @@ void _handleNotificationTap(RemoteMessage message) {
   final context = rootNavigatorKey.currentContext;
   if (context != null) {
     if (message.data['type'] == 'TEAM_INVITE') {
+      final myProjects = context.read<ProjectProvider>().myProjects;
       final projectId = message.data['projectId'] ?? 
-          context.read<MyProjectProvider>().project?.id;
+          (myProjects.isNotEmpty ? myProjects.first['id'] : null);
           
       if (projectId != null) {
         context.push('/project/$projectId/teams?tab=1'); // tab 1 is Solicitudes
