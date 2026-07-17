@@ -157,6 +157,8 @@ class InvitationCard extends StatelessWidget {
   final String avatarUrl;
   final bool isVerified;
   final VoidCallback? onSendRequest;
+  final bool targetHasTeam;
+  final bool iHaveTeam;
 
   const InvitationCard({
     super.key,
@@ -167,6 +169,8 @@ class InvitationCard extends StatelessWidget {
     required this.avatarUrl,
     this.isVerified = true,
     this.onSendRequest,
+    this.targetHasTeam = false,
+    this.iHaveTeam = false,
   });
 
   @override
@@ -279,39 +283,42 @@ class InvitationCard extends StatelessWidget {
                     }).toList(),
                   ),
                 const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: () {
-                      if (onSendRequest != null) {
-                        onSendRequest!();
-                      } else {
-                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Solicitud enviada a $name'),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      }
-                    },
-                    style: FilledButton.styleFrom(
-                      backgroundColor: Colors.blue.shade600,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                if (targetHasTeam && iHaveTeam)
+                  const SizedBox.shrink()
+                else
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: () {
+                        if (onSendRequest != null) {
+                          onSendRequest!();
+                        } else {
+                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Solicitud enviada a $name'),
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        }
+                      },
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.blue.shade600,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                    child: const Text(
-                      'Enviar solicitud',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
+                      child: Text(
+                        targetHasTeam ? 'Solicitar unirse' : 'Invitar',
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
-                ),
               ],
             ),
           ),

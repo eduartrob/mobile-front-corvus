@@ -6,6 +6,7 @@ class Student {
   final List<String> tags;
   final String avatarUrl;
   final bool isVerified;
+  final bool hasTeam;
 
   const Student({
     this.id,
@@ -15,6 +16,7 @@ class Student {
     required this.tags,
     required this.avatarUrl,
     this.isVerified = true,
+    this.hasTeam = false,
   });
 
   factory Student.fromJson(Map<String, dynamic> json) {
@@ -30,6 +32,7 @@ class Student {
               : [],
       avatarUrl: json['avatarUrl'] ?? json['foto'] ?? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
       isVerified: json['isVerified'] ?? json['verificado'] ?? false,
+      hasTeam: json['hasTeam'] ?? false,
     );
   }
 }

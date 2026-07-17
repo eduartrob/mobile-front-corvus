@@ -91,6 +91,8 @@ class SugerenciasTab extends StatelessWidget {
                                 itemCount: suggestions.length,
                                 itemBuilder: (context, index) {
                                   final student = suggestions[index];
+                                  final iHaveTeam = provider.myTeam != null && provider.myTeam!.members.length > 1;
+                                  
                                   return InvitationCard(
                                     name: student.name,
                                     username: student.username,
@@ -98,6 +100,8 @@ class SugerenciasTab extends StatelessWidget {
                                     tags: student.tags,
                                     avatarUrl: student.avatarUrl,
                                     isVerified: student.isVerified,
+                                    targetHasTeam: student.hasTeam,
+                                    iHaveTeam: iHaveTeam,
                                     onSendRequest: () {
                                       if (student.id != null) {
                                         provider.sendInvitation(student.id!).then((_) {
