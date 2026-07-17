@@ -157,27 +157,22 @@ class _SearchPageViewState extends State<_SearchPageView>
 
     final textColor = colorScheme.onSurface;
 
-    return PopScope(
-      // Siempre interceptamos para decidir qué hacer:
-      // con resultados → limpiar; sin resultados → pop real al layout padre
-      canPop: false,
-      onPopInvokedWithResult: (didPop, dynamic result) {
-        if (didPop) return;
+    return BackButtonListener(
+      onBackButtonPressed: () async {
         if (_hasResults) {
           // Hay resultados: limpiar y quedarse en el buscador
           _flutterTts.stop();
           setState(() => _hasResults = false);
           context.read<SearchProvider>().clearSearch();
           _searchController.clear();
-        } else {
-          // Sin resultados: dejar que el MainLayout maneje el back
-          // (cambia tab activo o muestra snackbar de salida)
-          if (_searchFocusNode.hasFocus) {
-            _searchFocusNode.unfocus();
-          } else {
-            context.pop();
-          }
+          return true; // Indicamos que ya manejamos el back
+        } else if (_searchFocusNode.hasFocus) {
+          // Teclado abierto: ocultarlo
+          _searchFocusNode.unfocus();
+          return true; // Manejado
         }
+        // Sin resultados y sin teclado: dejamos que el sistema (MainLayout) lo maneje
+        return false;
       },
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
