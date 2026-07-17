@@ -56,8 +56,13 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
         final now = DateTime.now();
         if (_lastPressedAt == null || now.difference(_lastPressedAt!) > const Duration(seconds: 2)) {
           _lastPressedAt = now;
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Presiona Atrás de nuevo para salir')),
+            const SnackBar(
+              content: Text('Toca "Volver" de nuevo para salir'),
+              duration: Duration(seconds: 2),
+              behavior: SnackBarBehavior.floating,
+            ),
           );
         } else {
           SystemNavigator.pop();

@@ -45,9 +45,11 @@ class ProjectLayout extends StatelessWidget {
         Future.microtask(() {
           if (!context.mounted) return;
           if (currentIdx != 0) {
+            // Si estamos en Propuesta o Chat, regresar a Mi Equipo
             _onItemTapped(context, 0);
           } else {
-            context.go('/projects');
+            // Si estamos en Mi Equipo, desapilar para regresar a Proyectos
+            context.pop();
           }
         });
       },

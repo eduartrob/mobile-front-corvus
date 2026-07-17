@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter/services.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
@@ -16,7 +15,6 @@ class MyProjectsDashboardPage extends StatefulWidget {
 }
 
 class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
-  DateTime? _lastPressedAt;
   Timer? _pollTimer;
 
   @override
@@ -48,21 +46,7 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (bool didPop, Object? result) {
-        if (didPop) return;
-        final now = DateTime.now();
-        if (_lastPressedAt == null || now.difference(_lastPressedAt!) > const Duration(seconds: 2)) {
-          _lastPressedAt = now;
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Presiona Atrás de nuevo para salir')),
-          );
-        } else {
-          SystemNavigator.pop();
-        }
-      },
-      child: Scaffold(
+    return Scaffold(
         appBar: const CorvusTopBar(),
         floatingActionButton: context.select<ProjectProvider, bool>((p) => p.myProjects.isNotEmpty) ? FloatingActionButton.extended(
           onPressed: () => context.push('/join-project'),
@@ -171,7 +155,6 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
               ),
             );
         },
-      ),
       ),
     );
   }
