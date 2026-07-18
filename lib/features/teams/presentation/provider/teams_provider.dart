@@ -76,16 +76,18 @@ class TeamsProvider extends ChangeNotifier {
         _currentProjectId = actualProjectId;
       } else {
         _finalReviewStatus = null;
-        try {
-          final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/teams/my-project-id');
-          final response = await remoteDataSource.client.get(uri, headers: ApiConfig.defaultHeaders);
-          if (response.statusCode == 200) {
-            final data = json.decode(utf8.decode(response.bodyBytes));
-            actualProjectId = data['projectId']?.toString() ?? actualProjectId;
-            _currentProjectId = actualProjectId;
+        if (actualProjectId == null) {
+          try {
+            final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/teams/my-project-id');
+            final response = await remoteDataSource.client.get(uri, headers: ApiConfig.defaultHeaders);
+            if (response.statusCode == 200) {
+              final data = json.decode(utf8.decode(response.bodyBytes));
+              actualProjectId = data['projectId']?.toString() ?? actualProjectId;
+              _currentProjectId = actualProjectId;
+            }
+          } catch (e) {
+            // ignore error
           }
-        } catch (e) {
-          // ignore error
         }
       }
 
