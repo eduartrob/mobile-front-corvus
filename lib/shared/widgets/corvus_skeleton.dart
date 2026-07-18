@@ -37,8 +37,8 @@ class _CorvusSkeletonState extends State<CorvusSkeleton> with SingleTickerProvid
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final baseColor = isDark ? Colors.grey[800]! : Colors.grey[300]!;
-    final highlightColor = isDark ? Colors.grey[600]! : Colors.grey[100]!;
+    final baseColor = isDark ? Colors.grey[800]! : Colors.grey[200]!;
+    final highlightColor = isDark ? Colors.grey[700]! : Colors.grey[50]!;
 
     return AnimatedBuilder(
       animation: _controller,
