@@ -73,7 +73,11 @@ class _ProfProjectLayoutState extends State<ProfProjectLayout> {
             context.go('/prof-project/${widget.projectId}/dashboard');
           } else {
             // Si estamos en el tablero principal del proyecto, salir al listado global
-            context.go('/prof-dash');
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/prof-dash');
+            }
           }
         });
       },
