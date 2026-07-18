@@ -124,6 +124,8 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
                     borderRadius: BorderRadius.circular(16),
                     child: InkWell(
                       borderRadius: BorderRadius.circular(16),
+                      splashColor: Colors.black.withValues(alpha: 0.08),
+                      highlightColor: Colors.black.withValues(alpha: 0.04),
                       onTap: () {
                         context.push('/project/${project['id']}?tab=0');
                       },

@@ -322,6 +322,7 @@ class _ProfDashPageState extends State<ProfDashPage> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             foregroundColor: colorScheme.primary,
+                            overlayColor: colorScheme.primary.withValues(alpha: 0.12),
                           ),
                           child: const Text(
                             'Ver Directorio de Alumnos Rezagados',

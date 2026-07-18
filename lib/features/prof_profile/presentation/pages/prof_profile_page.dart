@@ -186,7 +186,9 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                   icon: const Icon(Icons.logout, color: Colors.red),
                   label: const Text('Cerrar sesión', style: TextStyle(color: Colors.red)),
                   style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: colorScheme.primary),
+                    side: const BorderSide(color: Colors.red),
+                    backgroundColor: Colors.red.withValues(alpha: 0.05),
+                    overlayColor: Colors.red.withValues(alpha: 0.12),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                 ),
