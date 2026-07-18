@@ -2,11 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/shared/widgets/corvus_bottom_nav_bar.dart';
 
-class ProfProjectLayout extends StatelessWidget {
+class ProfProjectLayout extends StatefulWidget {
   final String projectId;
   final Widget child;
 
   const ProfProjectLayout({super.key, required this.projectId, required this.child});
+
+  @override
+  State<ProfProjectLayout> createState() => _ProfProjectLayoutState();
+}
+
+class _ProfProjectLayoutState extends State<ProfProjectLayout> {
+  int _previousIndex = 0;
 
   int _calculateSelectedIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.path;
@@ -23,18 +30,22 @@ class ProfProjectLayout extends StatelessWidget {
     final currentIndex = _calculateSelectedIndex(context);
     if (index == currentIndex) return;
 
+    setState(() {
+      _previousIndex = currentIndex;
+    });
+
     switch (index) {
       case 0:
-        context.go('/prof-project/$projectId/dashboard');
+        context.go('/prof-project/${widget.projectId}/dashboard');
         break;
       case 1:
-        context.go('/prof-project/$projectId/reviews');
+        context.go('/prof-project/${widget.projectId}/reviews');
         break;
       case 2:
-        context.go('/prof-project/$projectId/rules');
+        context.go('/prof-project/${widget.projectId}/rules');
         break;
       case 3:
-        context.go('/prof-project/$projectId/settings');
+        context.go('/prof-project/${widget.projectId}/settings');
         break;
     }
   }
@@ -42,6 +53,7 @@ class ProfProjectLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentIndex = _calculateSelectedIndex(context);
+    final isSlidingRight = currentIndex > _previousIndex;
 
     return PopScope(
       canPop: false,
@@ -55,7 +67,10 @@ class ProfProjectLayout extends StatelessWidget {
             if (context.canPop()) context.pop();
           } else if (currentIndex != 0) {
             // Si estamos en reviews, rules o settings, volver al tablero
-            context.go('/prof-project/$projectId/dashboard');
+            setState(() {
+              _previousIndex = currentIndex;
+            });
+            context.go('/prof-project/${widget.projectId}/dashboard');
           } else {
             // Si estamos en el tablero principal del proyecto, salir al listado global
             context.go('/prof-dash');
@@ -63,7 +78,32 @@ class ProfProjectLayout extends StatelessWidget {
         });
       },
       child: Scaffold(
-        body: child,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        body: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 350),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeOutCubic,
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            final isIncoming = child.key == ValueKey(currentIndex);
+            final dx = isIncoming
+                ? (isSlidingRight ? 1.0 : -1.0)
+                : (isSlidingRight ? -1.0 : 1.0);
+            
+            final offsetAnimation = Tween<Offset>(
+              begin: Offset(dx, 0.0),
+              end: Offset.zero,
+            ).animate(animation);
+
+            return SlideTransition(
+              position: offsetAnimation,
+              child: child,
+            );
+          },
+          child: SizedBox(
+            key: ValueKey(currentIndex),
+            child: widget.child,
+          ),
+        ),
         bottomNavigationBar: CustomAnimatedBottomNavBar(
           currentIndex: currentIndex,
           onTap: (index) => _onItemTapped(context, index),
