@@ -23,41 +23,19 @@ class ProfProjectLayout extends StatelessWidget {
     final currentIndex = _calculateSelectedIndex(context);
     if (index == currentIndex) return;
 
-    if (currentIndex == 0 && index != 0) {
-      // Tablero → tab secundario: PUSH para preservar la pila del root navigator
-      switch (index) {
-        case 1: context.push('/prof-project/$projectId/reviews'); break;
-        case 2: context.push('/prof-project/$projectId/rules'); break;
-        case 3: context.push('/prof-project/$projectId/settings'); break;
-      }
-    } else if (index == 0 && currentIndex != 0) {
-      // Tab secundario → Tablero: POP si hay algo en la pila
-      if (context.canPop()) {
-        context.pop();
-      } else {
+    switch (index) {
+      case 0:
         context.go('/prof-project/$projectId/dashboard');
-      }
-    } else {
-      // Cambio entre tabs secundarios: pop el actual y push el nuevo en microtask
-      if (context.canPop()) {
-        context.pop();
-        Future.microtask(() {
-          if (!context.mounted) return;
-          switch (index) {
-            case 1: context.push('/prof-project/$projectId/reviews'); break;
-            case 2: context.push('/prof-project/$projectId/rules'); break;
-            case 3: context.push('/prof-project/$projectId/settings'); break;
-          }
-        });
-      } else {
-        // Fallback: go() si no hay nada que popear
-        switch (index) {
-          case 0: context.go('/prof-project/$projectId/dashboard'); break;
-          case 1: context.go('/prof-project/$projectId/reviews'); break;
-          case 2: context.go('/prof-project/$projectId/rules'); break;
-          case 3: context.go('/prof-project/$projectId/settings'); break;
-        }
-      }
+        break;
+      case 1:
+        context.go('/prof-project/$projectId/reviews');
+        break;
+      case 2:
+        context.go('/prof-project/$projectId/rules');
+        break;
+      case 3:
+        context.go('/prof-project/$projectId/settings');
+        break;
     }
   }
 
@@ -73,15 +51,14 @@ class ProfProjectLayout extends StatelessWidget {
         Future.microtask(() {
           if (!context.mounted) return;
           if (location.endsWith('/config')) {
-            // /config fue empujado sobre el tablero: solo pop
+            // /config fue empujado sobre el tablero o tabs: solo pop
             if (context.canPop()) context.pop();
+          } else if (currentIndex != 0) {
+            // Si estamos en reviews, rules o settings, volver al tablero
+            context.go('/prof-project/$projectId/dashboard');
           } else {
-            // Para cualquier tab: pop si hay algo en la pila, sino ir a prof-dash
-            if (context.canPop()) {
-              context.pop();
-            } else {
-              context.go('/prof-dash');
-            }
+            // Si estamos en el tablero principal del proyecto, salir al listado global
+            context.go('/prof-dash');
           }
         });
       },
