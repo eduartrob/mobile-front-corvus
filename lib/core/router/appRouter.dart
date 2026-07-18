@@ -293,11 +293,15 @@ class _AppRouterState extends State<AppRouter> {
             ),
             GoRoute(
               path: '/prof-project/:projectId/reviews',
-              pageBuilder: (context, state) => _buildSlideUpTransition(ProfReviewsPage(projectId: state.pathParameters['projectId']!), state.pageKey),
+              builder: (context, state) {
+                return ProfReviewsPage(projectId: state.pathParameters['projectId']!);
+              },
             ),
             GoRoute(
               path: '/prof-project/:projectId/config',
-              pageBuilder: (context, state) => _buildSlideUpTransition(ProfProjectConfigPage(projectId: state.pathParameters['projectId']!), state.pageKey),
+              builder: (context, state) {
+                return ProfProjectConfigPage(projectId: state.pathParameters['projectId']!);
+              },
             ),
             GoRoute(
               path: '/prof-project/:projectId/rules',

@@ -1,44 +1,29 @@
-import 'package:mobile/core/network/api_endpoints.dart';
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:mobile/core/network/api_config.dart';
-import 'package:mobile/features/prof_dash/data/models/prof_dashboard_model.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/features/prof_dash/domain/entities/dashboard_entity.dart';
+import 'package:mobile/features/prof_dash/domain/repositories/dashboard_repository.dart';
 
 class ProfDashboardProvider extends ChangeNotifier {
-  final AuthProvider authProvider;
-  final http.Client client;
+  final AuthProvider _authProvider;
+  final DashboardRepository _repository;
 
-  ProfDashboardModel? _dashboardData;
+  ProfDashboardProvider({
+    required AuthProvider authProvider,
+    required DashboardRepository repository,
+  })  : _authProvider = authProvider,
+        _repository = repository;
+
+  DashboardEntity? _dashboardData;
   bool _isLoading = false;
   String? _errorMessage;
-  String? _lastProjectId;
-  
-  // In-memory cache for instant switching
-  final Map<String, ProfDashboardModel> _memoryCache = {};
 
-  ProfDashboardProvider({required this.authProvider, http.Client? client}) 
-      : client = client ?? http.Client();
-
-  ProfDashboardModel? get dashboardData => _dashboardData;
+  DashboardEntity? get dashboardData => _dashboardData;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
   Future<void> loadDashboardStats({String? projectId}) async {
-    final pId = projectId ?? 'default';
-    if (projectId != null && projectId != _lastProjectId) {
-      if (_memoryCache.containsKey(pId)) {
-        _dashboardData = _memoryCache[pId];
-        _lastProjectId = projectId;
-      } else {
-        _dashboardData = null;
-        _lastProjectId = projectId;
-        notifyListeners();
-      }
-    }
-
-    if (authProvider.role?.toUpperCase() != 'PROFESOR' && authProvider.role?.toUpperCase() != 'DOCENTE') {
+    final role = _authProvider.role?.toUpperCase();
+    if (role != 'PROFESOR' && role != 'DOCENTE') {
       return;
     }
 
@@ -47,28 +32,10 @@ class ProfDashboardProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final urlStr = projectId != null 
-        ? '${ApiConfig.apiGatewayUrl}${ApiEndpoints.professorsDashboard}?projectId=$projectId'
-        : '${ApiConfig.apiGatewayUrl}${ApiEndpoints.professorsDashboard}';
-      final url = Uri.parse(urlStr);
-      final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
-      
-      final token = authProvider.currentUser?.token;
-      if (token != null) {
-        headers['Authorization'] = 'Bearer $token';
-      }
-      
-      final response = await client.get(url, headers: headers).timeout(const Duration(seconds: 15));
-
-      if (response.statusCode == 200) {
-        final decodedData = json.decode(utf8.decode(response.bodyBytes));
-        _dashboardData = ProfDashboardModel.fromJson(decodedData);
-        if (_dashboardData != null) {
-          _memoryCache[pId] = _dashboardData!;
-        }
-      } else {
-        _errorMessage = 'Error al cargar el dashboard (Código ${response.statusCode})';
-      }
+      _dashboardData = await _repository.loadDashboardStats(
+        projectId: projectId,
+        token: _authProvider.currentUser?.token,
+      );
     } catch (e) {
       _errorMessage = 'Error de conexión: $e';
     } finally {

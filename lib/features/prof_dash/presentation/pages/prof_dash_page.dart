@@ -283,7 +283,7 @@ class _ProfDashPageState extends State<ProfDashPage> {
                             icon: Icons.group,
                             bgColor: colorScheme.primaryContainer,
                             fgColor: colorScheme.primary,
-                            text: '${data?.metrics.studentsWithTeam} Alumnos con equipo',
+                            text: '${data?.studentsWithTeam} Alumnos con equipo',
                           ),
                       const SizedBox(height: 10),
                       isLoading
@@ -296,7 +296,7 @@ class _ProfDashPageState extends State<ProfDashPage> {
                             icon: Icons.person_off,
                             bgColor: colorScheme.errorContainer,
                             fgColor: colorScheme.error,
-                            text: '${data?.metrics.studentsWithoutTeam} Alumnos rezagados (sin equipo)',
+                            text: '${data?.studentsWithoutTeam} Alumnos rezagados (sin equipo)',
                           ),
                       const SizedBox(height: 20),
                       SizedBox(
