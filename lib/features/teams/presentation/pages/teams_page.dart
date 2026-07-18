@@ -12,7 +12,8 @@ import '../widgets/sugerencias_tab.dart';
 
 class TeamsPage extends StatefulWidget {
   final int initialTabIndex;
-  const TeamsPage({super.key, this.initialTabIndex = 0});
+  final String projectId;
+  const TeamsPage({super.key, this.initialTabIndex = 0, required this.projectId});
 
   @override
   State<TeamsPage> createState() => _TeamsPageState();
@@ -53,9 +54,9 @@ class _TeamsPageState extends State<TeamsPage> with SingleTickerProviderStateMix
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         final teamsProvider = Provider.of<TeamsProvider>(context, listen: false);
-        teamsProvider.fetchMyTeam();
-        teamsProvider.fetchSuggestions(skill: _selectedSkill, search: _searchQuery, showAll: _showAllStudents);
-        teamsProvider.fetchRequests();
+        teamsProvider.fetchMyTeam(projectId: widget.projectId);
+        teamsProvider.fetchSuggestions(skill: _selectedSkill, search: _searchQuery, showAll: _showAllStudents, projectId: widget.projectId);
+        teamsProvider.fetchRequests(projectId: widget.projectId);
       }
     });
   }

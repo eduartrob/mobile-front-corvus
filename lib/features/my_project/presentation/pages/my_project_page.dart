@@ -716,7 +716,7 @@ class _ProjectPageBody extends StatelessWidget {
                 onPressed: () async {
                   final teamsProvider = context.read<TeamsProvider>();
                   if (teamsProvider.myTeam == null) {
-                    await teamsProvider.fetchMyTeam();
+                    await teamsProvider.fetchMyTeam(projectId: provider.projectId);
                   }
                   
                   final myTeam = teamsProvider.myTeam;
@@ -750,7 +750,7 @@ class _ProjectPageBody extends StatelessWidget {
                     professorName: myTeam.project?['professor_name'] ?? 'Profesor',
                   );
                   if (success && context.mounted) {
-                     await teamsProvider.fetchMyTeam();
+                     await teamsProvider.fetchMyTeam(projectId: provider.projectId);
                      if (context.mounted) {
                        ScaffoldMessenger.of(context).showSnackBar(
                          const SnackBar(

@@ -254,7 +254,11 @@ class _AppRouterState extends State<AppRouter> {
               path: '/project/:id/teams',
               builder: (context, state) {
                 final tab = state.uri.queryParameters['tab'];
-                return TeamsPage(initialTabIndex: int.tryParse(tab ?? '0') ?? 0);
+                final projectId = state.pathParameters['id'] ?? '';
+                return TeamsPage(
+                  initialTabIndex: int.tryParse(tab ?? '0') ?? 0,
+                  projectId: projectId,
+                );
               },
             ),
             GoRoute(

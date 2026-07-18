@@ -20,6 +20,9 @@ class TeamsProvider extends ChangeNotifier {
   TeamsProvider({TeamsRemoteDataSource? remoteDataSource})
       : remoteDataSource = remoteDataSource ?? TeamsRemoteDataSource(client: apiClient);
 
+  String? _currentProjectId;
+  String? get currentProjectId => _currentProjectId;
+
   TeamModel? _myTeam;
   Map<String, dynamic>? _finalReviewStatus;
   List<Student> _suggestions = [];
@@ -54,19 +57,23 @@ class TeamsProvider extends ChangeNotifier {
   int _maxTeamMembers = 4;
   int get maxTeamMembers => _maxTeamMembers;
 
-  Future<void> fetchMyTeam() async {
+  Future<void> fetchMyTeam({String? projectId}) async {
     _isLoading = true;
     _errorMessage = null;
+    if (projectId != null) {
+      _currentProjectId = projectId;
+    }
     notifyListeners();
 
     try {
-      _myTeam = await remoteDataSource.getMyTeam();
-      String? projectId;
+      _myTeam = await remoteDataSource.getMyTeam(projectId: _currentProjectId);
+      String? actualProjectId = _currentProjectId;
 
       if (_myTeam != null) {
         _finalReviewStatus = await remoteDataSource.getFinalReviewStatus(_myTeam!.id);
-        projectId = _myTeam!.project?['id']?.toString() 
-            ?? _myTeam!.project?['id_proyecto']?.toString();
+        actualProjectId = _myTeam!.project?['id']?.toString() 
+            ?? _myTeam!.project?['id_proyecto']?.toString() ?? actualProjectId;
+        _currentProjectId = actualProjectId;
       } else {
         _finalReviewStatus = null;
         try {
@@ -74,7 +81,8 @@ class TeamsProvider extends ChangeNotifier {
           final response = await remoteDataSource.client.get(uri, headers: ApiConfig.defaultHeaders);
           if (response.statusCode == 200) {
             final data = json.decode(utf8.decode(response.bodyBytes));
-            projectId = data['projectId']?.toString();
+            actualProjectId = data['projectId']?.toString() ?? actualProjectId;
+            _currentProjectId = actualProjectId;
           }
         } catch (e) {
           // ignore error
@@ -82,10 +90,10 @@ class TeamsProvider extends ChangeNotifier {
       }
 
       // Fetch config to get maxTeamMembers using projectId
-      if (projectId != null) {
+      if (actualProjectId != null) {
         try {
           final uri = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.integratorAdminConfig}')
-              .replace(queryParameters: {'projectId': projectId});
+              .replace(queryParameters: {'projectId': actualProjectId});
           final response = await remoteDataSource.client.get(uri, headers: ApiConfig.defaultHeaders);
           if (response.statusCode == 200) {
             final data = json.decode(utf8.decode(response.bodyBytes));
@@ -111,7 +119,7 @@ class TeamsProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _myTeam = await remoteDataSource.updateTeam(name, description, socialLinks);
+      _myTeam = await remoteDataSource.updateTeam(name, description, socialLinks, projectId: _currentProjectId);
     } catch (e) {
       _errorMessage = e.toString();
       rethrow;
@@ -165,13 +173,16 @@ class TeamsProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchSuggestions({String? skill, String? search, bool showAll = false}) async {
+  Future<void> fetchSuggestions({String? skill, String? search, bool showAll = false, String? projectId}) async {
     _isLoading = true;
     _errorMessage = null;
+    if (projectId != null) {
+      _currentProjectId = projectId;
+    }
     notifyListeners();
 
     try {
-      final results = await remoteDataSource.getSuggestions(skill: skill, search: search, showAll: showAll);
+      final results = await remoteDataSource.getSuggestions(skill: skill, search: search, showAll: showAll, projectId: _currentProjectId);
       _suggestions = results.where((s) => s.id != null).toList();
     } catch (e) {
       _errorMessage = e.toString();
@@ -181,14 +192,17 @@ class TeamsProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchRequests() async {
+  Future<void> fetchRequests({String? projectId}) async {
     _isLoading = true;
     _errorMessage = null;
+    if (projectId != null) {
+      _currentProjectId = projectId;
+    }
     notifyListeners();
 
     try {
       final filterStr = _selectedFilter == SolicitudFilter.recibidas ? 'recibidas' : 'enviadas';
-      _requests = await remoteDataSource.getRequests(filterStr);
+      _requests = await remoteDataSource.getRequests(filterStr, projectId: _currentProjectId);
     } catch (e) {
       _errorMessage = e.toString();
     } finally {
@@ -197,13 +211,16 @@ class TeamsProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> sendInvitation(String studentId) async {
+  Future<void> sendInvitation(String studentId, {String? projectId}) async {
     _isLoading = true;
     _errorMessage = null;
+    if (projectId != null) {
+      _currentProjectId = projectId;
+    }
     notifyListeners();
 
     try {
-      await remoteDataSource.sendInvitation(studentId);
+      await remoteDataSource.sendInvitation(studentId, projectId: _currentProjectId);
       
       // Eliminar al estudiante de las sugerencias locales inmediatamente
       _suggestions.removeWhere((student) => student.id == studentId);
@@ -237,15 +254,18 @@ class TeamsProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> acceptRequest(String requestId) async {
+  Future<void> acceptRequest(String requestId, {String? projectId}) async {
     _isLoading = true;
     _errorMessage = null;
+    if (projectId != null) {
+      _currentProjectId = projectId;
+    }
     notifyListeners();
 
     try {
-      await remoteDataSource.acceptRequest(requestId);
-      fetchMyTeam();
-      fetchRequests();
+      await remoteDataSource.acceptRequest(requestId, projectId: _currentProjectId);
+      fetchMyTeam(projectId: _currentProjectId);
+      fetchRequests(projectId: _currentProjectId);
     } catch (e) {
       _errorMessage = e.toString();
       rethrow;
