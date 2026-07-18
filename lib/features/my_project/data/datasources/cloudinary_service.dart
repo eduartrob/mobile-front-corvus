@@ -21,10 +21,10 @@ class CloudinaryService {
         final jsonResponse = json.decode(response.body);
         return jsonResponse['secure_url'] as String?;
       } else {
-        return null;
+        throw Exception('Cloudinary upload failed: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
-      return null;
+      throw Exception('Cloudinary upload error: $e');
     }
   }
 }

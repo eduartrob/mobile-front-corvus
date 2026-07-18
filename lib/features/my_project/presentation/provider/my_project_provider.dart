@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:mobile/features/my_project/domain/entities/project_analysis_entity.dart';
 import 'package:mobile/features/my_project/domain/repositories/project_repository.dart';
 import 'package:mobile/features/my_project/data/datasources/cloudinary_service.dart';
@@ -256,8 +257,19 @@ class MyProjectProvider extends ChangeNotifier {
         _selectedFile = file;
         _fileName = result.files.single.name;
 
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('draft_file_path_$userId', file.path);
+        // Save to permanent storage to survive cache clears
+        try {
+          final directory = await getApplicationDocumentsDirectory();
+          final permanentPath = '${directory.path}/draft_${userId}_${DateTime.now().millisecondsSinceEpoch}.pdf';
+          final permanentFile = await file.copy(permanentPath);
+          _selectedFile = permanentFile;
+          
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('draft_file_path_$userId', permanentFile.path);
+        } catch (e) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('draft_file_path_$userId', file.path);
+        }
 
         _fileSize = '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
         _state = ProjectState.uploading;
@@ -603,6 +615,10 @@ class MyProjectProvider extends ChangeNotifier {
           _selectedFile!.path,
           folder: folderPath,
         );
+      }
+
+      if (uploadedFileUrl == null || uploadedFileUrl.isEmpty) {
+        throw Exception("No se pudo cargar el archivo PDF a la nube. Intenta seleccionar el archivo nuevamente.");
       }
 
       final enrichedProposalData = {
