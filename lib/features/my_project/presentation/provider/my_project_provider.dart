@@ -131,6 +131,7 @@ class MyProjectProvider extends ChangeNotifier {
   }
   
   String? _projectId;
+  String? get projectId => _projectId;
   
   List<String> _allowedExtensions = ['pdf', 'md', 'txt'];
   List<String> get allowedExtensions => _allowedExtensions;
