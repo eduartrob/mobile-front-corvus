@@ -245,39 +245,51 @@ class _AppRouterState extends State<AppRouter> {
         ),
 
         // Nivel 2: Proyecto del Alumno
-        StatefulShellRoute.indexedStack(
-          builder: (context, state, navigationShell) {
-            return ProjectLayout(navigationShell: navigationShell);
+        GoRoute(
+          path: '/project/:id',
+          redirect: (context, state) {
+            final id = state.pathParameters['id'];
+            if (state.uri.path == '/project/$id') {
+              return '/project/$id/proposal';
+            }
+            return null;
           },
-          branches: [
-            StatefulShellBranch(
-              routes: [
-                GoRoute(
-                  path: '/project/:id/teams',
-                  builder: (context, state) {
-                    final tab = state.uri.queryParameters['tab'];
-                    final projectId = state.pathParameters['id'] ?? '';
-                    return TeamsPage(
-                      initialTabIndex: int.tryParse(tab ?? '0') ?? 0,
-                      projectId: projectId,
-                    );
-                  },
+          routes: [
+            StatefulShellRoute.indexedStack(
+              builder: (context, state, navigationShell) {
+                return ProjectLayout(navigationShell: navigationShell);
+              },
+              branches: [
+                StatefulShellBranch(
+                  routes: [
+                    GoRoute(
+                      path: 'teams',
+                      builder: (context, state) {
+                        final tab = state.uri.queryParameters['tab'];
+                        final projectId = state.pathParameters['id'] ?? '';
+                        return TeamsPage(
+                          initialTabIndex: int.tryParse(tab ?? '0') ?? 0,
+                          projectId: projectId,
+                        );
+                      },
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            StatefulShellBranch(
-              routes: [
-                GoRoute(
-                  path: '/project/:id/proposal',
-                  builder: (context, state) => const MyProjectPage(),
+                StatefulShellBranch(
+                  routes: [
+                    GoRoute(
+                      path: 'proposal',
+                      builder: (context, state) => const MyProjectPage(),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            StatefulShellBranch(
-              routes: [
-                GoRoute(
-                  path: '/project/:id/chat',
-                  builder: (context, state) => const TeamChatPage(),
+                StatefulShellBranch(
+                  routes: [
+                    GoRoute(
+                      path: 'chat',
+                      builder: (context, state) => const TeamChatPage(),
+                    ),
+                  ],
                 ),
               ],
             ),
