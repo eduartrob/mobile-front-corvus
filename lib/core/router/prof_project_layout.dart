@@ -29,6 +29,14 @@ class _ProfProjectLayoutState extends State<ProfProjectLayout> {
     _currentIndex = widget.initialTab;
   }
 
+  @override
+  void didUpdateWidget(covariant ProfProjectLayout oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialTab != oldWidget.initialTab) {
+      _currentIndex = widget.initialTab;
+    }
+  }
+
   void _onItemTapped(int index) {
     if (index == _currentIndex) return;
     setState(() => _currentIndex = index);
