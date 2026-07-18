@@ -187,15 +187,16 @@ class _FloatingAiInputState extends State<FloatingAiInput>
       position: _slideAnim,
       child: FadeTransition(
         opacity: _fadeAnim,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-            child: Container(
-              key: const ValueKey('expanded'),
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+              child: Container(
+                key: const ValueKey('expanded'),
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
                     const Color(0xFF5B8DEF).withValues(alpha: 0.32),
