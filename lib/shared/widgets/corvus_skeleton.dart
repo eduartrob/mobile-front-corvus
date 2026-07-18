@@ -43,38 +43,23 @@ class _CorvusSkeletonState extends State<CorvusSkeleton> with SingleTickerProvid
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        return ShaderMask(
-          blendMode: BlendMode.srcATop,
-          shaderCallback: (bounds) {
-            return LinearGradient(
+        // Animate from left to right (-2.0 to 2.0)
+        final slide = -2.0 + (_controller.value * 4.0);
+        
+        return Container(
+          width: widget.width,
+          height: widget.height,
+          decoration: BoxDecoration(
+            borderRadius: widget.borderRadius ?? BorderRadius.circular(16),
+            gradient: LinearGradient(
               colors: [baseColor, highlightColor, baseColor],
               stops: const [0.0, 0.5, 1.0],
-              begin: const Alignment(-1.0, -0.3),
-              end: const Alignment(1.0, 0.3),
-              transform: _SlidingGradientTransform(slidePercent: _controller.value),
-            ).createShader(bounds);
-          },
-          child: Container(
-            width: widget.width,
-            height: widget.height,
-            decoration: BoxDecoration(
-              color: Colors.white, // Color does not matter, ShaderMask overwrites it
-              borderRadius: widget.borderRadius ?? BorderRadius.circular(16),
+              begin: Alignment(slide - 1.5, 0),
+              end: Alignment(slide + 1.5, 0),
             ),
           ),
         );
       },
     );
-  }
-}
-
-class _SlidingGradientTransform extends GradientTransform {
-  final double slidePercent;
-  const _SlidingGradientTransform({required this.slidePercent});
-
-  @override
-  Matrix4? transform(Rect bounds, {TextDirection? textDirection}) {
-    // slide from -width to +width
-    return Matrix4.translationValues(bounds.width * (slidePercent * 3 - 1.5), 0.0, 0.0);
   }
 }
