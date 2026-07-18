@@ -261,10 +261,10 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          splashColor: Colors.black.withValues(alpha: 0.08),
-          highlightColor: Colors.black.withValues(alpha: 0.04),
-          onTap: () async {
-            await Future.delayed(const Duration(milliseconds: 70));
+          splashFactory: InkRipple.splashFactory,
+          splashColor: Colors.black.withValues(alpha: 0.14),
+          highlightColor: Colors.black.withValues(alpha: 0.06),
+          onTap: () {
             if (context.mounted) context.push('/prof-project/${project['id']}?tab=0');
           },
         child: Padding(
