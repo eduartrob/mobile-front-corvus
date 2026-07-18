@@ -90,7 +90,7 @@ class _ProfDirectoryPageViewState extends State<_ProfDirectoryPageView> with Sin
             ),
           ),
           Expanded(
-            child: (provider.isLoading && provider.teams.isEmpty && provider.studentsWithoutTeam.isEmpty)
+            child: (provider.isLoading && provider.directoryData == null)
                 ? ListView.separated(
                     padding: const EdgeInsets.all(16.0),
                     itemCount: 5,
