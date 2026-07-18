@@ -252,7 +252,7 @@ class _AppRouterState extends State<AppRouter> {
           pageBuilder: (context, state) {
             final projectId = state.pathParameters['id']!;
             final tab = int.tryParse(state.uri.queryParameters['tab'] ?? '0') ?? 0;
-            return _buildFadeTransition(
+            return _buildSlideTransition(
               ProjectLayout(projectId: projectId, initialTab: tab),
               state.pageKey,
             );
@@ -270,7 +270,7 @@ class _AppRouterState extends State<AppRouter> {
           pageBuilder: (context, state) {
             final projectId = state.pathParameters['projectId']!;
             final tab = int.tryParse(state.uri.queryParameters['tab'] ?? '0') ?? 0;
-            return _buildFadeTransition(
+            return _buildSlideTransition(
               ProfProjectLayout(projectId: projectId, initialTab: tab),
               state.pageKey,
             );
