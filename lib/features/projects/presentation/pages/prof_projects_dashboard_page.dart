@@ -244,7 +244,80 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
   }
 
   Widget _buildProjectCard(BuildContext context, dynamic project) {
-    return _ProfProjectCard(project: project);
+    final pastelColors = const [
+      Color(0xFFEBF4FF), // Azul muy claro
+      Color(0xFFF4EBF7), // Morado muy claro
+      Color(0xFFEAF5EE), // Verde muy claro
+      Color(0xFFFEF2E5), // Naranja muy claro
+      Color(0xFFFCEAEF), // Rosa muy claro
+    ];
+    final colorIndex = project['id'].hashCode.abs() % pastelColors.length;
+    final bgColor = pastelColors[colorIndex];
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Material(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          splashColor: Colors.black.withValues(alpha: 0.12),
+          highlightColor: Colors.black.withValues(alpha: 0.04),
+          onTap: () {
+            if (context.mounted) context.push('/prof-project/${project['id']}?tab=0');
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(Icons.class_, color: Colors.white, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        project['name'],
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                    const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.black54),
+                  ],
+                ),
+                if (project['description'] != null &&
+                    project['description'].toString().isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    project['description'],
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black54),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+                const SizedBox(height: 8),
+                Text(
+                  'Código: ${project['code']} • Equipos max: ${project['team_size']}',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildInvitationCard(
