@@ -39,21 +39,38 @@ class ProfRulesProvider extends ChangeNotifier {
   List<dynamic> get clusterStats => _clusterStats;
 
   String? _lastProjectId;
+  
+  // In-memory cache for instantaneous project switching
+  final Map<String, Map<String, dynamic>> _memoryConfigCache = {};
+  final Map<String, Map<String, dynamic>> _memoryStatsCache = {};
 
   Future<void> fetchData({String? projectId}) async {
+    final pId = projectId ?? 'default';
+    
     if (projectId != null && projectId != _lastProjectId) {
-      _projectSections = [];
-      _clusterStats = [];
-      _exclusionRules = [];
-      _lastProjectId = projectId;
-      // Notify immediately to clear UI and show skeleton while fetching
-      notifyListeners();
+      if (_memoryConfigCache.containsKey(pId) && _memoryStatsCache.containsKey(pId)) {
+        // Synchronously load from memory cache so first frame is correct
+        _updateState(_memoryConfigCache[pId]!, _memoryStatsCache[pId]!);
+        _lastProjectId = projectId;
+      } else {
+        // Clear UI and show skeleton only if we have NO memory cache
+        _projectSections = [];
+        _clusterStats = [];
+        _exclusionRules = [];
+        _lastProjectId = projectId;
+        notifyListeners();
+      }
     }
 
-    // 1. Intentar cargar desde el caché rápido (sin loader invasivo)
+    // 1. Intentar cargar desde el caché rápido de disco
     try {
       final config = await remoteDataSource.getConfig(forceRefresh: false, projectId: projectId);
       final statsData = await remoteDataSource.getClusterStats(forceRefresh: false, projectId: projectId);
+      
+      // Guardar en memoria
+      _memoryConfigCache[pId] = config;
+      _memoryStatsCache[pId] = statsData;
+      
       _updateState(config, statsData);
     } catch (e) {
       // Ignoramos errores de caché
@@ -69,6 +86,11 @@ class ProfRulesProvider extends ChangeNotifier {
     try {
       final config = await remoteDataSource.getConfig(forceRefresh: true, projectId: projectId);
       final statsData = await remoteDataSource.getClusterStats(forceRefresh: true, projectId: projectId);
+      
+      // Guardar en memoria
+      _memoryConfigCache[pId] = config;
+      _memoryStatsCache[pId] = statsData;
+      
       _updateState(config, statsData);
       _errorMessage = null;
     } catch (e) {

@@ -14,6 +14,9 @@ class ProfDashboardProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
   String? _lastProjectId;
+  
+  // In-memory cache for instant switching
+  final Map<String, ProfDashboardModel> _memoryCache = {};
 
   ProfDashboardProvider({required this.authProvider, http.Client? client}) 
       : client = client ?? http.Client();
@@ -23,9 +26,16 @@ class ProfDashboardProvider extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   Future<void> loadDashboardStats({String? projectId}) async {
+    final pId = projectId ?? 'default';
     if (projectId != null && projectId != _lastProjectId) {
-      _dashboardData = null;
-      _lastProjectId = projectId;
+      if (_memoryCache.containsKey(pId)) {
+        _dashboardData = _memoryCache[pId];
+        _lastProjectId = projectId;
+      } else {
+        _dashboardData = null;
+        _lastProjectId = projectId;
+        notifyListeners();
+      }
     }
 
     if (authProvider.role?.toUpperCase() != 'PROFESOR' && authProvider.role?.toUpperCase() != 'DOCENTE') {
@@ -53,6 +63,9 @@ class ProfDashboardProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         final decodedData = json.decode(utf8.decode(response.bodyBytes));
         _dashboardData = ProfDashboardModel.fromJson(decodedData);
+        if (_dashboardData != null) {
+          _memoryCache[pId] = _dashboardData!;
+        }
       } else {
         _errorMessage = 'Error al cargar el dashboard (Código ${response.statusCode})';
       }
