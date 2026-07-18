@@ -3,10 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile/shared/widgets/corvus_bottom_nav_bar.dart';
 
 class ProfProjectLayout extends StatefulWidget {
-  final String projectId;
-  final Widget child;
+  final StatefulNavigationShell navigationShell;
 
-  const ProfProjectLayout({super.key, required this.projectId, required this.child});
+  const ProfProjectLayout({super.key, required this.navigationShell});
 
   @override
   State<ProfProjectLayout> createState() => _ProfProjectLayoutState();
@@ -15,71 +14,38 @@ class ProfProjectLayout extends StatefulWidget {
 class _ProfProjectLayoutState extends State<ProfProjectLayout> {
   int _previousIndex = 0;
 
-  int _calculateSelectedIndex(BuildContext context) {
-    final location = GoRouterState.of(context).uri.path;
-    if (location.endsWith('/dashboard')) return 0;
-    if (location.endsWith('/reviews')) return 1;
-    if (location.endsWith('/rules')) return 2;
-    if (location.endsWith('/settings')) return 3;
-    // /config es una página empujada sobre el dashboard; se considera tablero.
-    if (location.endsWith('/config')) return 0;
-    return 0;
-  }
-
-  void _onItemTapped(BuildContext context, int index) {
-    final currentIndex = _calculateSelectedIndex(context);
-    if (index == currentIndex) return;
+  void _onItemTapped(int index) {
+    if (index == widget.navigationShell.currentIndex) return;
 
     setState(() {
-      _previousIndex = currentIndex;
+      _previousIndex = widget.navigationShell.currentIndex;
     });
 
-    switch (index) {
-      case 0:
-        context.go('/prof-project/${widget.projectId}/dashboard');
-        break;
-      case 1:
-        context.go('/prof-project/${widget.projectId}/reviews');
-        break;
-      case 2:
-        context.go('/prof-project/${widget.projectId}/rules');
-        break;
-      case 3:
-        context.go('/prof-project/${widget.projectId}/settings');
-        break;
-    }
+    widget.navigationShell.goBranch(
+      index,
+      initialLocation: index == widget.navigationShell.currentIndex,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final currentIndex = _calculateSelectedIndex(context);
+    final currentIndex = widget.navigationShell.currentIndex;
     final isSlidingRight = currentIndex > _previousIndex;
 
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (bool didPop, Object? result) {
         if (didPop) return;
-        final location = GoRouterState.of(context).uri.path;
-        Future.microtask(() {
-          if (!context.mounted) return;
-          if (location.endsWith('/config')) {
-            // /config fue empujado sobre el tablero o tabs: solo pop
-            if (context.canPop()) context.pop();
-          } else if (currentIndex != 0) {
-            // Si estamos en reviews, rules o settings, volver al tablero
-            setState(() {
-              _previousIndex = currentIndex;
-            });
-            context.go('/prof-project/${widget.projectId}/dashboard');
-          } else {
-            // Si estamos en el tablero principal del proyecto, salir al listado global
-            if (context.canPop()) {
-              context.pop();
-            } else {
-              context.go('/prof-dash');
-            }
-          }
-        });
+
+        if (currentIndex != 0) {
+          // Volver al tablero (índice 0)
+          setState(() => _previousIndex = currentIndex);
+          widget.navigationShell.goBranch(0);
+          return;
+        }
+
+        // Estamos en el tablero: volver a la lista de proyectos
+        context.go('/prof-dash');
       },
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
@@ -92,7 +58,7 @@ class _ProfProjectLayoutState extends State<ProfProjectLayout> {
             final dx = isIncoming
                 ? (isSlidingRight ? 1.0 : -1.0)
                 : (isSlidingRight ? -1.0 : 1.0);
-            
+
             final offsetAnimation = Tween<Offset>(
               begin: Offset(dx, 0.0),
               end: Offset.zero,
@@ -105,12 +71,12 @@ class _ProfProjectLayoutState extends State<ProfProjectLayout> {
           },
           child: SizedBox(
             key: ValueKey(currentIndex),
-            child: widget.child,
+            child: widget.navigationShell,
           ),
         ),
         bottomNavigationBar: CustomAnimatedBottomNavBar(
           currentIndex: currentIndex,
-          onTap: (index) => _onItemTapped(context, index),
+          onTap: _onItemTapped,
           items: const [
             CustomNavItemData(
               icon: Icons.dashboard_outlined,

@@ -278,44 +278,72 @@ class _AppRouterState extends State<AppRouter> {
         ),
 
         // Nivel 2: Proyecto del Profesor
-        ShellRoute(
-          builder: (context, state, child) {
-            final projectId = state.pathParameters['projectId'] ?? '';
-            return ProfProjectLayout(projectId: projectId, child: child);
+        GoRoute(
+          path: '/prof-project/:projectId',
+          redirect: (context, state) {
+            final projectId = state.pathParameters['projectId'];
+            if (state.uri.path == '/prof-project/$projectId') {
+              return '/prof-project/$projectId/dashboard';
+            }
+            return null;
           },
           routes: [
-            GoRoute(
-              path: '/prof-project/:projectId/dashboard',
-              builder: (context, state) {
-                final projectId = state.pathParameters['projectId']!;
-                return ProfDashPage(projectId: projectId);
+            StatefulShellRoute.indexedStack(
+              builder: (context, state, navigationShell) {
+                return ProfProjectLayout(navigationShell: navigationShell);
               },
+              branches: [
+                StatefulShellBranch(
+                  routes: [
+                    GoRoute(
+                      path: 'dashboard',
+                      builder: (context, state) {
+                        final projectId = state.pathParameters['projectId']!;
+                        return ProfDashPage(projectId: projectId);
+                      },
+                    ),
+                  ],
+                ),
+                StatefulShellBranch(
+                  routes: [
+                    GoRoute(
+                      path: 'reviews',
+                      builder: (context, state) {
+                        return ProfReviewsPage(projectId: state.pathParameters['projectId']!);
+                      },
+                    ),
+                  ],
+                ),
+                StatefulShellBranch(
+                  routes: [
+                    GoRoute(
+                      path: 'rules',
+                      builder: (context, state) {
+                        final projectId = state.pathParameters['projectId']!;
+                        return ProfRulesPage(projectId: projectId);
+                      },
+                    ),
+                  ],
+                ),
+                StatefulShellBranch(
+                  routes: [
+                    GoRoute(
+                      path: 'settings',
+                      builder: (context, state) {
+                        final projectId = state.pathParameters['projectId']!;
+                        return ProfProjectSettingsPage(projectId: projectId);
+                      },
+                    ),
+                  ],
+                ),
+              ],
             ),
             GoRoute(
-              path: '/prof-project/:projectId/reviews',
-              builder: (context, state) {
-                return ProfReviewsPage(projectId: state.pathParameters['projectId']!);
-              },
-            ),
-            GoRoute(
-              path: '/prof-project/:projectId/config',
-              builder: (context, state) {
-                return ProfProjectConfigPage(projectId: state.pathParameters['projectId']!);
-              },
-            ),
-            GoRoute(
-              path: '/prof-project/:projectId/rules',
-              builder: (context, state) {
-                final projectId = state.pathParameters['projectId']!;
-                return ProfRulesPage(projectId: projectId);
-              },
-            ),
-            GoRoute(
-              path: '/prof-project/:projectId/settings',
-              builder: (context, state) {
-                final projectId = state.pathParameters['projectId']!;
-                return ProfProjectSettingsPage(projectId: projectId);
-              },
+              path: 'config',
+              pageBuilder: (context, state) => _buildFadeTransition(
+                ProfProjectConfigPage(projectId: state.pathParameters['projectId']!),
+                state.pageKey,
+              ),
             ),
           ],
         ),

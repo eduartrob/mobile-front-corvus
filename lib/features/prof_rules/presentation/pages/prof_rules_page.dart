@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+       import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
@@ -42,7 +42,11 @@ class _ProfRulesPageViewState extends State<_ProfRulesPageView> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
-    final provider = context.watch<ProfRulesProvider>();
+    // Usar context.select para evitar rebuilds innecesarios de toda la página
+    final isLoading = context.select<ProfRulesProvider, bool>((p) => p.isLoading);
+    final clusterStatsEmpty = context.select<ProfRulesProvider, bool>((p) => p.clusterStats.isEmpty);
+    final projectSectionsEmpty = context.select<ProfRulesProvider, bool>((p) => p.projectSections.isEmpty);
+    final isModified = context.select<ProfRulesProvider, bool>((p) => p.isModified);
 
     return DefaultTabController(
       length: 2,
@@ -61,7 +65,7 @@ class _ProfRulesPageViewState extends State<_ProfRulesPageView> {
               ],
             ),
             Expanded(
-              child: (provider.isLoading && provider.clusterStats.isEmpty && provider.projectSections.isEmpty)
+              child: (isLoading && clusterStatsEmpty && projectSectionsEmpty)
                   ? const _ProfRulesLoadingSkeleton()
                   : TabBarView(
                       children: [
@@ -72,11 +76,13 @@ class _ProfRulesPageViewState extends State<_ProfRulesPageView> {
             ),
           ],
         ),
-        floatingActionButton: provider.isLoading
+        floatingActionButton: isLoading
             ? null
               : Builder(
                   builder: (context) {
                     final tabController = DefaultTabController.of(context);
+                    // Necesitamos el provider completo para el FAB
+                    final fabProvider = context.watch<ProfRulesProvider>();
                     return AnimatedBuilder(
                       animation: tabController,
                       builder: (context, child) {
@@ -89,17 +95,17 @@ class _ProfRulesPageViewState extends State<_ProfRulesPageView> {
                               heroTag: 'addSectionFAB',
                               backgroundColor: colorScheme.primaryContainer,
                               foregroundColor: colorScheme.onPrimaryContainer,
-                              onPressed: provider.isLoading ? null : () => _showAddSectionDialog(context, provider),
+                              onPressed: fabProvider.isLoading ? null : () => _showAddSectionDialog(context, fabProvider),
                               child: const Icon(Icons.add),
                             ),
-                            if (provider.isModified) ...[
+                            if (fabProvider.isModified) ...[
                               const SizedBox(height: 12),
                               FloatingActionButton.extended(
                                 heroTag: 'saveRulesFAB',
                                 backgroundColor: colorScheme.primary,
                                 foregroundColor: colorScheme.onPrimary,
-                                onPressed: provider.isSaving ? null : () => _saveRules(context, provider),
-                                icon: provider.isSaving
+                                onPressed: fabProvider.isSaving ? null : () => _saveRules(context, fabProvider),
+                                icon: fabProvider.isSaving
                                     ? const SizedBox(
                                         width: 16,
                                         height: 16,
@@ -107,7 +113,7 @@ class _ProfRulesPageViewState extends State<_ProfRulesPageView> {
                                       )
                                     : const Icon(Icons.save, size: 18),
                                 label: Text(
-                                  provider.isSaving ? 'Guardando...' : 'Guardar',
+                                  fabProvider.isSaving ? 'Guardando...' : 'Guardar',
                                   style: const TextStyle(fontSize: 13),
                                 ),
                               ),
