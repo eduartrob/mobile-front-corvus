@@ -32,7 +32,9 @@ class _ProjectLayoutState extends State<ProjectLayout> {
   void didUpdateWidget(covariant ProjectLayout oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.initialTab != oldWidget.initialTab) {
-      _currentIndex = widget.initialTab;
+      setState(() {
+        _currentIndex = widget.initialTab;
+      });
     }
   }
 

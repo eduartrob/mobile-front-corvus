@@ -33,7 +33,9 @@ class _ProfProjectLayoutState extends State<ProfProjectLayout> {
   void didUpdateWidget(covariant ProfProjectLayout oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.initialTab != oldWidget.initialTab) {
-      _currentIndex = widget.initialTab;
+      setState(() {
+        _currentIndex = widget.initialTab;
+      });
     }
   }
 
