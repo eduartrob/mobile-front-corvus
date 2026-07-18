@@ -61,7 +61,7 @@ class _ProfReviewsPageState extends State<ProfReviewsPage> {
     final reviews = provider.reviews;
 
     return Scaffold(
-      appBar: const CorvusTopBar(),
+      appBar: const CorvusTopBar(showBackButton: false),
       body: (provider.isLoading && provider.reviews.isEmpty)
           ? ListView.separated(
               padding: const EdgeInsets.all(20.0),
@@ -142,8 +142,7 @@ class _ProfReviewsPageState extends State<ProfReviewsPage> {
                           child: InkWell(
                             borderRadius: BorderRadius.circular(16),
                             onTap: () {
-                              Navigator.push(
-                                context,
+                              Navigator.of(context, rootNavigator: true).push(
                                 MaterialPageRoute(
                                   builder: (context) => ProfReviewDetailPage(review: review),
                                 ),

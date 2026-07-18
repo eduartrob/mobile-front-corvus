@@ -10,6 +10,7 @@ class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget? titleWidget;
   final bool hideActions;
   final List<Widget>? extraActions;
+  final bool showBackButton;
 
   const CorvusTopBar({
     super.key,
@@ -17,6 +18,7 @@ class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
     this.titleWidget,
     this.hideActions = false,
     this.extraActions,
+    this.showBackButton = true,
   });
 
   @override
@@ -24,6 +26,7 @@ class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
     final photoUrl = context.select<AuthProvider, String?>((a) => a.currentUser?.photoUrl);
     final role = context.select<AuthProvider, String?>((a) => a.role);
     return AppBar(
+      automaticallyImplyLeading: showBackButton,
       backgroundColor: Theme.of(context).colorScheme.surface,
       scrolledUnderElevation: 0,
       titleSpacing: showLogo && titleWidget == null ? 16.0 : 0.0,

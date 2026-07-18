@@ -46,7 +46,7 @@ class _ProfRulesPageViewState extends State<_ProfRulesPageView> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        appBar: const CorvusTopBar(),
+        appBar: const CorvusTopBar(showBackButton: false),
         body: Column(
           children: [
             TabBar(
