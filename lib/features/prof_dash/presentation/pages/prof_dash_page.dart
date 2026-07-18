@@ -8,6 +8,7 @@ import 'package:mobile/features/prof_dash/presentation/provider/prof_dash_provid
 import 'package:mobile/features/prof_dash/presentation/pages/prof_directory_page.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/shared/widgets/corvus_skeleton.dart';
 
 class ProfDashPage extends StatefulWidget {
   final String projectId;
@@ -56,8 +57,32 @@ class _ProfDashPageState extends State<ProfDashPage> {
       ),
       body: Consumer<ProfDashboardProvider>(
         builder: (context, provider, child) {
-          if (provider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
+          if (provider.isLoading && provider.dashboardData == null) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const CorvusSkeleton(height: 100, width: double.infinity),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      const Expanded(child: CorvusSkeleton(height: 100)),
+                      const SizedBox(width: 16),
+                      const Expanded(child: CorvusSkeleton(height: 100)),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  const CorvusSkeleton(height: 100, width: double.infinity),
+                  const SizedBox(height: 32),
+                  const CorvusSkeleton(height: 30, width: 200),
+                  const SizedBox(height: 16),
+                  const CorvusSkeleton(height: 80, width: double.infinity),
+                  const SizedBox(height: 12),
+                  const CorvusSkeleton(height: 80, width: double.infinity),
+                ],
+              ),
+            );
           }
 
           if (provider.errorMessage != null) {

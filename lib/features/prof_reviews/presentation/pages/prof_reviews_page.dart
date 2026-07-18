@@ -5,6 +5,7 @@ import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/features/prof_reviews/presentation/provider/prof_reviews_provider.dart';
 import 'package:mobile/features/prof_reviews/presentation/pages/prof_review_detail_page.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile/shared/widgets/corvus_skeleton.dart';
 
 class ProfReviewsPage extends StatefulWidget {
   final String projectId;
@@ -61,8 +62,16 @@ class _ProfReviewsPageState extends State<ProfReviewsPage> {
 
     return Scaffold(
       appBar: const CorvusTopBar(),
-      body: provider.isLoading
-          ? const Center(child: CircularProgressIndicator())
+      body: (provider.isLoading && provider.reviews.isEmpty)
+          ? ListView.separated(
+              padding: const EdgeInsets.all(20.0),
+              itemCount: 4,
+              separatorBuilder: (_, __) => const SizedBox(height: 16),
+              itemBuilder: (_, __) => const CorvusSkeleton(
+                height: 120,
+                width: double.infinity,
+              ),
+            )
           : RefreshIndicator(
               onRefresh: () => provider.fetchReviews(),
               child: reviews.isEmpty

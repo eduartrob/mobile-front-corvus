@@ -6,6 +6,7 @@ import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/teams/data/models/team_model.dart';
 import 'package:mobile/features/student_directory/domain/entities/student.dart';
 import 'package:mobile/features/student_directory/presentation/widgets/student_card.dart';
+import 'package:mobile/shared/widgets/corvus_skeleton.dart';
 
 class ProfDirectoryPage extends StatelessWidget {
   final String projectId;
@@ -89,8 +90,16 @@ class _ProfDirectoryPageViewState extends State<_ProfDirectoryPageView> with Sin
             ),
           ),
           Expanded(
-            child: provider.isLoading
-                ? const Center(child: CircularProgressIndicator())
+            child: (provider.isLoading && provider.teams.isEmpty && provider.studentsWithoutTeam.isEmpty)
+                ? ListView.separated(
+                    padding: const EdgeInsets.all(16.0),
+                    itemCount: 5,
+                    separatorBuilder: (_, __) => const SizedBox(height: 16),
+                    itemBuilder: (_, __) => const CorvusSkeleton(
+                      height: 100,
+                      width: double.infinity,
+                    ),
+                  )
                 : provider.errorMessage != null
                     ? Center(
                         child: Column(
