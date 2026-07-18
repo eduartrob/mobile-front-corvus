@@ -38,7 +38,16 @@ class ProfRulesProvider extends ChangeNotifier {
   List<dynamic> _clusterStats = [];
   List<dynamic> get clusterStats => _clusterStats;
 
+  String? _lastProjectId;
+
   Future<void> fetchData({String? projectId}) async {
+    if (projectId != null && projectId != _lastProjectId) {
+      _projectSections = [];
+      _clusterStats = [];
+      _exclusionRules = [];
+      _lastProjectId = projectId;
+    }
+
     // 1. Intentar cargar desde el caché rápido (sin loader invasivo)
     try {
       final config = await remoteDataSource.getConfig(forceRefresh: false, projectId: projectId);

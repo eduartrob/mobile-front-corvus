@@ -192,6 +192,21 @@ class MyProjectProvider extends ChangeNotifier {
   }
   
   Future<void> init(String userId, String teamId, {String? projectId, bool forceRefresh = false}) async {
+    if (_projectId != projectId) {
+      _initialized = false;
+      _state = ProjectState.initial;
+      _quickAnalysis = null;
+      _detailedAnalysis = null;
+      _hasPassedDefense = false;
+      _defenseChatHistory = [];
+      _activeSessionId = null;
+      _activeChatMessages = [];
+      _activeMessageCount = 0;
+      _fileName = null;
+      _fileSize = null;
+      _selectedFile = null;
+    }
+
     if (_initialized && !forceRefresh) return;
     _initialized = true;
     _projectId = projectId;

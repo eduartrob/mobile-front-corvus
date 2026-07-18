@@ -13,6 +13,7 @@ class ProfDashboardProvider extends ChangeNotifier {
   ProfDashboardModel? _dashboardData;
   bool _isLoading = false;
   String? _errorMessage;
+  String? _lastProjectId;
 
   ProfDashboardProvider({required this.authProvider, http.Client? client}) 
       : client = client ?? http.Client();
@@ -22,6 +23,11 @@ class ProfDashboardProvider extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   Future<void> loadDashboardStats({String? projectId}) async {
+    if (projectId != null && projectId != _lastProjectId) {
+      _dashboardData = null;
+      _lastProjectId = projectId;
+    }
+
     if (authProvider.role?.toUpperCase() != 'PROFESOR' && authProvider.role?.toUpperCase() != 'DOCENTE') {
       return;
     }

@@ -58,6 +58,14 @@ class TeamsProvider extends ChangeNotifier {
   int get maxTeamMembers => _maxTeamMembers;
 
   Future<void> fetchMyTeam({String? projectId}) async {
+    if (projectId != null && projectId != _currentProjectId) {
+      _myTeam = null;
+      _finalReviewStatus = null;
+      _suggestions = [];
+      _requests = [];
+      _maxTeamMembers = 4;
+    }
+
     _isLoading = true;
     _errorMessage = null;
     if (projectId != null) {
