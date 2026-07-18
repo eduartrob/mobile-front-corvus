@@ -1,3 +1,4 @@
+import 'package:mobile/core/network/api_endpoints.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -31,7 +32,7 @@ class ProfDirectoryProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final url = Uri.parse('${ApiConfig.apiGatewayUrl}/teams/prof/directory?project_id=$projectId');
+      final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.teamsProfDirectory}?project_id=$projectId');
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
       
       final token = authProvider.currentUser?.token;

@@ -25,7 +25,7 @@ class ProjectProvider extends ChangeNotifier {
       _error = null;
       if (quiet) notifyListeners(); // Need to notify if we didn't call _setLoading
     } catch (e) {
-      _error = e.toString();
+      _error = e.toString().replaceAll('Exception: ', '');
       if (quiet) notifyListeners(); // Need to notify to show errors if necessary
     } finally {
       if (!quiet) _setLoading(false);
@@ -49,7 +49,7 @@ class ProjectProvider extends ChangeNotifier {
       await loadMyProjects(token);
       return true;
     } catch (e) {
-      _error = e.toString();
+      _error = e.toString().replaceAll('Exception: ', '');
       _setLoading(false);
       return false;
     }
@@ -65,7 +65,7 @@ class ProjectProvider extends ChangeNotifier {
       await loadMyProjects(token);
       return res['project'] != null ? res['project']['id'] : null;
     } catch (e) {
-      _error = e.toString();
+      _error = e.toString().replaceAll('Exception: ', '');
       _setLoading(false);
       return null;
     }
@@ -88,8 +88,28 @@ class ProjectProvider extends ChangeNotifier {
       }
       return true;
     } catch (e) {
-      _error = e.toString();
+      _error = e.toString().replaceAll('Exception: ', '');
       _setLoading(false);
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<bool> deleteProject({
+    required String projectId,
+    required String token,
+  }) async {
+    _setLoading(true);
+    try {
+      await _api.deleteProject(projectId: projectId, token: token);
+      
+      // Update local list
+      _myProjects.removeWhere((p) => p['id'] == projectId);
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString().replaceAll('Exception: ', '');
       return false;
     } finally {
       _setLoading(false);
@@ -103,7 +123,7 @@ class ProjectProvider extends ChangeNotifier {
     try {
       return await _api.getProjectStudents(projectId: projectId, token: token);
     } catch (e) {
-      _error = e.toString();
+      _error = e.toString().replaceAll('Exception: ', '');
       return [];
     }
   }
@@ -117,7 +137,7 @@ class ProjectProvider extends ChangeNotifier {
       }
       return success;
     } catch (e) {
-      _error = e.toString();
+      _error = e.toString().replaceAll('Exception: ', '');
       _setLoading(false);
       return false;
     }
@@ -132,7 +152,7 @@ class ProjectProvider extends ChangeNotifier {
       }
       return success;
     } catch (e) {
-      _error = e.toString();
+      _error = e.toString().replaceAll('Exception: ', '');
       _setLoading(false);
       return false;
     }

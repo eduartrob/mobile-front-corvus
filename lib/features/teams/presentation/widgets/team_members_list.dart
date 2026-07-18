@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/features/teams/presentation/widgets/user_profile_modal.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/teams/presentation/widgets/team_member_card.dart';
 import 'package:go_router/go_router.dart';
@@ -103,32 +104,12 @@ class TeamMembersList extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Integrantes',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            if (isAdmin)
-              TextButton.icon(
-                onPressed: () => context.push('/manage-team'),
-                icon: const Icon(Icons.manage_accounts_outlined, size: 18),
-                label: const Text('Gestionar'),
-                style: TextButton.styleFrom(
-                  backgroundColor: colorScheme.primary.withValues(alpha: 0.15),
-                  foregroundColor: colorScheme.primary,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    side: BorderSide(color: colorScheme.primary.withValues(alpha: 0.3)),
-                  ),
-                ),
-              ),
-          ],
+        const Text(
+          'Integrantes',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(height: 16),
         ...members.map((member) {
@@ -136,10 +117,11 @@ class TeamMembersList extends StatelessWidget {
           return Padding(
             padding: const EdgeInsets.only(bottom: 12.0),
             child: TeamMemberCard(
-              avatarUrl: member.avatarUrl ?? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
+              avatarUrl: member.avatarUrl,
               name: member.name,
               email: member.email,
               isMe: isMe,
+              isLeader: member.role == 'LEADER' || member.role == 'LÍDER' || member.role == 'LIDER',
               onRemove: (!isAdmin || isMe) ? null : () => _showRemoveConfirmationDialog(context, member),
             ),
           );
@@ -177,152 +159,131 @@ class InvitationCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
-      ),
-      elevation: 0,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Stack(
-            children: [
-              Image.network(
-                avatarUrl,
-                height: 250,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  height: 250,
-                  color: colorScheme.surfaceContainerHighest,
-                  child: const Icon(Icons.person, size: 80),
+    Widget actionBtn = const SizedBox.shrink();
+    if (!(targetHasTeam && iHaveTeam)) {
+      actionBtn = SizedBox(
+        width: double.infinity,
+        child: FilledButton(
+          onPressed: () {
+            if (onSendRequest != null) {
+              onSendRequest!();
+            } else {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Solicitud enviada a $name'),
+                  behavior: SnackBarBehavior.floating,
                 ),
-              ),
-              if (isVerified)
-                Positioned(
-                  top: 12,
-                  right: 12,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.2),
-                          blurRadius: 4,
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      Icons.verified,
-                      color: Colors.blue.shade700,
-                      size: 24,
-                    ),
-                  ),
-                ),
-            ],
+              );
+            }
+          },
+          style: FilledButton.styleFrom(
+            backgroundColor: Colors.blue.shade600,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 12),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                if (username.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    username,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-                if (bio.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    bio,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: colorScheme.onSurface.withValues(alpha: 0.8),
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 12),
-                if (tags.isNotEmpty)
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: tags.map((tag) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: colorScheme.secondaryContainer.withValues(alpha: 0.5),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          tag,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: colorScheme.onSecondaryContainer,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                const SizedBox(height: 16),
-                if (targetHasTeam && iHaveTeam)
-                  const SizedBox.shrink()
-                else
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton(
-                      onPressed: () {
-                        if (onSendRequest != null) {
-                          onSendRequest!();
-                        } else {
-                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Solicitud enviada a $name'),
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
-                        }
-                      },
-                      style: FilledButton.styleFrom(
-                        backgroundColor: Colors.blue.shade600,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                      child: Text(
-                        targetHasTeam ? 'Solicitar unirse' : 'Invitar',
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
+          child: Text(
+            targetHasTeam ? 'Solicitar unirse' : 'Invitar',
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
             ),
           ),
-        ],
+        ),
+      );
+    }
+
+    String displayBio = bio;
+    if (displayBio.length > 25) {
+      displayBio = '${displayBio.substring(0, 25)}...';
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          showUserProfileModal(
+            context: context,
+            name: name,
+            avatarUrl: avatarUrl,
+            bio: bio, // full bio for the modal
+            tags: tags,
+            actionButton: actionBtn,
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                radius: 40,
+                backgroundColor: colorScheme.primaryContainer,
+                backgroundImage: (avatarUrl.isNotEmpty) 
+                    ? NetworkImage(avatarUrl) 
+                    : null,
+                child: (avatarUrl.isEmpty)
+                    ? Text(
+                        name.isNotEmpty ? name.substring(0, 1).toUpperCase() : '?',
+                        style: TextStyle(
+                          color: colorScheme.onPrimaryContainer,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 32,
+                        ),
+                      )
+                    : null,
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            name,
+                            style: const TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (isVerified)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 4.0),
+                            child: Icon(
+                              Icons.verified,
+                              color: Colors.blue.shade700,
+                              size: 16,
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Alumno',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    if (!(targetHasTeam && iHaveTeam)) ...[
+                      const SizedBox(height: 12),
+                      actionBtn,
+                    ]
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -108,33 +108,50 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
                 itemCount: provider.myProjects.length,
                 itemBuilder: (context, index) {
                 final project = provider.myProjects[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 1,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(12),
-                    onTap: () {
-                      context.push('/project/${project['id']}/teams');
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(Icons.class_, color: Theme.of(context).colorScheme.primary),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  project['name'] ?? 'Proyecto',
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                final pastelColors = const [
+                  Color(0xFFEBF4FF), // Azul muy claro
+                  Color(0xFFF4EBF7), // Morado muy claro
+                  Color(0xFFEAF5EE), // Verde muy claro
+                  Color(0xFFFEF2E5), // Naranja muy claro
+                  Color(0xFFFCEAEF), // Rosa muy claro
+                ];
+                final bgColor = pastelColors[index % pastelColors.length];
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Material(
+                    color: bgColor,
+                    borderRadius: BorderRadius.circular(16),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(16),
+                      onTap: () {
+                        context.push('/project/${project['id']}/teams');
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).colorScheme.primary,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Icon(Icons.class_, color: Colors.white, size: 20),
                                 ),
-                              ),
-                              Icon(Icons.arrow_forward_ios, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-                            ],
-                          ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    project['name'] ?? 'Proyecto',
+                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                Icon(Icons.arrow_forward_ios, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                              ],
+                            ),
                           if (project['description'] != null && project['description'].toString().isNotEmpty) ...[
                             const SizedBox(height: 8),
                             Text(
@@ -150,7 +167,8 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
                         ),
                       ),
                     ),
-                  );
+                  ),
+                );
                 },
               ),
             );

@@ -155,6 +155,51 @@ class _ProfProjectConfigPageState extends State<ProfProjectConfigPage> {
     );
   }
 
+  void _showDeleteDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Eliminar Proyecto'),
+          content: const Text('¿Estás seguro de que deseas eliminar este proyecto? Esta acción no se puede deshacer.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
+              onPressed: () async {
+                Navigator.pop(context);
+                final token = context.read<AuthProvider>().currentUser?.token;
+                final provider = context.read<ProjectProvider>();
+                if (token != null) {
+                  final success = await provider.deleteProject(projectId: widget.projectId, token: token);
+                  if (mounted) {
+                    if (success) {
+                      Navigator.pop(context); // Go back to previous screen
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Proyecto eliminado exitosamente')),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(provider.error ?? 'Error al eliminar'),
+                          backgroundColor: Theme.of(context).colorScheme.error,
+                        ),
+                      );
+                    }
+                  }
+                }
+              },
+              child: const Text('Eliminar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -300,6 +345,27 @@ class _ProfProjectConfigPageState extends State<ProfProjectConfigPage> {
                         );
                       },
                     ),
+                  const SizedBox(height: 48),
+
+                  // Delete Project Button
+                  Center(
+                    child: OutlinedButton.icon(
+                      onPressed: _showDeleteDialog,
+                      icon: Icon(Icons.delete_forever, color: colorScheme.error),
+                      label: Text(
+                        'Eliminar Proyecto',
+                        style: TextStyle(color: colorScheme.error),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: colorScheme.error),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
                 ],
               ),
             ),

@@ -1,3 +1,4 @@
+import 'package:mobile/core/network/api_endpoints.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:mobile/core/services/secure_storage_service.dart';
@@ -74,7 +75,7 @@ class AuthProvider extends ChangeNotifier {
         _status = AuthStatus.authenticated;
         
         // Fetch /me to update profile info silently in background
-        apiClient.get(Uri.parse('${ApiConfig.apiGatewayUrl}/auth/me')).then((response) {
+        apiClient.get(Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authMe}')).then((response) {
           if (response.statusCode == 200) {
             final data = jsonDecode(response.body);
             final userData = data['user'];
@@ -107,7 +108,7 @@ class AuthProvider extends ChangeNotifier {
           final fcmToken = await FirebaseMessaging.instance.getToken();
           if (fcmToken != null && _currentUser != null && _currentUser!.id.isNotEmpty) {
             FirebaseMessaging.instance.subscribeToTopic('user_${_currentUser!.id}');
-            final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/notifications/device');
+            final uri = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.notificationsDevice}');
             http.post(
               uri,
               headers: {
@@ -255,7 +256,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       final fcmToken = await FirebaseMessaging.instance.getToken();
       if (fcmToken != null) {
-        final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/notifications/device');
+        final uri = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.notificationsDevice}');
         await http.delete(
           uri,
           headers: {
@@ -298,7 +299,7 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> validateUniversityCode(String code) async {
     try {
       final response = await apiClient.post(
-        Uri.parse('${ApiConfig.apiGatewayUrl}/auth/universities/validate'),
+        Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authUniversitiesValidate}'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'code': code}),
       );
@@ -332,7 +333,7 @@ class AuthProvider extends ChangeNotifier {
 
       // Actualizar foto en el backend usando Cloudinary
       final response = await apiClient.put(
-        Uri.parse('${ApiConfig.apiGatewayUrl}/auth/profile-picture'),
+        Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authProfilePicture}'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'imageBase64': base64Image}),
       );
@@ -362,7 +363,7 @@ class AuthProvider extends ChangeNotifier {
       if (token == null) return false;
 
       final response = await apiClient.delete(
-        Uri.parse('${ApiConfig.apiGatewayUrl}/auth/profile-picture'),
+        Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authProfilePicture}'),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -386,7 +387,7 @@ class AuthProvider extends ChangeNotifier {
       if (token == null) return false;
 
       final response = await apiClient.delete(
-        Uri.parse('${ApiConfig.apiGatewayUrl}/auth/delete-account'),
+        Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authDeleteAccount}'),
         headers: {'Content-Type': 'application/json'},
       );
 

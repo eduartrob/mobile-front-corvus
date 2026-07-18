@@ -56,7 +56,7 @@ class TeamMemberModel {
       username: email.split('@').first,
       bio: role == 'LEADER' ? 'Líder de equipo' : 'Integrante del equipo',
       tags: [],
-      avatarUrl: avatarUrl ?? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
+      avatarUrl: avatarUrl ?? '',
       isVerified: true,
     );
   }

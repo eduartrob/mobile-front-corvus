@@ -1,3 +1,4 @@
+import 'package:mobile/core/network/api_endpoints.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/api_config.dart';
@@ -9,7 +10,7 @@ class ClusteringRemoteDataSource {
 
   // GET /clustering/groups/login
   Future<Map<String, dynamic>> loginClassroom() async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/groups/login');
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.clusteringGroupsLogin}');
 
     try {
       final response = await client.get(url, headers: ApiConfig.defaultHeaders).timeout(ApiConfig.connectionTimeout);
@@ -27,7 +28,7 @@ class ClusteringRemoteDataSource {
 
   // GET /clustering/groups/courses
   Future<List<dynamic>> getClassroomCourses() async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/groups/courses');
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.clusteringGroupsCourses}');
 
     try {
       final response = await client.get(url, headers: ApiConfig.defaultHeaders).timeout(ApiConfig.connectionTimeout);
@@ -45,7 +46,7 @@ class ClusteringRemoteDataSource {
 
   // POST /clustering/groups/cluster/<courseId>
   Future<Map<String, dynamic>> processClustering(String courseId) async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/groups/cluster/$courseId');
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.clusteringGroupsCluster(courseId)}');
 
     try {
       final response = await client.post(url, headers: ApiConfig.defaultHeaders);
@@ -63,7 +64,7 @@ class ClusteringRemoteDataSource {
 
   // GET /clustering/groups/cluster/<courseId>/summary
   Future<Map<String, dynamic>> getClusteringSummary(String courseId) async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/groups/cluster/$courseId/summary');
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.clusteringGroupsClusterSummary(courseId)}');
 
     try {
       final response = await client.get(url, headers: ApiConfig.defaultHeaders).timeout(ApiConfig.connectionTimeout);
@@ -81,7 +82,7 @@ class ClusteringRemoteDataSource {
 
   // POST /clustering/groups/sync-perfil
   Future<Map<String, dynamic>> syncStudentProfile() async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/groups/sync-perfil');
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.clusteringGroupsSyncPerfil}');
 
     try {
       final response = await client.post(url, headers: ApiConfig.defaultHeaders);
@@ -99,7 +100,7 @@ class ClusteringRemoteDataSource {
 
   // GET /clustering/groups/mi-perfil/completo
   Future<Map<String, dynamic>> getFullStudentProfile() async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/groups/mi-perfil/completo');
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.clusteringGroupsMiPerfilCompleto}');
 
     try {
       final response = await client.get(url, headers: ApiConfig.defaultHeaders);

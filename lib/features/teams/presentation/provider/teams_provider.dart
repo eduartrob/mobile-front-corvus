@@ -4,6 +4,9 @@ import 'package:mobile/core/network/auth_interceptor_client.dart';
 import 'package:mobile/features/student_directory/domain/entities/student.dart';
 import 'package:mobile/features/teams/data/models/team_model.dart';
 import 'package:mobile/features/teams/data/models/solicitud_model.dart';
+import 'dart:convert';
+import 'package:mobile/core/network/api_config.dart';
+import 'package:mobile/core/network/api_endpoints.dart';
 import 'package:mobile/features/teams/data/data_source/teams_remote_data_source.dart';
 
 enum SolicitudFilter {
@@ -48,6 +51,9 @@ class TeamsProvider extends ChangeNotifier {
     }
   }
 
+  int _maxTeamMembers = 4;
+  int get maxTeamMembers => _maxTeamMembers;
+
   Future<void> fetchMyTeam() async {
     _isLoading = true;
     _errorMessage = null;
@@ -55,10 +61,41 @@ class TeamsProvider extends ChangeNotifier {
 
     try {
       _myTeam = await remoteDataSource.getMyTeam();
+      String? projectId;
+
       if (_myTeam != null) {
         _finalReviewStatus = await remoteDataSource.getFinalReviewStatus(_myTeam!.id);
+        projectId = _myTeam!.project?['id']?.toString() 
+            ?? _myTeam!.project?['id_proyecto']?.toString();
       } else {
         _finalReviewStatus = null;
+        try {
+          final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/teams/my-project-id');
+          final response = await remoteDataSource.client.get(uri, headers: ApiConfig.defaultHeaders);
+          if (response.statusCode == 200) {
+            final data = json.decode(utf8.decode(response.bodyBytes));
+            projectId = data['projectId']?.toString();
+          }
+        } catch (e) {
+          // ignore error
+        }
+      }
+
+      // Fetch config to get maxTeamMembers using projectId
+      if (projectId != null) {
+        try {
+          final uri = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.integratorAdminConfig}')
+              .replace(queryParameters: {'projectId': projectId});
+          final response = await remoteDataSource.client.get(uri, headers: ApiConfig.defaultHeaders);
+          if (response.statusCode == 200) {
+            final data = json.decode(utf8.decode(response.bodyBytes));
+            if (data != null && data['max_team_members'] != null) {
+              _maxTeamMembers = int.tryParse(data['max_team_members'].toString()) ?? 4;
+            }
+          }
+        } catch (e) {
+          // ignore error and use default
+        }
       }
     } catch (e) {
       _errorMessage = e.toString();

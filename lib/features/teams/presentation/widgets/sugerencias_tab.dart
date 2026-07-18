@@ -116,7 +116,8 @@ class SugerenciasTab extends StatelessWidget {
                                           ScaffoldMessenger.of(context).hideCurrentSnackBar();
                                           ScaffoldMessenger.of(context).showSnackBar(
                                             SnackBar(
-                                              content: Text('Error al enviar invitación: $error'),
+                                              content: Text('Error al enviar invitación: ${error.toString().replaceAll('Exception: ', '')}'),
+                                              backgroundColor: Theme.of(context).colorScheme.error,
                                               behavior: SnackBarBehavior.floating,
                                             ),
                                           );

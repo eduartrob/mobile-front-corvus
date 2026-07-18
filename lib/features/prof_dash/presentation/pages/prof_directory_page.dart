@@ -186,10 +186,15 @@ class _ProfDirectoryPageViewState extends State<_ProfDirectoryPageView> with Sin
                     spacing: 8,
                     runSpacing: 8,
                     children: team.members.map((member) {
+                      final hasAvatar = member.avatarUrl != null && member.avatarUrl!.trim().isNotEmpty;
                       return Chip(
                         avatar: CircleAvatar(
-                          backgroundImage: member.avatarUrl != null ? NetworkImage(member.avatarUrl!) : null,
-                          child: member.avatarUrl == null ? const Icon(Icons.person, size: 16) : null,
+                          backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
+                          backgroundImage: hasAvatar ? NetworkImage(member.avatarUrl!) : null,
+                          child: !hasAvatar ? Text(
+                            (member.name ?? '?').isNotEmpty ? (member.name ?? '?')[0].toUpperCase() : '?',
+                            style: TextStyle(color: colorScheme.primary, fontSize: 12, fontWeight: FontWeight.bold),
+                          ) : null,
                         ),
                         label: Text(member.name ?? 'Sin nombre', style: const TextStyle(fontSize: 12)),
                         backgroundColor: colorScheme.surfaceContainerHighest,
@@ -223,6 +228,7 @@ class _ProfDirectoryPageViewState extends State<_ProfDirectoryPageView> with Sin
         // student.email is not available in Student model from teams_model
         // But we can use StudentCard just passing what we have.
         // Wait, StudentCard might require specific provider. Let's just build a custom ListTile to avoid issues.
+        final hasAvatar = student.avatarUrl != null && student.avatarUrl!.trim().isNotEmpty;
         return Card(
           elevation: 0,
           margin: const EdgeInsets.only(bottom: 12),
@@ -232,8 +238,12 @@ class _ProfDirectoryPageViewState extends State<_ProfDirectoryPageView> with Sin
           ),
           child: ListTile(
             leading: CircleAvatar(
-              backgroundImage: student.avatarUrl != null ? NetworkImage(student.avatarUrl!) : null,
-              child: student.avatarUrl == null ? const Icon(Icons.person) : null,
+              backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+              backgroundImage: hasAvatar ? NetworkImage(student.avatarUrl!) : null,
+              child: !hasAvatar ? Text(
+                (student.name ?? student.username ?? '?').isNotEmpty ? (student.name ?? student.username ?? '?')[0].toUpperCase() : '?',
+                style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold),
+              ) : null,
             ),
             title: Text(student.name ?? student.username ?? 'Sin nombre', style: const TextStyle(fontWeight: FontWeight.bold)),
             subtitle: student.tags.isNotEmpty 

@@ -48,12 +48,18 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
       provider.setScreenVisible(true);
       if (provider.state == ProjectState.initial) {
         final userId = context.read<AuthProvider>().currentUser?.id;
-        final teamId = context.read<TeamsProvider>().myTeam?.id;
+        final myTeam = context.read<TeamsProvider>().myTeam;
+        final teamId = myTeam?.id;
+        
+        String? projectId = myTeam?.project?['id']?.toString() 
+            ?? myTeam?.project?['id_proyecto']?.toString();
+            
         final universityId = context.read<AuthProvider>().currentUser?.universityId;
         final careerId = context.read<AuthProvider>().currentUser?.careerId;
         provider.setContext(universityId: universityId, careerId: careerId);
+        
         if (userId != null && teamId != null) {
-          provider.init(userId, teamId);
+          provider.init(userId, teamId, projectId: projectId);
         }
       }
 
@@ -97,9 +103,12 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
         child: RefreshIndicator(
           onRefresh: () async {
             final provider = context.read<MyProjectProvider>();
-            final teamId = context.read<TeamsProvider>().myTeam?.id;
+            final myTeam = context.read<TeamsProvider>().myTeam;
+            final teamId = myTeam?.id;
+            String? projectId = myTeam?.project?['id']?.toString() 
+                ?? myTeam?.project?['id_proyecto']?.toString();
             if (teamId != null) {
-              await provider.init(userId, teamId, forceRefresh: true);
+              await provider.init(userId, teamId, projectId: projectId, forceRefresh: true);
             }
           },
           child: Consumer<ProjectProvider>(

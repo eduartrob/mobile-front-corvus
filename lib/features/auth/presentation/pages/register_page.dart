@@ -190,6 +190,7 @@ class _RegisterPageState extends State<RegisterPage> {
     final l10n = AppLocalizations.of(context)!;
 
     return AuthScaffold(
+      role: _currentRole,
       bottomAlign: true,
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(

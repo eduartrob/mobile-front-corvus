@@ -1,3 +1,4 @@
+import 'package:mobile/core/network/api_endpoints.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -117,7 +118,7 @@ class MyProjectProvider extends ChangeNotifier {
     _stopBackgroundPolling();
     _backgroundTimer = Timer.periodic(const Duration(seconds: 10), (_) {
       if (_state != ProjectState.analyzing && _state != ProjectState.uploading) {
-        _fetchConfig().then((_) {
+        _fetchConfig(projectId: _projectId).then((_) {
           notifyListeners();
         });
       }
@@ -128,6 +129,8 @@ class MyProjectProvider extends ChangeNotifier {
     _backgroundTimer?.cancel();
     _backgroundTimer = null;
   }
+  
+  String? _projectId;
   
   List<String> _allowedExtensions = ['pdf', 'md', 'txt'];
   List<String> get allowedExtensions => _allowedExtensions;
@@ -143,10 +146,12 @@ class MyProjectProvider extends ChangeNotifier {
   int _maxTeamMembers = 3;
   int get maxTeamMembers => _maxTeamMembers;
 
-  Future<void> _fetchConfig() async {
+  Future<void> _fetchConfig({String? projectId}) async {
     try {
       // Intentamos obtener la configuración del admin panel
-      final response = await apiClient.get(Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/config'));
+      final uri = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.integratorAdminConfig}')
+          .replace(queryParameters: projectId != null ? {'projectId': projectId} : null);
+      final response = await apiClient.get(uri);
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data != null) {
@@ -180,12 +185,13 @@ class MyProjectProvider extends ChangeNotifier {
     }
   }
   
-  Future<void> init(String userId, String teamId, {bool forceRefresh = false}) async {
+  Future<void> init(String userId, String teamId, {String? projectId, bool forceRefresh = false}) async {
     if (_initialized && !forceRefresh) return;
     _initialized = true;
+    _projectId = projectId;
     
     try {
-      await _fetchConfig();
+      await _fetchConfig(projectId: projectId);
 
       final localAnalysis = await _localDataSource.getDetailedAnalysis(userId);
       if (localAnalysis != null) {
@@ -309,12 +315,7 @@ class MyProjectProvider extends ChangeNotifier {
     try {
       if (_selectedFile == null) return;
       
-      if (!_isScreenVisible) {
-        await _notificationService.showIndeterminateProgressNotification(
-          title: l10n.notifUploadTitle, 
-          message: l10n.notifUploadBody
-        );
-      }
+      // No mostrar notificación durante pre-validación: es rápida y no necesaria
 
       final response = await _dataSource.preValidateProposal(
         _selectedFile!.path, teamId, userId, userName,
@@ -371,11 +372,13 @@ class MyProjectProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _notificationService.showAnalysisProgressNotification(
-        title: l10n.notifAnalysisProgressTitle,
-        message: l10n.notifAnalysisProgressBody,
-        phase: l10n.notifAnalysisStartBody
-      );
+      if (!_isScreenVisible) {
+        await _notificationService.showAnalysisProgressNotification(
+          title: l10n.notifAnalysisProgressTitle,
+          message: l10n.notifAnalysisProgressBody,
+          phase: l10n.notifAnalysisStartBody
+        );
+      }
 
       await _dataSource.analyzeDraftDetailed(teamId);
     } catch (e) {

@@ -1,3 +1,4 @@
+import 'package:mobile/core/network/api_endpoints.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/api_config.dart';
@@ -12,7 +13,7 @@ class TeamsRemoteDataSource {
 
   // 👥 GET /teams/my-team
   Future<TeamModel?> getMyTeam() async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/teams/my-team');
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.teamsMyTeam}');
 
     try {
       final response = await client.get(url, headers: ApiConfig.defaultHeaders).timeout(ApiConfig.connectionTimeout);
@@ -34,7 +35,7 @@ class TeamsRemoteDataSource {
 
   // 📝 GET /final-reviews/team/<teamId>
   Future<Map<String, dynamic>?> getFinalReviewStatus(String teamId) async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/final-reviews/team/$teamId');
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.finalReviewByTeam(teamId)}');
 
     try {
       final response = await client.get(url, headers: ApiConfig.defaultHeaders).timeout(ApiConfig.connectionTimeout);
@@ -54,7 +55,7 @@ class TeamsRemoteDataSource {
 
   // 👥 PUT /teams/my-team
   Future<TeamModel> updateTeam(String name, String description, List<SocialLinkModel> socialLinks) async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/teams/my-team');
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.teamsMyTeam}');
 
     try {
       final response = await client.put(
@@ -81,7 +82,7 @@ class TeamsRemoteDataSource {
 
   // 👥 POST /teams/my-team/leave
   Future<void> leaveTeam() async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/teams/my-team/leave');
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.teamsMyTeamLeave}');
 
     try {
       final response = await client.post(url, headers: ApiConfig.defaultHeaders).timeout(ApiConfig.connectionTimeout);
@@ -95,7 +96,7 @@ class TeamsRemoteDataSource {
 
   // 👥 DELETE /teams/my-team/members/<memberId>
   Future<void> removeMember(String memberId) async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/teams/my-team/members/$memberId');
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.teamMemberById(memberId)}');
 
     try {
       final response = await client.delete(url, headers: ApiConfig.defaultHeaders).timeout(ApiConfig.connectionTimeout);
@@ -109,7 +110,7 @@ class TeamsRemoteDataSource {
 
   // 🔍 GET /clustering/teams/suggestions
   Future<List<Student>> getSuggestions({String? skill, String? search, bool showAll = false}) async {
-    var uriString = '${ApiConfig.apiGatewayUrl}/teams/suggestions';
+    var uriString = '${ApiConfig.apiGatewayUrl}${ApiEndpoints.teamsSuggestions}';
     final queryParams = <String>[];
     if (skill != null && skill.isNotEmpty && skill.toLowerCase() != 'all skills') {
       queryParams.add('skill=${Uri.encodeComponent(skill)}');
@@ -147,7 +148,7 @@ class TeamsRemoteDataSource {
 
   // GET /clustering/teams/students
   Future<List<Student>> getStudentDirectory({String? skill}) async {
-    var uriString = '${ApiConfig.apiGatewayUrl}/teams/students';
+    var uriString = '${ApiConfig.apiGatewayUrl}${ApiEndpoints.teamsStudents}';
     if (skill != null && skill.isNotEmpty && skill.toLowerCase() != 'all skills') {
       uriString += '?skill=${Uri.encodeComponent(skill)}';
     }
@@ -174,7 +175,7 @@ class TeamsRemoteDataSource {
 
   // 📩 GET /teams/requests?filter=enviadas|aceptadas
   Future<List<Solicitud>> getRequests(String filter) async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/teams/requests?filter=$filter');
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.teamsRequests}?filter=$filter');
 
     try {
       final response = await client.get(url, headers: ApiConfig.defaultHeaders).timeout(ApiConfig.connectionTimeout);
@@ -194,7 +195,7 @@ class TeamsRemoteDataSource {
 
   // 📩 POST /teams/requests
   Future<void> sendInvitation(String studentId) async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/teams/requests');
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.teamsRequests}');
 
     try {
       final response = await client.post(
@@ -213,7 +214,7 @@ class TeamsRemoteDataSource {
 
   // 📩 DELETE /teams/requests/<requestId>
   Future<void> cancelRequest(String requestId) async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/teams/requests/$requestId');
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.teamRequestById(requestId)}');
 
     try {
       final response = await client.delete(url, headers: ApiConfig.defaultHeaders).timeout(ApiConfig.connectionTimeout);
@@ -227,7 +228,7 @@ class TeamsRemoteDataSource {
 
   // 📩 POST /teams/requests/<requestId>/accept
   Future<void> acceptRequest(String requestId) async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/teams/requests/$requestId/accept');
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.teamRequestAccept(requestId)}');
 
     try {
       final response = await client.post(url, headers: ApiConfig.defaultHeaders).timeout(ApiConfig.connectionTimeout);
@@ -241,11 +242,13 @@ class TeamsRemoteDataSource {
 
   void _handleError(http.Response response) {
     final bodyText = utf8.decode(response.bodyBytes);
+    String errorMessage = 'Error del servidor (${response.statusCode})';
     try {
       final errorJson = json.decode(bodyText);
-      throw Exception(errorJson['detail'] ?? errorJson['message'] ?? 'Error del servidor (${response.statusCode})');
+      errorMessage = errorJson['detail'] ?? errorJson['message'] ?? errorMessage;
     } catch (_) {
-      throw Exception('Error del servidor: ${response.statusCode} - $bodyText');
+      errorMessage = 'Error del servidor: ${response.statusCode} - $bodyText';
     }
+    throw Exception(errorMessage);
   }
 }

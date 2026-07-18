@@ -5,8 +5,6 @@ import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/shared/widgets/corvus_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/inspiration/presentation/provider/inspiration_provider.dart';
-import 'package:mobile/features/search/presentation/provider/search_provider.dart';
-import 'package:mobile/core/di/di.dart';
 
 class MainLayout extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
@@ -42,16 +40,6 @@ class _MainLayoutState extends State<MainLayout> {
       canPop: false,
       onPopInvokedWithResult: (bool didPop, Object? result) async {
         if (didPop) return;
-
-        // Si hay teclado, no cambiamos de pestaña (el back lo cerrará o el hijo lo maneja)
-        if (FocusManager.instance.primaryFocus?.hasFocus ?? false) {
-          return;
-        }
-
-        // Si estamos en Buscar (índice 2) y hay resultados, dejamos que SearchPage los limpie
-        if (widget.navigationShell.currentIndex == 2 && sl<SearchProvider>().currentResult != null) {
-          return;
-        }
 
         // Si no estamos en la primera pestaña (Inspiración), regresar a ella
         if (widget.navigationShell.currentIndex != 0) {

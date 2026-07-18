@@ -260,7 +260,7 @@ class _FloatingAiInputState extends State<FloatingAiInput>
                   if (_ideaResult != null) ...[
                     // Result view
                     Text(
-                      "Veredicto del Asesor AI",
+                      "¿Mejoramos tu idea?",
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 8),

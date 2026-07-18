@@ -12,6 +12,9 @@ class ProfRulesProvider extends ChangeNotifier {
   bool _isSaving = false;
   bool get isSaving => _isSaving;
 
+  bool _isModified = false;
+  bool get isModified => _isModified;
+
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
@@ -68,6 +71,7 @@ class ProfRulesProvider extends ChangeNotifier {
   }
 
   void _updateState(Map<String, dynamic> config, Map<String, dynamic> statsData) {
+    _isModified = false;
     _allowedExtensions = List<String>.from(config['allowed_extensions'] ?? ['.pdf', '.docx']);
     _llmProvider = config['llm_provider'] ?? 'ollama';
     _driveFolderId = config['drive_folder_id'] ?? '';
@@ -93,18 +97,21 @@ class ProfRulesProvider extends ChangeNotifier {
     } else {
       _exclusionRules.add(clusterName);
     }
+    _isModified = true;
     notifyListeners();
   }
   
   void addExclusionRule(String rule) {
     if (rule.isNotEmpty && !_exclusionRules.contains(rule)) {
       _exclusionRules.add(rule);
+      _isModified = true;
       notifyListeners();
     }
   }
   
   void removeExclusionRule(String rule) {
     _exclusionRules.remove(rule);
+    _isModified = true;
     notifyListeners();
   }
 
@@ -118,12 +125,14 @@ class ProfRulesProvider extends ChangeNotifier {
       newSection["descripcion"] = descripcion;
     }
     _projectSections.add(newSection);
+    _isModified = true;
     notifyListeners();
   }
 
   void removeSection(int index) {
     if (index >= 0 && index < _projectSections.length) {
       _projectSections.removeAt(index);
+      _isModified = true;
       notifyListeners();
     }
   }
@@ -131,14 +140,18 @@ class ProfRulesProvider extends ChangeNotifier {
   void updateSection(int index, Map<String, dynamic> updatedSection) {
     if (index >= 0 && index < _projectSections.length) {
       _projectSections[index] = updatedSection;
+      _isModified = true;
       notifyListeners();
     }
   }
   
   void updateTeamLimits(int min, int max) {
-    _minTeamMembers = min;
-    _maxTeamMembers = max;
-    notifyListeners();
+    if (_minTeamMembers != min || _maxTeamMembers != max) {
+      _minTeamMembers = min;
+      _maxTeamMembers = max;
+      _isModified = true;
+      notifyListeners();
+    }
   }
 
   Future<void> saveConfig({String? projectId, String? authorName, String? authorPhotoUrl, String? authorId}) async {
@@ -160,8 +173,9 @@ class ProfRulesProvider extends ChangeNotifier {
         authorId: authorId,
         projectId: projectId,
       );
+      _isModified = false;
     } catch (e) {
-      _errorMessage = e.toString();
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
     } finally {
       _isSaving = false;
       notifyListeners();

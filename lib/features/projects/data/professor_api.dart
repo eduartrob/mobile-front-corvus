@@ -1,3 +1,4 @@
+import 'package:mobile/core/network/api_endpoints.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/api_config.dart';
@@ -8,7 +9,7 @@ class ProfessorApi {
     required String token,
   }) async {
     final response = await http.get(
-      Uri.parse('${ApiConfig.apiGatewayUrl}/professors/search?q=$query'),
+      Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.professorsSearch}?q=$query'),
       headers: {
         ...ApiConfig.defaultHeaders,
         'Authorization': 'Bearer $token',

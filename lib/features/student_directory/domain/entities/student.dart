@@ -30,7 +30,7 @@ class Student {
           : json['habilidades'] != null 
               ? List<String>.from(json['habilidades'])
               : [],
-      avatarUrl: json['avatarUrl'] ?? json['foto'] ?? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
+      avatarUrl: json['avatarUrl'] ?? json['foto'] ?? '',
       isVerified: json['isVerified'] ?? json['verificado'] ?? false,
       hasTeam: json['hasTeam'] ?? false,
     );

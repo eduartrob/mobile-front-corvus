@@ -1,3 +1,4 @@
+import 'package:mobile/core/network/api_endpoints.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/api_config.dart';
@@ -10,7 +11,7 @@ class ProjectApi {
     required String token,
   }) async {
     final response = await http.post(
-      Uri.parse('${ApiConfig.apiGatewayUrl}/projects'),
+      Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.projects}'),
       headers: {
         ...ApiConfig.defaultHeaders,
         'Authorization': 'Bearer $token',
@@ -25,7 +26,7 @@ class ProjectApi {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return jsonDecode(response.body);
     } else {
-      throw Exception('Error al crear proyecto: ${response.statusCode} - ${response.body}');
+      _handleError(response, 'Error al crear proyecto');
     }
   }
 
@@ -34,7 +35,7 @@ class ProjectApi {
     required String token,
   }) async {
     final response = await http.post(
-      Uri.parse('${ApiConfig.apiGatewayUrl}/projects/join'),
+      Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.projectsJoin}'),
       headers: {
         ...ApiConfig.defaultHeaders,
         'Authorization': 'Bearer $token',
@@ -45,13 +46,13 @@ class ProjectApi {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return jsonDecode(response.body);
     } else {
-      throw Exception('Error al unirse al proyecto: ${response.statusCode} - ${response.body}');
+      _handleError(response, 'Error al unirse al proyecto');
     }
   }
 
   Future<Map<String, dynamic>> getMyProjects({required String token}) async {
     final response = await http.get(
-      Uri.parse('${ApiConfig.apiGatewayUrl}/projects/my-projects'),
+      Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.projectsMyProjects}'),
       headers: {
         ...ApiConfig.defaultHeaders,
         'Authorization': 'Bearer $token',
@@ -61,7 +62,7 @@ class ProjectApi {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return jsonDecode(response.body);
     } else {
-      throw Exception('Error al obtener proyectos: ${response.statusCode} - ${response.body}');
+      _handleError(response, 'Error al obtener proyectos');
     }
   }
 
@@ -71,7 +72,7 @@ class ProjectApi {
     required String token,
   }) async {
     final response = await http.put(
-      Uri.parse('${ApiConfig.apiGatewayUrl}/projects/$projectId'),
+      Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.projectById(projectId)}'),
       headers: {
         ...ApiConfig.defaultHeaders,
         'Authorization': 'Bearer $token',
@@ -82,7 +83,26 @@ class ProjectApi {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return jsonDecode(response.body);
     } else {
-      throw Exception('Error al actualizar proyecto: ${response.statusCode} - ${response.body}');
+      _handleError(response, 'Error al actualizar proyecto');
+    }
+  }
+
+  Future<void> deleteProject({
+    required String projectId,
+    required String token,
+  }) async {
+    final response = await http.delete(
+      Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.projectById(projectId)}'),
+      headers: {
+        ...ApiConfig.defaultHeaders,
+        'Authorization': 'Bearer $token',
+      },
+    ).timeout(ApiConfig.connectionTimeout);
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return;
+    } else {
+      _handleError(response, 'Error al eliminar proyecto');
     }
   }
 
@@ -91,7 +111,7 @@ class ProjectApi {
     required String token,
   }) async {
     final response = await http.get(
-      Uri.parse('${ApiConfig.apiGatewayUrl}/projects/$projectId/students'),
+      Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.projectStudents(projectId)}'),
       headers: {
         ...ApiConfig.defaultHeaders,
         'Authorization': 'Bearer $token',
@@ -102,13 +122,13 @@ class ProjectApi {
       final jsonResponse = jsonDecode(response.body);
       return jsonResponse['students'] ?? [];
     } else {
-      throw Exception('Error al obtener alumnos: ${response.statusCode} - ${response.body}');
+      _handleError(response, 'Error al obtener alumnos');
     }
   }
 
   Future<bool> acceptInvitation({required String projectId, required String token}) async {
     final response = await http.post(
-      Uri.parse('${ApiConfig.apiGatewayUrl}/projects/$projectId/collaborators/accept'),
+      Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.projectCollaboratorsAccept(projectId)}'),
       headers: {
         ...ApiConfig.defaultHeaders,
         'Authorization': 'Bearer $token',
@@ -120,7 +140,7 @@ class ProjectApi {
 
   Future<bool> rejectInvitation({required String projectId, required String token}) async {
     final response = await http.delete(
-      Uri.parse('${ApiConfig.apiGatewayUrl}/projects/$projectId/collaborators/reject'),
+      Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.projectCollaboratorsReject(projectId)}'),
       headers: {
         ...ApiConfig.defaultHeaders,
         'Authorization': 'Bearer $token',
@@ -128,5 +148,16 @@ class ProjectApi {
     ).timeout(ApiConfig.connectionTimeout);
     
     return response.statusCode >= 200 && response.statusCode < 300;
+  }
+
+  Never _handleError(http.Response response, String prefix) {
+    String errorMessage = '$prefix (${response.statusCode})';
+    try {
+      final errorJson = jsonDecode(response.body);
+      errorMessage = '$prefix: ${errorJson['detail'] ?? errorJson['message'] ?? errorMessage}';
+    } catch (_) {
+      errorMessage = '$prefix: ${response.statusCode} - ${response.body}';
+    }
+    throw Exception(errorMessage);
   }
 }

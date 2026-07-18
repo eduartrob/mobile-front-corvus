@@ -17,18 +17,47 @@ class StudentJoinProjectPage extends StatefulWidget {
 class _StudentJoinProjectPageState extends State<StudentJoinProjectPage> {
   final _codeController = TextEditingController();
 
+  String? _validationError;
+
+  @override
+  void initState() {
+    super.initState();
+    _codeController.addListener(_onCodeChanged);
+  }
+
   @override
   void dispose() {
+    _codeController.removeListener(_onCodeChanged);
     _codeController.dispose();
     super.dispose();
+  }
+
+  void _onCodeChanged() {
+    final text = _codeController.text;
+    if (text.length > 8 || text.contains(RegExp(r'[^a-zA-Z0-9-]'))) {
+      if (_validationError == null) {
+        setState(() {
+          _validationError = 'Los códigos de clase constan de 5-8 caracteres formados por letras y números, y sin espacios ni símbolos.';
+        });
+      }
+    } else {
+      if (_validationError != null) {
+        setState(() {
+          _validationError = null;
+        });
+      }
+    }
   }
 
   void _joinProject() async {
     final code = _codeController.text.trim();
     if (code.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Ingresa un código válido')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Ingresa un código válido'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
       return;
     }
 
@@ -58,7 +87,10 @@ class _StudentJoinProjectPageState extends State<StudentJoinProjectPage> {
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(provider.error ?? 'Error al unirse')),
+        SnackBar(
+          content: Text(provider.error ?? 'Error al unirse'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
       );
     }
   }
@@ -112,6 +144,7 @@ class _StudentJoinProjectPageState extends State<StudentJoinProjectPage> {
               icon: Icons.key_outlined,
               controller: _codeController,
               iconColor: colorScheme.primary,
+              errorText: _validationError,
             ),
             const SizedBox(height: 32),
             CorvusButton(

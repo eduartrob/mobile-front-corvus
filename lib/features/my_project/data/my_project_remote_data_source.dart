@@ -1,3 +1,4 @@
+import 'package:mobile/core/network/api_endpoints.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/api_config.dart';
@@ -11,7 +12,7 @@ class MyProjectRemoteDataSource {
     String filePath, String teamId, String userId, String userName, {
     String? universityId, String? careerId,
   }) async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/pre-validate-proposal');
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.integratorPreValidateProposal}');
 
     try {
       var request = http.MultipartRequest('POST', url);
@@ -50,7 +51,7 @@ class MyProjectRemoteDataSource {
   }
 
   Future<Map<String, dynamic>> checkDraft(String teamId) async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/draft-proposal/$teamId');
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.integratorDraftProposal(teamId)}');
 
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
@@ -75,7 +76,7 @@ class MyProjectRemoteDataSource {
   }
 
   Future<Map<String, dynamic>> getAnalysisStatus(String teamId) async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/analysis-status/$teamId');
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.integratorAnalysisStatus(teamId)}');
 
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
@@ -88,7 +89,7 @@ class MyProjectRemoteDataSource {
   }
 
   Future<void> analyzeDraftDetailed(String teamId) async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/analyze-draft-proposal');
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.integratorAnalyzeDraftProposal}');
 
     try {
       var request = http.MultipartRequest('POST', url);
@@ -114,7 +115,7 @@ class MyProjectRemoteDataSource {
   }
 
   Future<Map<String, dynamic>> getAnalysisResult(String teamId) async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/analysis-result/$teamId');
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.integratorAnalysisResult(teamId)}');
 
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
@@ -127,7 +128,7 @@ class MyProjectRemoteDataSource {
   }
 
   Future<void> cancelAnalysis(String teamId) async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/cancel-analysis/$teamId');
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.integratorCancelAnalysis(teamId)}');
 
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
@@ -136,7 +137,7 @@ class MyProjectRemoteDataSource {
   }
 
   Future<Map<String, dynamic>> sendFinalReview(String teamId, Map<String, dynamic> proposalData) async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/final-reviews');
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.finalReviews}');
 
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
@@ -167,7 +168,7 @@ class MyProjectRemoteDataSource {
   }
 
   Future<Map<String, dynamic>?> getFinalReviewStatus(String teamId) async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/final-reviews/team/$teamId');
+    final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.finalReviewByTeam(teamId)}');
 
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);

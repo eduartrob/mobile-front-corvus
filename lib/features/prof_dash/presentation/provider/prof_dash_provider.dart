@@ -1,3 +1,4 @@
+import 'package:mobile/core/network/api_endpoints.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -31,8 +32,8 @@ class ProfDashboardProvider extends ChangeNotifier {
 
     try {
       final urlStr = projectId != null 
-        ? '${ApiConfig.apiGatewayUrl}/professors/dashboard?projectId=$projectId'
-        : '${ApiConfig.apiGatewayUrl}/professors/dashboard';
+        ? '${ApiConfig.apiGatewayUrl}${ApiEndpoints.professorsDashboard}?projectId=$projectId'
+        : '${ApiConfig.apiGatewayUrl}${ApiEndpoints.professorsDashboard}';
       final url = Uri.parse(urlStr);
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
       

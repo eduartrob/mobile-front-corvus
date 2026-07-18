@@ -19,18 +19,38 @@ class _TeacherVerificationPageState extends State<TeacherVerificationPage> {
   final TextEditingController _codeController = TextEditingController();
   bool _isLoading = false;
   String? _errorText;
+  String? _validationError;
 
   @override
   void initState() {
     super.initState();
     _securityService.preventScreenshots(true);
+    _codeController.addListener(_onCodeChanged);
   }
 
   @override
   void dispose() {
     _securityService.preventScreenshots(false);
+    _codeController.removeListener(_onCodeChanged);
     _codeController.dispose();
     super.dispose();
+  }
+
+  void _onCodeChanged() {
+    final text = _codeController.text;
+    if (text.length > 8 || text.contains(RegExp(r'[^a-zA-Z0-9-]'))) {
+      if (_validationError == null) {
+        setState(() {
+          _validationError = 'Los códigos de verificación constan de 5-8 caracteres formados por letras y números, y sin espacios ni símbolos.';
+        });
+      }
+    } else {
+      if (_validationError != null) {
+        setState(() {
+          _validationError = null;
+        });
+      }
+    }
   }
 
   void _validateCode() async {
@@ -116,15 +136,8 @@ class _TeacherVerificationPageState extends State<TeacherVerificationPage> {
             icon: Icons.vpn_key,
             iconColor: colors.primary,
             controller: _codeController,
+            errorText: _validationError ?? _errorText,
           ),
-          if (_errorText != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0, left: 16.0),
-              child: Text(
-                _errorText!,
-                style: TextStyle(color: colors.error, fontSize: 12),
-              ),
-            ),
           const SizedBox(height: 32),
           
           CorvusButton(

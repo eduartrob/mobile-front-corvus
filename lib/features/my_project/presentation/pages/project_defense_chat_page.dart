@@ -1,3 +1,4 @@
+import 'package:mobile/core/network/api_endpoints.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -76,7 +77,7 @@ class _ProjectDefenseChatPageState extends State<ProjectDefenseChatPage> {
   Future<void> _startSession() async {
     try {
       final token = widget.authToken ?? context.read<AuthProvider>().currentUser?.token;
-      final url = Uri.parse('${ApiConfig.apiGatewayUrl}/llm/session/start');
+      final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.llmSessionStart}');
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
       headers['Content-Type'] = 'application/json';
       if (token != null) headers['Authorization'] = 'Bearer $token';
@@ -135,7 +136,7 @@ class _ProjectDefenseChatPageState extends State<ProjectDefenseChatPage> {
     if (_sessionId == null) return;
     try {
       final token = widget.authToken ?? context.read<AuthProvider>().currentUser?.token;
-      final url = Uri.parse('${ApiConfig.apiGatewayUrl}/llm/session/$_sessionId/messages');
+      final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.llmSessionMessages(_sessionId!)}');
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
       if (token != null) headers['Authorization'] = 'Bearer $token';
 
@@ -190,7 +191,7 @@ class _ProjectDefenseChatPageState extends State<ProjectDefenseChatPage> {
 
     try {
       final token = widget.authToken ?? context.read<AuthProvider>().currentUser?.token;
-      final url = Uri.parse('${ApiConfig.apiGatewayUrl}/llm/session/message');
+      final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.llmSessionMessage}');
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
       headers['Content-Type'] = 'application/json';
       if (token != null) headers['Authorization'] = 'Bearer $token';

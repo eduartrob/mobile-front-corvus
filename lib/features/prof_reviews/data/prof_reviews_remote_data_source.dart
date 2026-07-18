@@ -1,3 +1,4 @@
+import 'package:mobile/core/network/api_endpoints.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/api_config.dart';
@@ -10,8 +11,8 @@ class ProfReviewsRemoteDataSource {
 
   Future<List<FinalReviewModel>> getFinalReviews({String? projectId}) async {
     final urlStr = projectId != null 
-        ? '${ApiConfig.apiGatewayUrl}/final-reviews?projectId=$projectId'
-        : '${ApiConfig.apiGatewayUrl}/final-reviews';
+        ? '${ApiConfig.apiGatewayUrl}${ApiEndpoints.finalReviews}?projectId=$projectId'
+        : '${ApiConfig.apiGatewayUrl}${ApiEndpoints.finalReviews}';
     final url = Uri.parse(urlStr);
 
     try {

@@ -1,3 +1,4 @@
+import 'package:mobile/core/network/api_endpoints.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -6,6 +7,7 @@ import 'package:mobile/core/network/auth_interceptor_client.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/projects/data/professor_api.dart';
 import 'dart:async';
+import 'package:mobile/features/teams/presentation/widgets/dashed_border_painter.dart';
 
 class ProfProjectSettingsPage extends StatefulWidget {
   final String projectId;
@@ -97,7 +99,7 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
 
     try {
       final url = Uri.parse(
-        '${ApiConfig.apiGatewayUrl}/projects/${widget.projectId}/collaborators',
+        '${ApiConfig.apiGatewayUrl}${ApiEndpoints.projectCollaborators(widget.projectId)}',
       );
       final response = await apiClient.get(
         url,
@@ -126,7 +128,7 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
   Future<void> _inviteCollaborator(String email) async {
     try {
       final url = Uri.parse(
-        '${ApiConfig.apiGatewayUrl}/projects/${widget.projectId}/collaborators',
+        '${ApiConfig.apiGatewayUrl}${ApiEndpoints.projectCollaborators(widget.projectId)}',
       );
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
       headers['Content-Type'] = 'application/json';
@@ -162,7 +164,7 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
   Future<void> _removeCollaborator(String targetUserId) async {
     try {
       final url = Uri.parse(
-        '${ApiConfig.apiGatewayUrl}/projects/${widget.projectId}/collaborators',
+        '${ApiConfig.apiGatewayUrl}${ApiEndpoints.projectCollaborators(widget.projectId)}',
       );
       final response = await apiClient.delete(
         url,
@@ -204,31 +206,41 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20.0,
-                  vertical: 10.0,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Directorio de docentes',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.onSurface,
-                      ),
+                padding: const EdgeInsets.all(20.0).copyWith(bottom: 0),
+                child: CustomPaint(
+                  painter: DashedBorderPainter(
+                    color: colorScheme.primary.withValues(alpha: 0.6),
+                    borderRadius: 12.0,
+                    dashLength: 5.0,
+                    gap: 3.0,
+                    strokeWidth: 1.2,
+                  ),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Directorio de docentes',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.primary,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Invita a los profesores a colaborar en tu proyecto',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: colorScheme.onSurfaceVariant.withValues(alpha: 0.9),
+                            height: 1.5,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Gestiona a los profesores colaboradores de tu proyecto',
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: colorScheme.onSurfaceVariant,
-                        height: 1.4,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
               TabBar(
@@ -262,39 +274,12 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Invitar Profesores',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: colorScheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Busca e invita a profesores a colaborar en tu proyecto integrador ingresando su correo electrónico.',
-            style: TextStyle(fontSize: 14, color: colorScheme.onSurfaceVariant),
-          ),
-          const SizedBox(height: 24),
-          Container(
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: colorScheme.surface,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: colorScheme.outlineVariant.withValues(alpha: 0.4),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.01),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
+          SizedBox(
+            height: 52,
             child: TextField(
               controller: _searchController,
               onChanged: _onSearchChanged,
+              style: TextStyle(color: colorScheme.onSurface, fontSize: 16),
               onSubmitted: (value) {
                 if (value.isNotEmpty) {
                   _inviteCollaborator(value);
@@ -303,40 +288,27 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
                 }
               },
               decoration: InputDecoration(
-                hintText: 'Busca por nombre, usuario o correo...',
-                hintStyle: TextStyle(
-                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
-                  fontSize: 15,
-                ),
-                prefixIcon: Icon(
-                  Icons.search,
-                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
-                  size: 22,
-                ),
-                filled: true,
-                fillColor: colorScheme.surfaceContainerHighest.withValues(
-                  alpha: 0.15,
-                ),
-                contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                hintText: 'Buscar docente...',
+                hintStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.5)),
+                prefixIcon: Icon(Icons.search, color: colorScheme.onSurface.withValues(alpha: 0.7)),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 0),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-                  ),
+                  borderRadius: BorderRadius.circular(26),
+                  borderSide: BorderSide.none,
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-                  ),
+                  borderRadius: BorderRadius.circular(26),
+                  borderSide: BorderSide.none,
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(26),
                   borderSide: BorderSide(
-                    color: colorScheme.primary,
-                    width: 1.5,
+                    color: colorScheme.primary.withValues(alpha: 0.5),
+                    width: 1,
                   ),
                 ),
+                filled: true,
+                fillColor: colorScheme.primaryContainer.withValues(alpha: 0.5),
               ),
             ),
           ),
@@ -382,66 +354,104 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
                   final name =
                       prof['full_name'] ?? prof['username'] ?? 'Profesor';
                   final email = prof['email'] ?? '';
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(
-                        color: colorScheme.outlineVariant.withValues(
-                          alpha: 0.5,
-                        ),
-                      ),
-                    ),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: colorScheme.primaryContainer,
-                        backgroundImage: prof['profile_image'] != null
-                            ? NetworkImage(prof['profile_image'])
-                            : null,
-                        child: prof['profile_image'] == null
-                            ? Text(
-                                name.substring(0, 1).toUpperCase(),
-                                style: TextStyle(
-                                  color: colorScheme.onPrimaryContainer,
-                                ),
-                              )
-                            : null,
-                      ),
-                      title: Text(
-                        name,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Column(
+                  final carrera = prof['career']?['name'] ?? '';
+                  String displayCarrera = carrera;
+                  if (displayCarrera.length > 25) {
+                    displayCarrera = '${displayCarrera.substring(0, 25)}...';
+                  }
+
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    color: Colors.transparent,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                      child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(email),
-                          if (prof['university'] != null)
-                            Text(
-                              prof['university']['name'],
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: colorScheme.primary,
-                              ),
+                          CircleAvatar(
+                            radius: 40,
+                            backgroundColor: colorScheme.primaryContainer,
+                            backgroundImage: prof['profile_picture'] != null
+                                ? NetworkImage(prof['profile_picture'])
+                                : null,
+                            child: prof['profile_picture'] == null
+                                ? Text(
+                                    name.substring(0, 1).toUpperCase(),
+                                    style: TextStyle(
+                                      color: colorScheme.onPrimaryContainer,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 32,
+                                    ),
+                                  )
+                                : null,
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  name,
+                                  style: const TextStyle(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 2),
+                                if (displayCarrera.isNotEmpty)
+                                  Text(
+                                    displayCarrera,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: colorScheme.onSurfaceVariant,
+                                    ),
+                                  )
+                                else if (email.isNotEmpty)
+                                  Text(
+                                    email,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: colorScheme.onSurfaceVariant,
+                                    ),
+                                  )
+                                else
+                                  Text(
+                                    'Docente',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                const SizedBox(height: 12),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: FilledButton(
+                                    onPressed: () {
+                                      _inviteCollaborator(email);
+                                    },
+                                    style: FilledButton.styleFrom(
+                                      backgroundColor: Colors.blue.shade600,
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      padding: const EdgeInsets.symmetric(vertical: 12),
+                                    ),
+                                    child: const Text(
+                                      'Invitar',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          if (prof['career'] != null)
-                            Text(
-                              prof['career']['name'],
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: colorScheme.onSurfaceVariant,
-                              ),
-                            ),
+                          ),
                         ],
-                      ),
-                      trailing: ElevatedButton(
-                        onPressed: () {
-                          _inviteCollaborator(email);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                        ),
-                        child: const Text('Invitar'),
                       ),
                     ),
                   );
@@ -491,6 +501,13 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
       orElse: () => <String, dynamic>{},
     )['email'];
     final iAmCreator = currentUserEmail != null && currentUserEmail == creatorEmail;
+
+    final filteredPending = _pendingInvitations.where((p) {
+      final pEmail = p['email'];
+      if (pEmail == currentUserEmail) return false;
+      if (_collaborators.any((c) => c['email'] == pEmail)) return false;
+      return true;
+    }).toList();
 
     return ListView(
       padding: const EdgeInsets.all(20.0),
@@ -582,10 +599,10 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
           child: ListTile(
             leading: CircleAvatar(
               backgroundColor: colorScheme.primaryContainer,
-              backgroundImage: c['profile_image'] != null
-                  ? NetworkImage(c['profile_image'])
+              backgroundImage: c['profile_picture'] != null
+                  ? NetworkImage(c['profile_picture'])
                   : null,
-              child: c['profile_image'] == null
+              child: c['profile_picture'] == null
                   ? Text(
                       name.substring(0, 1).toUpperCase(),
                       style: TextStyle(color: colorScheme.onPrimaryContainer),
@@ -602,7 +619,7 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
         );
       }),
       ],
-      if (_pendingInvitations.isNotEmpty) ...[
+      if (filteredPending.isNotEmpty) ...[
         const SizedBox(height: 24),
         const Divider(),
         const SizedBox(height: 12),
@@ -611,7 +628,7 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
-        ..._pendingInvitations.map((p) {
+        ...filteredPending.map((p) {
           final name = p['full_name'] ?? p['username'] ?? 'Profesor';
           return Card(
             margin: const EdgeInsets.only(bottom: 8),
@@ -625,10 +642,10 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
             child: ListTile(
               leading: CircleAvatar(
                 backgroundColor: colorScheme.surfaceContainerHighest,
-                backgroundImage: p['profile_image'] != null
-                    ? NetworkImage(p['profile_image'])
+                backgroundImage: p['profile_picture'] != null
+                    ? NetworkImage(p['profile_picture'])
                     : null,
-                child: p['profile_image'] == null
+                child: p['profile_picture'] == null
                     ? Text(
                         name.substring(0, 1).toUpperCase(),
                         style: TextStyle(color: colorScheme.onSurfaceVariant),

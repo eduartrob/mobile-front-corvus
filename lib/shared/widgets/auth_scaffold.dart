@@ -40,29 +40,38 @@ class AuthScaffold extends StatelessWidget {
         body: Stack(
           children: [
             // Fondo degradado pantalla completa
-            Container(
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 500),
               width: double.infinity,
               height: double.infinity,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: isDark
-                      ? [
+                gradient: isDark
+                    ? LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
                           colors.surface,
                           colors.primaryContainer.withValues(alpha: 0.2),
                           colors.surface,
-                        ]
-                      : (role == 'DOCENTE' || role == 'PROFESOR')
-                          ? [
-                              colors.tertiaryContainer,
-                              colors.surface,
-                            ]
-                          : [
-                              colors.primaryContainer,
-                              colors.surface,
-                            ],
-                ),
+                        ],
+                      )
+                        : (role == 'DOCENTE' || role == 'PROFESOR')
+                            ? LinearGradient(
+                                begin: Alignment.bottomRight,
+                                end: Alignment.topLeft,
+                                colors: [
+                                  colors.tertiaryContainer,
+                                  colors.surface,
+                                ],
+                              )
+                            : LinearGradient(
+                                begin: Alignment.bottomLeft,
+                                end: Alignment.topRight,
+                                colors: [
+                                  colors.primaryContainer,
+                                  colors.surface,
+                                ],
+                              ),
               ),
             ),
             // Painter animado de fondo (aislado para no contaminar repaints)
@@ -74,18 +83,35 @@ class AuthScaffold extends StatelessWidget {
                   ),
                 ),
               ),
-            // Orbe decorativo único basado en el rol (evita cruce de colores)
-            Positioned(
-              top: -80,
-              right: -100,
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 600),
+              curve: Curves.easeOutCubic,
+              top: -150,
+              left: (role == 'DOCENTE' || role == 'PROFESOR')
+                  ? -150.0
+                  : MediaQuery.of(context).size.width - 300.0,
               child: _DecorativeOrb(
-                size: 500,
+                size: 450,
                 color: (role == 'DOCENTE' || role == 'PROFESOR')
-                    ? colors.tertiary.withValues(alpha: isDark ? 0.08 : 0.15)
-                    : colors.primary.withValues(alpha: isDark ? 0.08 : 0.15),
+                    ? colors.tertiary.withValues(alpha: isDark ? 0.15 : 0.30)
+                    : colors.primary.withValues(alpha: isDark ? 0.15 : 0.30),
               ),
             ),
-            // Título "Corvus" en cabecera
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 700),
+              curve: Curves.easeOutCubic,
+              bottom: -100,
+              left: (role == 'DOCENTE' || role == 'PROFESOR')
+                  ? MediaQuery.of(context).size.width - 300.0
+                  : -100.0,
+              child: _DecorativeOrb(
+                size: 400,
+                color: (role == 'DOCENTE' || role == 'PROFESOR')
+                    ? colors.tertiary.withValues(alpha: isDark ? 0.20 : 0.40)
+                    : colors.primary.withValues(alpha: isDark ? 0.20 : 0.40),
+              ),
+            ),
+
             Positioned(
               top: topPad + 28,
               left: 0,
@@ -106,67 +132,85 @@ class AuthScaffold extends StatelessWidget {
                 ],
               ),
             ),
+            Positioned.fill(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    physics: const ClampingScrollPhysics(),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight,
+                      ),
+                      child: IntrinsicHeight(
+                        child: Column(
+                          children: [
+                            SizedBox(height: headerHeight),
+                            Expanded(
+                              child: Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  Container(
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      color: isDark
+                                          ? colors.surfaceContainerLow
+                                          : Colors.white,
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(32),
+                                        topRight: Radius.circular(32),
+                                      ),
+                                    ),
+                                    padding: const EdgeInsets.only(
+                                      top: circleRadius + 20,
+                                      left: 28,
+                                      right: 28,
+                                      bottom: 32,
+                                    ),
+                                    child: child,
+                                  ),
+                                  Positioned(
+                                    top: -circleRadius,
+                                    left: 0,
+                                    right: 0,
+                                    child: Center(
+                                      child: Container(
+                                        width: circleRadius * 2,
+                                        height: circleRadius * 2,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: isDark
+                                              ? colors.surfaceContainerHighest
+                                              : Colors.white,
+                                          border: Border.all(
+                                            color: colors.outlineVariant.withValues(alpha: 0.3),
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        padding: const EdgeInsets.all(10),
+                                        child: Image.asset(
+                                          'assets/icons/logo2.png',
+                                          fit: BoxFit.contain,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
             if (leading != null)
               Positioned(
                 top: topPad + 12,
                 left: 16,
                 child: leading!,
               ),
-            // Card blanca llega hasta el fondo
-            Positioned(
-              top: headerHeight,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: isDark ? colors.surfaceContainerLow : Colors.white,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(32),
-                    topRight: Radius.circular(32),
-                  ),
-                ),
-                child: SingleChildScrollView(
-                  physics: const ClampingScrollPhysics(),
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      top: circleRadius + 20,
-                      left: 28,
-                      right: 28,
-                      bottom: 32,
-                    ),
-                    child: child,
-                  ),
-                ),
-              ),
-            ),
-            // Círculo con logo sobresaliendo sobre la card
-            Positioned(
-              top: headerHeight - circleRadius,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: Container(
-                  width: circleRadius * 2,
-                  height: circleRadius * 2,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isDark
-                        ? colors.surfaceContainerHighest
-                        : Colors.white,
-                    border: Border.all(
-                      color: colors.outlineVariant.withValues(alpha: 0.3),
-                      width: 1.5,
-                    ),
-                  ),
-                  padding: const EdgeInsets.all(10),
-                  child: Image.asset(
-                    'assets/icons/logo2.png',
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              ),
-            ),
           ],
         ),
       );
@@ -174,52 +218,67 @@ class AuthScaffold extends StatelessWidget {
 
     // ── Diseño ORIGINAL: fondo + contenido scrollable (sin card fija) ──
     return Scaffold(
-      body: Container(
+      body: AnimatedContainer(
+        duration: const Duration(milliseconds: 500),
         width: double.infinity,
         height: double.infinity,
         decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: isDark
-                      ? [
+                gradient: isDark
+                    ? LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
                           colors.surface,
                           colors.primaryContainer.withValues(alpha: 0.2),
                           colors.surface,
-                        ]
-                      : (role == 'DOCENTE' || role == 'PROFESOR')
-                          ? [
+                        ],
+                      )
+                    : (role == 'DOCENTE' || role == 'PROFESOR')
+                        ? LinearGradient(
+                            begin: Alignment.bottomLeft,
+                            end: Alignment.topRight,
+                            colors: [
                               colors.tertiaryContainer,
-                              colors.primaryContainer.withValues(alpha: 0.1),
-                              colors.tertiaryContainer,
-                            ]
-                          : [
-                              colors.primaryContainer,
-                              colors.tertiaryContainer.withValues(alpha: 0.1),
-                              colors.primaryContainer,
+                              colors.surface,
                             ],
-                ),
+                          )
+                        : LinearGradient(
+                            begin: Alignment.bottomLeft,
+                            end: Alignment.topRight,
+                            colors: [
+                              colors.primaryContainer,
+                              colors.surface,
+                            ],
+                          ),
         ),
         child: Stack(
           children: [
-            Positioned(
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 600),
+              curve: Curves.easeOutCubic,
               top: -150,
-              right: -150,
+              left: (role == 'DOCENTE' || role == 'PROFESOR')
+                  ? -150.0
+                  : MediaQuery.of(context).size.width - 300.0,
               child: _DecorativeOrb(
                 size: 450,
                 color: (role == 'DOCENTE' || role == 'PROFESOR')
-                    ? colors.primary.withValues(alpha: isDark ? 0.05 : 0.10)
+                    ? colors.tertiary.withValues(alpha: isDark ? 0.15 : 0.30)
                     : colors.primary.withValues(alpha: isDark ? 0.15 : 0.30),
               ),
             ),
-            Positioned(
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 700),
+              curve: Curves.easeOutCubic,
               bottom: -100,
-              left: -100,
+              left: (role == 'DOCENTE' || role == 'PROFESOR')
+                  ? MediaQuery.of(context).size.width - 300.0
+                  : -100.0,
               child: _DecorativeOrb(
                 size: 400,
                 color: (role == 'DOCENTE' || role == 'PROFESOR')
                     ? colors.tertiary.withValues(alpha: isDark ? 0.20 : 0.40)
-                    : colors.tertiary.withValues(alpha: isDark ? 0.05 : 0.10),
+                    : colors.primary.withValues(alpha: isDark ? 0.20 : 0.40),
               ),
             ),
             // Painter animado de fondo (aislado)

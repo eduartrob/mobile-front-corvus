@@ -124,6 +124,8 @@ class _LoginPageState extends State<LoginPage> {
       final authCode = parts.length > 2 && parts[2].isNotEmpty ? parts[2] : null;
 
       final provider = Provider.of<RegistrationProvider>(context, listen: false);
+      provider.clearData();
+
       const chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
       final rnd = Random();
       final randomPassword = String.fromCharCodes(Iterable.generate(
@@ -302,7 +304,10 @@ class _LoginPageState extends State<LoginPage> {
           AuthFooter(
             primaryText: '${l10n.noAccount} ',
             actionText: l10n.register,
-            onActionTap: () => context.push('/register', extra: _currentRole),
+            onActionTap: () {
+              context.read<RegistrationProvider>().clearData();
+              context.push('/register', extra: _currentRole);
+            },
           ),
         ],
       ),

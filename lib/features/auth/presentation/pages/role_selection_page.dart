@@ -63,6 +63,7 @@ class _RoleSelectionPageState extends State<RoleSelectionPage>
     final isStudent = _selectedRole.toUpperCase() == 'ALUMNO';
 
     return AuthScaffold(
+      role: _selectedRole,
       showLogo: false,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
       child: FadeTransition(

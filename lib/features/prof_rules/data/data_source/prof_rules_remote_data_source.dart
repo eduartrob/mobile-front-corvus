@@ -1,3 +1,4 @@
+import 'package:mobile/core/network/api_endpoints.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/services/secure_storage_service.dart';
@@ -21,8 +22,8 @@ class ProfRulesRemoteDataSource {
     }
 
     final urlStr = projectId != null
-      ? '${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/config?projectId=$projectId'
-      : '${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/config';
+      ? '${ApiConfig.apiGatewayUrl}${ApiEndpoints.integratorAdminConfig}?projectId=$projectId'
+      : '${ApiConfig.apiGatewayUrl}${ApiEndpoints.integratorAdminConfig}';
     final url = Uri.parse(urlStr);
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
@@ -86,8 +87,8 @@ class ProfRulesRemoteDataSource {
 
   Future<void> updateConfig(List<String> allowedExtensions, String llmProvider, String driveFolderId, List<String> exclusionRules, List<Map<String, dynamic>> projectSections, int minTeamMembers, int maxTeamMembers, {String? authorName, String? authorPhotoUrl, String? authorId, String? projectId}) async {
     final urlStr = projectId != null
-      ? '${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/config?projectId=$projectId'
-      : '${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/config';
+      ? '${ApiConfig.apiGatewayUrl}${ApiEndpoints.integratorAdminConfig}?projectId=$projectId'
+      : '${ApiConfig.apiGatewayUrl}${ApiEndpoints.integratorAdminConfig}';
     final url = Uri.parse(urlStr);
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
@@ -109,7 +110,16 @@ class ProfRulesRemoteDataSource {
 
       final response = await client.post(url, headers: headers, body: body).timeout(const Duration(seconds: 15));
       if (response.statusCode != 200) {
-        throw Exception('Failed to update config: ${response.statusCode}');
+        String msg = 'Failed to update config: ${response.statusCode}';
+        try {
+          final resBody = json.decode(utf8.decode(response.bodyBytes));
+          if (resBody['detail'] != null) {
+            msg = resBody['detail'].toString();
+          } else if (resBody['message'] != null) {
+            msg = resBody['message'].toString();
+          }
+        } catch (_) {}
+        throw Exception(msg);
       }
     } catch (e) {
       throw Exception('Error updating config: $e');

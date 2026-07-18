@@ -145,6 +145,7 @@ class _EditSkillsPageState extends State<EditSkillsPage> {
               Text(
                 skill,
                 style: TextStyle(
+                  fontSize: 14,
                   color: isSelected ? colors.primary : colors.onSurface,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),
