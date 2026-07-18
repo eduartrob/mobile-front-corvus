@@ -45,41 +45,10 @@ import 'package:mobile/features/notifications/presentation/pages/notifications_p
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
-CustomTransitionPage _buildFadeTransition(Widget child, LocalKey key) {
-  return CustomTransitionPage(
+Page _buildFadeTransition(Widget child, LocalKey key) {
+  return MaterialPage(
     key: key,
     child: child,
-    transitionDuration: const Duration(milliseconds: 300),
-    reverseTransitionDuration: const Duration(milliseconds: 300),
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      // Incoming page slides from right to center
-      final slideIn = Tween<Offset>(
-        begin: const Offset(1.0, 0.0),
-        end: Offset.zero,
-      ).animate(CurvedAnimation(
-        parent: animation,
-        curve: Curves.easeOutCubic,
-        reverseCurve: Curves.easeInCubic,
-      ));
-
-      // Outgoing page (when a new route is pushed on top) slides from center to left
-      final slideOut = Tween<Offset>(
-        begin: Offset.zero,
-        end: const Offset(-0.3, 0.0), // 30% parallax slide to the left
-      ).animate(CurvedAnimation(
-        parent: secondaryAnimation,
-        curve: Curves.easeOutCubic,
-        reverseCurve: Curves.easeInCubic,
-      ));
-
-      return SlideTransition(
-        position: slideOut,
-        child: SlideTransition(
-          position: slideIn,
-          child: child,
-        ),
-      );
-    },
   );
 }
 
@@ -108,39 +77,10 @@ CustomTransitionPage _buildSlideUpTransition(Widget child, LocalKey key) {
   );
 }
 
-CustomTransitionPage _buildSlideTransition(Widget child, LocalKey key) {
-  return CustomTransitionPage(
+Page _buildSlideTransition(Widget child, LocalKey key) {
+  return MaterialPage(
     key: key,
     child: child,
-    transitionDuration: const Duration(milliseconds: 300),
-    reverseTransitionDuration: const Duration(milliseconds: 300),
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      final slideIn = Tween<Offset>(
-        begin: const Offset(1.0, 0.0),
-        end: Offset.zero,
-      ).animate(CurvedAnimation(
-        parent: animation,
-        curve: Curves.easeOutCubic,
-        reverseCurve: Curves.easeInCubic,
-      ));
-
-      final slideOut = Tween<Offset>(
-        begin: Offset.zero,
-        end: const Offset(-0.3, 0.0),
-      ).animate(CurvedAnimation(
-        parent: secondaryAnimation,
-        curve: Curves.easeOutCubic,
-        reverseCurve: Curves.easeInCubic,
-      ));
-
-      return SlideTransition(
-        position: slideOut,
-        child: SlideTransition(
-          position: slideIn,
-          child: child,
-        ),
-      );
-    },
   );
 }
 
