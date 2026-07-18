@@ -12,7 +12,7 @@ import 'package:mobile/features/profile/presentation/provider/profile_provider.d
 import '../widgets/student_header_info.dart';
 import 'package:mobile/features/profile/presentation/pages/skills_section_page.dart' as mobile;
 import 'package:mobile/features/profile/presentation/pages/saved_projects_page.dart';
-import 'package:mobile/features/profile/presentation/pages/recent_activity_section_page.dart' as mobile;
+import 'package:mobile/features/profile/presentation/pages/activity_history_page.dart' as mobile;
 import 'package:mobile/features/profile/presentation/pages/app_update_page.dart' as mobile;
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:go_router/go_router.dart';
@@ -128,7 +128,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const mobile.RecentActivitySectionPage()),
+                    MaterialPageRoute(builder: (context) => const mobile.ActivityHistoryPage()),
                   );
                 },
               ),

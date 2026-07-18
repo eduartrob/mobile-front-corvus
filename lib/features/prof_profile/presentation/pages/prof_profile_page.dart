@@ -14,6 +14,7 @@ import 'package:mobile/features/profile/presentation/pages/app_update_page.dart'
 import 'package:mobile/features/prof_profile/presentation/pages/prof_drive_sync_page.dart';
 import 'package:mobile/features/prof_profile/presentation/pages/prof_load_projects_page.dart';
 import 'package:mobile/features/prof_profile/presentation/pages/prof_edit_profile_page.dart' as mobile;
+import 'package:mobile/features/prof_history/presentation/pages/prof_history_page.dart';
 
 class ProfProfilePage extends StatefulWidget {
   const ProfProfilePage({super.key});
@@ -128,6 +129,20 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const ProfLoadProjectsPage()),
+                  );
+                },
+              ),
+              
+              // Historial de Decisiones
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                leading: Icon(Icons.history, color: colorScheme.onSurfaceVariant, size: 28),
+                title: const Text('Historial de Decisiones', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
+                subtitle: const Text('Registros de actividad y permisos'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ProfHistoryPage()),
                   );
                 },
               ),
