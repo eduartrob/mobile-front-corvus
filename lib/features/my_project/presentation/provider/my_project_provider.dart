@@ -185,6 +185,11 @@ class MyProjectProvider extends ChangeNotifier {
       _errorMessage = "Fetch error: $e";
     }
   }
+
+  Future<void> refreshConfig() async {
+    await _fetchConfig(projectId: _projectId);
+    notifyListeners();
+  }
   
   Future<void> init(String userId, String teamId, {String? projectId, bool forceRefresh = false}) async {
     if (_initialized && !forceRefresh) return;

@@ -53,6 +53,11 @@ Future<void> handleFCMMessage(RemoteMessage message) async {
           context.read<TeamsProvider>().fetchRequests();
           context.read<TeamsProvider>().fetchSuggestions();
         }
+        
+        if (data['type'] == 'CONFIG_UPDATED') {
+          context.read<TeamsProvider>().fetchMyTeam();
+          context.read<MyProjectProvider>().refreshConfig();
+        }
       } catch(e) {
         debugPrint('Provider no disponible en context actual');
       }
