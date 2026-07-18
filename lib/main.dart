@@ -29,6 +29,7 @@ import 'package:mobile/features/profile/presentation/providers/saved_projects_pr
 import 'package:mobile/features/prof_reviews/presentation/provider/prof_reviews_provider.dart';
 import 'package:mobile/features/prof_dash/presentation/provider/prof_dash_provider.dart';
 import 'package:mobile/features/prof_history/presentation/provider/prof_history_provider.dart';
+import 'package:mobile/features/profile/presentation/provider/activity_history_provider.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
 import 'package:mobile/features/my_project/data/my_project_remote_data_source.dart';
 import 'package:mobile/features/my_project/data/my_project_local_data_source.dart';
@@ -172,6 +173,7 @@ void main() async {
   final profileProvider = ProfileProvider();
   final profReviewsProvider = ProfReviewsProvider();
   final profHistoryProvider = ProfHistoryProvider(client: apiClient);
+  final activityHistoryProvider = ActivityHistoryProvider(client: apiClient);
 
   final prefs = await SharedPreferences.getInstance();
   final savedProjectsRepo = SavedProjectsRepository(prefs);
@@ -225,6 +227,7 @@ void main() async {
         ChangeNotifierProvider.value(value: savedProjectsProvider),
         ChangeNotifierProvider.value(value: profReviewsProvider),
         ChangeNotifierProvider.value(value: profHistoryProvider),
+        ChangeNotifierProvider.value(value: activityHistoryProvider),
         ChangeNotifierProvider(
             create: (_) {
               final dashDs = DashboardRemoteDataSource(client: apiClient);

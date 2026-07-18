@@ -1,64 +1,44 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:mobile/features/profile/presentation/provider/activity_history_provider.dart';
+import 'package:mobile/features/prof_history/data/models/activity_log_model.dart';
+import 'package:intl/intl.dart';
 import '../widgets/activity_item_widget.dart';
 
-class ActivityHistoryPage extends StatelessWidget {
+class ActivityHistoryPage extends StatefulWidget {
   const ActivityHistoryPage({super.key});
+
+  @override
+  State<ActivityHistoryPage> createState() => _ActivityHistoryPageState();
+}
+
+class _ActivityHistoryPageState extends State<ActivityHistoryPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ActivityHistoryProvider>().fetchHistory();
+    });
+  }
+
+  IconData _getIconForAction(String action) {
+    switch (action) {
+      case 'LOGIN':
+        return Icons.login;
+      case 'UPLOAD_DOCUMENT':
+        return Icons.upload_file;
+      case 'SYSTEM_ALERT':
+        return Icons.warning;
+      case 'VALIDATE_CLUSTER':
+        return Icons.analytics;
+      default:
+        return Icons.history;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final l10n = AppLocalizations.of(context)!;
-
-    // TODO: Fetch this from backend when endpoint is available.
-    // Using mock data for now as requested.
-    final List<Map<String, dynamic>> mockActivities = [
-      {
-        'icon': Icons.update,
-        'title': l10n.ragEngineUpdate,
-        'time': 'Hace 2 horas',
-      },
-      {
-        'icon': Icons.menu_book,
-        'title': l10n.readingCompleted,
-        'time': 'Ayer',
-      },
-      {
-        'icon': Icons.login,
-        'title': 'Inicio de sesión desde dispositivo nuevo',
-        'time': 'Hace 3 días',
-      },
-      {
-        'icon': Icons.analytics,
-        'title': 'Análisis de viabilidad completado: "Optimización de Algoritmos RAG"',
-        'time': 'Hace 5 días',
-      },
-      {
-        'icon': Icons.cloud_sync,
-        'title': 'Sincronización con Google Drive completada',
-        'time': 'Hace 1 semana',
-      },
-      {
-        'icon': Icons.group_add,
-        'title': 'Invitación al equipo de investigación aceptada',
-        'time': 'Hace 2 semanas',
-      },
-      {
-        'icon': Icons.settings_backup_restore,
-        'title': 'Recuperación de análisis en segundo plano completada',
-        'time': 'Hace 2 semanas',
-      },
-      {
-        'icon': Icons.check_circle_outline,
-        'title': 'Perfil completado al 100%',
-        'time': 'Hace 1 mes',
-      },
-      {
-        'icon': Icons.fiber_new,
-        'title': 'Bienvenido a Corvus',
-        'time': 'Hace 1 mes',
-      },
-    ];
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -69,19 +49,50 @@ class ActivityHistoryPage extends StatelessWidget {
         scrolledUnderElevation: 0,
         centerTitle: true,
       ),
-      body: ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        itemCount: mockActivities.length,
-        separatorBuilder: (context, index) => const Padding(
-          padding: EdgeInsets.symmetric(vertical: 12),
-          child: Divider(),
-        ),
-        itemBuilder: (context, index) {
-          final activity = mockActivities[index];
-          return ActivityItemWidget(
-            icon: activity['icon'],
-            title: activity['title'],
-            time: activity['time'],
+      body: Consumer<ActivityHistoryProvider>(
+        builder: (context, provider, child) {
+          if (provider.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (provider.errorMessage != null) {
+            return Center(
+              child: Text(
+                'Error: ${provider.errorMessage}',
+                style: TextStyle(color: colorScheme.error),
+                textAlign: TextAlign.center,
+              ),
+            );
+          }
+
+          if (provider.history.isEmpty) {
+            return const Center(
+              child: Text('No hay actividad reciente para mostrar.'),
+            );
+          }
+
+          return RefreshIndicator(
+            onRefresh: () => provider.fetchHistory(),
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              itemCount: provider.history.length,
+              separatorBuilder: (context, index) => const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: Divider(),
+              ),
+              itemBuilder: (context, index) {
+                final ActivityLogModel activity = provider.history[index];
+                
+                final dateFormat = DateFormat('dd/MM/yyyy HH:mm');
+                final dateStr = dateFormat.format(activity.createdAt.toLocal());
+
+                return ActivityItemWidget(
+                  icon: _getIconForAction(activity.action),
+                  title: activity.detail,
+                  time: dateStr,
+                );
+              },
+            ),
           );
         },
       ),
