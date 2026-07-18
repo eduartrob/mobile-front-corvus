@@ -263,9 +263,10 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
           borderRadius: BorderRadius.circular(16),
           splashColor: Colors.black.withValues(alpha: 0.08),
           highlightColor: Colors.black.withValues(alpha: 0.04),
-          onTap: () {
-          context.push('/prof-project/${project['id']}?tab=0');
-        },
+          onTap: () async {
+            await Future.delayed(const Duration(milliseconds: 150));
+            if (context.mounted) context.push('/prof-project/${project['id']}?tab=0');
+          },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
           child: Column(
