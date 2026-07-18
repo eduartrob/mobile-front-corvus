@@ -145,14 +145,17 @@ class _StudentProjectCardState extends State<_StudentProjectCard> {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: GestureDetector(
-        onTapDown: (_) => setState(() => _pressed = true),
-        onTapUp: (_) {
-          setState(() => _pressed = false);
-          if (context.mounted) context.push('/project/${widget.project['id']}?tab=0');
-        },
-        onTapCancel: () => setState(() => _pressed = false),
-        child: AnimatedContainer(
+      child: Listener(
+        onPointerDown: (_) => setState(() => _pressed = true),
+        onPointerUp: (_) => setState(() => _pressed = false),
+        onPointerCancel: (_) => setState(() => _pressed = false),
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            setState(() => _pressed = false);
+            if (context.mounted) context.push('/project/${widget.project['id']}?tab=0');
+          },
+          child: AnimatedContainer(
           duration: const Duration(milliseconds: 80),
           decoration: BoxDecoration(
             color: _pressed ? pressedColor : bgColor,
@@ -200,6 +203,7 @@ class _StudentProjectCardState extends State<_StudentProjectCard> {
             ],
           ),
         ),
+      ),
       ),
     );
   }
