@@ -56,36 +56,7 @@ class _ProfDashPageState extends State<ProfDashPage> {
         ],
       ),
       body: Consumer<ProfDashboardProvider>(
-        builder: (context, provider, child) {
-          if (provider.isLoading && provider.dashboardData == null) {
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const CorvusSkeleton(height: 100, width: double.infinity),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      const Expanded(child: CorvusSkeleton(height: 100)),
-                      const SizedBox(width: 16),
-                      const Expanded(child: CorvusSkeleton(height: 100)),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  const CorvusSkeleton(height: 100, width: double.infinity),
-                  const SizedBox(height: 32),
-                  const CorvusSkeleton(height: 30, width: 200),
-                  const SizedBox(height: 16),
-                  const CorvusSkeleton(height: 80, width: double.infinity),
-                  const SizedBox(height: 12),
-                  const CorvusSkeleton(height: 80, width: double.infinity),
-                ],
-              ),
-            );
-          }
-
-          if (provider.errorMessage != null) {
+          if (provider.errorMessage != null && provider.dashboardData == null) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -102,9 +73,7 @@ class _ProfDashPageState extends State<ProfDashPage> {
           }
 
           final data = provider.dashboardData;
-          if (data == null) {
-            return const Center(child: Text('No hay datos disponibles.'));
-          }
+          final bool isLoading = provider.isLoading && data == null;
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(20.0),
@@ -116,7 +85,8 @@ class _ProfDashPageState extends State<ProfDashPage> {
                     Expanded(
                       child: CorvusMetricCard(
                         label: 'EQUIPOS FORMADOS',
-                        value: '${data.totalTeams}',
+                        value: isLoading ? '' : '${data?.totalTeams}',
+                        isLoading: isLoading,
                       ),
                     ),
                   ],
@@ -127,8 +97,9 @@ class _ProfDashPageState extends State<ProfDashPage> {
                     Expanded(
                       child: CorvusMetricCard(
                         label: 'PROPUESTAS LISTAS',
-                        value: '${data.readyProposals} de ${data.totalTeams} equipos',
+                        value: isLoading ? '' : '${data?.readyProposals} de ${data?.totalTeams} equipos',
                         icon: Icons.description_outlined,
+                        isLoading: isLoading,
                       ),
                     ),
                   ],
@@ -168,7 +139,9 @@ class _ProfDashPageState extends State<ProfDashPage> {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      if (data.alerts.isEmpty)
+                      if (isLoading)
+                        const CorvusSkeleton(height: 80, width: double.infinity)
+                      else if (data!.alerts.isEmpty)
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
@@ -194,7 +167,6 @@ class _ProfDashPageState extends State<ProfDashPage> {
                         )
                       else
                         ...data.alerts.map((alert) {
-                          // Seleccionar icono y paleta pastel por tipo de alerta
                           IconData iconData = Icons.info_outline;
                           if (alert.icon == 'error_outline') iconData = Icons.error_outline;
                           if (alert.icon == 'warning_amber') iconData = Icons.warning_amber;
@@ -300,19 +272,31 @@ class _ProfDashPageState extends State<ProfDashPage> {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      _MetricRow(
-                        icon: Icons.group,
-                        bgColor: colorScheme.primaryContainer,
-                        fgColor: colorScheme.primary,
-                        text: '${data.metrics.studentsWithTeam} Alumnos con equipo',
-                      ),
+                      isLoading
+                        ? Row(children: [
+                            const CorvusSkeleton(width: 36, height: 36, borderRadius: BorderRadius.all(Radius.circular(10))),
+                            const SizedBox(width: 12),
+                            const CorvusSkeleton(height: 20, width: 200),
+                          ])
+                        : _MetricRow(
+                            icon: Icons.group,
+                            bgColor: colorScheme.primaryContainer,
+                            fgColor: colorScheme.primary,
+                            text: '${data?.metrics.studentsWithTeam} Alumnos con equipo',
+                          ),
                       const SizedBox(height: 10),
-                      _MetricRow(
-                        icon: Icons.person_off,
-                        bgColor: colorScheme.errorContainer,
-                        fgColor: colorScheme.error,
-                        text: '${data.metrics.studentsWithoutTeam} Alumnos rezagados (sin equipo)',
-                      ),
+                      isLoading
+                        ? Row(children: [
+                            const CorvusSkeleton(width: 36, height: 36, borderRadius: BorderRadius.all(Radius.circular(10))),
+                            const SizedBox(width: 12),
+                            const CorvusSkeleton(height: 20, width: 250),
+                          ])
+                        : _MetricRow(
+                            icon: Icons.person_off,
+                            bgColor: colorScheme.errorContainer,
+                            fgColor: colorScheme.error,
+                            text: '${data?.metrics.studentsWithoutTeam} Alumnos rezagados (sin equipo)',
+                          ),
                       const SizedBox(height: 20),
                       SizedBox(
                         width: double.infinity,

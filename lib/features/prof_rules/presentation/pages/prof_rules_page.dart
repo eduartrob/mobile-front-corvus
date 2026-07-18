@@ -47,30 +47,30 @@ class _ProfRulesPageViewState extends State<_ProfRulesPageView> {
       length: 2,
       child: Scaffold(
         appBar: const CorvusTopBar(),
-        body: (provider.isLoading && provider.clusterStats.isEmpty && provider.projectSections.isEmpty)
-            ? const _ProfRulesLoadingSkeleton()
-            : Column(
-                children: [
-                  TabBar(
-                    labelColor: colorScheme.primary,
-                    unselectedLabelColor: colorScheme.onSurfaceVariant,
-                    indicatorColor: colorScheme.primary,
-                    indicatorWeight: 3,
-                    tabs: const [
-                      Tab(text: 'Reglas de Exclusión'),
-                      Tab(text: 'Estructura del Proyecto'),
-                    ],
-                  ),
-                  Expanded(
-                    child: TabBarView(
+        body: Column(
+          children: [
+            TabBar(
+              labelColor: colorScheme.primary,
+              unselectedLabelColor: colorScheme.onSurfaceVariant,
+              indicatorColor: colorScheme.primary,
+              indicatorWeight: 3,
+              tabs: const [
+                Tab(text: 'Reglas de Exclusión'),
+                Tab(text: 'Estructura del Proyecto'),
+              ],
+            ),
+            Expanded(
+              child: (provider.isLoading && provider.clusterStats.isEmpty && provider.projectSections.isEmpty)
+                  ? const _ProfRulesLoadingSkeleton()
+                  : TabBarView(
                       children: [
                         _ExclusionRulesTab(projectId: widget.projectId),
                         _ProjectStructureTab(projectId: widget.projectId),
                       ],
                     ),
-                  ),
-                ],
-              ),
+            ),
+          ],
+        ),
         floatingActionButton: provider.isLoading
             ? null
               : Builder(
@@ -676,17 +676,6 @@ class _ProfRulesLoadingSkeletonState extends State<_ProfRulesLoadingSkeleton> wi
       opacity: _opacity,
       child: Column(
         children: [
-          // Simulated TabBar
-          Container(
-            height: 48,
-            color: Theme.of(context).colorScheme.surface,
-            child: Row(
-              children: [
-                Expanded(child: Center(child: _buildSkeletonBox(width: 120, height: 20))),
-                Expanded(child: Center(child: _buildSkeletonBox(width: 150, height: 20))),
-              ],
-            ),
-          ),
           const SizedBox(height: 20),
           Expanded(
             child: Padding(

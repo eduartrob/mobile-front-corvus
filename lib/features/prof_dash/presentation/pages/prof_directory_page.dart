@@ -95,9 +95,28 @@ class _ProfDirectoryPageViewState extends State<_ProfDirectoryPageView> with Sin
                     padding: const EdgeInsets.all(16.0),
                     itemCount: 5,
                     separatorBuilder: (_, __) => const SizedBox(height: 16),
-                    itemBuilder: (_, __) => const CorvusSkeleton(
-                      height: 100,
-                      width: double.infinity,
+                    itemBuilder: (_, __) => Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: colorScheme.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        children: [
+                          const CorvusSkeleton(width: 50, height: 50, borderRadius: BorderRadius.all(Radius.circular(25))),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: const [
+                                CorvusSkeleton(height: 16, width: 150),
+                                SizedBox(height: 8),
+                                CorvusSkeleton(height: 12, width: 100),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   )
                 : provider.errorMessage != null

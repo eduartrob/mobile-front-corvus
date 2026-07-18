@@ -67,9 +67,34 @@ class _ProfReviewsPageState extends State<ProfReviewsPage> {
               padding: const EdgeInsets.all(20.0),
               itemCount: 4,
               separatorBuilder: (_, __) => const SizedBox(height: 16),
-              itemBuilder: (_, __) => const CorvusSkeleton(
-                height: 120,
-                width: double.infinity,
+              itemBuilder: (_, __) => Card(
+                margin: const EdgeInsets.only(bottom: 16),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: const [
+                          CorvusSkeleton(height: 18, width: 80),
+                          CorvusSkeleton(height: 14, width: 60),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      const CorvusSkeleton(height: 22, width: 200),
+                      const SizedBox(height: 8),
+                      const CorvusSkeleton(height: 16, width: 140),
+                      const SizedBox(height: 8),
+                      const CorvusSkeleton(height: 14, width: 250),
+                    ],
+                  ),
+                ),
               ),
             )
           : RefreshIndicator(
