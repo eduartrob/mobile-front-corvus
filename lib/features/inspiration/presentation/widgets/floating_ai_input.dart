@@ -371,6 +371,7 @@ class _FloatingAiInputState extends State<FloatingAiInput>
             ),
           ),
         ),
+        ),
       ),
     );
   }

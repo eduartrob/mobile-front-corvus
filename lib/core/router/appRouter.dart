@@ -78,13 +78,6 @@ CustomTransitionPage _buildSlideUpTransition(Widget child, LocalKey key) {
   );
 }
 
-Page _buildCupertinoTransition(Widget child, LocalKey key) {
-  return CupertinoPage(
-    key: key,
-    child: child,
-  );
-}
-
 
 class AppRouter extends StatefulWidget {
   final ThemeData? appTheme;
