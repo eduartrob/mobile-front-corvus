@@ -304,9 +304,7 @@ class _ProfDashPageState extends State<ProfDashPage> {
                         width: double.infinity,
                         child: OutlinedButton(
                           onPressed: () {
-                            Navigator.of(context, rootNavigator: true).push(
-                              CupertinoPageRoute(builder: (context) => ProfDirectoryPage(projectId: widget.projectId)),
-                            );
+                            context.push('/prof-project/${widget.projectId}/directory');
                           },
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 14),

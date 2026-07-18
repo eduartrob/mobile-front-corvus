@@ -16,6 +16,7 @@ class ProfDashboardProvider extends ChangeNotifier {
   DashboardEntity? _dashboardData;
   bool _isLoading = false;
   String? _errorMessage;
+  String? _currentProjectId;
 
   DashboardEntity? get dashboardData => _dashboardData;
   bool get isLoading => _isLoading;
@@ -25,6 +26,11 @@ class ProfDashboardProvider extends ChangeNotifier {
     final role = _authProvider.role?.toUpperCase();
     if (role != 'PROFESOR' && role != 'DOCENTE') {
       return;
+    }
+
+    if (_currentProjectId != projectId) {
+      _dashboardData = null;
+      _currentProjectId = projectId;
     }
 
     _isLoading = true;

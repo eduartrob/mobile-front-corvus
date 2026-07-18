@@ -38,6 +38,7 @@ import 'package:mobile/core/router/project_layout.dart';
 import 'package:mobile/core/router/prof_project_layout.dart';
 import 'package:mobile/features/projects/presentation/pages/my_projects_dashboard_page.dart';
 import 'package:mobile/features/projects/presentation/pages/prof_projects_dashboard_page.dart';
+import 'package:mobile/features/prof_dash/presentation/pages/prof_directory_page.dart';
 import 'package:mobile/features/projects/presentation/pages/prof_project_settings_page.dart';
 import 'package:mobile/features/projects/presentation/pages/prof_project_config_page.dart';
 
@@ -234,6 +235,13 @@ class _AppRouterState extends State<AppRouter> {
           path: '/prof-project/:projectId/config',
           pageBuilder: (context, state) => _buildCupertinoTransition(
             ProfProjectConfigPage(projectId: state.pathParameters['projectId']!),
+            state.pageKey,
+          ),
+        ),
+        GoRoute(
+          path: '/prof-project/:projectId/directory',
+          pageBuilder: (context, state) => _buildCupertinoTransition(
+            ProfDirectoryPage(projectId: state.pathParameters['projectId']!),
             state.pageKey,
           ),
         ),
