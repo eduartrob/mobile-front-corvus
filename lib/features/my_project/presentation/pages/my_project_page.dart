@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile/shared/widgets/corvus_skeleton.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/features/my_project/presentation/provider/my_project_provider.dart';
@@ -272,117 +273,74 @@ class _ProjectPageHeader extends StatelessWidget {
 }
 
 // Skeleton shown while MyProjectProvider initializes in background
-class _ProjectLoadingSkeleton extends StatefulWidget {
+class _ProjectLoadingSkeleton extends StatelessWidget {
   const _ProjectLoadingSkeleton();
 
   @override
-  State<_ProjectLoadingSkeleton> createState() => _ProjectLoadingSkeletonState();
-}
-
-class _ProjectLoadingSkeletonState extends State<_ProjectLoadingSkeleton>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _opacity;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    )..repeat(reverse: true);
-    _opacity = Tween<double>(begin: 0.3, end: 0.7).animate(_controller);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  Widget _bar({double width = double.infinity, double height = 14, double radius = 6}) {
-    final color = Theme.of(context).colorScheme.surfaceContainerHighest;
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(radius),
-      ),
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _opacity,
-      builder: (_, _) => Opacity(
-        opacity: _opacity.value,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Innovation card skeleton
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                children: [
-                  _bar(width: 140, height: 18),
-                  const SizedBox(height: 20),
-                  _bar(width: 120, height: 120, radius: 60),
-                  const SizedBox(height: 20),
-                  _bar(width: 80, height: 14),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Metrics skeleton
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _bar(width: 160, height: 18),
-                  const SizedBox(height: 24),
-                  _bar(height: 8),
-                  const SizedBox(height: 20),
-                  _bar(height: 8),
-                  const SizedBox(height: 20),
-                  _bar(height: 8),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            // Recommendations skeleton
-            _bar(width: 180, height: 18),
-            const SizedBox(height: 16),
-            for (int i = 0; i < 3; i++) ...[
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 6),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _bar(width: 180, height: 14),
-                    const SizedBox(height: 10),
-                    _bar(height: 10),
-                    const SizedBox(height: 6),
-                    _bar(width: 220, height: 10),
-                  ],
-                ),
-              ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Innovation card skeleton
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            children: [
+              const CorvusSkeleton(width: 140, height: 18, borderRadius: BorderRadius.all(Radius.circular(6))),
+              const SizedBox(height: 20),
+              const CorvusSkeleton(width: 120, height: 120, borderRadius: BorderRadius.all(Radius.circular(60))),
+              const SizedBox(height: 20),
+              const CorvusSkeleton(width: 80, height: 14, borderRadius: BorderRadius.all(Radius.circular(6))),
             ],
-          ],
+          ),
         ),
-      ),
+        const SizedBox(height: 16),
+        // Metrics skeleton
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const CorvusSkeleton(width: 160, height: 18, borderRadius: BorderRadius.all(Radius.circular(6))),
+              const SizedBox(height: 24),
+              const CorvusSkeleton(width: double.infinity, height: 8, borderRadius: BorderRadius.all(Radius.circular(6))),
+              const SizedBox(height: 20),
+              const CorvusSkeleton(width: double.infinity, height: 8, borderRadius: BorderRadius.all(Radius.circular(6))),
+              const SizedBox(height: 20),
+              const CorvusSkeleton(width: double.infinity, height: 8, borderRadius: BorderRadius.all(Radius.circular(6))),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        // Recommendations skeleton
+        const CorvusSkeleton(width: 180, height: 18, borderRadius: BorderRadius.all(Radius.circular(6))),
+        const SizedBox(height: 16),
+        for (int i = 0; i < 3; i++) ...[
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 6),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const CorvusSkeleton(width: 180, height: 14, borderRadius: BorderRadius.all(Radius.circular(6))),
+                const SizedBox(height: 10),
+                const CorvusSkeleton(width: double.infinity, height: 10, borderRadius: BorderRadius.all(Radius.circular(6))),
+                const SizedBox(height: 6),
+                const CorvusSkeleton(width: 220, height: 10, borderRadius: BorderRadius.all(Radius.circular(6))),
+              ],
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

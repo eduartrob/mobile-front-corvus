@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile/shared/widgets/corvus_skeleton.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
@@ -371,52 +372,18 @@ class _SectionHeaderDelegate extends SliverPersistentHeaderDelegate {
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) => false;
 }
 
-class _SkeletonLoaderList extends StatefulWidget {
+class _SkeletonLoaderList extends StatelessWidget {
   const _SkeletonLoaderList();
-  
-  @override
-  State<_SkeletonLoaderList> createState() => _SkeletonLoaderListState();
-}
-
-class _SkeletonLoaderListState extends State<_SkeletonLoaderList> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _opacityAnim;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this, 
-      duration: const Duration(milliseconds: 800)
-    )..repeat(reverse: true);
-    _opacityAnim = Tween<double>(begin: 0.3, end: 0.7).animate(_controller);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _opacityAnim,
-      builder: (context, child) {
-        return Opacity(
-          opacity: _opacityAnim.value,
-          child: Column(
-            children: List.generate(3, (index) => _buildSkeletonCard(context)),
-          ),
-        );
-      },
+    return Column(
+      children: List.generate(3, (index) => _buildSkeletonCard(context)),
     );
   }
 
-
   Widget _buildSkeletonCard(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final color = colorScheme.surfaceContainer;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Container(
@@ -439,34 +406,31 @@ class _SkeletonLoaderListState extends State<_SkeletonLoaderList> with SingleTic
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(width: 180, height: 18, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(9))),
+            const CorvusSkeleton(width: 180, height: 18, borderRadius: BorderRadius.all(Radius.circular(9))),
             const SizedBox(height: 8),
-            Container(width: double.infinity, height: 13, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4))),
+            const CorvusSkeleton(width: double.infinity, height: 13, borderRadius: BorderRadius.all(Radius.circular(4))),
             const SizedBox(height: 6),
-            Container(width: double.infinity, height: 13, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4))),
+            const CorvusSkeleton(width: double.infinity, height: 13, borderRadius: BorderRadius.all(Radius.circular(4))),
             const SizedBox(height: 6),
-            Container(width: 200, height: 13, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4))),
+            const CorvusSkeleton(width: 200, height: 13, borderRadius: BorderRadius.all(Radius.circular(4))),
             const SizedBox(height: 16),
             Divider(height: 1, color: colorScheme.outline.withValues(alpha: 0.12)),
             const SizedBox(height: 14),
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: List.generate(3, (_) => Container(
+              children: List.generate(3, (_) => const CorvusSkeleton(
                 width: 100,
                 height: 28,
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(999),
-                ),
+                borderRadius: BorderRadius.all(Radius.circular(14)),
               )),
             ),
             const SizedBox(height: 18),
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(width: 60, height: 14, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(7))),
-                Container(width: 44, height: 44, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12))),
+                CorvusSkeleton(width: 60, height: 14, borderRadius: BorderRadius.all(Radius.circular(7))),
+                CorvusSkeleton(width: 44, height: 44, borderRadius: BorderRadius.all(Radius.circular(12))),
               ],
             ),
           ],

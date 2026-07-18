@@ -653,81 +653,43 @@ void _showAddSectionDialog(BuildContext context, ProfRulesProvider provider, {Ma
   );
 }
 
-class _ProfRulesLoadingSkeleton extends StatefulWidget {
+class _ProfRulesLoadingSkeleton extends StatelessWidget {
   const _ProfRulesLoadingSkeleton();
 
   @override
-  State<_ProfRulesLoadingSkeleton> createState() => _ProfRulesLoadingSkeletonState();
-}
-
-class _ProfRulesLoadingSkeletonState extends State<_ProfRulesLoadingSkeleton> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _opacity;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    )..repeat(reverse: true);
-    _opacity = Tween<double>(begin: 0.3, end: 0.7).animate(_controller);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  Widget _buildSkeletonBox({double? width, double? height, double borderRadius = 8}) {
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(borderRadius),
-      ),
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: _opacity,
-      child: Column(
-        children: [
-          const SizedBox(height: 20),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: ListView.separated(
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: 6,
-                separatorBuilder: (_, _) => const SizedBox(height: 16),
-                itemBuilder: (_, _) => Row(
-                  children: [
-                    _buildSkeletonBox(width: 40, height: 40, borderRadius: 20),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildSkeletonBox(width: 180, height: 16),
-                          const SizedBox(height: 8),
-                          _buildSkeletonBox(width: 120, height: 12),
-                        ],
-                      ),
+    return Column(
+      children: [
+        const SizedBox(height: 20),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: ListView.separated(
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: 6,
+              separatorBuilder: (_, _) => const SizedBox(height: 16),
+              itemBuilder: (_, _) => Row(
+                children: [
+                  const CorvusSkeleton(width: 40, height: 40, borderRadius: BorderRadius.all(Radius.circular(20))),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const CorvusSkeleton(width: 180, height: 16, borderRadius: BorderRadius.all(Radius.circular(8))),
+                        const SizedBox(height: 8),
+                        const CorvusSkeleton(width: 120, height: 12, borderRadius: BorderRadius.all(Radius.circular(8))),
+                      ],
                     ),
-                    const SizedBox(width: 16),
-                    _buildSkeletonBox(width: 40, height: 24, borderRadius: 12),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 16),
+                  const CorvusSkeleton(width: 40, height: 24, borderRadius: BorderRadius.all(Radius.circular(12))),
+                ],
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
