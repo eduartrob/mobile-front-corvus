@@ -9,6 +9,7 @@ import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:animated_list_plus/animated_list_plus.dart';
 import 'package:animated_list_plus/transitions.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile/shared/widgets/corvus_skeleton.dart';
 
 class ProfRulesPage extends StatelessWidget {
   final String projectId;
