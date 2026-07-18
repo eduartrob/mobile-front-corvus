@@ -46,7 +46,7 @@ import 'package:mobile/features/notifications/presentation/pages/notifications_p
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
-Page _buildFadeTransition(Widget child, LocalKey key) {
+Page _buildCupertinoTransition(Widget child, LocalKey key) {
   return CupertinoPage(
     key: key,
     child: child,
@@ -78,7 +78,7 @@ CustomTransitionPage _buildSlideUpTransition(Widget child, LocalKey key) {
   );
 }
 
-Page _buildSlideTransition(Widget child, LocalKey key) {
+Page _buildCupertinoTransition(Widget child, LocalKey key) {
   return CupertinoPage(
     key: key,
     child: child,
@@ -142,7 +142,7 @@ class _AppRouterState extends State<AppRouter> {
       routes: [
         GoRoute(
           path: '/',
-          pageBuilder: (context, state) => _buildFadeTransition(const RoleSelectionPage(), state.pageKey),
+          pageBuilder: (context, state) => _buildCupertinoTransition(const RoleSelectionPage(), state.pageKey),
         ),
         GoRoute(
           path: '/login',
@@ -160,14 +160,14 @@ class _AppRouterState extends State<AppRouter> {
         ),
         GoRoute(
           path: '/register-student-university',
-          pageBuilder: (context, state) => _buildFadeTransition(const StudentUniversityPage(), state.pageKey),
+          pageBuilder: (context, state) => _buildCupertinoTransition(const StudentUniversityPage(), state.pageKey),
         ),
         GoRoute(
           path: '/register-student-skills',
           pageBuilder: (context, state) {
             final extra = state.extra as Map<String, dynamic>? ?? {};
             final skills = (extra['skills'] as List<dynamic>?)?.cast<String>() ?? [];
-            return _buildSlideTransition(StudentSkillsPage(suggestedSkills: skills), state.pageKey);
+            return _buildCupertinoTransition(StudentSkillsPage(suggestedSkills: skills), state.pageKey);
           },
         ),
         GoRoute(
@@ -184,11 +184,11 @@ class _AppRouterState extends State<AppRouter> {
         ),
         GoRoute(
           path: '/register-teacher-verification',
-          pageBuilder: (context, state) => _buildSlideTransition(const TeacherVerificationPage(), state.pageKey),
+          pageBuilder: (context, state) => _buildCupertinoTransition(const TeacherVerificationPage(), state.pageKey),
         ),
         GoRoute(
           path: '/register-teacher-info',
-          pageBuilder: (context, state) => _buildSlideTransition(const TeacherInfoPage(), state.pageKey),
+          pageBuilder: (context, state) => _buildCupertinoTransition(const TeacherInfoPage(), state.pageKey),
         ),
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) {
@@ -230,7 +230,7 @@ class _AppRouterState extends State<AppRouter> {
           pageBuilder: (context, state) {
             final projectId = state.pathParameters['id']!;
             final tab = int.tryParse(state.uri.queryParameters['tab'] ?? '0') ?? 0;
-            return _buildSlideTransition(
+            return _buildCupertinoTransition(
               ProjectLayout(projectId: projectId, initialTab: tab),
               state.pageKey,
             );
@@ -248,7 +248,7 @@ class _AppRouterState extends State<AppRouter> {
           pageBuilder: (context, state) {
             final projectId = state.pathParameters['projectId']!;
             final tab = int.tryParse(state.uri.queryParameters['tab'] ?? '0') ?? 0;
-            return _buildSlideTransition(
+            return _buildCupertinoTransition(
               ProfProjectLayout(projectId: projectId, initialTab: tab),
               state.pageKey,
             );
@@ -256,7 +256,7 @@ class _AppRouterState extends State<AppRouter> {
         ),
         GoRoute(
           path: '/prof-project/:projectId/config',
-          pageBuilder: (context, state) => _buildFadeTransition(
+          pageBuilder: (context, state) => _buildCupertinoTransition(
             ProfProjectConfigPage(projectId: state.pathParameters['projectId']!),
             state.pageKey,
           ),
@@ -264,30 +264,30 @@ class _AppRouterState extends State<AppRouter> {
         
         GoRoute(
           path: '/prof-profile',
-          pageBuilder: (context, state) => _buildFadeTransition(const ProfProfilePage(), state.pageKey),
+          pageBuilder: (context, state) => _buildCupertinoTransition(const ProfProfilePage(), state.pageKey),
         ),
         GoRoute(
           path: '/profile',
-          pageBuilder: (context, state) => _buildFadeTransition(const ProfilePage(), state.pageKey),
+          pageBuilder: (context, state) => _buildCupertinoTransition(const ProfilePage(), state.pageKey),
         ),
         GoRoute(
           path: '/activity-history',
-          pageBuilder: (context, state) => _buildFadeTransition(const ActivityHistoryPage(), state.pageKey),
+          pageBuilder: (context, state) => _buildCupertinoTransition(const ActivityHistoryPage(), state.pageKey),
         ),
         GoRoute(
           path: '/student-directory',
-          pageBuilder: (context, state) => _buildFadeTransition(const StudentDirectoryPage(), state.pageKey),
+          pageBuilder: (context, state) => _buildCupertinoTransition(const StudentDirectoryPage(), state.pageKey),
         ),
         GoRoute(
           path: '/notifications',
           pageBuilder: (context, state) {
             final highlightLatest = state.uri.queryParameters['highlightLatest'] == 'true';
-            return _buildFadeTransition(NotificationsPage(highlightLatest: highlightLatest), state.pageKey);
+            return _buildCupertinoTransition(NotificationsPage(highlightLatest: highlightLatest), state.pageKey);
           },
         ),
         GoRoute(
           path: '/manage-team',
-          pageBuilder: (context, state) => _buildFadeTransition(const ManageTeamPage(), state.pageKey),
+          pageBuilder: (context, state) => _buildCupertinoTransition(const ManageTeamPage(), state.pageKey),
         ),
       ],
     );
