@@ -33,7 +33,7 @@ class _ProfProjectLayoutState extends State<ProfProjectLayout> {
   void didUpdateWidget(covariant ProfProjectLayout oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.initialTab != oldWidget.initialTab) {
-      print("=== didUpdateWidget called, new tab: ${widget.initialTab} ==="); setState(() {
+      setState(() {
         _currentIndex = widget.initialTab;
       });
     }
@@ -63,7 +63,10 @@ class _ProfProjectLayoutState extends State<ProfProjectLayout> {
         body: IndexedStack(
           index: _currentIndex,
           children: [
-            ProfDashPage(projectId: widget.projectId),
+            ProfDashPage(
+              projectId: widget.projectId,
+              onSwitchToReviews: () => setState(() => _currentIndex = 1),
+            ),
             ProfReviewsPage(projectId: widget.projectId),
             ProfRulesPage(projectId: widget.projectId),
             ProfProjectSettingsPage(projectId: widget.projectId),

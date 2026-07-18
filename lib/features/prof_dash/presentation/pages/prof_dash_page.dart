@@ -13,8 +13,13 @@ import 'package:mobile/shared/widgets/corvus_skeleton.dart';
 
 class ProfDashPage extends StatefulWidget {
   final String projectId;
+  final VoidCallback? onSwitchToReviews;
   
-  const ProfDashPage({super.key, required this.projectId});
+  const ProfDashPage({
+    super.key, 
+    required this.projectId,
+    this.onSwitchToReviews,
+  });
 
   @override
   State<ProfDashPage> createState() => _ProfDashPageState();
@@ -217,7 +222,11 @@ class _ProfDashPageState extends State<ProfDashPage> {
                       SizedBox(
                         width: double.infinity,
                         child: FilledButton(
-                          onPressed: () => context.go('/prof-project/${widget.projectId}?tab=1'),
+                          onPressed: () {
+                            if (widget.onSwitchToReviews != null) {
+                              widget.onSwitchToReviews!();
+                            }
+                          },
                           style: FilledButton.styleFrom(
                             backgroundColor: colorScheme.primary,
                             foregroundColor: colorScheme.onPrimary,
