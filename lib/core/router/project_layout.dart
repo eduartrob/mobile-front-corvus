@@ -31,7 +31,6 @@ class _ProjectLayoutState extends State<ProjectLayout> {
   void _onItemTapped(int index) {
     if (index == _currentIndex) return;
     setState(() => _currentIndex = index);
-    context.go('/project/${widget.projectId}?tab=$index');
   }
 
   @override
@@ -43,7 +42,6 @@ class _ProjectLayoutState extends State<ProjectLayout> {
 
         if (_currentIndex != 0) {
           setState(() => _currentIndex = 0);
-          context.go('/project/${widget.projectId}?tab=0');
           return;
         }
 

@@ -143,6 +143,12 @@ class MaterialTheme {
        unselectedItemColor: colorScheme.onSurfaceVariant,
        type: BottomNavigationBarType.fixed,
      ),
+     pageTransitionsTheme: const PageTransitionsTheme(
+       builders: {
+         TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+         TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+       },
+     ),
   );
 
   ThemeData light() {

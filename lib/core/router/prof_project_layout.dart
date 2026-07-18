@@ -32,8 +32,6 @@ class _ProfProjectLayoutState extends State<ProfProjectLayout> {
   void _onItemTapped(int index) {
     if (index == _currentIndex) return;
     setState(() => _currentIndex = index);
-    // Actualizar URL sin recrear el widget
-    context.go('/prof-project/${widget.projectId}?tab=$index');
   }
 
   @override
@@ -45,7 +43,6 @@ class _ProfProjectLayoutState extends State<ProfProjectLayout> {
 
         if (_currentIndex != 0) {
           setState(() => _currentIndex = 0);
-          context.go('/prof-project/${widget.projectId}?tab=0');
           return;
         }
 
