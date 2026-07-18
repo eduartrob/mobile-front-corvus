@@ -107,75 +107,99 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
                 padding: const EdgeInsets.all(16),
                 itemCount: provider.myProjects.length,
                 itemBuilder: (context, index) {
-                final project = provider.myProjects[index];
-                final pastelColors = const [
-                  Color(0xFFEBF4FF), // Azul muy claro
-                  Color(0xFFF4EBF7), // Morado muy claro
-                  Color(0xFFEAF5EE), // Verde muy claro
-                  Color(0xFFFEF2E5), // Naranja muy claro
-                  Color(0xFFFCEAEF), // Rosa muy claro
-                ];
-                final bgColor = pastelColors[index % pastelColors.length];
-
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Material(
-                    color: bgColor,
-                    borderRadius: BorderRadius.circular(16),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(16),
-                      splashFactory: InkRipple.splashFactory,
-                      splashColor: Colors.black.withValues(alpha: 0.14),
-                      highlightColor: Colors.black.withValues(alpha: 0.06),
-                      onTap: () {
-                        if (context.mounted) context.push('/project/${project['id']}?tab=0');
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.primary,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: const Icon(Icons.class_, color: Colors.white, size: 20),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    project['name'] ?? 'Proyecto',
-                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                                Icon(Icons.arrow_forward_ios, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-                              ],
-                            ),
-                          if (project['description'] != null && project['description'].toString().isNotEmpty) ...[
-                            const SizedBox(height: 8),
-                            Text(
-                              project['description'].toString(),
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ],
-                        ),
-                      ),
-                    ),
-                  ),
-                );
+                  final project = provider.myProjects[index];
+                  return _StudentProjectCard(project: project, index: index);
                 },
               ),
             );
         },
+      ),
+    );
+  }
+}
+
+class _StudentProjectCard extends StatefulWidget {
+  final dynamic project;
+  final int index;
+  const _StudentProjectCard({required this.project, required this.index});
+
+  @override
+  State<_StudentProjectCard> createState() => _StudentProjectCardState();
+}
+
+class _StudentProjectCardState extends State<_StudentProjectCard> {
+  bool _pressed = false;
+
+  static const _pastelColors = [
+    Color(0xFFEBF4FF),
+    Color(0xFFF4EBF7),
+    Color(0xFFEAF5EE),
+    Color(0xFFFEF2E5),
+    Color(0xFFFCEAEF),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final bgColor = _pastelColors[widget.index % _pastelColors.length];
+    final pressedColor = Color.lerp(bgColor, Colors.black, 0.10)!;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _pressed = true),
+        onTapUp: (_) {
+          setState(() => _pressed = false);
+          if (context.mounted) context.push('/project/${widget.project['id']}?tab=0');
+        },
+        onTapCancel: () => setState(() => _pressed = false),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 80),
+          decoration: BoxDecoration(
+            color: _pressed ? pressedColor : bgColor,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.class_, color: Colors.white, size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      widget.project['name'] ?? 'Proyecto',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
+                  const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.black54),
+                ],
+              ),
+              if (widget.project['description'] != null &&
+                  widget.project['description'].toString().isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Text(
+                  widget.project['description'].toString(),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Colors.black54,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }
