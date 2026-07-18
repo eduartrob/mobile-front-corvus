@@ -205,7 +205,21 @@ class _ExclusionRulesTab extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 24),
-          if (sortedClusters.isEmpty)
+          if (provider.isLoading && sortedClusters.isEmpty)
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: 4,
+              separatorBuilder: (_, __) => const SizedBox(height: 16),
+              itemBuilder: (_, __) => Row(
+                children: const [
+                  CorvusSkeleton(width: 40, height: 40, borderRadius: BorderRadius.all(Radius.circular(20))),
+                  SizedBox(width: 16),
+                  Expanded(child: CorvusSkeleton(height: 20, width: double.infinity)),
+                ],
+              ),
+            )
+          else if (sortedClusters.isEmpty)
             Center(
               child: Padding(
                 padding: const EdgeInsets.all(24.0),

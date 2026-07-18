@@ -23,6 +23,9 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
   List<dynamic> _collaborators = [];
   List<dynamic> _pendingInvitations = [];
 
+  static final Map<String, List<dynamic>> _collaboratorsCache = {};
+  static final Map<String, List<dynamic>> _pendingCache = {};
+
   // Search state
   final ProfessorApi _professorApi = ProfessorApi();
   List<dynamic> _searchResults = [];
@@ -91,9 +94,19 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
     });
   }
 
-  Future<void> _loadCollaborators() async {
+  Future<void> _loadCollaborators({bool forceRefresh = false}) async {
+    if (!forceRefresh && _collaboratorsCache.containsKey(widget.projectId)) {
+      if (mounted) {
+        setState(() {
+          _collaborators = _collaboratorsCache[widget.projectId]!;
+          _pendingInvitations = _pendingCache[widget.projectId]!;
+          _isLoading = false;
+        });
+      }
+      return;
+    }
+
     setState(() {
-      _isLoading = true;
       _isLoading = true;
     });
 
@@ -108,20 +121,26 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
 
       if (response.statusCode == 200) {
         final data = json.decode(utf8.decode(response.bodyBytes));
-        setState(() {
-          _collaborators = data['collaborators'] ?? [];
-          _pendingInvitations = data['pending'] ?? [];
-          _isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _collaborators = data['collaborators'] ?? [];
+            _pendingInvitations = data['pending'] ?? [];
+            _collaboratorsCache[widget.projectId] = _collaborators;
+            _pendingCache[widget.projectId] = _pendingInvitations;
+            _isLoading = false;
+          });
+        }
       } else {
         setState(() {
           _isLoading = false;
         });
       }
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -145,7 +164,7 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Invitación enviada exitosamente')),
         );
-        _loadCollaborators();
+        _loadCollaborators(forceRefresh: true);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -176,7 +195,7 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Colaborador eliminado')),
         );
-        _loadCollaborators();
+        _loadCollaborators(forceRefresh: true);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -468,7 +487,8 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
     String? currentUserEmail,
   ) {
     final colorScheme = Theme.of(context).colorScheme;
-    if (_isLoading) {
+
+    if (_isLoading && _collaborators.isEmpty && _pendingInvitations.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
 
@@ -509,9 +529,12 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
       return true;
     }).toList();
 
-    return ListView(
-      padding: const EdgeInsets.all(20.0),
-      children: [
+    return RefreshIndicator(
+      onRefresh: () => _loadCollaborators(forceRefresh: true),
+      child: ListView(
+        padding: const EdgeInsets.all(20.0),
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: [
         if (_collaborators.isNotEmpty) ...[
           const Text(
             'Colaboradores',
@@ -692,6 +715,7 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
         }),
       ],
       ],
+      ),
     );
   }
 }
