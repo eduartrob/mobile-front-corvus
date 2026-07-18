@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
@@ -46,10 +45,25 @@ import 'package:mobile/features/notifications/presentation/pages/notifications_p
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
-Page _buildFadeTransition(Widget child, LocalKey key) {
-  return CupertinoPage(
+CustomTransitionPage _buildFadeTransition(Widget child, LocalKey key) {
+  return CustomTransitionPage(
     key: key,
     child: child,
+    transitionDuration: const Duration(milliseconds: 300),
+    reverseTransitionDuration: const Duration(milliseconds: 300),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(1.0, 0.0),
+          end: Offset.zero,
+        ).animate(CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic,
+        )),
+        child: child,
+      );
+    },
   );
 }
 
@@ -78,10 +92,25 @@ CustomTransitionPage _buildSlideUpTransition(Widget child, LocalKey key) {
   );
 }
 
-Page _buildSlideTransition(Widget child, LocalKey key) {
-  return CupertinoPage(
+CustomTransitionPage _buildSlideTransition(Widget child, LocalKey key) {
+  return CustomTransitionPage(
     key: key,
     child: child,
+    transitionDuration: const Duration(milliseconds: 300),
+    reverseTransitionDuration: const Duration(milliseconds: 300),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(1.0, 0.0),
+          end: Offset.zero,
+        ).animate(CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic,
+        )),
+        child: child,
+      );
+    },
   );
 }
 

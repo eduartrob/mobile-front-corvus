@@ -305,7 +305,24 @@ class _ProfDashPageState extends State<ProfDashPage> {
                         child: OutlinedButton(
                           onPressed: () {
                             Navigator.of(context, rootNavigator: true).push(
-                              CupertinoPageRoute(builder: (context) => ProfDirectoryPage(projectId: widget.projectId)),
+                              PageRouteBuilder(
+                                pageBuilder: (context, animation, secondaryAnimation) => ProfDirectoryPage(projectId: widget.projectId),
+                                transitionDuration: const Duration(milliseconds: 300),
+                                reverseTransitionDuration: const Duration(milliseconds: 300),
+                                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                  return SlideTransition(
+                                    position: Tween<Offset>(
+                                      begin: const Offset(1.0, 0.0),
+                                      end: Offset.zero,
+                                    ).animate(CurvedAnimation(
+                                      parent: animation,
+                                      curve: Curves.easeOutCubic,
+                                      reverseCurve: Curves.easeInCubic,
+                                    )),
+                                    child: child,
+                                  );
+                                },
+                              ),
                             );
                           },
                           style: OutlinedButton.styleFrom(

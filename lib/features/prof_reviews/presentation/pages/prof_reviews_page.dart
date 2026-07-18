@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/l10n/app_localizations.dart';
@@ -144,8 +143,23 @@ class _ProfReviewsPageState extends State<ProfReviewsPage> {
                             borderRadius: BorderRadius.circular(16),
                             onTap: () {
                               Navigator.of(context, rootNavigator: true).push(
-                                CupertinoPageRoute(
-                                  builder: (context) => ProfReviewDetailPage(review: review),
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation, secondaryAnimation) => ProfReviewDetailPage(review: review),
+                                  transitionDuration: const Duration(milliseconds: 300),
+                                  reverseTransitionDuration: const Duration(milliseconds: 300),
+                                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                    return SlideTransition(
+                                      position: Tween<Offset>(
+                                        begin: const Offset(1.0, 0.0),
+                                        end: Offset.zero,
+                                      ).animate(CurvedAnimation(
+                                        parent: animation,
+                                        curve: Curves.easeOutCubic,
+                                        reverseCurve: Curves.easeInCubic,
+                                      )),
+                                      child: child,
+                                    );
+                                  },
                                 ),
                               );
                             },
