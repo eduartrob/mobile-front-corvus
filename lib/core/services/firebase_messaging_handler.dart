@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:mobile/features/notifications/presentation/provider/notifications_provider.dart';
 import 'package:mobile/features/notifications/presentation/pages/notifications_page.dart';
 import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
+import 'package:mobile/features/my_project/presentation/provider/my_project_provider.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
