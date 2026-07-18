@@ -11,8 +11,9 @@ class ProfRulesRemoteDataSource {
   ProfRulesRemoteDataSource({required this.client});
 
   Future<Map<String, dynamic>> getConfig({bool forceRefresh = false, String? projectId}) async {
-    final cacheKey = 'cached_prof_config';
-    final etagKey = 'etag_prof_config';
+    final String pId = projectId ?? 'default';
+    final cacheKey = 'cached_prof_config_$pId';
+    final etagKey = 'etag_prof_config_$pId';
 
     if (!forceRefresh) {
       final cached = await _storage.read(key: cacheKey);
@@ -56,7 +57,8 @@ class ProfRulesRemoteDataSource {
   }
 
   Future<Map<String, dynamic>> getClusterStats({bool forceRefresh = false, String? projectId}) async {
-    final cacheKey = 'cached_cluster_stats';
+    final String pId = projectId ?? 'default';
+    final cacheKey = 'cached_cluster_stats_$pId';
     if (!forceRefresh) {
       final cached = await _storage.read(key: cacheKey);
       if (cached != null) {

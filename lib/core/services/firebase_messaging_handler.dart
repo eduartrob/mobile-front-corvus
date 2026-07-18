@@ -103,10 +103,17 @@ Future<void> handleFCMMessage(RemoteMessage message) async {
   } else if (data['type'] == 'CONFIG_UPDATED') {
     try {
       final storage = SecureStorageService();
-      await storage.delete(key: 'cached_prof_config');
-      await storage.delete(key: 'etag_prof_config'); // Importante borrar el ETAG para forzar refresh
-      await storage.delete(key: 'cached_cluster_stats');
-      await storage.delete(key: 'etag_cluster_stats');
+      final allData = await storage.readAll();
+      final keysToDelete = allData.keys.where((key) => 
+        key.startsWith('cached_prof_config') || 
+        key.startsWith('etag_prof_config') ||
+        key.startsWith('cached_cluster_stats') ||
+        key.startsWith('etag_cluster_stats')
+      ).toList();
+      
+      for (final key in keysToDelete) {
+        await storage.delete(key: key);
+      }
     } catch (e) {
       // Ignorar error
     }
