@@ -205,6 +205,7 @@ class MyProjectProvider extends ChangeNotifier {
       _fileName = null;
       _fileSize = null;
       _selectedFile = null;
+      notifyListeners();
     }
 
     if (_initialized && !forceRefresh) return;

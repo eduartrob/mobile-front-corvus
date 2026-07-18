@@ -46,6 +46,8 @@ class ProfRulesProvider extends ChangeNotifier {
       _clusterStats = [];
       _exclusionRules = [];
       _lastProjectId = projectId;
+      // Notify immediately to clear UI and show skeleton while fetching
+      notifyListeners();
     }
 
     // 1. Intentar cargar desde el caché rápido (sin loader invasivo)
