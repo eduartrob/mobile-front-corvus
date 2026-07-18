@@ -244,30 +244,42 @@ class _AppRouterState extends State<AppRouter> {
           ],
         ),
 
-        ShellRoute(
-          builder: (context, state, child) {
-            final projectId = state.pathParameters['id'] ?? '';
-            return ProjectLayout(projectId: projectId, child: child);
+        // Nivel 2: Proyecto del Alumno
+        StatefulShellRoute.indexedStack(
+          builder: (context, state, navigationShell) {
+            return ProjectLayout(navigationShell: navigationShell);
           },
-          routes: [
-            GoRoute(
-              path: '/project/:id/teams',
-              builder: (context, state) {
-                final tab = state.uri.queryParameters['tab'];
-                final projectId = state.pathParameters['id'] ?? '';
-                return TeamsPage(
-                  initialTabIndex: int.tryParse(tab ?? '0') ?? 0,
-                  projectId: projectId,
-                );
-              },
+          branches: [
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/project/:id/teams',
+                  builder: (context, state) {
+                    final tab = state.uri.queryParameters['tab'];
+                    final projectId = state.pathParameters['id'] ?? '';
+                    return TeamsPage(
+                      initialTabIndex: int.tryParse(tab ?? '0') ?? 0,
+                      projectId: projectId,
+                    );
+                  },
+                ),
+              ],
             ),
-            GoRoute(
-              path: '/project/:id/proposal',
-              builder: (context, state) => const MyProjectPage(),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/project/:id/proposal',
+                  builder: (context, state) => const MyProjectPage(),
+                ),
+              ],
             ),
-            GoRoute(
-              path: '/project/:id/chat',
-              builder: (context, state) => const TeamChatPage(),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/project/:id/chat',
+                  builder: (context, state) => const TeamChatPage(),
+                ),
+              ],
             ),
           ],
         ),

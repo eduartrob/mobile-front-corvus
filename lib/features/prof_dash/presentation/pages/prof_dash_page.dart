@@ -303,8 +303,7 @@ class _ProfDashPageState extends State<ProfDashPage> {
                         width: double.infinity,
                         child: OutlinedButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
+                            Navigator.of(context, rootNavigator: true).push(
                               MaterialPageRoute(builder: (context) => ProfDirectoryPage(projectId: widget.projectId)),
                             );
                           },

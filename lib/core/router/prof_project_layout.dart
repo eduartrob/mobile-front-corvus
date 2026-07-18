@@ -12,15 +12,7 @@ class ProfProjectLayout extends StatefulWidget {
 }
 
 class _ProfProjectLayoutState extends State<ProfProjectLayout> {
-  int _previousIndex = 0;
-
   void _onItemTapped(int index) {
-    if (index == widget.navigationShell.currentIndex) return;
-
-    setState(() {
-      _previousIndex = widget.navigationShell.currentIndex;
-    });
-
     widget.navigationShell.goBranch(
       index,
       initialLocation: index == widget.navigationShell.currentIndex,
@@ -29,53 +21,25 @@ class _ProfProjectLayoutState extends State<ProfProjectLayout> {
 
   @override
   Widget build(BuildContext context) {
-    final currentIndex = widget.navigationShell.currentIndex;
-    final isSlidingRight = currentIndex > _previousIndex;
-
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (bool didPop, Object? result) {
         if (didPop) return;
 
-        if (currentIndex != 0) {
-          // Volver al tablero (índice 0)
-          setState(() => _previousIndex = currentIndex);
+        // Si no estamos en la primera pestaña (Tablero), regresar a ella
+        if (widget.navigationShell.currentIndex != 0) {
           widget.navigationShell.goBranch(0);
           return;
         }
 
-        // Estamos en el tablero: volver a la lista de proyectos
+        // Ya estamos en Tablero: volver a la lista de proyectos
         context.go('/prof-dash');
       },
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        body: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 350),
-          switchInCurve: Curves.easeOutCubic,
-          switchOutCurve: Curves.easeOutCubic,
-          transitionBuilder: (Widget child, Animation<double> animation) {
-            final isIncoming = child.key == ValueKey(currentIndex);
-            final dx = isIncoming
-                ? (isSlidingRight ? 1.0 : -1.0)
-                : (isSlidingRight ? -1.0 : 1.0);
-
-            final offsetAnimation = Tween<Offset>(
-              begin: Offset(dx, 0.0),
-              end: Offset.zero,
-            ).animate(animation);
-
-            return SlideTransition(
-              position: offsetAnimation,
-              child: child,
-            );
-          },
-          child: SizedBox(
-            key: ValueKey(currentIndex),
-            child: widget.navigationShell,
-          ),
-        ),
+        body: widget.navigationShell,
         bottomNavigationBar: CustomAnimatedBottomNavBar(
-          currentIndex: currentIndex,
+          currentIndex: widget.navigationShell.currentIndex,
           onTap: _onItemTapped,
           items: const [
             CustomNavItemData(
