@@ -245,12 +245,23 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
   }
 
   Widget _buildProjectCard(BuildContext context, dynamic project) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 1,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+    final pastelColors = const [
+      Color(0xFFEBF4FF), // Azul muy claro
+      Color(0xFFF4EBF7), // Morado muy claro
+      Color(0xFFEAF5EE), // Verde muy claro
+      Color(0xFFFEF2E5), // Naranja muy claro
+      Color(0xFFFCEAEF), // Rosa muy claro
+    ];
+    final colorIndex = project['id'].hashCode.abs() % pastelColors.length;
+    final bgColor = pastelColors[colorIndex];
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Material(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+        borderRadius: BorderRadius.circular(16),
         onTap: () {
           context.push('/prof-project/${project['id']}?tab=0');
         },
@@ -261,9 +272,13 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
             children: [
               Row(
                 children: [
-                  Icon(
-                    Icons.class_,
-                    color: Theme.of(context).colorScheme.primary,
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.class_, color: Colors.white, size: 20),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -271,15 +286,14 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
                       project['name'],
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
+                        color: Colors.black87,
                       ),
                     ),
                   ),
                   Icon(
                     Icons.arrow_forward_ios,
                     size: 16,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                    color: Colors.black54,
                   ),
                 ],
               ),
@@ -289,7 +303,7 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
                 Text(
                   project['description'],
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    color: Colors.black54,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -306,6 +320,7 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
             ],
           ),
         ),
+      ),
       ),
     );
   }
