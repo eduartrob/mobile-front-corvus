@@ -108,28 +108,27 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
               padding: const EdgeInsets.all(16),
               itemCount: 4,
               separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (_, __) => Card(
-                margin: EdgeInsets.zero,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                elevation: 1,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: const [
-                          CorvusSkeleton(height: 24, width: 24, borderRadius: BorderRadius.all(Radius.circular(12))),
-                          SizedBox(width: 12),
-                          CorvusSkeleton(height: 20, width: 150),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      const CorvusSkeleton(height: 14, width: double.infinity),
-                      const SizedBox(height: 6),
-                      const CorvusSkeleton(height: 14, width: 200),
-                    ],
-                  ),
+              itemBuilder: (_, __) => Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEBF4FF),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: const [
+                        CorvusSkeleton(height: 36, width: 36, borderRadius: BorderRadius.all(Radius.circular(8))),
+                        SizedBox(width: 12),
+                        CorvusSkeleton(height: 20, width: 150),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    const CorvusSkeleton(height: 14, width: double.infinity),
+                    const SizedBox(height: 6),
+                    const CorvusSkeleton(height: 14, width: 200),
+                  ],
                 ),
               ),
             );
