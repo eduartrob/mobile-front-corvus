@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/shared/widgets/corvus_metric_card.dart';
@@ -304,7 +305,7 @@ class _ProfDashPageState extends State<ProfDashPage> {
                         child: OutlinedButton(
                           onPressed: () {
                             Navigator.of(context, rootNavigator: true).push(
-                              MaterialPageRoute(builder: (context) => ProfDirectoryPage(projectId: widget.projectId)),
+                              CupertinoPageRoute(builder: (context) => ProfDirectoryPage(projectId: widget.projectId)),
                             );
                           },
                           style: OutlinedButton.styleFrom(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
@@ -45,21 +46,10 @@ import 'package:mobile/features/notifications/presentation/pages/notifications_p
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
-CustomTransitionPage _buildFadeTransition(Widget child, LocalKey key) {
-  return CustomTransitionPage(
+Page _buildFadeTransition(Widget child, LocalKey key) {
+  return CupertinoPage(
     key: key,
     child: child,
-    transitionDuration: const Duration(milliseconds: 280),
-    reverseTransitionDuration: const Duration(milliseconds: 200),
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return FadeTransition(
-        opacity: CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOut,
-        ),
-        child: child,
-      );
-    },
   );
 }
 
@@ -88,22 +78,10 @@ CustomTransitionPage _buildSlideUpTransition(Widget child, LocalKey key) {
   );
 }
 
-CustomTransitionPage _buildSlideTransition(Widget child, LocalKey key) {
-  return CustomTransitionPage(
+Page _buildSlideTransition(Widget child, LocalKey key) {
+  return CupertinoPage(
     key: key,
     child: child,
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(1.0, 0.0),
-          end: Offset.zero,
-        ).animate(CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOutCubic,
-        )),
-        child: child,
-      );
-    },
   );
 }
 
