@@ -25,12 +25,18 @@ class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final photoUrl = context.select<AuthProvider, String?>((a) => a.currentUser?.photoUrl);
     final role = context.select<AuthProvider, String?>((a) => a.role);
+    
+    final ModalRoute<dynamic>? parentRoute = ModalRoute.of(context);
+    final bool canPop = parentRoute?.canPop ?? false;
+    final bool hasBackArrow = showBackButton && canPop;
+    final bool actuallyShowLogo = showLogo && !hasBackArrow;
+
     return AppBar(
       automaticallyImplyLeading: showBackButton,
       backgroundColor: Theme.of(context).colorScheme.surface,
       scrolledUnderElevation: 0,
-      titleSpacing: showLogo && titleWidget == null ? 16.0 : 0.0,
-      title: titleWidget ?? (showLogo 
+      titleSpacing: actuallyShowLogo && titleWidget == null ? 16.0 : 0.0,
+      title: titleWidget ?? (actuallyShowLogo 
           ? Image.asset(
               'assets/icons/logo2.png',
               height: 32,
