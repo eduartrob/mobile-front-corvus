@@ -1,22 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/shared/widgets/corvus_bottom_nav_bar.dart';
+import 'package:mobile/features/teams/presentation/pages/teams_page.dart';
+import 'package:mobile/features/my_project/presentation/pages/my_project_page.dart';
+import 'package:mobile/features/my_project/presentation/pages/team_chat_page.dart';
 
 class ProjectLayout extends StatefulWidget {
-  final StatefulNavigationShell navigationShell;
+  final String projectId;
+  final int initialTab;
 
-  const ProjectLayout({super.key, required this.navigationShell});
+  const ProjectLayout({
+    super.key,
+    required this.projectId,
+    this.initialTab = 0,
+  });
 
   @override
   State<ProjectLayout> createState() => _ProjectLayoutState();
 }
 
 class _ProjectLayoutState extends State<ProjectLayout> {
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialTab;
+  }
+
   void _onItemTapped(int index) {
-    widget.navigationShell.goBranch(
-      index,
-      initialLocation: index == widget.navigationShell.currentIndex,
-    );
+    if (index == _currentIndex) return;
+    setState(() => _currentIndex = index);
+    context.go('/project/${widget.projectId}?tab=$index');
   }
 
   @override
@@ -26,20 +41,26 @@ class _ProjectLayoutState extends State<ProjectLayout> {
       onPopInvokedWithResult: (bool didPop, Object? result) {
         if (didPop) return;
 
-        // Si no estamos en la primera pestaña (Mi Equipo), regresar a ella
-        if (widget.navigationShell.currentIndex != 0) {
-          widget.navigationShell.goBranch(0);
+        if (_currentIndex != 0) {
+          setState(() => _currentIndex = 0);
+          context.go('/project/${widget.projectId}?tab=0');
           return;
         }
 
-        // Ya estamos en Mi Equipo: volver a la lista de proyectos
         context.go('/projects');
       },
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        body: widget.navigationShell,
+        body: IndexedStack(
+          index: _currentIndex,
+          children: [
+            TeamsPage(projectId: widget.projectId),
+            const MyProjectPage(),
+            const TeamChatPage(),
+          ],
+        ),
         bottomNavigationBar: CustomAnimatedBottomNavBar(
-          currentIndex: widget.navigationShell.currentIndex,
+          currentIndex: _currentIndex,
           onTap: _onItemTapped,
           items: const [
             CustomNavItemData(

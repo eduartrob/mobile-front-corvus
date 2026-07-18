@@ -1,22 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/shared/widgets/corvus_bottom_nav_bar.dart';
+import 'package:mobile/features/prof_dash/presentation/pages/prof_dash_page.dart';
+import 'package:mobile/features/prof_reviews/presentation/pages/prof_reviews_page.dart';
+import 'package:mobile/features/prof_rules/presentation/pages/prof_rules_page.dart';
+import 'package:mobile/features/projects/presentation/pages/prof_project_settings_page.dart';
 
 class ProfProjectLayout extends StatefulWidget {
-  final StatefulNavigationShell navigationShell;
+  final String projectId;
+  final int initialTab;
 
-  const ProfProjectLayout({super.key, required this.navigationShell});
+  const ProfProjectLayout({
+    super.key,
+    required this.projectId,
+    this.initialTab = 0,
+  });
 
   @override
   State<ProfProjectLayout> createState() => _ProfProjectLayoutState();
 }
 
 class _ProfProjectLayoutState extends State<ProfProjectLayout> {
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialTab;
+  }
+
   void _onItemTapped(int index) {
-    widget.navigationShell.goBranch(
-      index,
-      initialLocation: index == widget.navigationShell.currentIndex,
-    );
+    if (index == _currentIndex) return;
+    setState(() => _currentIndex = index);
+    // Actualizar URL sin recrear el widget
+    context.go('/prof-project/${widget.projectId}?tab=$index');
   }
 
   @override
@@ -26,20 +43,27 @@ class _ProfProjectLayoutState extends State<ProfProjectLayout> {
       onPopInvokedWithResult: (bool didPop, Object? result) {
         if (didPop) return;
 
-        // Si no estamos en la primera pestaña (Tablero), regresar a ella
-        if (widget.navigationShell.currentIndex != 0) {
-          widget.navigationShell.goBranch(0);
+        if (_currentIndex != 0) {
+          setState(() => _currentIndex = 0);
+          context.go('/prof-project/${widget.projectId}?tab=0');
           return;
         }
 
-        // Ya estamos en Tablero: volver a la lista de proyectos
         context.go('/prof-dash');
       },
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        body: widget.navigationShell,
+        body: IndexedStack(
+          index: _currentIndex,
+          children: [
+            ProfDashPage(projectId: widget.projectId),
+            ProfReviewsPage(projectId: widget.projectId),
+            ProfRulesPage(projectId: widget.projectId),
+            ProfProjectSettingsPage(projectId: widget.projectId),
+          ],
+        ),
         bottomNavigationBar: CustomAnimatedBottomNavBar(
-          currentIndex: widget.navigationShell.currentIndex,
+          currentIndex: _currentIndex,
           onTap: _onItemTapped,
           items: const [
             CustomNavItemData(

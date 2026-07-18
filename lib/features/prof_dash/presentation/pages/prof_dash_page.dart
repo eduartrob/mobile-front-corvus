@@ -216,7 +216,7 @@ class _ProfDashPageState extends State<ProfDashPage> {
                       SizedBox(
                         width: double.infinity,
                         child: FilledButton(
-                          onPressed: () => context.go('/prof-project/${widget.projectId}/reviews'),
+                          onPressed: () => context.go('/prof-project/${widget.projectId}?tab=1'),
                           style: FilledButton.styleFrom(
                             backgroundColor: colorScheme.primary,
                             foregroundColor: colorScheme.onPrimary,

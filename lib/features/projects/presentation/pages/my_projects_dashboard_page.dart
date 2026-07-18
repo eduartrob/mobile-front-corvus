@@ -125,7 +125,7 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
                     child: InkWell(
                       borderRadius: BorderRadius.circular(16),
                       onTap: () {
-                        context.push('/project/${project['id']}/teams');
+                        context.push('/project/${project['id']}?tab=0');
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),

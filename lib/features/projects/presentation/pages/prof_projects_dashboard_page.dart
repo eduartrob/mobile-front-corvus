@@ -252,7 +252,7 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {
-          context.push('/prof-project/${project['id']}/dashboard');
+          context.push('/prof-project/${project['id']}?tab=0');
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),

@@ -245,55 +245,18 @@ class _AppRouterState extends State<AppRouter> {
         ),
 
         // Nivel 2: Proyecto del Alumno
+        // Usamos IndexedStack interno + query param 'tab' en lugar de
+        // StatefulShellRoute para evitar el assertion error con rutas parametrizadas.
         GoRoute(
           path: '/project/:id',
-          redirect: (context, state) {
-            final id = state.pathParameters['id'];
-            if (state.uri.path == '/project/$id') {
-              return '/project/$id/proposal';
-            }
-            return null;
+          pageBuilder: (context, state) {
+            final projectId = state.pathParameters['id']!;
+            final tab = int.tryParse(state.uri.queryParameters['tab'] ?? '0') ?? 0;
+            return _buildFadeTransition(
+              ProjectLayout(projectId: projectId, initialTab: tab),
+              state.pageKey,
+            );
           },
-          routes: [
-            StatefulShellRoute.indexedStack(
-              builder: (context, state, navigationShell) {
-                return ProjectLayout(navigationShell: navigationShell);
-              },
-              branches: [
-                StatefulShellBranch(
-                  routes: [
-                    GoRoute(
-                      path: 'teams',
-                      builder: (context, state) {
-                        final tab = state.uri.queryParameters['tab'];
-                        final projectId = state.pathParameters['id'] ?? '';
-                        return TeamsPage(
-                          initialTabIndex: int.tryParse(tab ?? '0') ?? 0,
-                          projectId: projectId,
-                        );
-                      },
-                    ),
-                  ],
-                ),
-                StatefulShellBranch(
-                  routes: [
-                    GoRoute(
-                      path: 'proposal',
-                      builder: (context, state) => const MyProjectPage(),
-                    ),
-                  ],
-                ),
-                StatefulShellBranch(
-                  routes: [
-                    GoRoute(
-                      path: 'chat',
-                      builder: (context, state) => const TeamChatPage(),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
         ),
 
         GoRoute(
@@ -304,100 +267,49 @@ class _AppRouterState extends State<AppRouter> {
         // Nivel 2: Proyecto del Profesor
         GoRoute(
           path: '/prof-project/:projectId',
-          redirect: (context, state) {
-            final projectId = state.pathParameters['projectId'];
-            if (state.uri.path == '/prof-project/$projectId') {
-              return '/prof-project/$projectId/dashboard';
-            }
-            return null;
+          pageBuilder: (context, state) {
+            final projectId = state.pathParameters['projectId']!;
+            final tab = int.tryParse(state.uri.queryParameters['tab'] ?? '0') ?? 0;
+            return _buildFadeTransition(
+              ProfProjectLayout(projectId: projectId, initialTab: tab),
+              state.pageKey,
+            );
           },
-          routes: [
-            StatefulShellRoute.indexedStack(
-              builder: (context, state, navigationShell) {
-                return ProfProjectLayout(navigationShell: navigationShell);
-              },
-              branches: [
-                StatefulShellBranch(
-                  routes: [
-                    GoRoute(
-                      path: 'dashboard',
-                      builder: (context, state) {
-                        final projectId = state.pathParameters['projectId']!;
-                        return ProfDashPage(projectId: projectId);
-                      },
-                    ),
-                  ],
-                ),
-                StatefulShellBranch(
-                  routes: [
-                    GoRoute(
-                      path: 'reviews',
-                      builder: (context, state) {
-                        return ProfReviewsPage(projectId: state.pathParameters['projectId']!);
-                      },
-                    ),
-                  ],
-                ),
-                StatefulShellBranch(
-                  routes: [
-                    GoRoute(
-                      path: 'rules',
-                      builder: (context, state) {
-                        final projectId = state.pathParameters['projectId']!;
-                        return ProfRulesPage(projectId: projectId);
-                      },
-                    ),
-                  ],
-                ),
-                StatefulShellBranch(
-                  routes: [
-                    GoRoute(
-                      path: 'settings',
-                      builder: (context, state) {
-                        final projectId = state.pathParameters['projectId']!;
-                        return ProfProjectSettingsPage(projectId: projectId);
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            GoRoute(
-              path: 'config',
-              pageBuilder: (context, state) => _buildFadeTransition(
-                ProfProjectConfigPage(projectId: state.pathParameters['projectId']!),
-                state.pageKey,
-              ),
-            ),
-          ],
+        ),
+        GoRoute(
+          path: '/prof-project/:projectId/config',
+          pageBuilder: (context, state) => _buildFadeTransition(
+            ProfProjectConfigPage(projectId: state.pathParameters['projectId']!),
+            state.pageKey,
+          ),
         ),
         
         GoRoute(
           path: '/prof-profile',
-          builder: (context, state) => const ProfProfilePage(),
+          pageBuilder: (context, state) => _buildFadeTransition(const ProfProfilePage(), state.pageKey),
         ),
         GoRoute(
           path: '/profile',
-          builder: (context, state) => const ProfilePage(),
+          pageBuilder: (context, state) => _buildFadeTransition(const ProfilePage(), state.pageKey),
         ),
         GoRoute(
           path: '/activity-history',
-          builder: (context, state) => const ActivityHistoryPage(),
+          pageBuilder: (context, state) => _buildFadeTransition(const ActivityHistoryPage(), state.pageKey),
         ),
         GoRoute(
           path: '/student-directory',
-          builder: (context, state) => const StudentDirectoryPage(),
+          pageBuilder: (context, state) => _buildFadeTransition(const StudentDirectoryPage(), state.pageKey),
         ),
         GoRoute(
           path: '/notifications',
-          builder: (context, state) {
+          pageBuilder: (context, state) {
             final highlightLatest = state.uri.queryParameters['highlightLatest'] == 'true';
-            return NotificationsPage(highlightLatest: highlightLatest);
+            return _buildFadeTransition(NotificationsPage(highlightLatest: highlightLatest), state.pageKey);
           },
         ),
         GoRoute(
           path: '/manage-team',
-          builder: (context, state) => const ManageTeamPage(),
+          pageBuilder: (context, state) => _buildFadeTransition(const ManageTeamPage(), state.pageKey),
         ),
       ],
     );

@@ -83,7 +83,7 @@ class _StudentJoinProjectPageState extends State<StudentJoinProjectPage> {
       if (isProfessor) {
         context.go('/prof-dash');
       } else {
-        context.go('/project/$projectId/teams'); // Ir directamente al dashboard del equipo
+        context.go('/project/$projectId?tab=0'); // Ir directamente al dashboard del equipo
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

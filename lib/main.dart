@@ -51,7 +51,7 @@ void _handleNotificationTap(RemoteMessage message) {
           (myProjects.isNotEmpty ? myProjects.first['id'] : null);
 
       if (projectId != null) {
-        context.push('/project/$projectId/teams?tab=1');
+        context.push('/project/$projectId?tab=1');
       } else {
         context.push('/inspiration');
       }
