@@ -46,7 +46,7 @@ import 'package:mobile/features/notifications/presentation/pages/notifications_p
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
 Page _buildFadeTransition(Widget child, LocalKey key) {
-  return MaterialPage(
+  return CupertinoPage(
     key: key,
     child: child,
   );
@@ -78,7 +78,7 @@ CustomTransitionPage _buildSlideUpTransition(Widget child, LocalKey key) {
 }
 
 Page _buildSlideTransition(Widget child, LocalKey key) {
-  return MaterialPage(
+  return CupertinoPage(
     key: key,
     child: child,
   );

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
@@ -143,7 +144,7 @@ class _ProfReviewsPageState extends State<ProfReviewsPage> {
                             borderRadius: BorderRadius.circular(16),
                             onTap: () {
                               Navigator.of(context, rootNavigator: true).push(
-                                MaterialPageRoute(
+                                CupertinoPageRoute(
                                   builder: (context) => ProfReviewDetailPage(review: review),
                                 ),
                               );
