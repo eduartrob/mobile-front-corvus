@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
+import 'package:mobile/shared/widgets/corvus_skeleton.dart';
 import 'package:mobile/shared/widgets/corvus_button.dart';
 
 class ProfProjectsDashboardPage extends StatefulWidget {
@@ -103,7 +104,35 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
           if (provider.isLoading &&
               provider.myProjects.isEmpty &&
               provider.invitations.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
+            return ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: 4,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              itemBuilder: (_, __) => Card(
+                margin: EdgeInsets.zero,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                elevation: 1,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: const [
+                          CorvusSkeleton(height: 24, width: 24, borderRadius: BorderRadius.all(Radius.circular(12))),
+                          SizedBox(width: 12),
+                          CorvusSkeleton(height: 20, width: 150),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      const CorvusSkeleton(height: 14, width: double.infinity),
+                      const SizedBox(height: 6),
+                      const CorvusSkeleton(height: 14, width: 200),
+                    ],
+                  ),
+                ),
+              ),
+            );
           }
 
           if (provider.myProjects.isEmpty && provider.invitations.isEmpty) {

@@ -18,19 +18,14 @@ class CorvusSkeleton extends StatefulWidget {
 
 class _CorvusSkeletonState extends State<CorvusSkeleton> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _opacity;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1000),
-    )..repeat(reverse: true);
-    _opacity = Tween<double>(begin: 0.3, end: 0.7).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
+      duration: const Duration(milliseconds: 1500),
+    )..repeat();
   }
 
   @override
@@ -41,23 +36,45 @@ class _CorvusSkeletonState extends State<CorvusSkeleton> with SingleTickerProvid
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final baseColor = isDark ? Colors.grey[800]! : Colors.grey[300]!;
+    final highlightColor = isDark ? Colors.grey[600]! : Colors.grey[100]!;
+
     return AnimatedBuilder(
-      animation: _opacity,
+      animation: _controller,
       builder: (context, child) {
-        return Opacity(
-          opacity: _opacity.value,
+        return ShaderMask(
+          blendMode: BlendMode.srcATop,
+          shaderCallback: (bounds) {
+            return LinearGradient(
+              colors: [baseColor, highlightColor, baseColor],
+              stops: const [0.0, 0.5, 1.0],
+              begin: const Alignment(-1.0, -0.3),
+              end: const Alignment(1.0, 0.3),
+              transform: _SlidingGradientTransform(slidePercent: _controller.value),
+            ).createShader(bounds);
+          },
           child: Container(
             width: widget.width,
             height: widget.height,
             decoration: BoxDecoration(
-              color: colorScheme.surfaceVariant, // Uses theme color instead of hardcoded grey
+              color: Colors.white, // Color does not matter, ShaderMask overwrites it
               borderRadius: widget.borderRadius ?? BorderRadius.circular(16),
             ),
           ),
         );
       },
     );
+  }
+}
+
+class _SlidingGradientTransform extends GradientTransform {
+  final double slidePercent;
+  const _SlidingGradientTransform({required this.slidePercent});
+
+  @override
+  Matrix4? transform(Rect bounds, {TextDirection? textDirection}) {
+    // slide from -width to +width
+    return Matrix4.translationValues(bounds.width * (slidePercent * 3 - 1.5), 0.0, 0.0);
   }
 }
