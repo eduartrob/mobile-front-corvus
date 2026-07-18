@@ -53,28 +53,11 @@ Page _buildCupertinoTransition(Widget child, LocalKey key) {
   );
 }
 
-CustomTransitionPage _buildSlideUpTransition(Widget child, LocalKey key) {
-  return CustomTransitionPage(
+Page _buildSlideUpTransition(Widget child, LocalKey key) {
+  return CupertinoPage(
     key: key,
     child: child,
-    transitionDuration: const Duration(milliseconds: 350),
-    reverseTransitionDuration: const Duration(milliseconds: 250),
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(0.0, 1.0),
-          end: Offset.zero,
-        ).animate(CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOutCubic,
-          reverseCurve: Curves.easeInCubic,
-        )),
-        child: FadeTransition(
-          opacity: animation,
-          child: child,
-        ),
-      );
-    },
+    fullscreenDialog: true,
   );
 }
 
