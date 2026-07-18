@@ -56,6 +56,7 @@ class _ProfDashPageState extends State<ProfDashPage> {
         ],
       ),
       body: Consumer<ProfDashboardProvider>(
+        builder: (context, provider, child) {
           if (provider.errorMessage != null && provider.dashboardData == null) {
             return Center(
               child: Column(
