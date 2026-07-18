@@ -127,7 +127,7 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
                       splashColor: Colors.black.withValues(alpha: 0.08),
                       highlightColor: Colors.black.withValues(alpha: 0.04),
                       onTap: () async {
-                        await Future.delayed(const Duration(milliseconds: 150));
+                        await Future.delayed(const Duration(milliseconds: 70));
                         if (context.mounted) context.push('/project/${project['id']}?tab=0');
                       },
                       child: Padding(
