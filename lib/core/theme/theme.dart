@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 class MaterialTheme {
   final TextTheme textTheme;
@@ -144,9 +145,9 @@ class MaterialTheme {
        type: BottomNavigationBarType.fixed,
      ),
      pageTransitionsTheme: const PageTransitionsTheme(
-       builders: {
-         TargetPlatform.android: const CupertinoPageTransitionsBuilder(),
-         TargetPlatform.iOS: const CupertinoPageTransitionsBuilder(),
+       builders: <TargetPlatform, PageTransitionsBuilder>{
+         TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+         TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
        },
      ),
   );
