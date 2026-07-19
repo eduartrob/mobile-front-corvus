@@ -10,7 +10,7 @@ class MyProjectRemoteDataSource {
 
   Future<Map<String, dynamic>> preValidateProposal(
     String filePath, String teamId, String userId, String userName, {
-    String? universityId, String? careerId,
+    String? universityId, String? careerId, String? projectId,
   }) async {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.integratorPreValidateProposal}');
 
@@ -24,6 +24,9 @@ class MyProjectRemoteDataSource {
       }
       if (careerId != null && careerId.isNotEmpty) {
         request.fields['career_id'] = careerId;
+      }
+      if (projectId != null && projectId.isNotEmpty) {
+        request.fields['project_id'] = projectId;
       }
       request.files.add(await http.MultipartFile.fromPath('file', filePath));
       

@@ -40,36 +40,53 @@ class _MyProjectPageContent extends StatefulWidget {
 }
 
 class _MyProjectPageContentState extends State<_MyProjectPageContent> with WidgetsBindingObserver {
+  bool _initCalled = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = context.read<MyProjectProvider>();
-      final token = context.read<AuthProvider>().currentUser?.token;
-      
-      provider.setScreenVisible(true);
-      if (provider.state == ProjectState.initial) {
-        final userId = context.read<AuthProvider>().currentUser?.id;
-        final myTeam = context.read<TeamsProvider>().myTeam;
-        final teamId = myTeam?.id;
-        
-        String? projectId = myTeam?.project?['id']?.toString() 
-            ?? myTeam?.project?['id_proyecto']?.toString();
-            
-        final universityId = context.read<AuthProvider>().currentUser?.universityId;
-        final careerId = context.read<AuthProvider>().currentUser?.careerId;
-        provider.setContext(universityId: universityId, careerId: careerId);
-        
-        if (userId != null && teamId != null) {
-          provider.init(userId, teamId, projectId: projectId);
-        }
-      }
+      context.read<MyProjectProvider>().setScreenVisible(true);
+      _tryInit();
 
+      final token = context.read<AuthProvider>().currentUser?.token;
       if (token != null) {
         context.read<ProjectProvider>().loadMyProjects(token);
       }
     });
+  }
+
+  void _tryInit() {
+    if (_initCalled) return;
+
+    final provider = context.read<MyProjectProvider>();
+    final authProvider = context.read<AuthProvider>();
+    final teamsProvider = context.read<TeamsProvider>();
+
+    final userId = authProvider.currentUser?.id;
+    final myTeam = teamsProvider.myTeam;
+    final teamId = myTeam?.id;
+
+    if (userId == null || teamId == null) return; // Not ready yet
+
+    _initCalled = true;
+
+    String? projectId = myTeam?.project?['id']?.toString()
+        ?? myTeam?.project?['id_proyecto']?.toString();
+
+    final universityId = authProvider.currentUser?.universityId;
+    final careerId = authProvider.currentUser?.careerId;
+    provider.setContext(universityId: universityId, careerId: careerId);
+
+    provider.init(userId, teamId, projectId: projectId);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Re-attempt init in case teamId was not ready during initState
+    _tryInit();
   }
 
   @override
@@ -466,15 +483,33 @@ class _ProjectPageBody extends StatelessWidget {
               final ollamaAnalysis = provider.detailedAnalysis!['ollama_analysis'] as Map<String, dynamic>? ?? {};
               String? extractedProjectName = ollamaAnalysis['projectName'] ?? ollamaAnalysis['title'];
               if (extractedProjectName == null) {
-                final textWithProjectName = (ollamaAnalysis['verdict'] as String?) ?? (ollamaAnalysis['semantic_collision_risk']?['explanation'] as String?);
-                if (textWithProjectName != null) {
-                  final match = RegExp(r"El proyecto '([^']+)'").firstMatch(textWithProjectName);
+                final List<String> textsToSearch = [];
+                if (ollamaAnalysis['verdict'] != null) textsToSearch.add(ollamaAnalysis['verdict']);
+                if (ollamaAnalysis['semantic_collision_risk']?['explanation'] != null) {
+                  textsToSearch.add(ollamaAnalysis['semantic_collision_risk']['explanation']);
+                }
+                if (provider.detailedAnalysis?['defense_chat_history'] != null) {
+                   final chatList = provider.detailedAnalysis!['defense_chat_history'] as List<dynamic>;
+                   final firstMsg = chatList.firstWhere((m) => m['role'] == 'assistant', orElse: () => null);
+                   if (firstMsg != null && firstMsg['content'] != null) {
+                     textsToSearch.add(firstMsg['content'].toString());
+                   }
+                }
+
+                final regex = RegExp(r"(?:proyecto|propuesta)(?:\s+de)?\s+'([^']+)'", caseSensitive: false);
+                for (final text in textsToSearch) {
+                  final match = regex.firstMatch(text);
                   if (match != null && match.groupCount >= 1) {
                     extractedProjectName = match.group(1);
+                    break;
                   }
                 }
               }
-              final projectName = extractedProjectName ?? provider.fileName?.replaceAll('.pdf', '') ?? 'Propuesta sin título';
+              String fallbackName = provider.fileName?.replaceAll('.pdf', '') ?? 'Propuesta sin título';
+              if (fallbackName.startsWith('draft_') || fallbackName.startsWith('propuesta_')) {
+                fallbackName = 'Propuesta de Proyecto';
+              }
+              final projectName = extractedProjectName ?? fallbackName;
 
               final myTeam = teamsProvider.myTeam;
 
@@ -634,10 +669,21 @@ class _ProjectPageBody extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text('Propuesta en Revisión Final', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: colorScheme.onSecondaryContainer)),
                   const SizedBox(height: 8),
-                  Text('Tu equipo ya ha enviado esta propuesta a revisión final. Estado actual: ${finalReviewStatus['status']}', 
-                    style: TextStyle(color: colorScheme.onSecondaryContainer),
-                    textAlign: TextAlign.center,
-                  ),
+                  Builder(builder: (context) {
+                    final rawStatus = finalReviewStatus['status']?.toString() ?? 'UNKNOWN';
+                    String translatedStatus = rawStatus;
+                    switch (rawStatus) {
+                      case 'PENDING': translatedStatus = 'Pendiente de Revisión'; break;
+                      case 'APPROVED': translatedStatus = 'Aprobada'; break;
+                      case 'REJECTED': translatedStatus = 'Rechazada'; break;
+                      case 'SUMMONED': translatedStatus = 'Citado a Defensa'; break;
+                    }
+                    return Text(
+                      'Tu equipo ya ha enviado esta propuesta a revisión final. Estado actual: $translatedStatus', 
+                      style: TextStyle(color: colorScheme.onSecondaryContainer),
+                      textAlign: TextAlign.center,
+                    );
+                  }),
                 ],
               ),
             )
@@ -711,6 +757,35 @@ class _ProjectPageBody extends StatelessWidget {
                       );
                     }
                     return;
+                  }
+
+                  if (myTeam.members.length < myTeam.maxMembers) {
+                    final shouldProceed = await showDialog<bool>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          backgroundColor: colorScheme.surface,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          title: Text('¿Enviar propuesta con equipo incompleto?',
+                            style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 18)),
+                          content: Text(
+                            'Actualmente tu equipo tiene ${myTeam.members.length} integrantes de un máximo de ${myTeam.maxMembers}. Puedes enviar la propuesta ahora, pero ten en cuenta que SOLO se tomará en cuenta a los miembros actuales. Si alguien más se une al equipo después, no formará parte de esta propuesta.',
+                            style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: Text('CANCELAR', style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold)),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              child: Text('ENVIAR DE TODOS MODOS', style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold)),
+                            ),
+                          ],
+                        );
+                      }
+                    );
+                    if (shouldProceed != true) return;
                   }
 
                   final success = await provider.sendFinalReview(

@@ -119,16 +119,34 @@ class _ProfReviewsPageState extends State<ProfReviewsPage> {
 
                         String? extractedProjectName = ollamaAnalysis['projectName'] ?? ollamaAnalysis['title'];
                         if (extractedProjectName == null) {
-                          final textWithProjectName = (ollamaAnalysis['verdict'] as String?) ?? (ollamaAnalysis['semantic_collision_risk']?['explanation'] as String?);
-                          if (textWithProjectName != null) {
-                            final match = RegExp(r"El proyecto '([^']+)'").firstMatch(textWithProjectName);
+                          final List<String> textsToSearch = [];
+                          if (ollamaAnalysis['verdict'] != null) textsToSearch.add(ollamaAnalysis['verdict']);
+                          if (ollamaAnalysis['semantic_collision_risk']?['explanation'] != null) {
+                            textsToSearch.add(ollamaAnalysis['semantic_collision_risk']['explanation']);
+                          }
+                          if (data['defense_chat_history'] != null) {
+                             final chatList = data['defense_chat_history'] as List<dynamic>;
+                             final firstMsg = chatList.firstWhere((m) => m['role'] == 'assistant' || m['role'] == 'system', orElse: () => null);
+                             if (firstMsg != null && firstMsg['content'] != null) {
+                               textsToSearch.add(firstMsg['content'].toString());
+                             }
+                          }
+
+                          final regex = RegExp(r"(?:proyecto|propuesta)(?:\s+de)?\s+'([^']+)'", caseSensitive: false);
+                          for (final text in textsToSearch) {
+                            final match = regex.firstMatch(text);
                             if (match != null && match.groupCount >= 1) {
                               extractedProjectName = match.group(1);
+                              break;
                             }
                           }
                         }
                         
-                        final projectName = extractedProjectName ?? data['file_name']?.toString().replaceAll('.pdf', '') ?? 'Propuesta sin título';
+                        String fallbackName = data['file_name']?.toString().replaceAll('.pdf', '') ?? 'Propuesta sin título';
+                        if (fallbackName.startsWith('draft_') || fallbackName.startsWith('propuesta_')) {
+                          fallbackName = 'Propuesta de Proyecto';
+                        }
+                        final projectName = extractedProjectName ?? fallbackName;
                         final teamName = teamInfo['name'] ?? 'Equipo sin nombre';
                         final membersList = teamInfo['members'] as List<dynamic>? ?? [];
                         final dateStr = DateFormat('dd MMM yyyy').format(review.createdAt);

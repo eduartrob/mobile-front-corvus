@@ -37,6 +37,7 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
   void initState() {
     super.initState();
     _loadCollaborators();
+    _searchProfessors('');
   }
 
   @override
@@ -47,14 +48,6 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
   }
 
   Future<void> _searchProfessors(String query) async {
-    if (query.isEmpty) {
-      setState(() {
-        _searchResults = [];
-        _isSearching = false;
-      });
-      return;
-    }
-
     setState(() {
       _isSearching = true;
     });
@@ -334,7 +327,7 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
           const SizedBox(height: 16),
           if (_isSearching)
             const Center(child: CircularProgressIndicator())
-          else if (_searchController.text.isNotEmpty && _searchResults.isEmpty)
+          else if (_searchResults.isEmpty)
             Expanded(
               child: Center(
                 child: Padding(
@@ -344,27 +337,31 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'No se encontraron docentes con "${_searchController.text}".',
+                          _searchController.text.isEmpty
+                            ? 'No hay otros docentes disponibles para invitar en este momento.'
+                            : 'No se encontraron docentes con "${_searchController.text}".',
                           textAlign: TextAlign.center,
                           style: TextStyle(color: colorScheme.onSurfaceVariant),
                         ),
-                        const SizedBox(height: 12),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            _inviteCollaborator(_searchController.text);
-                            _searchController.clear();
-                            _searchProfessors('');
-                          },
-                          icon: const Icon(Icons.mail),
-                          label: const Text('Invitar por correo'),
-                        ),
+                        if (_searchController.text.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              _inviteCollaborator(_searchController.text);
+                              _searchController.clear();
+                              _searchProfessors('');
+                            },
+                            icon: const Icon(Icons.mail),
+                            label: const Text('Invitar por correo'),
+                          ),
+                        ]
                       ],
                     ),
                   ),
                 ),
               ),
             )
-          else if (_searchResults.isNotEmpty)
+          else
             Expanded(
               child: ListView.builder(
                 itemCount: _searchResults.length,
@@ -559,20 +556,25 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
               showDialog(
                 context: context,
                 builder: (ctx) => AlertDialog(
-                  title: const Text('Salir del proyecto'),
-                  content: const Text('¿Estás seguro de que deseas salir de este proyecto? Ya no serás colaborador.'),
+                  backgroundColor: colorScheme.surface,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  title: Text('¿Salir del proyecto?',
+                    style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 18)),
+                  content: Text(
+                    '¿Estás seguro de que deseas salir de este proyecto? Ya no serás colaborador.',
+                    style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14),
+                  ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(ctx),
-                      child: const Text('Cancelar'),
+                      child: Text('CANCELAR', style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold)),
                     ),
                     TextButton(
                       onPressed: () {
                         Navigator.pop(ctx);
                         _removeCollaborator(c['id']);
                       },
-                      style: TextButton.styleFrom(foregroundColor: colorScheme.error),
-                      child: const Text('Salir'),
+                      child: Text('SALIR', style: TextStyle(color: colorScheme.error, fontWeight: FontWeight.bold)),
                     ),
                   ],
                 ),
@@ -588,20 +590,25 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
               showDialog(
                 context: context,
                 builder: (ctx) => AlertDialog(
-                  title: const Text('Eliminar colaborador'),
-                  content: Text('¿Estás seguro de eliminar a $name del proyecto?'),
+                  backgroundColor: colorScheme.surface,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  title: Text('¿Eliminar colaborador?',
+                    style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 18)),
+                  content: Text(
+                    '¿Estás seguro de eliminar a $name del proyecto?',
+                    style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14),
+                  ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(ctx),
-                      child: const Text('Cancelar'),
+                      child: Text('CANCELAR', style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold)),
                     ),
                     TextButton(
                       onPressed: () {
                         Navigator.pop(ctx);
                         _removeCollaborator(c['id']);
                       },
-                      style: TextButton.styleFrom(foregroundColor: colorScheme.error),
-                      child: const Text('Eliminar'),
+                      child: Text('ELIMINAR', style: TextStyle(color: colorScheme.error, fontWeight: FontWeight.bold)),
                     ),
                   ],
                 ),

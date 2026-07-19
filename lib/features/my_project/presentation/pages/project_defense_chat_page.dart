@@ -225,7 +225,7 @@ class _ProjectDefenseChatPageState extends State<ProjectDefenseChatPage> {
   }
 
   void _checkIfPassed(String aiMessage) {
-    if (aiMessage.contains('DEFENSA_SUPERADA') || aiMessage.contains('DEFENSA APROBADA')) {
+    if (aiMessage.contains('[DEFENSA_SUPERADA]')) {
       setState(() {
         _defensePassed = true;
       });
@@ -253,6 +253,7 @@ class _ProjectDefenseChatPageState extends State<ProjectDefenseChatPage> {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         title: const Text('Defensa Finalizada'),
         content: Text(message),
         actions: [

@@ -81,6 +81,7 @@ class ProjectRepositoryImpl implements ProjectRepository {
     String userName, {
     String? universityId,
     String? careerId,
+    String? projectId,
   }) =>
       _remoteDataSource.preValidateProposal(
         filePath,
@@ -89,6 +90,7 @@ class ProjectRepositoryImpl implements ProjectRepository {
         userName,
         universityId: universityId,
         careerId: careerId,
+        projectId: projectId,
       );
 
   @override

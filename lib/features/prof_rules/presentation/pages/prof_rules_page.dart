@@ -501,7 +501,7 @@ void _showAddSectionDialog(BuildContext context, ProfRulesProvider provider, {Ma
       return StatefulBuilder(
         builder: (context, setState) {
           return Dialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             elevation: 0,
             backgroundColor: colorScheme.surface,
             insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
@@ -547,11 +547,11 @@ void _showAddSectionDialog(BuildContext context, ProfRulesProvider provider, {Ma
                         filled: true,
                         fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide.none,
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
                         ),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -569,11 +569,11 @@ void _showAddSectionDialog(BuildContext context, ProfRulesProvider provider, {Ma
                         filled: true,
                         fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide.none,
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
                         ),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -585,14 +585,14 @@ void _showAddSectionDialog(BuildContext context, ProfRulesProvider provider, {Ma
                     Container(
                       decoration: BoxDecoration(
                         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: SwitchListTile(
                         title: const Text('Sección Obligatoria', style: TextStyle(fontWeight: FontWeight.w500)),
                         subtitle: Text('Requerida para la evaluación', style: TextStyle(fontSize: 12)),
                         value: isObligatory,
                         activeThumbColor: colorScheme.primary,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                         onChanged: (val) {
                           setState(() {
                             isObligatory = val;
@@ -609,10 +609,10 @@ void _showAddSectionDialog(BuildContext context, ProfRulesProvider provider, {Ma
                           child: TextButton(
                             style: TextButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
                             onPressed: () => Navigator.pop(ctx),
-                            child: const Text('Cancelar', style: TextStyle(fontWeight: FontWeight.w600)),
+                            child: const Text('CANCELAR', style: TextStyle(fontWeight: FontWeight.bold)),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -620,7 +620,7 @@ void _showAddSectionDialog(BuildContext context, ProfRulesProvider provider, {Ma
                           child: FilledButton(
                             style: FilledButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
                             onPressed: () {
                               final name = nameController.text.trim();
@@ -640,7 +640,7 @@ void _showAddSectionDialog(BuildContext context, ProfRulesProvider provider, {Ma
                                 Navigator.pop(ctx);
                               }
                             },
-                            child: Text(editIndex != null ? 'Actualizar' : 'Añadir', style: TextStyle(fontWeight: FontWeight.w600)),
+                            child: Text(editIndex != null ? 'ACTUALIZAR' : 'GUARDAR', style: TextStyle(fontWeight: FontWeight.bold)),
                           ),
                         ),
                       ],

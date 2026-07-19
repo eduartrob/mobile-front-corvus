@@ -297,6 +297,7 @@ class MyProjectProvider extends ChangeNotifier {
         userName,
         universityId: _universityId,
         careerId: _careerId,
+        projectId: _projectId,
       );
 
       if (response['status'] == 'pending') {

@@ -32,6 +32,7 @@ abstract class ProjectRepository {
     String userName, {
     String? universityId,
     String? careerId,
+    String? projectId,
   });
 
   /// Inicia el análisis detallado de un borrador.
