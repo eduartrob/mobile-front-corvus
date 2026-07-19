@@ -96,6 +96,7 @@ class _AppRouterState extends State<AppRouter> {
       redirect: (context, state) {
         final authStatus = authProvider.status;
         final isAuthRoute = state.matchedLocation == '/' || 
+                            state.matchedLocation == '/welcome' ||
                             state.matchedLocation == '/login' || 
                             state.matchedLocation.startsWith('/register');
 
