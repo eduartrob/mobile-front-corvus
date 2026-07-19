@@ -182,6 +182,7 @@ class _LoginPageState extends State<LoginPage> {
     return AuthScaffold(
       role: _currentRole,
       bottomAlign: true,
+      onLogoTap: () => context.push('/welcome'),
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

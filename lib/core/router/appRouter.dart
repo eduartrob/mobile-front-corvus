@@ -7,12 +7,15 @@ import 'package:provider/provider.dart';
 
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/auth/presentation/pages/login_page.dart';
-import 'package:mobile/features/auth/presentation/pages/role_selection_page.dart';
 import 'package:mobile/features/auth/presentation/pages/register_page.dart';
 import 'package:mobile/features/auth/presentation/pages/student_university_page.dart';
 import 'package:mobile/features/auth/presentation/pages/student_skills_page.dart';
 import 'package:mobile/features/auth/presentation/pages/teacher_verification_page.dart';
 import 'package:mobile/features/auth/presentation/pages/teacher_info_page.dart';
+
+import 'package:mobile/core/di/di.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mobile/features/auth/presentation/pages/onboarding_page.dart';
 
 import 'package:mobile/features/inspiration/presentation/pages/inspiration_page.dart';
 import 'package:mobile/features/my_project/presentation/pages/project_defense_chat_page.dart';
@@ -44,6 +47,7 @@ import 'package:mobile/features/projects/presentation/pages/prof_project_config_
 
 import 'package:mobile/features/student_directory/presentation/pages/student_directory_page.dart';
 import 'package:mobile/features/notifications/presentation/pages/notifications_page.dart';
+import 'package:mobile/l10n/app_localizations.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -103,7 +107,12 @@ class _AppRouterState extends State<AppRouter> {
         }
 
         if (authStatus != AuthStatus.authenticated && !isAuthRoute) {
-          return '/';
+          final prefs = sl<SharedPreferences>();
+          final hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
+          if (!hasSeenOnboarding) {
+            return '/welcome';
+          }
+          return '/login';
         }
 
         if (authStatus == AuthStatus.authenticated && isAuthRoute) {
@@ -119,7 +128,11 @@ class _AppRouterState extends State<AppRouter> {
       routes: [
         GoRoute(
           path: '/',
-          pageBuilder: (context, state) => _buildCupertinoTransition(const RoleSelectionPage(), state.pageKey),
+          redirect: (context, state) => '/login', // Fallback redirect if someone goes to /
+        ),
+        GoRoute(
+          path: '/welcome',
+          pageBuilder: (context, state) => _buildCupertinoTransition(const OnboardingPage(), state.pageKey),
         ),
         GoRoute(
           path: '/login',
@@ -279,7 +292,9 @@ class _AppRouterState extends State<AppRouter> {
 
   @override
   Widget build(BuildContext context) {
+    final userId = context.watch<AuthProvider>().currentUser?.id ?? 'no_auth';
     return MaterialApp.router(
+      key: ValueKey(userId),
       debugShowCheckedModeBanner: false,
       title: 'Corvus',
       scaffoldMessengerKey: globalMessengerKey,
@@ -305,9 +320,10 @@ class _MockChatPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: Center(
-        child: Text('Chat Grupal con IA (En construcción)'),
+        child: Text(l10n.chatUnderConstruction),
       ),
     );
   }
