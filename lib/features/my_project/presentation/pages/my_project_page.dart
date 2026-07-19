@@ -181,8 +181,8 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
                   teamsProvider.myTeam?.project?['id_proyecto']?.toString();
 
               final myProjectProvider = context.read<MyProjectProvider>();
-              // Si acabamos de cargar el equipo pero el provider sigue initial, iniciarlo
-              if (currentTeamId != null && myProjectProvider.state == ProjectState.initial) {
+              // Si acabamos de cargar el equipo pero el provider sigue initial, o si cambió el proyecto, iniciarlo
+              if (currentTeamId != null && (myProjectProvider.state == ProjectState.initial || myProjectProvider.projectId != activeProjectId)) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   myProjectProvider.init(userId, currentTeamId, projectId: activeProjectId);
                 });

@@ -143,6 +143,9 @@ class MyProjectProvider extends ChangeNotifier {
       _fileName = null;
       _fileSize = null;
       _selectedFile = null;
+      _projectSections = [];
+      _exclusionRules = [];
+      _allowedExtensions = ['pdf', 'md', 'txt'];
       notifyListeners();
     }
 
