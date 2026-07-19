@@ -22,6 +22,7 @@ class TeamsProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
   SolicitudFilter _selectedFilter = SolicitudFilter.recibidas;
+  String? _activeProjectId; // project_id activo para todas las operaciones
 
   TeamModel? get myTeam => _myTeam;
   Map<String, dynamic>? get finalReviewStatus => _finalReviewStatus;
@@ -30,6 +31,7 @@ class TeamsProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   SolicitudFilter get selectedFilter => _selectedFilter;
+  String? get activeProjectId => _activeProjectId;
 
   List<Solicitud> get filteredSolicitudes {
     final targetState = _selectedFilter == SolicitudFilter.recibidas
@@ -56,17 +58,25 @@ class TeamsProvider extends ChangeNotifier {
 
     try {
       _myTeam = await _repository.getMyTeam(projectId: projectId);
-      String? resolvedProjectId;
+      String? resolvedProjectId = projectId;
 
       if (_myTeam != null) {
         _finalReviewStatus =
             await _repository.getFinalReviewStatus(_myTeam!.id);
-        resolvedProjectId = _myTeam!.project?['id']?.toString() ??
+        // Prefer the explicit project_id passed; fallback to what's in the team object
+        resolvedProjectId ??= _myTeam!.project?['id']?.toString() ??
             _myTeam!.project?['id_proyecto']?.toString();
       } else {
         _finalReviewStatus = null;
-        final projectData = await _repository.fetchProjectId();
-        resolvedProjectId = projectData?['projectId']?.toString();
+        if (resolvedProjectId == null) {
+          final projectData = await _repository.fetchProjectId();
+          resolvedProjectId = projectData?['projectId']?.toString();
+        }
+      }
+
+      // Store active project ID for use in other operations
+      if (resolvedProjectId != null) {
+        _activeProjectId = resolvedProjectId;
       }
 
       // Fetch config to get maxTeamMembers using projectId
@@ -92,8 +102,12 @@ class TeamsProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _myTeam =
-          await _repository.updateTeam(name, description, socialLinks);
+      _myTeam = await _repository.updateTeam(
+        name,
+        description,
+        socialLinks,
+        projectId: _activeProjectId, // pasar siempre el projectId activo
+      );
     } catch (e) {
       _errorMessage = e.toString();
       rethrow;
@@ -190,9 +204,9 @@ class TeamsProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _repository.sendInvitation(studentId);
+      await _repository.sendInvitation(studentId, projectId: _activeProjectId);
       _suggestions.removeWhere((student) => student.id == studentId);
-      fetchRequests();
+      fetchRequests(projectId: _activeProjectId);
     } catch (e) {
       _errorMessage = e.toString();
       rethrow;
@@ -225,9 +239,10 @@ class TeamsProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _repository.acceptRequest(requestId);
-      fetchMyTeam();
-      fetchRequests();
+      await _repository.acceptRequest(requestId, projectId: _activeProjectId);
+      // Refrescar equipo y config (número de integrantes puede haber cambiado)
+      await fetchMyTeam(projectId: _activeProjectId);
+      fetchRequests(projectId: _activeProjectId);
     } catch (e) {
       _errorMessage = e.toString();
       rethrow;

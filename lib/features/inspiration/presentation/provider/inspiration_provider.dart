@@ -30,7 +30,10 @@ class InspirationProvider extends ChangeNotifier {
 
   Future<void> _init() async {
     await checkWelcomeStatus();
-    await loadProjects();
+    // Siempre forzar recarga del servidor al iniciar:
+    // el TTL del cache en InspirationRemoteDataSource controla si realmente
+    // hace la petición de red o usa el cache local (≤ 30 min).
+    await loadProjects(forceRefresh: true);
   }
 
   Future<void> checkWelcomeStatus() async {

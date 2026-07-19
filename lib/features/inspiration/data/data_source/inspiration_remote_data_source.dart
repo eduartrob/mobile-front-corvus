@@ -8,6 +8,8 @@ import 'package:mobile/features/inspiration/data/models/project_model.dart';
 class InspirationRemoteDataSource {
   final http.Client client;
   static const String _cacheKey = 'cached_blue_oceans';
+  static const String _cacheTimestampKey = 'cached_blue_oceans_timestamp';
+  static const int _cacheTtlMinutes = 30; // Invalidar cache cada 30 minutos
 
   InspirationRemoteDataSource({required this.client});
 
@@ -16,7 +18,12 @@ class InspirationRemoteDataSource {
 
     if (!forceRefresh) {
       final cachedStr = prefs.getString(_cacheKey);
-      if (cachedStr != null) {
+      final cachedTimestamp = prefs.getInt(_cacheTimestampKey) ?? 0;
+      final now = DateTime.now().millisecondsSinceEpoch;
+      final ageMinutes = (now - cachedTimestamp) / 60000;
+
+      // Usar cache solo si existe Y tiene menos de 30 minutos
+      if (cachedStr != null && ageMinutes < _cacheTtlMinutes) {
         try {
           final List<dynamic> decoded = json.decode(cachedStr);
           return decoded.map((e) => ProjectModel.fromJson(e)).toList();
@@ -36,12 +43,22 @@ class InspirationRemoteDataSource {
         final data = json.decode(utf8.decode(response.bodyBytes));
         final List<dynamic> nichesJson = data['niches'] ?? [];
         final models = nichesJson.map((niche) => ProjectModel.fromJson(niche)).toList();
+        // Guardar cache con timestamp
         prefs.setString(_cacheKey, json.encode(models.map((m) => m.toJson()).toList()));
+        prefs.setInt(_cacheTimestampKey, DateTime.now().millisecondsSinceEpoch);
         return models;
       }
       debugPrint('InspirationRemoteDataSource: HTTP ${response.statusCode}');
     } catch (e) {
       debugPrint('InspirationRemoteDataSource Error: $e');
+      // Si falla la red, intentar devolver cache aunque sea antigua
+      final cachedStr = prefs.getString(_cacheKey);
+      if (cachedStr != null) {
+        try {
+          final List<dynamic> decoded = json.decode(cachedStr);
+          return decoded.map((e) => ProjectModel.fromJson(e)).toList();
+        } catch (_) {}
+      }
     }
 
     return [];
