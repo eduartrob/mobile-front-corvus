@@ -106,13 +106,16 @@ class _AppRouterState extends State<AppRouter> {
           return null;
         }
 
-        if (authStatus != AuthStatus.authenticated && !isAuthRoute) {
+        if (authStatus != AuthStatus.authenticated) {
           final prefs = sl<SharedPreferences>();
           final hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
-          if (!hasSeenOnboarding) {
+          
+          if (!hasSeenOnboarding && state.matchedLocation != '/welcome') {
             return '/welcome';
           }
-          return '/login';
+          if (hasSeenOnboarding && !isAuthRoute) {
+            return '/login';
+          }
         }
 
         if (authStatus == AuthStatus.authenticated && isAuthRoute) {

@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,12 +10,12 @@ import 'package:lottie/lottie.dart';
 class _OnboardingSlideData {
   final String title;
   final String description;
-  final String lottieUrl;
+  final String lottiePath;
 
   const _OnboardingSlideData({
     required this.title,
     required this.description,
-    required this.lottieUrl,
+    required this.lottiePath,
   });
 }
 
@@ -27,34 +28,33 @@ class OnboardingPage extends StatefulWidget {
   State<OnboardingPage> createState() => _OnboardingPageState();
 }
 
-class _OnboardingPageState extends State<OnboardingPage> {
+class _OnboardingPageState extends State<OnboardingPage>
+    with TickerProviderStateMixin {
   final SecurityService _securityService = SecurityService();
-  final PageController _pageController = PageController();
   int _currentPage = 0;
+  bool _isAnimatingTransition = false;
 
-  // Didi Brand Colors
-  static const Color _didiOrange = Color(0xFFFC7B19);
-  static const Color _darkText = Color(0xFF1A1A1A);
-  static const Color _greyText = Color(0xFF666666);
+  late AnimationController _revealController;
+  late Animation<double> _revealAnimation;
+  
+  Offset _buttonPosition = Offset.zero;
+  final GlobalKey _buttonKey = GlobalKey();
 
   static const List<_OnboardingSlideData> _slides = [
     _OnboardingSlideData(
-      title: 'Evaluación con Inteligencia Artificial',
-      description: 'Analiza tus proyectos y propuestas académicas al instante con nuestra IA especializada.',
-      // Public lottie URL for AI / Technology
-      lottieUrl: 'https://assets9.lottiefiles.com/packages/lf20_zdturvzq.json', 
+      title: 'IA para Estudiantes',
+      description: 'Analiza el impacto y factibilidad de tus proyectos académicos con nuestra inteligencia artificial.',
+      lottiePath: 'assets/animations/Ai-powered marketing tools abstract.json',
     ),
     _OnboardingSlideData(
-      title: 'Equipos y Proyectos en un Solo Lugar',
-      description: 'Gestiona el ciclo de vida completo de tu proyecto escolar y colabora con tu equipo fácilmente.',
-      // Public lottie URL for Teamwork
-      lottieUrl: 'https://assets3.lottiefiles.com/packages/lf20_q5pk6p1k.json',
+      title: 'Organización para Docentes',
+      description: 'Evalúa propuestas, gestiona equipos y colabora con alumnos en una misma plataforma.',
+      lottiePath: 'assets/animations/Profesor.json',
     ),
     _OnboardingSlideData(
-      title: 'Seguridad e Integridad Académica',
-      description: 'Protección avanzada contra plagio para garantizar la originalidad de tus documentos.',
-      // Public lottie URL for Security/Shield
-      lottieUrl: 'https://assets8.lottiefiles.com/packages/lf20_6YgqUu.json',
+      title: 'Evaluación y Originalidad',
+      description: 'Realiza pruebas, evalúa rúbricas y asegura la integridad de los proyectos en Corvus.',
+      lottiePath: 'assets/animations/quiz.json',
     ),
   ];
 
@@ -62,13 +62,68 @@ class _OnboardingPageState extends State<OnboardingPage> {
   void initState() {
     super.initState();
     _securityService.preventScreenshots(true);
+
+    _revealController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _revealAnimation = CurvedAnimation(
+      parent: _revealController,
+      curve: Curves.easeInOutCubic,
+    );
+    
+    // We start the first slide transition instantly
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateButtonPosition();
+      _revealController.value = 1.0;
+    });
   }
 
   @override
   void dispose() {
-    _pageController.dispose();
+    _revealController.dispose();
     _securityService.preventScreenshots(false);
     super.dispose();
+  }
+
+  void _updateButtonPosition() {
+    final RenderBox? renderBox =
+        _buttonKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox != null) {
+      final size = renderBox.size;
+      final position = renderBox.localToGlobal(Offset.zero);
+      // Button center
+      _buttonPosition = Offset(
+        position.dx + size.width / 2,
+        position.dy + size.height / 2,
+      );
+    }
+  }
+
+  Color _getBackgroundColor(int index, ColorScheme colors) {
+    switch (index) {
+      case 0:
+        return colors.primaryContainer;
+      case 1:
+        return colors.tertiaryContainer;
+      case 2:
+        return colors.secondaryContainer;
+      default:
+        return colors.primaryContainer;
+    }
+  }
+
+  Color _getForegroundColor(int index, ColorScheme colors) {
+    switch (index) {
+      case 0:
+        return colors.onPrimaryContainer;
+      case 1:
+        return colors.onTertiaryContainer;
+      case 2:
+        return colors.onSecondaryContainer;
+      default:
+        return colors.onPrimaryContainer;
+    }
   }
 
   Future<void> _skipOrComplete() async {
@@ -79,11 +134,20 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   void _next() {
+    if (_isAnimatingTransition) return;
+    
     if (_currentPage < _slides.length - 1) {
-      _pageController.nextPage(
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeInOut,
-      );
+      _updateButtonPosition();
+      setState(() {
+        _isAnimatingTransition = true;
+      });
+      
+      _revealController.forward(from: 0.0).then((_) {
+        setState(() {
+          _currentPage++;
+          _isAnimatingTransition = false;
+        });
+      });
     } else {
       _skipOrComplete();
     }
@@ -91,155 +155,104 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    
+    final currentBgColor = _getBackgroundColor(_currentPage, colors);
+    final nextBgColor = _getBackgroundColor(
+        _currentPage < _slides.length - 1 ? _currentPage + 1 : _currentPage, 
+        colors);
+
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Top bar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: _skipOrComplete,
-                    child: const Text(
-                      'Omitir',
-                      style: TextStyle(
-                        color: _greyText,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // PageView
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: (page) => setState(() => _currentPage = page),
-                itemCount: _slides.length,
-                itemBuilder: (ctx, idx) => _SlideContent(data: _slides[idx]),
-              ),
-            ),
-
-            // Bottom controls
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                children: [
-                  // Page Indicators (Dots)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(
-                      _slides.length,
-                      (i) => AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        height: 8,
-                        width: _currentPage == i ? 24 : 8,
-                        decoration: BoxDecoration(
-                          color: _currentPage == i ? _didiOrange : const Color(0xFFE0E0E0),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 32),
-
-                  // Action Button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: _next,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _didiOrange,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: Text(
-                        _currentPage == _slides.length - 1 ? 'Comenzar' : 'Siguiente',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ─── Slide Content ──────────────────────────────────────────────────────────
-
-class _SlideContent extends StatelessWidget {
-  final _OnboardingSlideData data;
-
-  const _SlideContent({required this.data});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      backgroundColor: currentBgColor,
+      body: Stack(
         children: [
-          // Lottie Animation
-          Expanded(
-            flex: 6,
-            child: Lottie.network(
-              data.lottieUrl,
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) {
-                // Fallback in case the public Lottie URL fails
-                return const Center(
-                  child: Icon(Icons.auto_awesome_mosaic, size: 100, color: Color(0xFFE0E0E0)),
+          // Base Content (Current Slide)
+          _buildSlideContent(_currentPage, colors),
+          
+          // Next Slide revealing over the base
+          if (_isAnimatingTransition && _currentPage < _slides.length - 1)
+            AnimatedBuilder(
+              animation: _revealAnimation,
+              builder: (context, child) {
+                return ClipPath(
+                  clipper: _CircularRevealClipper(
+                    fraction: _revealAnimation.value,
+                    center: _buttonPosition,
+                  ),
+                  child: Container(
+                    color: nextBgColor,
+                    child: _buildSlideContent(_currentPage + 1, colors),
+                  ),
                 );
               },
             ),
-          ),
-          
-          const SizedBox(height: 24),
 
-          // Text content
-          Expanded(
-            flex: 4,
+          // Foreground UI (always on top)
+          SafeArea(
             child: Column(
               children: [
-                Text(
-                  data.title,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Color(0xFF1A1A1A),
-                    fontSize: 26,
-                    fontWeight: FontWeight.w800,
-                    height: 1.2,
-                    letterSpacing: -0.5,
+                // Top bar
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Image.asset('assets/icons/logo2.png', height: 36),
+                      TextButton(
+                        onPressed: _skipOrComplete,
+                        child: Text(
+                          'Omitir',
+                          style: TextStyle(
+                            color: _getForegroundColor(_currentPage, colors).withOpacity(0.6),
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  data.description,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Color(0xFF666666),
-                    fontSize: 16,
-                    height: 1.5,
+
+                const Spacer(),
+
+                // Bottom UI (FAB and Indicators)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(32, 0, 32, 40),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Dots
+                      Row(
+                        children: List.generate(
+                          _slides.length,
+                          (i) => AnimatedContainer(
+                            duration: const Duration(milliseconds: 400),
+                            curve: Curves.easeOutCubic,
+                            margin: const EdgeInsets.only(right: 8),
+                            height: 8,
+                            width: _currentPage == i ? 32 : 8,
+                            decoration: BoxDecoration(
+                              color: _getForegroundColor(_currentPage, colors).withOpacity(
+                                _currentPage == i ? 1.0 : 0.3
+                              ),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        ),
+                      ),
+                      
+                      // FAB Button
+                      FloatingActionButton(
+                        key: _buttonKey,
+                        onPressed: _next,
+                        elevation: 4,
+                        backgroundColor: _getForegroundColor(_currentPage, colors),
+                        foregroundColor: currentBgColor,
+                        child: _currentPage == _slides.length - 1
+                            ? const Icon(Icons.check_rounded, size: 28)
+                            : const Icon(Icons.arrow_forward_rounded, size: 28),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -249,4 +262,144 @@ class _SlideContent extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildSlideContent(int index, ColorScheme colors) {
+    final slide = _slides[index];
+    final fgColor = _getForegroundColor(index, colors);
+    final bgColor = _getBackgroundColor(index, colors);
+
+    // Apply a secondary slightly darker or lighter color for decorative orbs
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final orbColor = isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05);
+
+    return Stack(
+      children: [
+        // Decorative Orbs
+        Positioned(
+          top: -100,
+          right: -100,
+          child: Container(
+            width: 300,
+            height: 300,
+            decoration: BoxDecoration(shape: BoxShape.circle, color: orbColor),
+          ),
+        ),
+        Positioned(
+          bottom: 150,
+          left: -150,
+          child: Container(
+            width: 400,
+            height: 400,
+            decoration: BoxDecoration(shape: BoxShape.circle, color: orbColor),
+          ),
+        ),
+
+        // Content
+        SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 60),
+                
+                // Lottie Animation
+                Expanded(
+                  flex: 6,
+                  child: Center(
+                    child: Hero(
+                      tag: 'lottie_animation_$index',
+                      child: Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: fgColor.withOpacity(0.05),
+                        ),
+                        child: Lottie.asset(
+                          slide.lottiePath,
+                          fit: BoxFit.contain,
+                          errorBuilder: (ctx, err, stack) => Icon(
+                            Icons.error_outline,
+                            size: 100,
+                            color: fgColor.withOpacity(0.5),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                
+                const SizedBox(height: 40),
+
+                // Text
+                Expanded(
+                  flex: 5,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        slide.title,
+                        style: TextStyle(
+                          color: fgColor,
+                          fontSize: 34,
+                          fontWeight: FontWeight.w900,
+                          height: 1.1,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        slide.description,
+                        style: TextStyle(
+                          color: fgColor.withOpacity(0.85),
+                          fontSize: 17,
+                          height: 1.5,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─── Circular Reveal Clipper ────────────────────────────────────────────────
+
+class _CircularRevealClipper extends CustomClipper<Path> {
+  final double fraction;
+  final Offset center;
+
+  _CircularRevealClipper({required this.fraction, required this.center});
+
+  @override
+  Path getClip(Size size) {
+    double maxRadius = _distanceToFarthestCorner(size, center);
+    
+    Path path = Path()
+      ..addOval(Rect.fromCircle(
+        center: center,
+        radius: maxRadius * fraction,
+      ));
+    return path;
+  }
+
+  double _distanceToFarthestCorner(Size size, Offset center) {
+    double distance(double x, double y) => math.sqrt(math.pow(center.dx - x, 2) + math.pow(center.dy - y, 2));
+    return [
+      distance(0, 0),
+      distance(size.width, 0),
+      distance(0, size.height),
+      distance(size.width, size.height),
+    ].reduce(math.max);
+  }
+
+  @override
+  bool shouldReclip(_CircularRevealClipper oldClipper) => 
+      fraction != oldClipper.fraction || center != oldClipper.center;
 }
