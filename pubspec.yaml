@@ -44,7 +44,7 @@ dependencies:
   flutter_tts: ^4.2.5
   image_cropper: ^12.2.1
   qr_flutter: ^4.1.0
-  mobile_scanner: ^5.2.3
+  mobile_scanner: ^7.3.0
   path_provider: ^2.1.6
   connectivity_plus: ^7.3.0
 dev_dependencies:
@@ -64,3 +64,4 @@ flutter:
   assets:
     - assets/icons/
     - assets/patterns/
+    - assets/images/
