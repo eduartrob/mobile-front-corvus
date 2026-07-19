@@ -13,10 +13,15 @@ class InspirationRemoteDataSource {
 
   InspirationRemoteDataSource({required this.client});
 
-  Future<List<ProjectModel>> getUnexploredProjects({bool forceRefresh = false}) async {
+  Future<List<ProjectModel>> getUnexploredProjects({
+    bool forceRefresh = false,
+    int page = 1,
+    int limit = 10,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
 
-    if (!forceRefresh) {
+    // Only use cache for the first page
+    if (!forceRefresh && page == 1) {
       final cachedStr = prefs.getString(_cacheKey);
       final cachedTimestamp = prefs.getInt(_cacheTimestampKey) ?? 0;
       final now = DateTime.now().millisecondsSinceEpoch;
@@ -33,7 +38,8 @@ class InspirationRemoteDataSource {
       }
     }
 
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/blue-ocean-niches');
+    final url = Uri.parse(
+        '${ApiConfig.apiGatewayUrl}/clustering/integrator/blue-ocean-niches?page=$page&limit=$limit');
 
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
@@ -43,21 +49,27 @@ class InspirationRemoteDataSource {
         final data = json.decode(utf8.decode(response.bodyBytes));
         final List<dynamic> nichesJson = data['niches'] ?? [];
         final models = nichesJson.map((niche) => ProjectModel.fromJson(niche)).toList();
-        // Guardar cache con timestamp
-        prefs.setString(_cacheKey, json.encode(models.map((m) => m.toJson()).toList()));
-        prefs.setInt(_cacheTimestampKey, DateTime.now().millisecondsSinceEpoch);
+        
+        // Only update cache if fetching the first page
+        if (page == 1) {
+          prefs.setString(_cacheKey, json.encode(models.map((m) => m.toJson()).toList()));
+          prefs.setInt(_cacheTimestampKey, DateTime.now().millisecondsSinceEpoch);
+        }
+        
         return models;
       }
       debugPrint('InspirationRemoteDataSource: HTTP ${response.statusCode}');
     } catch (e) {
       debugPrint('InspirationRemoteDataSource Error: $e');
-      // Si falla la red, intentar devolver cache aunque sea antigua
-      final cachedStr = prefs.getString(_cacheKey);
-      if (cachedStr != null) {
-        try {
-          final List<dynamic> decoded = json.decode(cachedStr);
-          return decoded.map((e) => ProjectModel.fromJson(e)).toList();
-        } catch (_) {}
+      // Si falla la red, intentar devolver cache aunque sea antigua, pero solo para la primera pagina
+      if (page == 1) {
+        final cachedStr = prefs.getString(_cacheKey);
+        if (cachedStr != null) {
+          try {
+            final List<dynamic> decoded = json.decode(cachedStr);
+            return decoded.map((e) => ProjectModel.fromJson(e)).toList();
+          } catch (_) {}
+        }
       }
     }
 

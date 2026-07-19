@@ -31,6 +31,9 @@ class _InspirationPageState extends State<InspirationPage> {
   void _scrollListener() {
     // El usuario pidió que la tarjeta no desaparezca al deslizar.
     // Solo se ocultará al picarle al botón de cerrar.
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      context.read<InspirationProvider>().loadMore();
+    }
   }
 
   @override
@@ -43,6 +46,7 @@ class _InspirationPageState extends State<InspirationPage> {
   @override
   Widget build(BuildContext context) {
     final isLoading = context.select<InspirationProvider, bool>((p) => p.isLoading);
+    final isFetchingMore = context.select<InspirationProvider, bool>((p) => p.isFetchingMore);
     final showWelcome = context.select<InspirationProvider, bool>((p) => p.showWelcome);
     final projectCount = context.select<InspirationProvider, int>((p) => p.projects.length);
 
@@ -108,6 +112,17 @@ class _InspirationPageState extends State<InspirationPage> {
                               ),
                             ),
                     ),
+
+                    // Indicador de carga (loadMore)
+                    if (isFetchingMore)
+                      const SliverToBoxAdapter(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 24.0),
+                          child: Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        ),
+                      ),
 
                     const SliverToBoxAdapter(child: SizedBox(height: 160)),
                   ],
