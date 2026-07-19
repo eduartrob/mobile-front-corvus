@@ -54,6 +54,8 @@ class TeamsProvider extends ChangeNotifier {
   Future<void> fetchMyTeam({String? projectId}) async {
     _isLoading = true;
     _errorMessage = null;
+    _myTeam = null;
+    _finalReviewStatus = null;
     notifyListeners();
 
     try {
