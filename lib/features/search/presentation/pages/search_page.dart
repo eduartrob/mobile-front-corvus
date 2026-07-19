@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'dart:ui';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -157,14 +158,19 @@ class _SearchPageViewState extends State<_SearchPageView>
     final textColor = colorScheme.onSurface;
 
     return PopScope(
-      canPop: !_hasResults,
+      canPop: false, // NUNCA permitir pop nativo aquí porque destruye la rama de go_router
       onPopInvokedWithResult: (didPop, dynamic result) {
         if (didPop) return;
-        if (_hasResults) {
+        if (_searchFocusNode.hasFocus) {
+          _searchFocusNode.unfocus();
+        } else if (_hasResults) {
           _flutterTts.stop();
           setState(() => _hasResults = false);
           context.read<SearchProvider>().clearSearch();
           _searchController.clear();
+        } else {
+          // Si no hay resultados ni teclado, navegamos manualmente a la pestaña principal
+          context.go('/inspiration');
         }
       },
       child: Scaffold(

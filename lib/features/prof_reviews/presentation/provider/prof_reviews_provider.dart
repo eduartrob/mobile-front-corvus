@@ -21,13 +21,20 @@ class ProfReviewsProvider extends ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
-  Future<void> fetchReviews() async {
+  String? _lastProjectId;
+
+  Future<void> fetchReviews({String? projectId}) async {
+    if (projectId != null && projectId != _lastProjectId) {
+      _reviews = [];
+      _lastProjectId = projectId;
+    }
+
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      _reviews = await _dataSource.getFinalReviews();
+      _reviews = await _dataSource.getFinalReviews(projectId: projectId);
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
     } finally {
@@ -81,6 +88,27 @@ class ProfReviewsProvider extends ChangeNotifier {
         ).catchError((_) => null); // Ignore if push fails
       } catch (_) {}
       
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> evaluateProject(String reviewId, String comment, bool isApproved) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final updated = await _dataSource.evaluateProject(reviewId, comment, isApproved);
+      final index = _reviews.indexWhere((r) => r.id == reviewId);
+      if (index != -1) {
+        _reviews[index] = updated;
+      }
       return true;
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');

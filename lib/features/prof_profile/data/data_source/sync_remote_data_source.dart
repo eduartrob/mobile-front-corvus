@@ -1,3 +1,4 @@
+import 'package:mobile/core/network/api_endpoints.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/auth_interceptor_client.dart';
@@ -13,7 +14,7 @@ class SyncRemoteDataSourceImpl implements SyncRemoteDataSource {
   Future<Map<String, dynamic>> processFolder(String folderId, String accessToken, String jwtToken, String userId) async {
     try {
       final response = await apiClient.post(
-        Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/process-folder'),
+        Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.integratorProcessFolder}'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $jwtToken',

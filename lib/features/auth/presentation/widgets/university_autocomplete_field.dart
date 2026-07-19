@@ -1,3 +1,4 @@
+import 'package:mobile/core/network/api_endpoints.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -32,7 +33,7 @@ class _UniversityAutocompleteFieldState extends State<UniversityAutocompleteFiel
 
     try {
       final response = await http
-          .get(Uri.parse('${ApiConfig.apiGatewayUrl}/auth/universities?search=$query'))
+          .get(Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authUniversities}?search=$query'))
           .timeout(const Duration(seconds: 10));
 
       if (_lastQuery != query) return [];

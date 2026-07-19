@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile/shared/widgets/corvus_skeleton.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/features/my_project/presentation/provider/my_project_provider.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
+import 'package:mobile/features/profile/presentation/provider/profile_provider.dart';
 import 'package:mobile/features/my_project/presentation/widgets/innovation_card.dart';
 import 'package:mobile/features/my_project/presentation/pages/project_defense_chat_page.dart';
 import 'package:mobile/features/my_project/presentation/widgets/upload_zone_widget.dart';
@@ -14,7 +16,12 @@ import 'package:mobile/features/my_project/presentation/widgets/detailed_analysi
 import 'package:mobile/features/my_project/presentation/widgets/animated_loading_text_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/invalid_document_widget.dart';
 
+import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
+
+import 'package:go_router/go_router.dart';
+import 'package:mobile/shared/widgets/corvus_button.dart';
 import 'package:mobile/core/theme/app_dimens.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class MyProjectPage extends StatelessWidget {
   const MyProjectPage({super.key});
@@ -33,20 +40,53 @@ class _MyProjectPageContent extends StatefulWidget {
 }
 
 class _MyProjectPageContentState extends State<_MyProjectPageContent> with WidgetsBindingObserver {
+  bool _initCalled = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = context.read<MyProjectProvider>();
-      provider.setScreenVisible(true);
-      if (provider.state == ProjectState.initial) {
-        final userId = context.read<AuthProvider>().currentUser?.id;
-        if (userId != null) {
-          provider.init(userId);
-        }
+      context.read<MyProjectProvider>().setScreenVisible(true);
+      _tryInit();
+
+      final token = context.read<AuthProvider>().currentUser?.token;
+      if (token != null) {
+        context.read<ProjectProvider>().loadMyProjects(token);
       }
     });
+  }
+
+  void _tryInit() {
+    if (_initCalled) return;
+
+    final provider = context.read<MyProjectProvider>();
+    final authProvider = context.read<AuthProvider>();
+    final teamsProvider = context.read<TeamsProvider>();
+
+    final userId = authProvider.currentUser?.id;
+    final myTeam = teamsProvider.myTeam;
+    final teamId = myTeam?.id;
+
+    if (userId == null || teamId == null) return; // Not ready yet
+
+    _initCalled = true;
+
+    String? projectId = myTeam?.project?['id']?.toString()
+        ?? myTeam?.project?['id_proyecto']?.toString();
+
+    final universityId = authProvider.currentUser?.universityId;
+    final careerId = authProvider.currentUser?.careerId;
+    provider.setContext(universityId: universityId, careerId: careerId);
+
+    provider.init(userId, teamId, projectId: projectId);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Re-attempt init in case teamId was not ready during initState
+    _tryInit();
   }
 
   @override
@@ -83,28 +123,123 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
         child: RefreshIndicator(
           onRefresh: () async {
             final provider = context.read<MyProjectProvider>();
-            await provider.init(userId, forceRefresh: true);
+            final teamsProvider = context.read<TeamsProvider>();
+            final myTeam = teamsProvider.myTeam;
+            final teamId = myTeam?.id;
+            String? projectId = teamsProvider.activeProjectId ??
+                myTeam?.project?['id']?.toString() ?? 
+                myTeam?.project?['id_proyecto']?.toString();
+            if (teamId != null) {
+              await provider.init(userId, teamId, projectId: projectId, forceRefresh: true);
+            }
           },
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: AppDimens.screenMargin),
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 12),
-                _ProjectPageHeader(userId: userId),
+          child: Consumer<ProjectProvider>(
+            builder: (context, projectProvider, child) {
+              if (projectProvider.isLoading && projectProvider.myProjects.isEmpty) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-              const SizedBox(height: 24),
+              if (projectProvider.myProjects.isEmpty) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.class_outlined, size: 80, color: Theme.of(context).colorScheme.primary),
+                        const SizedBox(height: 24),
+                        Text(
+                          'Aún no perteneces a ningún proyecto',
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Para poder formar un equipo y subir tu propuesta, primero debes unirte a la clase de tu profesor usando su Código de Acceso.',
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 48),
+                        CorvusButton(
+                          text: 'Unirse a un Proyecto',
+                          onPressed: () => context.push('/join-project'),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
 
-              RepaintBoundary(
-                child: _ProjectPageBody(userId: userId),
-              ),
+              final teamsProvider = context.watch<TeamsProvider>();
+              final currentTeamId = teamsProvider.myTeam?.id;
+              final activeProjectId = teamsProvider.activeProjectId ??
+                  teamsProvider.myTeam?.project?['id']?.toString() ??
+                  teamsProvider.myTeam?.project?['id_proyecto']?.toString();
 
-              const SizedBox(height: 100),
-            ],
+              final myProjectProvider = context.read<MyProjectProvider>();
+              // Si acabamos de cargar el equipo pero el provider sigue initial, iniciarlo
+              if (currentTeamId != null && myProjectProvider.state == ProjectState.initial) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  myProjectProvider.init(userId, currentTeamId, projectId: activeProjectId);
+                });
+              }
+
+              if (currentTeamId == null) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.group_off_outlined, size: 80, color: Theme.of(context).colorScheme.primary),
+                        const SizedBox(height: 24),
+                        Text(
+                          'No tienes un equipo',
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Debes unirte o crear un equipo en la pestaña de Equipos para poder enviar una propuesta.',
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+
+              return SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: AppDimens.screenMargin),
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 12),
+                    _ProjectPageHeader(userId: userId),
+
+                    const SizedBox(height: 24),
+
+                    RepaintBoundary(
+                      child: _ProjectPageBody(userId: userId),
+                    ),
+
+                    const SizedBox(height: 100),
+                  ],
+                ),
+              );
+            },
           ),
         ),
-      ),
       ),
     );
   }
@@ -170,117 +305,74 @@ class _ProjectPageHeader extends StatelessWidget {
 }
 
 // Skeleton shown while MyProjectProvider initializes in background
-class _ProjectLoadingSkeleton extends StatefulWidget {
+class _ProjectLoadingSkeleton extends StatelessWidget {
   const _ProjectLoadingSkeleton();
 
   @override
-  State<_ProjectLoadingSkeleton> createState() => _ProjectLoadingSkeletonState();
-}
-
-class _ProjectLoadingSkeletonState extends State<_ProjectLoadingSkeleton>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _opacity;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    )..repeat(reverse: true);
-    _opacity = Tween<double>(begin: 0.3, end: 0.7).animate(_controller);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  Widget _bar({double width = double.infinity, double height = 14, double radius = 6}) {
-    final color = Theme.of(context).colorScheme.surfaceContainerHighest;
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(radius),
-      ),
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _opacity,
-      builder: (_, _) => Opacity(
-        opacity: _opacity.value,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Innovation card skeleton
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                children: [
-                  _bar(width: 140, height: 18),
-                  const SizedBox(height: 20),
-                  _bar(width: 120, height: 120, radius: 60),
-                  const SizedBox(height: 20),
-                  _bar(width: 80, height: 14),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Metrics skeleton
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _bar(width: 160, height: 18),
-                  const SizedBox(height: 24),
-                  _bar(height: 8),
-                  const SizedBox(height: 20),
-                  _bar(height: 8),
-                  const SizedBox(height: 20),
-                  _bar(height: 8),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            // Recommendations skeleton
-            _bar(width: 180, height: 18),
-            const SizedBox(height: 16),
-            for (int i = 0; i < 3; i++) ...[
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 6),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _bar(width: 180, height: 14),
-                    const SizedBox(height: 10),
-                    _bar(height: 10),
-                    const SizedBox(height: 6),
-                    _bar(width: 220, height: 10),
-                  ],
-                ),
-              ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Innovation card skeleton
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            children: [
+              const CorvusSkeleton(width: 140, height: 18, borderRadius: BorderRadius.all(Radius.circular(6))),
+              const SizedBox(height: 20),
+              const CorvusSkeleton(width: 120, height: 120, borderRadius: BorderRadius.all(Radius.circular(60))),
+              const SizedBox(height: 20),
+              const CorvusSkeleton(width: 80, height: 14, borderRadius: BorderRadius.all(Radius.circular(6))),
             ],
-          ],
+          ),
         ),
-      ),
+        const SizedBox(height: 16),
+        // Metrics skeleton
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const CorvusSkeleton(width: 160, height: 18, borderRadius: BorderRadius.all(Radius.circular(6))),
+              const SizedBox(height: 24),
+              const CorvusSkeleton(width: double.infinity, height: 8, borderRadius: BorderRadius.all(Radius.circular(6))),
+              const SizedBox(height: 20),
+              const CorvusSkeleton(width: double.infinity, height: 8, borderRadius: BorderRadius.all(Radius.circular(6))),
+              const SizedBox(height: 20),
+              const CorvusSkeleton(width: double.infinity, height: 8, borderRadius: BorderRadius.all(Radius.circular(6))),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        // Recommendations skeleton
+        const CorvusSkeleton(width: 180, height: 18, borderRadius: BorderRadius.all(Radius.circular(6))),
+        const SizedBox(height: 16),
+        for (int i = 0; i < 3; i++) ...[
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 6),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const CorvusSkeleton(width: 180, height: 14, borderRadius: BorderRadius.all(Radius.circular(6))),
+                const SizedBox(height: 10),
+                const CorvusSkeleton(width: double.infinity, height: 10, borderRadius: BorderRadius.all(Radius.circular(6))),
+                const SizedBox(height: 6),
+                const CorvusSkeleton(width: 220, height: 10, borderRadius: BorderRadius.all(Radius.circular(6))),
+              ],
+            ),
+          ),
+        ],
+      ],
     );
   }
 }
@@ -294,6 +386,12 @@ class _ProjectPageBody extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
     final provider = context.watch<MyProjectProvider>();
+    final teamsProvider = context.watch<TeamsProvider>();
+    final finalReviewStatus = teamsProvider.finalReviewStatus;
+    final isUnderReview = finalReviewStatus != null && finalReviewStatus['status'] != 'REJECTED';
+    final auth = context.read<AuthProvider>();
+    final isLeader = teamsProvider.myTeam != null && teamsProvider.myTeam!.members.isNotEmpty && 
+                    (teamsProvider.myTeam!.members[0].id == userId || teamsProvider.myTeam!.members[0].email == auth.currentUser?.email);
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 500),
@@ -346,13 +444,6 @@ class _ProjectPageBody extends StatelessWidget {
             ),
           ),
 
-          if (provider.documentTypeError != null)
-            InvalidDocumentWidget(
-              provider: provider,
-              userId: userId,
-              specificError: provider.documentTypeError!,
-            ),
-
           // Show skeleton while loading initial state (provider is initializing in background)
           if (provider.state == ProjectState.initial)
             const _ProjectLoadingSkeleton(),
@@ -360,9 +451,31 @@ class _ProjectPageBody extends StatelessWidget {
         if (provider.state != ProjectState.initial)
           _ProjectRequirementsWidget(provider: provider),
 
+        if (provider.documentTypeError != null)
+          InvalidDocumentWidget(
+            provider: provider,
+            userId: userId,
+            specificError: provider.documentTypeError!,
+          )
         // Show upload zone only after init resolved AND there's an error (no analysis found)
-        if (provider.state == ProjectState.error && provider.documentTypeError == null)
-          UploadZoneWidget(provider: provider),
+        else if (provider.state == ProjectState.error)
+          if (isLeader)
+            UploadZoneWidget(provider: provider)
+          else
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Center(
+                child: Text(
+                  'Esperando a que el líder del equipo suba la propuesta.',
+                  style: TextStyle(color: colorScheme.onSurfaceVariant),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
 
         if (provider.state == ProjectState.detailedAnalysis && provider.detailedAnalysis != null)
           Builder(
@@ -370,17 +483,34 @@ class _ProjectPageBody extends StatelessWidget {
               final ollamaAnalysis = provider.detailedAnalysis!['ollama_analysis'] as Map<String, dynamic>? ?? {};
               String? extractedProjectName = ollamaAnalysis['projectName'] ?? ollamaAnalysis['title'];
               if (extractedProjectName == null) {
-                final textWithProjectName = (ollamaAnalysis['verdict'] as String?) ?? (ollamaAnalysis['semantic_collision_risk']?['explanation'] as String?);
-                if (textWithProjectName != null) {
-                  final match = RegExp(r"El proyecto '([^']+)'").firstMatch(textWithProjectName);
+                final List<String> textsToSearch = [];
+                if (ollamaAnalysis['verdict'] != null) textsToSearch.add(ollamaAnalysis['verdict']);
+                if (ollamaAnalysis['semantic_collision_risk']?['explanation'] != null) {
+                  textsToSearch.add(ollamaAnalysis['semantic_collision_risk']['explanation']);
+                }
+                if (provider.detailedAnalysis?['defense_chat_history'] != null) {
+                   final chatList = provider.detailedAnalysis!['defense_chat_history'] as List<dynamic>;
+                   final firstMsg = chatList.firstWhere((m) => m['role'] == 'assistant', orElse: () => null);
+                   if (firstMsg != null && firstMsg['content'] != null) {
+                     textsToSearch.add(firstMsg['content'].toString());
+                   }
+                }
+
+                final regex = RegExp(r"(?:proyecto|propuesta)(?:\s+de)?\s+'([^']+)'", caseSensitive: false);
+                for (final text in textsToSearch) {
+                  final match = regex.firstMatch(text);
                   if (match != null && match.groupCount >= 1) {
                     extractedProjectName = match.group(1);
+                    break;
                   }
                 }
               }
-              final projectName = extractedProjectName ?? provider.fileName?.replaceAll('.pdf', '') ?? 'Propuesta sin título';
+              String fallbackName = provider.fileName?.replaceAll('.pdf', '') ?? 'Propuesta sin título';
+              if (fallbackName.startsWith('draft_') || fallbackName.startsWith('propuesta_')) {
+                fallbackName = 'Propuesta de Proyecto';
+              }
+              final projectName = extractedProjectName ?? fallbackName;
 
-              final teamsProvider = context.watch<TeamsProvider>();
               final myTeam = teamsProvider.myTeam;
 
               return Column(
@@ -390,6 +520,14 @@ class _ProjectPageBody extends StatelessWidget {
                     projectName,
                     style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, height: 1.2),
                   ),
+                  if (provider.detailedAnalysis?['uploaded_by'] != null || provider.quickAnalysis?['uploaded_by'] != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        'Subido por: ${provider.detailedAnalysis?['uploaded_by'] ?? provider.quickAnalysis?['uploaded_by']}',
+                        style: TextStyle(fontSize: 14, color: colorScheme.onSurfaceVariant),
+                      ),
+                    ),
                   const SizedBox(height: 16),
                   if (myTeam != null)
                     Container(
@@ -450,7 +588,7 @@ class _ProjectPageBody extends StatelessWidget {
                 const RepaintBoundary(child: _PreValidationLoadingTextWidget()),
                 const SizedBox(height: 32),
                 OutlinedButton.icon(
-                  onPressed: () => provider.cancelAnalysis(userId),
+                  onPressed: () => provider.cancelAnalysis(userId, context.read<TeamsProvider>().myTeam?.id ?? ''),
                   icon: const Icon(Icons.cancel_outlined),
                   label: const Text('Cancelar'),
                   style: OutlinedButton.styleFrom(
@@ -475,7 +613,7 @@ class _ProjectPageBody extends StatelessWidget {
                 const RepaintBoundary(child: AnimatedLoadingTextWidget()),
                 const SizedBox(height: 48),
                 OutlinedButton.icon(
-                  onPressed: () => provider.cancelAnalysis(userId),
+                  onPressed: () => provider.cancelAnalysis(userId, context.read<TeamsProvider>().myTeam?.id ?? ''),
                   icon: const Icon(Icons.cancel_outlined),
                   label: const Text('Cancelar Análisis'),
                   style: OutlinedButton.styleFrom(
@@ -500,8 +638,11 @@ class _ProjectPageBody extends StatelessWidget {
             width: double.infinity,
             height: 50,
             child: ElevatedButton.icon(
-              onPressed: () => provider.submitForReview(userId, l10n),
-              icon: const Icon(Icons.send, size: 18),
+              onPressed: () {
+                final teamId = context.read<TeamsProvider>().myTeam?.id ?? '';
+                provider.submitForReview(userId, teamId, l10n);
+              },
+              icon: const Icon(Icons.analytics, size: 18),
               label: Text(l10n.sendForReview, style: const TextStyle(fontWeight: FontWeight.bold)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: colorScheme.primary,
@@ -513,8 +654,42 @@ class _ProjectPageBody extends StatelessWidget {
         ],
 
         if (provider.state == ProjectState.detailedAnalysis) ...[
-          if (!provider.hasPassedDefense)
-            SizedBox(
+          if (isUnderReview)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.only(top: 16),
+              decoration: BoxDecoration(
+                color: colorScheme.secondaryContainer,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  Icon(Icons.rate_review, color: colorScheme.onSecondaryContainer, size: 32),
+                  const SizedBox(height: 8),
+                  Text('Propuesta en Revisión Final', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: colorScheme.onSecondaryContainer)),
+                  const SizedBox(height: 8),
+                  Builder(builder: (context) {
+                    final rawStatus = finalReviewStatus['status']?.toString() ?? 'UNKNOWN';
+                    String translatedStatus = rawStatus;
+                    switch (rawStatus) {
+                      case 'PENDING': translatedStatus = 'Pendiente de Revisión'; break;
+                      case 'APPROVED': translatedStatus = 'Aprobada'; break;
+                      case 'REJECTED': translatedStatus = 'Rechazada'; break;
+                      case 'SUMMONED': translatedStatus = 'Citado a Defensa'; break;
+                    }
+                    return Text(
+                      'Tu equipo ya ha enviado esta propuesta a revisión final. Estado actual: $translatedStatus', 
+                      style: TextStyle(color: colorScheme.onSecondaryContainer),
+                      textAlign: TextAlign.center,
+                    );
+                  }),
+                ],
+              ),
+            )
+          else ...[
+            if (!provider.hasPassedDefense)
+              SizedBox(
               width: double.infinity,
               height: 50,
               child: ElevatedButton.icon(
@@ -522,11 +697,20 @@ class _ProjectPageBody extends StatelessWidget {
                   final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ProjectDefenseChatPage(
-                        userId: userId,
-                        proposalSummary: provider.detailedAnalysis?['verdict'] ?? 'Propuesta de innovación',
-                        analysisResult: provider.detailedAnalysis ?? {},
-                      ),
+                      builder: (context) {
+                        final teamsProvider = context.read<TeamsProvider>();
+                        final profileProvider = context.read<ProfileProvider>();
+                        final teamId = teamsProvider.myTeam?.id ?? '';
+                        final studentName = profileProvider.profile?.alumno ?? 'Estudiante';
+                        
+                        return ProjectDefenseChatPage(
+                          teamId: teamId,
+                          studentName: studentName,
+                          teamMembers: teamsProvider.myTeam?.members.map((m) => m.name).toList(),
+                          proposalSummary: provider.detailedAnalysis?['verdict'] ?? 'Propuesta de innovación',
+                          analysisResult: provider.detailedAnalysis ?? {},
+                        );
+                      },
                     ),
                   );
                   if (result != null && result is List<Map<String, String>>) {
@@ -542,7 +726,7 @@ class _ProjectPageBody extends StatelessWidget {
                 ),
               ),
             )
-          else
+          else if (isLeader)
             SizedBox(
               width: double.infinity,
               height: 50,
@@ -550,7 +734,7 @@ class _ProjectPageBody extends StatelessWidget {
                 onPressed: () async {
                   final teamsProvider = context.read<TeamsProvider>();
                   if (teamsProvider.myTeam == null) {
-                    await teamsProvider.fetchMyTeam();
+                    await teamsProvider.fetchMyTeam(projectId: provider.projectId);
                   }
                   
                   final myTeam = teamsProvider.myTeam;
@@ -575,18 +759,53 @@ class _ProjectPageBody extends StatelessWidget {
                     return;
                   }
 
+                  if (myTeam.members.length < myTeam.maxMembers) {
+                    final shouldProceed = await showDialog<bool>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          backgroundColor: colorScheme.surface,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          title: Text('¿Enviar propuesta con equipo incompleto?',
+                            style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 18)),
+                          content: Text(
+                            'Actualmente tu equipo tiene ${myTeam.members.length} integrantes de un máximo de ${myTeam.maxMembers}. Puedes enviar la propuesta ahora, pero ten en cuenta que SOLO se tomará en cuenta a los miembros actuales. Si alguien más se une al equipo después, no formará parte de esta propuesta.',
+                            style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: Text('CANCELAR', style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold)),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              child: Text('ENVIAR DE TODOS MODOS', style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold)),
+                            ),
+                          ],
+                        );
+                      }
+                    );
+                    if (shouldProceed != true) return;
+                  }
+
                   final success = await provider.sendFinalReview(
                     teamId: myTeam.id,
                     teamName: myTeam.name,
                     memberNames: myTeam.members.map((m) => m.name).toList(),
+                    universityName: myTeam.project?['university_name'] ?? 'General',
+                    careerName: myTeam.project?['career_name'] ?? 'General',
+                    professorName: myTeam.project?['professor_name'] ?? 'Profesor',
                   );
                   if (success && context.mounted) {
-                     ScaffoldMessenger.of(context).showSnackBar(
-                       const SnackBar(
-                         content: Text('✅ Propuesta enviada a revisión final exitosamente.'),
-                         backgroundColor: Colors.green,
-                       ),
-                     );
+                     await teamsProvider.fetchMyTeam(projectId: provider.projectId);
+                     if (context.mounted) {
+                       ScaffoldMessenger.of(context).showSnackBar(
+                         const SnackBar(
+                           content: Text('✅ Propuesta enviada a revisión final exitosamente.'),
+                           backgroundColor: Colors.green,
+                         ),
+                       );
+                     }
                   }
                 },
                 icon: const Icon(Icons.send, size: 18),
@@ -614,6 +833,7 @@ class _ProjectPageBody extends StatelessWidget {
               ),
             ),
           ),
+          ],
         ],
       ],
     ),

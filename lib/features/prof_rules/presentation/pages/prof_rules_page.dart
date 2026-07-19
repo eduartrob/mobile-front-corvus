@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+       import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
@@ -9,77 +9,121 @@ import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:animated_list_plus/animated_list_plus.dart';
 import 'package:animated_list_plus/transitions.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile/shared/widgets/corvus_skeleton.dart';
 
 class ProfRulesPage extends StatelessWidget {
-  const ProfRulesPage({super.key});
+  final String projectId;
+  const ProfRulesPage({super.key, required this.projectId});
 
   @override
   Widget build(BuildContext context) {
-    return const _ProfRulesPageView();
+    return _ProfRulesPageView(projectId: projectId);
   }
 }
 
-class _ProfRulesPageView extends StatelessWidget {
-  const _ProfRulesPageView();
+class _ProfRulesPageView extends StatefulWidget {
+  final String projectId;
+  const _ProfRulesPageView({required this.projectId});
+
+  @override
+  State<_ProfRulesPageView> createState() => _ProfRulesPageViewState();
+}
+
+class _ProfRulesPageViewState extends State<_ProfRulesPageView> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ProfRulesProvider>().fetchData(projectId: widget.projectId);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
-    final provider = context.watch<ProfRulesProvider>();
+    // Usar context.select para evitar rebuilds innecesarios de toda la página
+    final isLoading = context.select<ProfRulesProvider, bool>((p) => p.isLoading);
+    final clusterStatsEmpty = context.select<ProfRulesProvider, bool>((p) => p.clusterStats.isEmpty);
+    final projectSectionsEmpty = context.select<ProfRulesProvider, bool>((p) => p.projectSections.isEmpty);
+    final isModified = context.select<ProfRulesProvider, bool>((p) => p.isModified);
 
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        appBar: const CorvusTopBar(),
-        body: (provider.isLoading && provider.clusterStats.isEmpty && provider.projectSections.isEmpty)
-            ? const _ProfRulesLoadingSkeleton()
-            : Column(
-                children: [
-                  TabBar(
-                    labelColor: colorScheme.primary,
-                    unselectedLabelColor: colorScheme.onSurfaceVariant,
-                    indicatorColor: colorScheme.primary,
-                    indicatorWeight: 3,
-                    tabs: const [
-                      Tab(text: 'Reglas de Exclusión'),
-                      Tab(text: 'Estructura del Proyecto'),
-                    ],
-                  ),
-                  const Expanded(
-                    child: TabBarView(
+        appBar: const CorvusTopBar(showBackButton: false),
+        body: Column(
+          children: [
+            TabBar(
+              labelColor: colorScheme.primary,
+              unselectedLabelColor: colorScheme.onSurfaceVariant,
+              indicatorColor: colorScheme.primary,
+              indicatorWeight: 3,
+              tabs: const [
+                Tab(text: 'Reglas de Exclusión'),
+                Tab(text: 'Estructura del Proyecto'),
+              ],
+            ),
+            Expanded(
+              child: (isLoading && clusterStatsEmpty && projectSectionsEmpty)
+                  ? const _ProfRulesLoadingSkeleton()
+                  : TabBarView(
                       children: [
-                        _ExclusionRulesTab(),
-                        _ProjectStructureTab(),
+                        _ExclusionRulesTab(projectId: widget.projectId),
+                        _ProjectStructureTab(projectId: widget.projectId),
                       ],
                     ),
-                  ),
-                ],
-              ),
-        floatingActionButton: provider.isLoading
+            ),
+          ],
+        ),
+        floatingActionButton: isLoading
             ? null
-            : Builder(
-                builder: (context) {
-                  final tabController = DefaultTabController.of(context);
-                  return AnimatedBuilder(
-                    animation: tabController,
-                    builder: (context, child) {
-                      if (tabController.index != 1) return const SizedBox.shrink();
-                      return FloatingActionButton.extended(
-                        onPressed: provider.isSaving ? null : () => _saveRules(context, provider),
-                        icon: provider.isSaving
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                              )
-                            : const Icon(Icons.save),
-                        label: Text(provider.isSaving ? 'Guardando...' : 'Guardar y Notificar'),
-                      );
-                    },
-                  );
-                },
-              ),
+              : Builder(
+                  builder: (context) {
+                    final tabController = DefaultTabController.of(context);
+                    // Necesitamos el provider completo para el FAB
+                    final fabProvider = context.watch<ProfRulesProvider>();
+                    return AnimatedBuilder(
+                      animation: tabController,
+                      builder: (context, child) {
+                        if (tabController.index != 1) return const SizedBox.shrink();
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            FloatingActionButton.small(
+                              heroTag: 'addSectionFAB',
+                              backgroundColor: colorScheme.primaryContainer,
+                              foregroundColor: colorScheme.onPrimaryContainer,
+                              onPressed: fabProvider.isLoading ? null : () => _showAddSectionDialog(context, fabProvider),
+                              child: const Icon(Icons.add),
+                            ),
+                            if (fabProvider.isModified) ...[
+                              const SizedBox(height: 12),
+                              FloatingActionButton.extended(
+                                heroTag: 'saveRulesFAB',
+                                backgroundColor: colorScheme.primary,
+                                foregroundColor: colorScheme.onPrimary,
+                                onPressed: fabProvider.isSaving ? null : () => _saveRules(context, fabProvider),
+                                icon: fabProvider.isSaving
+                                    ? const SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                      )
+                                    : const Icon(Icons.save, size: 18),
+                                label: Text(
+                                  fabProvider.isSaving ? 'Guardando...' : 'Guardar',
+                                  style: const TextStyle(fontSize: 13),
+                                ),
+                              ),
+                            ],
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
       ),
     );
   }
@@ -87,6 +131,7 @@ class _ProfRulesPageView extends StatelessWidget {
   void _saveRules(BuildContext context, ProfRulesProvider provider) async {
     final user = context.read<AuthProvider>().currentUser;
     await provider.saveConfig(
+      projectId: widget.projectId,
       authorName: user?.name,
       authorPhotoUrl: user?.photoUrl,
       authorId: user?.id,
@@ -106,7 +151,8 @@ class _ProfRulesPageView extends StatelessWidget {
 }
 
 class _ExclusionRulesTab extends StatelessWidget {
-  const _ExclusionRulesTab();
+  final String projectId;
+  const _ExclusionRulesTab({required this.projectId});
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +173,7 @@ class _ExclusionRulesTab extends StatelessWidget {
     });
 
     return RefreshIndicator(
-      onRefresh: () => provider.fetchData(),
+      onRefresh: () => provider.fetchData(projectId: projectId),
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         physics: const AlwaysScrollableScrollPhysics(),
@@ -166,7 +212,21 @@ class _ExclusionRulesTab extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 24),
-          if (sortedClusters.isEmpty)
+          if (provider.isLoading && sortedClusters.isEmpty)
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: 4,
+              separatorBuilder: (_, __) => const SizedBox(height: 16),
+              itemBuilder: (_, __) => Row(
+                children: [
+                  CorvusSkeleton(width: 40, height: 40, borderRadius: BorderRadius.all(Radius.circular(20))),
+                  const SizedBox(width: 16),
+                  Expanded(child: CorvusSkeleton(height: 20, width: double.infinity)),
+                ],
+              ),
+            )
+          else if (sortedClusters.isEmpty)
             Center(
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
@@ -216,13 +276,17 @@ class _ExclusionRulesTab extends StatelessWidget {
                         subtitle: Text('${item['project_count']} proyectos actuales en este tema'),
                         trailing: Switch(
                           value: isBlocked,
-                          activeThumbColor: colorScheme.error,
+                          activeColor: colorScheme.onError,
+                          activeTrackColor: colorScheme.error,
+                          inactiveThumbColor: colorScheme.outline,
+                          inactiveTrackColor: colorScheme.surfaceContainerHighest,
                           onChanged: (value) async {
                             final messenger = ScaffoldMessenger.of(context);
                             final scheme = Theme.of(context).colorScheme;
                             final user = context.read<AuthProvider>().currentUser;
                             provider.toggleExclusionRule(clusterName);
                             await provider.saveConfig(
+                              projectId: projectId,
                               authorName: user?.name,
                               authorPhotoUrl: user?.photoUrl,
                               authorId: user?.id,
@@ -263,7 +327,8 @@ class _ExclusionRulesTab extends StatelessWidget {
 }
 
 class _ProjectStructureTab extends StatelessWidget {
-  const _ProjectStructureTab();
+  final String projectId;
+  const _ProjectStructureTab({required this.projectId});
 
   @override
   Widget build(BuildContext context) {
@@ -271,7 +336,7 @@ class _ProjectStructureTab extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return RefreshIndicator(
-      onRefresh: () => provider.fetchData(),
+      onRefresh: () => provider.fetchData(projectId: projectId),
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         physics: const AlwaysScrollableScrollPhysics(),
@@ -319,16 +384,6 @@ class _ProjectStructureTab extends StatelessWidget {
                 'Secciones (${provider.projectSections.length})',
                 style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    onPressed: provider.isLoading ? null : () => _addSectionDialog(context, provider),
-                    icon: Icon(Icons.add_circle, color: colorScheme.primary),
-                    tooltip: 'Añadir sección manual',
-                  ),
-                ],
-              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -361,54 +416,65 @@ class _ProjectStructureTab extends StatelessWidget {
                     side: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
                   ),
                   elevation: 0,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                name,
-                                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: isObligatory ? colorScheme.primaryContainer : colorScheme.surfaceContainerHighest,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                isObligatory ? 'Obligatoria' : 'Opcional',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: isObligatory ? colorScheme.onPrimaryContainer : colorScheme.onSurfaceVariant,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () {
+                      _showAddSectionDialog(
+                        context, 
+                        provider, 
+                        initialSection: section, 
+                        editIndex: index
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  name,
+                                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                                 ),
                               ),
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.delete_outline, color: colorScheme.error),
-                              onPressed: () => provider.removeSection(index),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        const SizedBox(height: 8),
-                        if (descripcion != null && descripcion.isNotEmpty) ...[
-                          Text(
-                            descripcion,
-                            style: TextStyle(fontSize: 14, color: colorScheme.onSurface),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: isObligatory ? colorScheme.primaryContainer : colorScheme.surfaceContainerHighest,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  isObligatory ? 'Obligatoria' : 'Opcional',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: isObligatory ? colorScheme.onPrimaryContainer : colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.delete_outline, color: colorScheme.error),
+                                onPressed: () => provider.removeSection(index),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 8),
+                          const SizedBox(height: 8),
+                          if (descripcion != null && descripcion.isNotEmpty) ...[
+                            Text(
+                              descripcion,
+                              style: TextStyle(fontSize: 14, color: colorScheme.onSurface),
+                            ),
+                            const SizedBox(height: 4),
+                          ],
+                          Text(
+                            'Palabras clave: $keywords',
+                            style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
+                          ),
                         ],
-                        Text(
-                          'Palabras clave: $keywords',
-                          style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 );
@@ -420,254 +486,213 @@ class _ProjectStructureTab extends StatelessWidget {
       ),
     );
   }
-
-  void _addSectionDialog(BuildContext context, ProfRulesProvider provider) {
-    final nameController = TextEditingController();
-    final descController = TextEditingController();
-
-    bool isObligatory = true;
-    final colorScheme = Theme.of(context).colorScheme;
-
-    showDialog(
-      context: context,
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return Dialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
-              elevation: 0,
-              backgroundColor: colorScheme.surface,
-              insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Titulo con Icono
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: colorScheme.primaryContainer,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(Icons.note_add_outlined, color: colorScheme.onPrimaryContainer),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Text(
-                              'Nueva Sección',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: colorScheme.onSurface,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 28),
-                      
-                      // TextField de Nombre
-                      TextField(
-                        controller: nameController,
-                        decoration: InputDecoration(
-                          labelText: 'Nombre de la sección',
-                          hintText: 'Ej. Introducción',
-                          filled: true,
-                          fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide.none,
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // TextField de Descripción
-                      TextField(
-                        controller: descController,
-                        maxLines: 2,
-                        decoration: InputDecoration(
-                          labelText: 'Descripción (Opcional)',
-                          hintText: 'Ej. Escribe un resumen de...',
-                          filled: true,
-                          fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide.none,
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      
-
-                      
-                      // Toggle de Obligatoria
-                      Container(
-                        decoration: BoxDecoration(
-                          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: SwitchListTile(
-                          title: const Text('Sección Obligatoria', style: TextStyle(fontWeight: FontWeight.w500)),
-                          subtitle: Text('Requerida para la evaluación', style: TextStyle(fontSize: 12)),
-                          value: isObligatory,
-                          activeThumbColor: colorScheme.primary,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                          onChanged: (val) {
-                            setState(() {
-                              isObligatory = val;
-                            });
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      
-                      // Botones
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextButton(
-                              style: TextButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                              ),
-                              onPressed: () => Navigator.pop(ctx),
-                              child: const Text('Cancelar', style: TextStyle(fontWeight: FontWeight.w600)),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: FilledButton(
-                              style: FilledButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                              ),
-                              onPressed: () {
-                                final name = nameController.text.trim();
-                                final desc = descController.text.trim();
-                                if (name.isNotEmpty) {
-                                  provider.addSection(name, [], isObligatory, descripcion: desc);
-                                  Navigator.pop(ctx);
-                                }
-                              },
-                              child: const Text('Añadir', style: TextStyle(fontWeight: FontWeight.w600)),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
 }
 
-class _ProfRulesLoadingSkeleton extends StatefulWidget {
-  const _ProfRulesLoadingSkeleton();
+void _showAddSectionDialog(BuildContext context, ProfRulesProvider provider, {Map<String, dynamic>? initialSection, int? editIndex}) {
+  final nameController = TextEditingController(text: initialSection?['nombre'] ?? '');
+  final descController = TextEditingController(text: initialSection?['descripcion'] ?? '');
 
-  @override
-  State<_ProfRulesLoadingSkeleton> createState() => _ProfRulesLoadingSkeletonState();
-}
+  bool isObligatory = initialSection?['obligatoria'] ?? true;
+  final colorScheme = Theme.of(context).colorScheme;
 
-class _ProfRulesLoadingSkeletonState extends State<_ProfRulesLoadingSkeleton> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _opacity;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    )..repeat(reverse: true);
-    _opacity = Tween<double>(begin: 0.3, end: 0.7).animate(_controller);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  Widget _buildSkeletonBox({double? width, double? height, double borderRadius = 8}) {
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(borderRadius),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: _opacity,
-      child: Column(
-        children: [
-          // Simulated TabBar
-          Container(
-            height: 48,
-            color: Theme.of(context).colorScheme.surface,
-            child: Row(
-              children: [
-                Expanded(child: Center(child: _buildSkeletonBox(width: 120, height: 20))),
-                Expanded(child: Center(child: _buildSkeletonBox(width: 150, height: 20))),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: ListView.separated(
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: 6,
-                separatorBuilder: (_, _) => const SizedBox(height: 16),
-                itemBuilder: (_, _) => Row(
+  showDialog(
+    context: context,
+    builder: (ctx) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return Dialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            elevation: 0,
+            backgroundColor: colorScheme.surface,
+            insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _buildSkeletonBox(width: 40, height: 40, borderRadius: 20),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildSkeletonBox(width: 180, height: 16),
-                          const SizedBox(height: 8),
-                          _buildSkeletonBox(width: 120, height: 12),
-                        ],
+                    // Titulo con Icono
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: colorScheme.primaryContainer,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(editIndex != null ? Icons.edit_outlined : Icons.note_add_outlined, color: colorScheme.onPrimaryContainer),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Text(
+                            editIndex != null ? 'Editar Sección' : 'Nueva Sección',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 28),
+                    
+                    // TextField de Nombre
+                    TextField(
+                      controller: nameController,
+                      decoration: InputDecoration(
+                        labelText: 'Nombre de la sección',
+                        hintText: 'Ej. Introducción',
+                        filled: true,
+                        fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    _buildSkeletonBox(width: 40, height: 24, borderRadius: 12),
+                    const SizedBox(height: 16),
+
+                    // TextField de Descripción
+                    TextField(
+                      controller: descController,
+                      maxLines: 2,
+                      decoration: InputDecoration(
+                        labelText: 'Descripción (Opcional)',
+                        hintText: 'Ej. Escribe un resumen de...',
+                        filled: true,
+                        fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // Toggle de Obligatoria
+                    Container(
+                      decoration: BoxDecoration(
+                        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: SwitchListTile(
+                        title: const Text('Sección Obligatoria', style: TextStyle(fontWeight: FontWeight.w500)),
+                        subtitle: Text('Requerida para la evaluación', style: TextStyle(fontSize: 12)),
+                        value: isObligatory,
+                        activeThumbColor: colorScheme.primary,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        onChanged: (val) {
+                          setState(() {
+                            isObligatory = val;
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    
+                    // Botones
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                            onPressed: () => Navigator.pop(ctx),
+                            child: const Text('CANCELAR', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: FilledButton(
+                            style: FilledButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                            onPressed: () {
+                              final name = nameController.text.trim();
+                              final desc = descController.text.trim();
+                              if (name.isNotEmpty) {
+                                if (editIndex != null) {
+                                  final List<String> currentKeywords = (initialSection?['keywords'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [];
+                                  provider.updateSection(editIndex, {
+                                    "nombre": name,
+                                    "keywords": currentKeywords,
+                                    "obligatoria": isObligatory,
+                                    if (desc.isNotEmpty) "descripcion": desc,
+                                  });
+                                } else {
+                                  provider.addSection(name, [], isObligatory, descripcion: desc);
+                                }
+                                Navigator.pop(ctx);
+                              }
+                            },
+                            child: Text(editIndex != null ? 'ACTUALIZAR' : 'GUARDAR', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
             ),
+          );
+        },
+      );
+    },
+  );
+}
+
+class _ProfRulesLoadingSkeleton extends StatelessWidget {
+  const _ProfRulesLoadingSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(height: 20),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: ListView.separated(
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: 6,
+              separatorBuilder: (_, _) => const SizedBox(height: 16),
+              itemBuilder: (_, _) => Row(
+                children: [
+                  const CorvusSkeleton(width: 40, height: 40, borderRadius: BorderRadius.all(Radius.circular(20))),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const CorvusSkeleton(width: 180, height: 16, borderRadius: BorderRadius.all(Radius.circular(8))),
+                        const SizedBox(height: 8),
+                        const CorvusSkeleton(width: 120, height: 12, borderRadius: BorderRadius.all(Radius.circular(8))),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  const CorvusSkeleton(width: 40, height: 24, borderRadius: BorderRadius.all(Radius.circular(12))),
+                ],
+              ),
+            ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -706,27 +731,30 @@ class _TeamLimitsEditorState extends State<_TeamLimitsEditor> {
 
   void _onFocusChange() {
     if (!_minFocus.hasFocus && !_maxFocus.hasFocus) {
-      int min = int.tryParse(_minController.text) ?? 1;
-      int max = int.tryParse(_maxController.text) ?? 5;
+      if (_minController.text.isNotEmpty && _maxController.text.isNotEmpty) {
+        int min = int.tryParse(_minController.text) ?? 1;
+        int max = int.tryParse(_maxController.text) ?? 5;
 
-      if (min < 1) min = 1;
-      if (max < min) max = min;
+        if (min < 1) min = 1;
+        if (max < min) max = min;
 
-      if (_minController.text != min.toString()) {
-        _minController.text = min.toString();
-      }
-      if (_maxController.text != max.toString()) {
-        _maxController.text = max.toString();
+        if (_minController.text != min.toString()) {
+          _minController.text = min.toString();
+        }
+        if (_maxController.text != max.toString()) {
+          _maxController.text = max.toString();
+        }
       }
       
       _updateLimits();
+      setState(() {});
     }
   }
 
   void _updateLimits() {
     final provider = context.read<ProfRulesProvider>();
-    final min = int.tryParse(_minController.text) ?? 1;
-    final max = int.tryParse(_maxController.text) ?? 5;
+    final min = int.tryParse(_minController.text) ?? 0;
+    final max = int.tryParse(_maxController.text) ?? 0;
     provider.updateTeamLimits(min, max);
   }
 
@@ -763,13 +791,24 @@ class _TeamLimitsEditorState extends State<_TeamLimitsEditor> {
                     controller: _minController,
                     focusNode: _minFocus,
                     keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      TextInputFormatter.withFunction((oldValue, newValue) {
+                        if (newValue.text.startsWith('0')) return oldValue;
+                        return newValue;
+                      }),
+                    ],
                     decoration: InputDecoration(
                       labelText: 'Mínimo',
+                      errorText: _minController.text.isEmpty ? 'Requerido' : 
+                                ((int.tryParse(_minController.text) ?? 0) > (int.tryParse(_maxController.text) ?? 0) && _maxController.text.isNotEmpty) ? 'Inválido' : null,
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                     ),
-                    onChanged: (_) => _updateLimits(),
+                    onChanged: (_) {
+                      _updateLimits();
+                      setState(() {});
+                    },
                   ),
                 ),
                 const Padding(
@@ -781,13 +820,24 @@ class _TeamLimitsEditorState extends State<_TeamLimitsEditor> {
                     controller: _maxController,
                     focusNode: _maxFocus,
                     keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      TextInputFormatter.withFunction((oldValue, newValue) {
+                        if (newValue.text.startsWith('0')) return oldValue;
+                        return newValue;
+                      }),
+                    ],
                     decoration: InputDecoration(
                       labelText: 'Máximo',
+                      errorText: _maxController.text.isEmpty ? 'Requerido' : 
+                                ((int.tryParse(_minController.text) ?? 0) > (int.tryParse(_maxController.text) ?? 0) && _minController.text.isNotEmpty) ? 'Inválido' : null,
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                     ),
-                    onChanged: (_) => _updateLimits(),
+                    onChanged: (_) {
+                      _updateLimits();
+                      setState(() {});
+                    },
                   ),
                 ),
                 const SizedBox(width: 8),

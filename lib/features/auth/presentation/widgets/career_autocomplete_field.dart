@@ -1,3 +1,4 @@
+import 'package:mobile/core/network/api_endpoints.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -42,7 +43,7 @@ class _CareerAutocompleteFieldState extends State<CareerAutocompleteField> {
     try {
       final universityName = Uri.encodeComponent(widget.universityController.text.trim());
       final response = await http
-          .get(Uri.parse('${ApiConfig.apiGatewayUrl}/auth/careers?search=$query&universityId=$universityName'))
+          .get(Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authCareers}?search=$query&universityId=$universityName'))
           .timeout(const Duration(seconds: 10));
 
       if (_lastQuery != query) return [];
@@ -62,7 +63,7 @@ class _CareerAutocompleteFieldState extends State<CareerAutocompleteField> {
     return Autocomplete<String>(
       textEditingController: widget.controller,
       focusNode: _focusNode,
-      optionsViewOpenDirection: OptionsViewOpenDirection.down,
+      optionsViewOpenDirection: OptionsViewOpenDirection.up,
       optionsBuilder: (TextEditingValue textEditingValue) async {
         return await _getCareers(textEditingValue.text);
       },
@@ -150,14 +151,14 @@ class _CareerAutocompleteFieldState extends State<CareerAutocompleteField> {
         return TapRegion(
           groupId: 'autocomplete_career',
           child: Align(
-            alignment: Alignment.topLeft,
+            alignment: Alignment.bottomLeft,
             child: Padding(
-              padding: const EdgeInsets.only(top: 8.0),
+              padding: const EdgeInsets.only(bottom: 8.0),
               child: Material(
                 elevation: 4.0,
                 borderRadius: const BorderRadius.vertical(
-                  top: Radius.zero,
-                  bottom: Radius.circular(12),
+                  top: Radius.circular(12),
+                  bottom: Radius.zero,
                 ),
                 child: Container(
                   width: MediaQuery.of(context).size.width - 64,
@@ -165,8 +166,8 @@ class _CareerAutocompleteFieldState extends State<CareerAutocompleteField> {
                   decoration: BoxDecoration(
                     color: widget.isDark ? widget.colors.surfaceContainerHigh : Colors.white,
                     borderRadius: const BorderRadius.vertical(
-                      top: Radius.zero,
-                      bottom: Radius.circular(12),
+                      top: Radius.circular(12),
+                      bottom: Radius.zero,
                     ),
                   ),
                   child: Scrollbar(

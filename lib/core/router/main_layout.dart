@@ -79,19 +79,14 @@ class _MainLayoutState extends State<MainLayout> {
               label: l10n.navInspiration,
             ),
             CustomNavItemData(
-              icon: Icons.folder_open,
-              activeIcon: Icons.folder,
-              label: l10n.navMyProject,
+              icon: Icons.class_outlined,
+              activeIcon: Icons.class_,
+              label: 'Proyectos',
             ),
             CustomNavItemData(
               icon: Icons.search_outlined,
               activeIcon: Icons.search,
               label: l10n.navSearch,
-            ),
-            CustomNavItemData(
-              icon: Icons.groups_outlined,
-              activeIcon: Icons.groups,
-              label: l10n.navTeams,
             ),
           ],
         ),

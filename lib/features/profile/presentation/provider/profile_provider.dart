@@ -20,6 +20,12 @@ class ProfileProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
+  void clear() {
+    _profile = null;
+    _errorMessage = null;
+    notifyListeners();
+  }
+
   Future<void> fetchProfile({bool forceRefresh = false}) async {
     _isLoading = true;
     _errorMessage = null;

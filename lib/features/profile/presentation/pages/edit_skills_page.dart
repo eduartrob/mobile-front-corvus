@@ -20,26 +20,11 @@ class _EditSkillsPageState extends State<EditSkillsPage> {
   bool _isFetchingSkills = false;
   List<String> _displaySkills = [];
 
-  final List<String> _fallbackSkills = [
-    'Resolución de problemas', 'Trabajo en equipo', 'Comunicación', 'Liderazgo', 'Pensamiento crítico', 'Adaptabilidad', 'Organización', 'Creatividad',
-    'Desarrollo Web', 'Desarrollo Móvil', 'Bases de Datos', 'Machine Learning', 'Inteligencia Artificial', 'Diseño UI/UX', 'Análisis de Datos', 'Gestión de Proyectos',
-    'Marketing Digital', 'Ventas', 'Finanzas', 'Contabilidad', 'Recursos Humanos', 'Redes', 'Seguridad Informática', 'Cloud Computing',
-    'Python', 'Java', 'JavaScript', 'TypeScript', 'C++', 'C#', 'PHP', 'Ruby', 'Swift', 'Kotlin', 'Dart', 'Go', 'Rust',
-    'React', 'Angular', 'Vue.js', 'Node.js', 'Express', 'Django', 'Flask', 'Spring Boot', 'Laravel', 'ASP.NET',
-    'SQL', 'NoSQL', 'MongoDB', 'PostgreSQL', 'MySQL', 'Firebase', 'AWS', 'Google Cloud', 'Azure', 'Docker', 'Kubernetes',
-    'Git', 'Metodologías Ágiles', 'Scrum', 'Kanban', 'Inglés', 'Oratoria', 'Negociación', 'Empatía', 'Gestión del tiempo',
-    'Edición de Video', 'Edición de Fotografía', 'Ilustración', 'Animación 3D', 'Copywriting', 'SEO', 'SEM',
-    'Investigación', 'Redacción Académica', 'Estadística', 'Matemáticas', 'Física', 'Química', 'Biología', 'Medicina',
-    'Derecho', 'Psicología', 'Sociología', 'Historia', 'Filosofía', 'Arte', 'Música', 'Idiomas',
-    'Diseño Gráfico', 'Arquitectura', 'Ingeniería Civil', 'Ingeniería Mecánica', 'Ingeniería Eléctrica', 'Ingeniería Industrial',
-    'Mecatrónica', 'Robótica', 'Electrónica', 'Telecomunicaciones', 'Automatización', 'Internet de las Cosas (IoT)'
-  ];
-
   @override
   void initState() {
     super.initState();
     _selectedSkills = List.from(widget.initialSkills);
-    _displaySkills = List.from(_fallbackSkills);
+    _displaySkills = [];
     
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchDynamicSkills();
@@ -72,8 +57,7 @@ class _EditSkillsPageState extends State<EditSkillsPage> {
         if (fetchedSkills.isNotEmpty && mounted) {
           setState(() {
             final uniqueSkills = Set<String>.from(fetchedSkills);
-            uniqueSkills.addAll(_fallbackSkills);
-            _displaySkills = uniqueSkills.take(100).toList();
+            _displaySkills = uniqueSkills.toList();
           });
         }
       }
@@ -161,6 +145,7 @@ class _EditSkillsPageState extends State<EditSkillsPage> {
               Text(
                 skill,
                 style: TextStyle(
+                  fontSize: 14,
                   color: isSelected ? colors.primary : colors.onSurface,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),

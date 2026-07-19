@@ -38,29 +38,85 @@ class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
     }
   }
 
+  void _evaluateProject(bool isApproved, String comment) async {
+    final provider = context.read<ProfReviewsProvider>();
+    final success = await provider.evaluateProject(
+      widget.review.id, 
+      comment, 
+      isApproved
+    );
+    if (success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Evaluación registrada exitosamente'))
+      );
+      Navigator.pop(context);
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(provider.errorMessage ?? 'Error al registrar evaluación'))
+      );
+    }
+  }
+
   void _showReasonDialog(String status) {
     final reasonController = TextEditingController();
+    final isApprove = status == 'APPROVED';
     showDialog(
       context: context,
       builder: (ctx) {
+        final colorScheme = Theme.of(context).colorScheme;
         return AlertDialog(
-          title: Text(status == 'APPROVED' ? 'Motivo de Aprobación' : 'Motivo de Rechazo'),
-          content: TextField(
-            controller: reasonController,
-            decoration: const InputDecoration(
-              hintText: 'Ingresa el motivo (opcional)',
-              border: OutlineInputBorder()
-            ),
-            maxLines: 3,
+          backgroundColor: colorScheme.surface,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          title: Text(
+            isApprove ? '¿Aprobar proyecto?' : '¿Rechazar proyecto?',
+            style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                isApprove 
+                  ? '¿Estás seguro de que deseas aprobar esta propuesta de proyecto?' 
+                  : '¿Estás seguro de que deseas rechazar esta propuesta de proyecto?',
+                style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: reasonController,
+                decoration: InputDecoration(
+                  hintText: 'Motivo o retroalimentación (opcional)',
+                  hintStyle: TextStyle(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6)),
+                  filled: true,
+                  fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+                  ),
+                ),
+                maxLines: 3,
+              ),
+            ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancelar')),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx), 
+              child: Text('CANCELAR', style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold)),
+            ),
             FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: isApprove ? colorScheme.primary : colorScheme.error,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
               onPressed: () {
                 Navigator.pop(ctx);
-                _updateStatus(status, reason: reasonController.text);
+                _evaluateProject(isApprove, reasonController.text);
               },
-              child: const Text('Confirmar')
+              child: Text('CONFIRMAR', style: const TextStyle(fontWeight: FontWeight.bold)),
             )
           ],
         );
@@ -75,59 +131,88 @@ class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
     showDialog(
       context: context,
       builder: (ctx) {
+        final colorScheme = Theme.of(context).colorScheme;
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text(l10n.citeTeam),
+              backgroundColor: colorScheme.surface,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              title: Text(
+                l10n.citeTeam,
+                style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 18),
+              ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ListTile(
-                    title: Text(selectedDate == null ? 'Seleccionar Fecha' : DateFormat('dd/MM/yyyy').format(selectedDate!)),
-                    trailing: const Icon(Icons.calendar_today),
-                    onTap: () async {
-                      DateTime nextWeekday = DateTime.now().add(const Duration(days: 1));
-                      while (nextWeekday.weekday > 5) {
-                        nextWeekday = nextWeekday.add(const Duration(days: 1));
-                      }
-                      
-                      final d = await showDatePicker(
-                        context: context,
-                        initialDate: nextWeekday,
-                        firstDate: nextWeekday,
-                        lastDate: DateTime.now().add(const Duration(days: 60)),
-                        selectableDayPredicate: (DateTime val) => val.weekday >= 1 && val.weekday <= 5,
-                      );
-                      if (d != null) setState(() => selectedDate = d);
-                    },
+                  Text(
+                    'Selecciona la fecha y hora para la defensa del proyecto.',
+                    style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14),
                   ),
-                  ListTile(
-                    title: Text(selectedTime == null ? 'Seleccionar Hora' : selectedTime!.format(context)),
-                    trailing: const Icon(Icons.access_time),
-                    onTap: () async {
-                      final t = await showTimePicker(
-                        context: context,
-                        initialTime: const TimeOfDay(hour: 8, minute: 0),
-                      );
-                      if (t != null) {
-                        if (t.hour >= 8 && (t.hour < 16 || (t.hour == 16 && t.minute == 0))) {
-                          setState(() => selectedTime = t);
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('La hora debe ser entre 8:00 AM y 4:00 PM'))
-                          );
-                        }
-                      }
-                    },
+                  const SizedBox(height: 16),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      children: [
+                        ListTile(
+                          title: Text(selectedDate == null ? 'Seleccionar Fecha' : DateFormat('dd/MM/yyyy').format(selectedDate!), style: const TextStyle(fontWeight: FontWeight.w500)),
+                          trailing: Icon(Icons.calendar_today, color: colorScheme.primary),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          onTap: () async {
+                            DateTime nextWeekday = DateTime.now().add(const Duration(days: 1));
+                            while (nextWeekday.weekday > 5) {
+                              nextWeekday = nextWeekday.add(const Duration(days: 1));
+                            }
+                            
+                            final d = await showDatePicker(
+                              context: context,
+                              initialDate: nextWeekday,
+                              firstDate: nextWeekday,
+                              lastDate: DateTime.now().add(const Duration(days: 60)),
+                              selectableDayPredicate: (DateTime val) => val.weekday >= 1 && val.weekday <= 5,
+                            );
+                            if (d != null) setState(() => selectedDate = d);
+                          },
+                        ),
+                        const Divider(height: 1),
+                        ListTile(
+                          title: Text(selectedTime == null ? 'Seleccionar Hora' : selectedTime!.format(context), style: const TextStyle(fontWeight: FontWeight.w500)),
+                          trailing: Icon(Icons.access_time, color: colorScheme.primary),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          onTap: () async {
+                            final t = await showTimePicker(
+                              context: context,
+                              initialTime: const TimeOfDay(hour: 8, minute: 0),
+                            );
+                            if (t != null) {
+                              if (t.hour >= 8 && (t.hour < 16 || (t.hour == 16 && t.minute == 0))) {
+                                setState(() => selectedTime = t);
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('La hora debe ser entre 8:00 AM y 4:00 PM'))
+                                );
+                              }
+                            }
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx),
-                  child: Text(l10n.cancel),
+                  child: Text(l10n.cancel.toUpperCase(), style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold)),
                 ),
-                ElevatedButton(
+                FilledButton(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: colorScheme.primary,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
                   onPressed: () {
                     if (selectedDate != null && selectedTime != null) {
                       final finalDt = DateTime(
@@ -136,13 +221,91 @@ class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
                       );
                       Navigator.pop(ctx);
                       _updateStatus('SUMMONED', appointmentDate: finalDt.toUtc().toIso8601String());
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Por favor selecciona fecha y hora'))
+                      );
                     }
                   },
-                  child: const Text('Citar Equipo'),
+                  child: Text(l10n.citeTeam.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ],
             );
           }
+        );
+      },
+    );
+  }
+
+  void _showDefenseChatHistory(BuildContext context, List<dynamic> history) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        final colors = Theme.of(context).colorScheme;
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.8,
+          maxChildSize: 0.9,
+          builder: (_, controller) {
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Historial de Defensa', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(ctx),
+                      )
+                    ],
+                  ),
+                ),
+                const Divider(height: 1),
+                Expanded(
+                  child: ListView.builder(
+                    controller: controller,
+                    padding: const EdgeInsets.all(16),
+                    itemCount: history.length,
+                    itemBuilder: (context, index) {
+                      final msg = history[index];
+                      final isUser = msg['role'] == 'user';
+                      final isSystem = msg['role'] == 'system';
+                      if (isSystem) return const SizedBox.shrink();
+
+                      return Align(
+                        alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: isUser ? colors.primaryContainer : colors.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(16).copyWith(
+                              bottomRight: isUser ? const Radius.circular(4) : const Radius.circular(16),
+                              bottomLeft: !isUser ? const Radius.circular(4) : const Radius.circular(16),
+                            ),
+                          ),
+                          child: Text(
+                            msg['content']?.toString() ?? '',
+                            style: TextStyle(
+                              color: isUser ? colors.onPrimaryContainer : colors.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -190,16 +353,34 @@ class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
     // Try to extract project name from verdict or explanation (e.g. "El proyecto 'Pulmones Urbanos'...")
     String? extractedProjectName = ollamaAnalysis['projectName'] ?? ollamaAnalysis['title'];
     if (extractedProjectName == null) {
-      final textWithProjectName = (ollamaAnalysis['verdict'] as String?) ?? (ollamaAnalysis['semantic_collision_risk']?['explanation'] as String?);
-      if (textWithProjectName != null) {
-        final match = RegExp(r"El proyecto '([^']+)'").firstMatch(textWithProjectName);
+      final List<String> textsToSearch = [];
+      if (ollamaAnalysis['verdict'] != null) textsToSearch.add(ollamaAnalysis['verdict']);
+      if (ollamaAnalysis['semantic_collision_risk']?['explanation'] != null) {
+        textsToSearch.add(ollamaAnalysis['semantic_collision_risk']['explanation']);
+      }
+      if (data['defense_chat_history'] != null) {
+         final chatList = data['defense_chat_history'] as List<dynamic>;
+         final firstMsg = chatList.firstWhere((m) => m['role'] == 'assistant' || m['role'] == 'system', orElse: () => null);
+         if (firstMsg != null && firstMsg['content'] != null) {
+           textsToSearch.add(firstMsg['content'].toString());
+         }
+      }
+
+      final regex = RegExp(r"(?:proyecto|propuesta)(?:\s+de)?\s+'([^']+)'", caseSensitive: false);
+      for (final text in textsToSearch) {
+        final match = regex.firstMatch(text);
         if (match != null && match.groupCount >= 1) {
           extractedProjectName = match.group(1);
+          break;
         }
       }
     }
     
-    final projectName = extractedProjectName ?? data['file_name']?.toString().replaceAll('.pdf', '') ?? 'Propuesta sin título';
+    String fallbackName = data['file_name']?.toString().replaceAll('.pdf', '') ?? 'Propuesta sin título';
+    if (fallbackName.startsWith('draft_') || fallbackName.startsWith('propuesta_')) {
+      fallbackName = 'Propuesta de Proyecto';
+    }
+    final projectName = extractedProjectName ?? fallbackName;
     final teamName = teamInfo['name'] ?? 'Equipo sin nombre';
     final membersList = teamInfo['members'] as List<dynamic>? ?? [];
     final fileName = data['file_name'] ?? 'documento.pdf';
@@ -386,7 +567,23 @@ class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
                 ),
                 const SizedBox(height: 24),
                 
-                const SizedBox(height: 16),
+                if (data['defense_chat_history'] != null && (data['defense_chat_history'] as List).isNotEmpty) ...[
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: OutlinedButton.icon(
+                      onPressed: () => _showDefenseChatHistory(context, data['defense_chat_history'] as List<dynamic>),
+                      icon: const Icon(Icons.forum),
+                      label: const Text('Ver Chat de Defensa', style: TextStyle(fontWeight: FontWeight.bold)),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: colorScheme.primary,
+                        side: BorderSide(color: colorScheme.primary),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
                 
                 const Text(
                   'Análisis Detallado de IA',

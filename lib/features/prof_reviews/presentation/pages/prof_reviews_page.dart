@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
@@ -5,9 +6,11 @@ import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/features/prof_reviews/presentation/provider/prof_reviews_provider.dart';
 import 'package:mobile/features/prof_reviews/presentation/pages/prof_review_detail_page.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile/shared/widgets/corvus_skeleton.dart';
 
 class ProfReviewsPage extends StatefulWidget {
-  const ProfReviewsPage({super.key});
+  final String projectId;
+  const ProfReviewsPage({super.key, required this.projectId});
 
   @override
   State<ProfReviewsPage> createState() => _ProfReviewsPageState();
@@ -18,7 +21,7 @@ class _ProfReviewsPageState extends State<ProfReviewsPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ProfReviewsProvider>().fetchReviews();
+      context.read<ProfReviewsProvider>().fetchReviews(projectId: widget.projectId);
     });
   }
 
@@ -59,9 +62,42 @@ class _ProfReviewsPageState extends State<ProfReviewsPage> {
     final reviews = provider.reviews;
 
     return Scaffold(
-      appBar: const CorvusTopBar(),
-      body: provider.isLoading
-          ? const Center(child: CircularProgressIndicator())
+      appBar: const CorvusTopBar(showBackButton: false),
+      body: (provider.isLoading && provider.reviews.isEmpty)
+          ? ListView.separated(
+              padding: const EdgeInsets.all(20.0),
+              itemCount: 4,
+              separatorBuilder: (_, __) => const SizedBox(height: 16),
+              itemBuilder: (_, __) => Card(
+                margin: const EdgeInsets.only(bottom: 16),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: const [
+                          CorvusSkeleton(height: 18, width: 80),
+                          CorvusSkeleton(height: 14, width: 60),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      const CorvusSkeleton(height: 22, width: 200),
+                      const SizedBox(height: 8),
+                      const CorvusSkeleton(height: 16, width: 140),
+                      const SizedBox(height: 8),
+                      const CorvusSkeleton(height: 14, width: 250),
+                    ],
+                  ),
+                ),
+              ),
+            )
           : RefreshIndicator(
               onRefresh: () => provider.fetchReviews(),
               child: reviews.isEmpty
@@ -83,16 +119,34 @@ class _ProfReviewsPageState extends State<ProfReviewsPage> {
 
                         String? extractedProjectName = ollamaAnalysis['projectName'] ?? ollamaAnalysis['title'];
                         if (extractedProjectName == null) {
-                          final textWithProjectName = (ollamaAnalysis['verdict'] as String?) ?? (ollamaAnalysis['semantic_collision_risk']?['explanation'] as String?);
-                          if (textWithProjectName != null) {
-                            final match = RegExp(r"El proyecto '([^']+)'").firstMatch(textWithProjectName);
+                          final List<String> textsToSearch = [];
+                          if (ollamaAnalysis['verdict'] != null) textsToSearch.add(ollamaAnalysis['verdict']);
+                          if (ollamaAnalysis['semantic_collision_risk']?['explanation'] != null) {
+                            textsToSearch.add(ollamaAnalysis['semantic_collision_risk']['explanation']);
+                          }
+                          if (data['defense_chat_history'] != null) {
+                             final chatList = data['defense_chat_history'] as List<dynamic>;
+                             final firstMsg = chatList.firstWhere((m) => m['role'] == 'assistant' || m['role'] == 'system', orElse: () => null);
+                             if (firstMsg != null && firstMsg['content'] != null) {
+                               textsToSearch.add(firstMsg['content'].toString());
+                             }
+                          }
+
+                          final regex = RegExp(r"(?:proyecto|propuesta)(?:\s+de)?\s+'([^']+)'", caseSensitive: false);
+                          for (final text in textsToSearch) {
+                            final match = regex.firstMatch(text);
                             if (match != null && match.groupCount >= 1) {
                               extractedProjectName = match.group(1);
+                              break;
                             }
                           }
                         }
                         
-                        final projectName = extractedProjectName ?? data['file_name']?.toString().replaceAll('.pdf', '') ?? 'Propuesta sin título';
+                        String fallbackName = data['file_name']?.toString().replaceAll('.pdf', '') ?? 'Propuesta sin título';
+                        if (fallbackName.startsWith('draft_') || fallbackName.startsWith('propuesta_')) {
+                          fallbackName = 'Propuesta de Proyecto';
+                        }
+                        final projectName = extractedProjectName ?? fallbackName;
                         final teamName = teamInfo['name'] ?? 'Equipo sin nombre';
                         final membersList = teamInfo['members'] as List<dynamic>? ?? [];
                         final dateStr = DateFormat('dd MMM yyyy').format(review.createdAt);
@@ -107,9 +161,8 @@ class _ProfReviewsPageState extends State<ProfReviewsPage> {
                           child: InkWell(
                             borderRadius: BorderRadius.circular(16),
                             onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
+                              Navigator.of(context, rootNavigator: true).push(
+                                CupertinoPageRoute(
                                   builder: (context) => ProfReviewDetailPage(review: review),
                                 ),
                               );

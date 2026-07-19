@@ -187,28 +187,30 @@ class _FloatingAiInputState extends State<FloatingAiInput>
       position: _slideAnim,
       child: FadeTransition(
         opacity: _fadeAnim,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-            child: Container(
-              key: const ValueKey('expanded'),
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    const Color(0xFF5B8DEF).withValues(alpha: 0.32),
-                    const Color(0xFF4A7DE0).withValues(alpha: 0.26),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: colorScheme.surface.withValues(alpha: 0.75),
+                  borderRadius: BorderRadius.circular(24),
                 ),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.55),
-                  width: 1,
-                ),
+                child: Container(
+                  key: const ValueKey('expanded'),
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        const Color(0xFF5B8DEF).withValues(alpha: 0.25),
+                        const Color(0xFF4A7DE0).withValues(alpha: 0.15),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(24),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -260,7 +262,7 @@ class _FloatingAiInputState extends State<FloatingAiInput>
                   if (_ideaResult != null) ...[
                     // Result view
                     Text(
-                      "Veredicto del Asesor AI",
+                      "¿Mejoramos tu idea?",
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 8),
@@ -371,6 +373,8 @@ class _FloatingAiInputState extends State<FloatingAiInput>
           ),
         ),
       ),
+    ),
+    ),
     );
   }
 

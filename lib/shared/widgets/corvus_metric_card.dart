@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 
+import 'package:mobile/shared/widgets/corvus_skeleton.dart';
+
 class CorvusMetricCard extends StatelessWidget {
   final String label;
   final String value;
   final IconData? icon;
+  final bool isLoading;
 
   const CorvusMetricCard({
     super.key,
     required this.label,
     required this.value,
     this.icon,
+    this.isLoading = false,
   });
 
   @override
@@ -48,14 +52,16 @@ class CorvusMetricCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: colorScheme.primary,
-            ),
-          ),
+          isLoading 
+            ? const CorvusSkeleton(height: 28, width: 80)
+            : Text(
+                value,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.primary,
+                ),
+              ),
         ],
       ),
     );

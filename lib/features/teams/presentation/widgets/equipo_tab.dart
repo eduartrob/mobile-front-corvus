@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/core/theme/app_dimens.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
 import 'package:mobile/features/my_project/presentation/provider/my_project_provider.dart';
 import 'package:mobile/features/teams/data/models/team_model.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
 import 'team_members_list.dart';
 import 'dashed_border_painter.dart';
 
@@ -13,6 +16,8 @@ class EquipoTab extends StatelessWidget {
   final String? userName;
   final String? userEmail;
   final VoidCallback onLeaveTeam;
+  final VoidCallback? onSearchMembers;
+  final String projectId;
 
   const EquipoTab({
     super.key,
@@ -20,6 +25,8 @@ class EquipoTab extends StatelessWidget {
     this.userName,
     this.userEmail,
     required this.onLeaveTeam,
+    this.onSearchMembers,
+    required this.projectId,
   });
 
   @override
@@ -28,6 +35,27 @@ class EquipoTab extends StatelessWidget {
     final user = context.watch<AuthProvider>().currentUser;
     final projectProvider = context.watch<MyProjectProvider>();
     final currentUserId = user?.id ?? '';
+
+    final projProvider = context.watch<ProjectProvider>();
+    final project = projProvider.myProjects.firstWhere(
+      (p) => p['id'] == projectId,
+      orElse: () => null,
+    );
+    
+    final pastelColors = const [
+      Color(0xFF5C88DA), Color(0xFF9A73C9), 
+      Color(0xFF56A98A), Color(0xFFD98A53), Color(0xFFD67389),
+    ];
+
+    Color pColor = Colors.deepPurpleAccent;
+    if (project != null) {
+      if (project['theme_color'] != null) {
+        final colorStr = project['theme_color'].toString().replaceAll('#', '0xFF');
+        pColor = Color(int.parse(colorStr));
+      } else {
+        pColor = pastelColors[project['id'].hashCode.abs() % pastelColors.length];
+      }
+    }
 
     return Consumer<TeamsProvider>(
       builder: (context, teamsProvider, child) {
@@ -59,98 +87,222 @@ class EquipoTab extends StatelessWidget {
           socialLinks: [],
         );
 
-        final maxMembers = projectProvider.maxTeamMembers;
+        final maxMembers = teamsProvider.maxTeamMembers;
         final missingCount = maxMembers - displayTeam.members.length;
+        final isAdmin = displayTeam.members.isNotEmpty && displayTeam.members[0].id == currentUserId;
 
         return SingleChildScrollView(
-          padding: const EdgeInsets.all(AppDimens.screenMargin),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (teamsProvider.finalReviewStatus != null)
-                _buildProposalStatusBanner(context, teamsProvider.finalReviewStatus!),
-              if (teamsProvider.finalReviewStatus != null)
-                const SizedBox(height: 16),
-              // Project detail box with dashed border
-              CustomPaint(
-                painter: DashedBorderPainter(
-                  color: colorScheme.primary.withValues(alpha: 0.6),
-                  borderRadius: 12.0,
-                  dashLength: 5.0,
-                  gap: 3.0,
-                  strokeWidth: 1.2,
+              // Sophisticated Project detail box (touches edges)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.only(top: 24, left: 24, right: 24, bottom: 36),
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      pColor.withValues(alpha: 0.35),
+                      Theme.of(context).scaffoldBackgroundColor,
+                    ],
+                    stops: const [0.0, 1.0],
+                  ),
                 ),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        displayTeam.name,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.primary,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (project != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 24.0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: pColor,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: pColor.withValues(alpha: 0.2),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  )
+                                ],
+                              ),
+                              child: Stack(
+                                children: [
+                                  if (project['theme_pattern'] != null)
+                                    Positioned.fill(
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(16),
+                                        child: SvgPicture.asset(
+                                          'assets/patterns/${project['theme_pattern']}.svg',
+                                          fit: BoxFit.none,
+                                          colorFilter: ColorFilter.mode(
+                                            ThemeData.estimateBrightnessForColor(pColor) == Brightness.dark
+                                                ? Colors.white.withValues(alpha: 0.2)
+                                                : Colors.grey.shade700.withValues(alpha: 0.2),
+                                            BlendMode.srcATop,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withValues(alpha: 0.2),
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          child: const Icon(Icons.class_, color: Colors.white, size: 20),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Text(
+                                            project['name'],
+                                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        // "TU EQUIPO" badge
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.8),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2))
+                            ]
+                          ),
+                          child: Text(
+                            'TU EQUIPO',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: pColor,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        displayTeam.description,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.9),
-                          height: 1.5,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: colorScheme.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
+                        const SizedBox(height: 16),
+                        Row(
                           children: [
                             Container(
-                              width: 8,
-                              height: 8,
+                              padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: colorScheme.primary,
-                                shape: BoxShape.circle,
+                                color: pColor.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(color: pColor.withValues(alpha: 0.1), blurRadius: 8, offset: const Offset(0, 4))
+                                ]
                               ),
+                              child: Icon(Icons.groups_rounded, color: pColor, size: 24),
                             ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Miembros del Equipo',
-                              style: TextStyle(
-                                color: colorScheme.primary,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              '${displayTeam.members.length}',
-                              style: TextStyle(
-                                color: colorScheme.primary,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                displayTeam.name,
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: colorScheme.onSurface,
+                                ),
                               ),
                             ),
                           ],
                         ),
+                        const SizedBox(height: 16),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 70), // space for floating avatars
+                          child: Text(
+                            displayTeam.description,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.9),
+                              height: 1.5,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        // Integrantes pill
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).scaffoldBackgroundColor,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+                            boxShadow: [
+                              BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 4, offset: const Offset(0, 2))
+                            ]
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.person_outline, size: 14, color: colorScheme.primary),
+                              const SizedBox(width: 6),
+                              Text(
+                                '${displayTeam.members.length} / $maxMembers miembros',
+                                style: TextStyle(
+                                  color: colorScheme.onSurfaceVariant,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (isAdmin)
+                      Positioned(
+                        right: 0,
+                        bottom: 0,
+                        child: TextButton.icon(
+                          onPressed: () => context.push('/manage-team'),
+                          icon: const Icon(Icons.manage_accounts_outlined, size: 18),
+                          label: const Text('Gestionar'),
+                          style: TextButton.styleFrom(
+                            backgroundColor: Colors.white.withValues(alpha: 0.6),
+                            foregroundColor: Colors.deepPurple.shade700,
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
                       ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 28),
-              TeamMembersList(
-                members: displayTeam.members,
-                currentUserId: currentUserId,
-              ),
+              // Rest of the content wrapped in padding
+              Padding(
+                padding: const EdgeInsets.all(AppDimens.screenMargin),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (teamsProvider.finalReviewStatus != null)
+                      _buildProposalStatusBanner(context, teamsProvider.finalReviewStatus!),
+                    if (teamsProvider.finalReviewStatus != null)
+                      const SizedBox(height: 16),
+                    TeamMembersList(
+                      members: displayTeam.members,
+                      currentUserId: currentUserId,
+                    ),
               if (missingCount > 0) ...[
                 const SizedBox(height: 24),
                 Container(
@@ -184,9 +336,7 @@ class EquipoTab extends StatelessWidget {
                   width: double.infinity,
                   height: 48,
                   child: ElevatedButton.icon(
-                    onPressed: () {
-                      DefaultTabController.of(context).animateTo(2); // Redirects to tab index 2 (Sugerencias)
-                    },
+                    onPressed: onSearchMembers ?? () {},
                     icon: const Icon(Icons.search, size: 20),
                     label: const Text(
                       'Buscar integrantes',
@@ -227,7 +377,10 @@ class EquipoTab extends StatelessWidget {
               const SizedBox(height: 60),
             ],
           ),
-        );
+        ),
+      ],
+    ),
+  );
       },
     );
   }

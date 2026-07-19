@@ -117,7 +117,9 @@ class StudentCard extends StatelessWidget {
                       ScaffoldMessenger.of(context).hideCurrentSnackBar();
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Invitación enviada a ${student.name}'),
+                          content: Text(student.hasTeam
+                              ? 'Solicitud enviada a ${student.name}'
+                              : 'Invitación enviada a ${student.name}'),
                           behavior: SnackBarBehavior.floating,
                         ),
                       );
@@ -125,7 +127,8 @@ class StudentCard extends StatelessWidget {
                       ScaffoldMessenger.of(context).hideCurrentSnackBar();
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Error al enviar invitación: $error'),
+                          content: Text('Error al enviar invitación: ${error.toString().replaceAll('Exception: ', '')}'),
+                          backgroundColor: Theme.of(context).colorScheme.error,
                           behavior: SnackBarBehavior.floating,
                         ),
                       );
@@ -133,8 +136,9 @@ class StudentCard extends StatelessWidget {
                   } else {
                     ScaffoldMessenger.of(context).hideCurrentSnackBar();
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Error: El estudiante no tiene ID válido'),
+                      SnackBar(
+                        content: const Text('Error: El estudiante no tiene ID válido'),
+                        backgroundColor: Theme.of(context).colorScheme.error,
                         behavior: SnackBarBehavior.floating,
                       ),
                     );
@@ -148,9 +152,9 @@ class StudentCard extends StatelessWidget {
                   ),
                   elevation: 0,
                 ),
-                child: const Text(
-                  'Invitar',
-                  style: TextStyle(
+                child: Text(
+                  student.hasTeam ? 'Solicitar unirse' : 'Invitar',
+                  style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                   ),

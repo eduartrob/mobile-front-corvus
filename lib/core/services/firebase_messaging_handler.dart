@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:mobile/features/notifications/presentation/provider/notifications_provider.dart';
 import 'package:mobile/features/notifications/presentation/pages/notifications_page.dart';
 import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
+import 'package:mobile/features/my_project/presentation/provider/my_project_provider.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -52,6 +53,11 @@ Future<void> handleFCMMessage(RemoteMessage message) async {
           context.read<TeamsProvider>().fetchMyTeam();
           context.read<TeamsProvider>().fetchRequests();
           context.read<TeamsProvider>().fetchSuggestions();
+        }
+        
+        if (data['type'] == 'CONFIG_UPDATED') {
+          context.read<TeamsProvider>().fetchMyTeam();
+          context.read<MyProjectProvider>().refreshConfig();
         }
       } catch(e) {
         debugPrint('Provider no disponible en context actual');
@@ -97,10 +103,17 @@ Future<void> handleFCMMessage(RemoteMessage message) async {
   } else if (data['type'] == 'CONFIG_UPDATED') {
     try {
       final storage = SecureStorageService();
-      await storage.delete(key: 'cached_prof_config');
-      await storage.delete(key: 'etag_prof_config'); // Importante borrar el ETAG para forzar refresh
-      await storage.delete(key: 'cached_cluster_stats');
-      await storage.delete(key: 'etag_cluster_stats');
+      final allData = await storage.readAll();
+      final keysToDelete = allData.keys.where((key) => 
+        key.startsWith('cached_prof_config') || 
+        key.startsWith('etag_prof_config') ||
+        key.startsWith('cached_cluster_stats') ||
+        key.startsWith('etag_cluster_stats')
+      ).toList();
+      
+      for (final key in keysToDelete) {
+        await storage.delete(key: key);
+      }
     } catch (e) {
       // Ignorar error
     }

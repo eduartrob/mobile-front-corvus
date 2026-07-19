@@ -1,3 +1,4 @@
+import 'package:mobile/core/network/api_endpoints.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -24,7 +25,7 @@ class ProfHistoryProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final url = Uri.parse('${ApiConfig.apiGatewayUrl}/professors/history');
+      final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.professorsHistory}');
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
 
       final response = await client.get(url, headers: headers).timeout(const Duration(seconds: 15));

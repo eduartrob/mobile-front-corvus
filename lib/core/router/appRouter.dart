@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mobile/l10n/app_localizations.dart';
@@ -14,6 +15,12 @@ import 'package:mobile/features/auth/presentation/pages/teacher_verification_pag
 import 'package:mobile/features/auth/presentation/pages/teacher_info_page.dart';
 
 import 'package:mobile/features/inspiration/presentation/pages/inspiration_page.dart';
+import 'package:mobile/features/my_project/presentation/pages/project_defense_chat_page.dart';
+import 'package:mobile/features/my_project/presentation/pages/team_chat_page.dart';
+import 'package:mobile/features/projects/presentation/pages/student_join_project_page.dart';
+import 'package:mobile/features/projects/presentation/pages/student_qr_scanner_page.dart';
+import 'package:mobile/features/projects/presentation/pages/prof_create_project_page.dart';
+
 import 'package:mobile/features/my_project/presentation/pages/my_project_page.dart';
 import 'package:mobile/features/teams/presentation/pages/teams_page.dart';
 import 'package:mobile/features/teams/presentation/pages/manage_team_page.dart';
@@ -27,74 +34,34 @@ import 'package:mobile/features/prof_profile/presentation/pages/prof_profile_pag
 import 'package:mobile/features/profile/presentation/pages/activity_history_page.dart';
 import 'package:mobile/core/router/main_layout.dart';
 import 'package:mobile/core/router/prof_main_layout.dart';
+import 'package:mobile/core/router/project_layout.dart';
+import 'package:mobile/core/router/prof_project_layout.dart';
+import 'package:mobile/features/projects/presentation/pages/my_projects_dashboard_page.dart';
+import 'package:mobile/features/projects/presentation/pages/prof_projects_dashboard_page.dart';
+import 'package:mobile/features/prof_dash/presentation/pages/prof_directory_page.dart';
+import 'package:mobile/features/projects/presentation/pages/prof_project_settings_page.dart';
+import 'package:mobile/features/projects/presentation/pages/prof_project_config_page.dart';
 
 import 'package:mobile/features/student_directory/presentation/pages/student_directory_page.dart';
 import 'package:mobile/features/notifications/presentation/pages/notifications_page.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
-CustomTransitionPage _buildFadeTransition(Widget child, LocalKey key) {
-  return CustomTransitionPage(
+Page _buildCupertinoTransition(Widget child, LocalKey key) {
+  return CupertinoPage(
     key: key,
     child: child,
-    transitionDuration: const Duration(milliseconds: 280),
-    reverseTransitionDuration: const Duration(milliseconds: 200),
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return FadeTransition(
-        opacity: CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOut,
-        ),
-        child: child,
-      );
-    },
   );
 }
 
-CustomTransitionPage _buildSlideUpTransition(Widget child, LocalKey key) {
-  return CustomTransitionPage(
+Page _buildSlideUpTransition(Widget child, LocalKey key) {
+  return CupertinoPage(
     key: key,
     child: child,
-    transitionDuration: const Duration(milliseconds: 350),
-    reverseTransitionDuration: const Duration(milliseconds: 250),
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(0.0, 1.0),
-          end: Offset.zero,
-        ).animate(CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOutCubic,
-          reverseCurve: Curves.easeInCubic,
-        )),
-        child: FadeTransition(
-          opacity: animation,
-          child: child,
-        ),
-      );
-    },
+    fullscreenDialog: true,
   );
 }
-
-CustomTransitionPage _buildSlideTransition(Widget child, LocalKey key) {
-  return CustomTransitionPage(
-    key: key,
-    child: child,
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(1.0, 0.0),
-          end: Offset.zero,
-        ).animate(CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOutCubic,
-        )),
-        child: child,
-      );
-    },
-  );
-}
-
+final GlobalKey<ScaffoldMessengerState> globalMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
 class AppRouter extends StatefulWidget {
   final ThemeData? appTheme;
@@ -152,7 +119,7 @@ class _AppRouterState extends State<AppRouter> {
       routes: [
         GoRoute(
           path: '/',
-          pageBuilder: (context, state) => _buildFadeTransition(const RoleSelectionPage(), state.pageKey),
+          pageBuilder: (context, state) => _buildCupertinoTransition(const RoleSelectionPage(), state.pageKey),
         ),
         GoRoute(
           path: '/login',
@@ -170,23 +137,35 @@ class _AppRouterState extends State<AppRouter> {
         ),
         GoRoute(
           path: '/register-student-university',
-          pageBuilder: (context, state) => _buildFadeTransition(const StudentUniversityPage(), state.pageKey),
+          pageBuilder: (context, state) => _buildCupertinoTransition(const StudentUniversityPage(), state.pageKey),
         ),
         GoRoute(
           path: '/register-student-skills',
           pageBuilder: (context, state) {
             final extra = state.extra as Map<String, dynamic>? ?? {};
             final skills = (extra['skills'] as List<dynamic>?)?.cast<String>() ?? [];
-            return _buildSlideTransition(StudentSkillsPage(suggestedSkills: skills), state.pageKey);
+            return _buildCupertinoTransition(StudentSkillsPage(suggestedSkills: skills), state.pageKey);
           },
         ),
         GoRoute(
+          path: '/join-project',
+          pageBuilder: (context, state) => _buildSlideUpTransition(const StudentJoinProjectPage(), state.pageKey),
+        ),
+        GoRoute(
+          path: '/student-qr-scanner',
+          pageBuilder: (context, state) => _buildSlideUpTransition(const StudentQRScannerPage(), state.pageKey),
+        ),
+        GoRoute(
+          path: '/prof-create-project',
+          pageBuilder: (context, state) => _buildSlideUpTransition(const ProfCreateProjectPage(), state.pageKey),
+        ),
+        GoRoute(
           path: '/register-teacher-verification',
-          pageBuilder: (context, state) => _buildSlideTransition(const TeacherVerificationPage(), state.pageKey),
+          pageBuilder: (context, state) => _buildCupertinoTransition(const TeacherVerificationPage(), state.pageKey),
         ),
         GoRoute(
           path: '/register-teacher-info',
-          pageBuilder: (context, state) => _buildSlideTransition(const TeacherInfoPage(), state.pageKey),
+          pageBuilder: (context, state) => _buildCupertinoTransition(const TeacherInfoPage(), state.pageKey),
         ),
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) {
@@ -204,8 +183,8 @@ class _AppRouterState extends State<AppRouter> {
             StatefulShellBranch(
               routes: [
                 GoRoute(
-                  path: '/my-project',
-                  builder: (context, state) => const MyProjectPage(),
+                  path: '/projects',
+                  builder: (context, state) => const MyProjectsDashboardPage(),
                 ),
               ],
             ),
@@ -217,86 +196,82 @@ class _AppRouterState extends State<AppRouter> {
                 ),
               ],
             ),
-            StatefulShellBranch(
-              routes: [
-                GoRoute(
-                  path: '/teams',
-                  builder: (context, state) {
-                    final tab = state.uri.queryParameters['tab'];
-                    return TeamsPage(initialTabIndex: int.tryParse(tab ?? '0') ?? 0);
-                  },
-                ),
-              ],
-            ),
           ],
         ),
 
-        StatefulShellRoute.indexedStack(
-          builder: (context, state, navigationShell) {
-            return ProfMainLayout(navigationShell: navigationShell);
+        // Nivel 2: Proyecto del Alumno
+        // Usamos IndexedStack interno + query param 'tab' en lugar de
+        // StatefulShellRoute para evitar el assertion error con rutas parametrizadas.
+        GoRoute(
+          path: '/project/:id',
+          pageBuilder: (context, state) {
+            final projectId = state.pathParameters['id']!;
+            final tab = int.tryParse(state.uri.queryParameters['tab'] ?? '0') ?? 0;
+            return _buildCupertinoTransition(
+              ProjectLayout(projectId: projectId, initialTab: tab),
+              state.pageKey,
+            );
           },
-          branches: [
-            StatefulShellBranch(
-              routes: [
-                GoRoute(
-                  path: '/prof-dash',
-                  builder: (context, state) => const ProfDashPage(),
-                ),
-              ],
-            ),
-            StatefulShellBranch(
-              routes: [
-                GoRoute(
-                  path: '/prof-reviews',
-                  builder: (context, state) => const ProfReviewsPage(),
-                ),
-              ],
-            ),
-            StatefulShellBranch(
-              routes: [
-                GoRoute(
-                  path: '/prof-rules',
-                  builder: (context, state) => const ProfRulesPage(),
-                ),
-              ],
-            ),
-            StatefulShellBranch(
-              routes: [
-                GoRoute(
-                  path: '/prof-history',
-                  builder: (context, state) => const ProfHistoryPage(),
-                ),
-              ],
-            ),
-          ],
+        ),
+
+        GoRoute(
+          path: '/prof-dash',
+          builder: (context, state) => const ProfProjectsDashboardPage(),
+        ),
+
+        // Nivel 2: Proyecto del Profesor
+        GoRoute(
+          path: '/prof-project/:projectId',
+          pageBuilder: (context, state) {
+            final projectId = state.pathParameters['projectId']!;
+            final tab = int.tryParse(state.uri.queryParameters['tab'] ?? '0') ?? 0;
+            return _buildCupertinoTransition(
+              ProfProjectLayout(projectId: projectId, initialTab: tab),
+              state.pageKey,
+            );
+          },
+        ),
+        GoRoute(
+          path: '/prof-project/:projectId/config',
+          pageBuilder: (context, state) => _buildCupertinoTransition(
+            ProfProjectConfigPage(projectId: state.pathParameters['projectId']!),
+            state.pageKey,
+          ),
+        ),
+        GoRoute(
+          path: '/prof-project/:projectId/directory',
+          pageBuilder: (context, state) => _buildCupertinoTransition(
+            ProfDirectoryPage(projectId: state.pathParameters['projectId']!),
+            state.pageKey,
+          ),
         ),
         
         GoRoute(
           path: '/prof-profile',
-          builder: (context, state) => const ProfProfilePage(),
+          pageBuilder: (context, state) => _buildCupertinoTransition(const ProfProfilePage(), state.pageKey),
         ),
         GoRoute(
           path: '/profile',
-          builder: (context, state) => const ProfilePage(),
+          pageBuilder: (context, state) => _buildCupertinoTransition(const ProfilePage(), state.pageKey),
         ),
         GoRoute(
           path: '/activity-history',
-          builder: (context, state) => const ActivityHistoryPage(),
+          pageBuilder: (context, state) => _buildCupertinoTransition(const ActivityHistoryPage(), state.pageKey),
         ),
         GoRoute(
           path: '/student-directory',
-          builder: (context, state) => const StudentDirectoryPage(),
+          pageBuilder: (context, state) => _buildCupertinoTransition(const StudentDirectoryPage(), state.pageKey),
         ),
         GoRoute(
           path: '/notifications',
-          builder: (context, state) {
+          pageBuilder: (context, state) {
             final highlightLatest = state.uri.queryParameters['highlightLatest'] == 'true';
-            return NotificationsPage(highlightLatest: highlightLatest);
+            return _buildCupertinoTransition(NotificationsPage(highlightLatest: highlightLatest), state.pageKey);
           },
         ),
         GoRoute(
           path: '/manage-team',
-          builder: (context, state) => const ManageTeamPage(),
+          pageBuilder: (context, state) => _buildCupertinoTransition(const ManageTeamPage(), state.pageKey),
         ),
       ],
     );
@@ -304,10 +279,10 @@ class _AppRouterState extends State<AppRouter> {
 
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Corvus',
+      scaffoldMessengerKey: globalMessengerKey,
       theme: widget.appTheme ?? ThemeData.light(),
       darkTheme: widget.darkTheme ?? ThemeData.dark(),
       themeMode: widget.themeMode ?? ThemeMode.light,
@@ -321,6 +296,19 @@ class _AppRouterState extends State<AppRouter> {
       routerConfig: _router,
       // Evita conflictos de Hero tags duplicados en SnackBars durante transiciones
       builder: (context, child) => HeroControllerScope.none(child: child!),
+    );
+  }
+}
+
+class _MockChatPage extends StatelessWidget {
+  const _MockChatPage();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Text('Chat Grupal con IA (En construcción)'),
+      ),
     );
   }
 }

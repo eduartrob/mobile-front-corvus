@@ -42,7 +42,7 @@ class Solicitud {
         username: json['studentUsername'] ?? json['usuario'] ?? '@estudiante',
         bio: json['bio'] ?? json['biografia'] ?? '',
         tags: json['tags'] != null ? List<String>.from(json['tags']) : [],
-        avatarUrl: json['avatarUrl'] ?? json['foto'] ?? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
+        avatarUrl: json['avatarUrl'] ?? json['foto'] ?? '',
       );
     }
 

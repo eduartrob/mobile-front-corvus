@@ -21,4 +21,8 @@ class SecureStorageService {
   Future<void> deleteAll() async {
     await _storage.deleteAll();
   }
+
+  Future<Map<String, String>> readAll() async {
+    return await _storage.readAll();
+  }
 }

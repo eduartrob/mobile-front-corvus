@@ -8,7 +8,6 @@ class SecurityService {
   Future<void> preventScreenshots(bool prevent) async {
     // Desactivado temporalmente para facilitar pruebas y capturas de pantalla.
     // Para reactivar, descomentar el bloque de abajo.
-    /*
     if (kIsWeb) return;
 
     if (Platform.isAndroid) {
@@ -18,7 +17,6 @@ class SecurityService {
         debugPrint("Error configuring screen protection: '${e.toString()}'.");
       }
     }
-    */
   }
 
   Future<bool> isUsbDebuggingEnabled() async {

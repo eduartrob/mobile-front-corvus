@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mobile/features/profile/presentation/pages/edit_profile_page.dart' as mobile;
 import 'package:mobile/features/profile/presentation/pages/settings_page.dart' as mobile;
 import 'package:provider/provider.dart';
-import 'package:go_router/go_router.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
 import 'package:mobile/core/theme/theme_provider.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/core/theme/app_dimens.dart';
@@ -12,7 +12,7 @@ import 'package:mobile/features/profile/presentation/provider/profile_provider.d
 import '../widgets/student_header_info.dart';
 import 'package:mobile/features/profile/presentation/pages/skills_section_page.dart' as mobile;
 import 'package:mobile/features/profile/presentation/pages/saved_projects_page.dart';
-import 'package:mobile/features/profile/presentation/pages/recent_activity_section_page.dart' as mobile;
+import 'package:mobile/features/profile/presentation/pages/activity_history_page.dart' as mobile;
 import 'package:mobile/features/profile/presentation/pages/app_update_page.dart' as mobile;
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:go_router/go_router.dart';
@@ -128,7 +128,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const mobile.RecentActivitySectionPage()),
+                    MaterialPageRoute(builder: (context) => const mobile.ActivityHistoryPage()),
                   );
                 },
               ),
@@ -144,6 +144,17 @@ class _ProfilePageState extends State<ProfilePage> {
                     context,
                     MaterialPageRoute(builder: (context) => const SavedProjectsPage()),
                   );
+                },
+              ),
+              
+              // Unirse a Proyecto
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                leading: Icon(Icons.group_add, color: colorScheme.primary, size: 28),
+                title: Text('Unirse a Proyecto', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16, color: colorScheme.primary)),
+                subtitle: const Text('Ingresa un código para unirte al proyecto de tu clase'),
+                onTap: () {
+                  context.push('/join-project');
                 },
               ),
               
@@ -189,6 +200,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     );
                     
+                    context.read<ProjectProvider>().clear();
+                    context.read<ProfileProvider>().clear();
                     await context.read<AuthProvider>().logout();
                     
                     if (context.mounted) {
@@ -199,7 +212,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   icon: const Icon(Icons.logout, color: Colors.red),
                   label: const Text('Cerrar sesión', style: TextStyle(color: Colors.red)),
                   style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: colorScheme.primary),
+                    side: const BorderSide(color: Colors.red),
+                    backgroundColor: Colors.red.withValues(alpha: 0.05),
+                    overlayColor: Colors.red.withValues(alpha: 0.12),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                 ),

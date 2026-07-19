@@ -1,22 +1,29 @@
+import 'package:mobile/core/network/api_endpoints.dart';
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:mobile/core/network/api_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import '../provider/my_project_provider.dart';
 
 class ProjectDefenseChatPage extends StatefulWidget {
-  final String userId;
+  final String teamId;
+  final String studentName;
   final String proposalSummary;
   final Map<String, dynamic> analysisResult;
   final String? authToken;
+  final List<String>? teamMembers;
 
   const ProjectDefenseChatPage({
     super.key,
-    required this.userId,
+    required this.teamId,
+    required this.studentName,
     required this.proposalSummary,
     required this.analysisResult,
     this.authToken,
+    this.teamMembers,
   });
 
   @override
@@ -33,23 +40,51 @@ class _ProjectDefenseChatPageState extends State<ProjectDefenseChatPage> {
   bool _defensePassed = false;
   int _messageCount = 0;
   final int _maxMessages = 10;
+  late MyProjectProvider _providerRef;
+  Timer? _pollTimer;
   
   @override
   void initState() {
     super.initState();
-    _startSession();
+    _providerRef = context.read<MyProjectProvider>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_providerRef.activeSessionId != null && _providerRef.activeChatMessages.isNotEmpty) {
+        setState(() {
+          _sessionId = _providerRef.activeSessionId;
+          _messages.addAll(_providerRef.activeChatMessages.map((m) => Map<String, String>.from(m)));
+          _messageCount = _providerRef.activeMessageCount;
+          _isLoading = false;
+        });
+        _scrollToBottom();
+        _startPolling();
+      } else {
+        _startSession();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _pollTimer?.cancel();
+    if (_sessionId != null && !_defensePassed) {
+      _providerRef.saveActiveSession(_sessionId!, _messages, _messageCount);
+    }
+    _textController.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Future<void> _startSession() async {
     try {
       final token = widget.authToken ?? context.read<AuthProvider>().currentUser?.token;
-      final url = Uri.parse('${ApiConfig.apiGatewayUrl}/llm/session/start');
+      final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.llmSessionStart}');
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
       headers['Content-Type'] = 'application/json';
       if (token != null) headers['Authorization'] = 'Bearer $token';
       
       final body = jsonEncode({
-        'user_id': widget.userId,
+        'team_id': widget.teamId,
+        'team_members': widget.teamMembers ?? [widget.studentName],
         'proposal_summary': widget.proposalSummary,
         'analysis_result': widget.analysisResult,
       });
@@ -59,18 +94,86 @@ class _ProjectDefenseChatPageState extends State<ProjectDefenseChatPage> {
       if (response.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
         _sessionId = data['session_id'];
-        final aiOpening = data['ai_opening_message'] ?? 'Hola, soy Corvus Evaluator. Hablemos de tu proyecto.';
         
         setState(() {
-          _messages.add({'role': 'assistant', 'content': aiOpening});
+          if (data['messages'] != null && (data['messages'] as List).isNotEmpty) {
+            _messages.clear();
+            for (var m in data['messages']) {
+              if (m['role'] != 'system') {
+                _messages.add({'role': m['role'], 'content': m['content']});
+              }
+            }
+            _messageCount = _messages.where((m) => m['role'] == 'user').length;
+          } else {
+            final aiOpening = data['ai_opening_message'] ?? 'Hola, soy Corvus Evaluator. Hablemos de tu proyecto.';
+            _messages.add({'role': 'assistant', 'content': aiOpening});
+          }
           _isLoading = false;
         });
-        _checkIfPassed(aiOpening);
+        
+        if (_messages.isNotEmpty && _messages.last['role'] == 'assistant') {
+          _checkIfPassed(_messages.last['content'] ?? '');
+        }
       } else {
         _showError('No se pudo iniciar la sesión de defensa. (Error ${response.statusCode})');
       }
     } catch (e) {
       _showError('Error de conexión al iniciar la defensa.');
+    }
+    _startPolling();
+  }
+
+  void _startPolling() {
+    _pollTimer?.cancel();
+    _pollTimer = Timer.periodic(const Duration(seconds: 3), (_) {
+      if (!_defensePassed && _sessionId != null) {
+        _fetchNewMessages();
+      }
+    });
+  }
+
+  Future<void> _fetchNewMessages() async {
+    if (_sessionId == null) return;
+    try {
+      final token = widget.authToken ?? context.read<AuthProvider>().currentUser?.token;
+      final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.llmSessionMessages(_sessionId!)}');
+      final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
+      if (token != null) headers['Authorization'] = 'Bearer $token';
+
+      final response = await http.get(url, headers: headers).timeout(const Duration(seconds: 10));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(response.bodyBytes));
+        final remoteMsgs = data['messages'] as List;
+        
+        bool hasNew = false;
+        int newUserCount = 0;
+        
+        final List<Map<String, String>> parsedMsgs = [];
+        for (var m in remoteMsgs) {
+          if (m['role'] != 'system') {
+            parsedMsgs.add({'role': m['role'], 'content': m['content']});
+            if (m['role'] == 'user') newUserCount++;
+          }
+        }
+        
+        if (parsedMsgs.length > _messages.length) {
+          setState(() {
+            _messages.clear();
+            _messages.addAll(parsedMsgs);
+            _messageCount = newUserCount;
+            // If the last message is from assistant, we are no longer loading
+            if (_messages.isNotEmpty && _messages.last['role'] == 'assistant') {
+              _isLoading = false;
+            }
+          });
+          _scrollToBottom();
+          if (_messages.isNotEmpty && _messages.last['role'] == 'assistant') {
+             _checkIfPassed(_messages.last['content'] ?? '');
+          }
+        }
+      }
+    } catch (e) {
+      // Ignoramos errores silenciosos de polling
     }
   }
 
@@ -88,7 +191,7 @@ class _ProjectDefenseChatPageState extends State<ProjectDefenseChatPage> {
 
     try {
       final token = widget.authToken ?? context.read<AuthProvider>().currentUser?.token;
-      final url = Uri.parse('${ApiConfig.apiGatewayUrl}/llm/session/message');
+      final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.llmSessionMessage}');
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
       headers['Content-Type'] = 'application/json';
       if (token != null) headers['Authorization'] = 'Bearer $token';
@@ -96,6 +199,7 @@ class _ProjectDefenseChatPageState extends State<ProjectDefenseChatPage> {
       final body = jsonEncode({
         'session_id': _sessionId,
         'user_message': text,
+        'student_name': widget.studentName,
       });
 
       final response = await http.post(url, headers: headers, body: body).timeout(const Duration(seconds: 40));
@@ -149,6 +253,7 @@ class _ProjectDefenseChatPageState extends State<ProjectDefenseChatPage> {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         title: const Text('Defensa Finalizada'),
         content: Text(message),
         actions: [
@@ -211,7 +316,7 @@ class _ProjectDefenseChatPageState extends State<ProjectDefenseChatPage> {
             color: isUser ? colors.primary.withValues(alpha: 0.3) : colors.outlineVariant.withValues(alpha: 0.5),
           ),
         ),
-        child: Text(
+        child: SelectableText(
           msg['content']?.replaceAll('[DEFENSA_SUPERADA]', '') ?? '',
           style: TextStyle(
             color: colors.onSurface,
@@ -229,7 +334,7 @@ class _ProjectDefenseChatPageState extends State<ProjectDefenseChatPage> {
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: AppBar(
-        title: const Text('Defensa de Propuesta'),
+        title: Text(widget.analysisResult['approved'] == true ? 'Defensa de Propuesta' : 'Retroalimentación IA'),
         backgroundColor: colors.surface,
         scrolledUnderElevation: 0,
         actions: [
