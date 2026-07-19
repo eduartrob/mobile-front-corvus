@@ -49,7 +49,7 @@ class TeamsProvider extends ChangeNotifier {
   }
 
   int _maxTeamMembers = 4;
-  int get maxTeamMembers => _maxTeamMembers;
+  int get maxTeamMembers => _myTeam?.maxMembers ?? _maxTeamMembers;
 
   Future<void> fetchMyTeam({String? projectId}) async {
     _isLoading = true;

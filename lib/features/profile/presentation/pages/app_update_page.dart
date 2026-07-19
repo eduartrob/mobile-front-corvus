@@ -62,7 +62,19 @@ class AppUpdatePage extends StatelessWidget {
                   const SizedBox(height: 16),
                   _buildVersionItem(
                     context, 
-                    'v1.2.12 (Actual)', 
+                    'v2.5.3 (Actual)', 
+                    'Implementacion de doble verificacion en acciones de docentes, rediseño de tarjetas de edicion, busqueda de docentes y mejoras en alertas de salida.',
+                  ),
+                  const Divider(),
+                  _buildVersionItem(
+                    context, 
+                    'v2.5.2', 
+                    'Mejoras visuales en alertas de evaluación, optimización en extracción de títulos y correcciones en la lista de docentes.',
+                  ),
+                  const Divider(),
+                  _buildVersionItem(
+                    context, 
+                    'v1.2.12', 
                     'Se refactorizó el perfil de usuario con un nuevo diseño y opciones de edición más fluidas.',
                   ),
                   const Divider(),
