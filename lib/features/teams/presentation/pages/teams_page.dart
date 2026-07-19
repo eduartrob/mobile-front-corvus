@@ -12,7 +12,8 @@ import '../widgets/sugerencias_tab.dart';
 
 class TeamsPage extends StatefulWidget {
   final int initialTabIndex;
-  const TeamsPage({super.key, this.initialTabIndex = 0});
+  final String projectId;
+  const TeamsPage({super.key, this.initialTabIndex = 0, required this.projectId});
 
   @override
   State<TeamsPage> createState() => _TeamsPageState();
@@ -53,9 +54,9 @@ class _TeamsPageState extends State<TeamsPage> with SingleTickerProviderStateMix
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         final teamsProvider = Provider.of<TeamsProvider>(context, listen: false);
-        teamsProvider.fetchMyTeam();
-        teamsProvider.fetchSuggestions(skill: _selectedSkill, search: _searchQuery, showAll: _showAllStudents);
-        teamsProvider.fetchRequests();
+        teamsProvider.fetchMyTeam(projectId: widget.projectId);
+        teamsProvider.fetchSuggestions(skill: _selectedSkill, search: _searchQuery, showAll: _showAllStudents, projectId: widget.projectId);
+        teamsProvider.fetchRequests(projectId: widget.projectId);
       }
     });
   }
@@ -148,7 +149,7 @@ class _TeamsPageState extends State<TeamsPage> with SingleTickerProviderStateMix
     final colorScheme = Theme.of(context).colorScheme;
     final user = context.watch<AuthProvider>().currentUser;
     final provider = context.watch<TeamsProvider>();
-    final myAvatarUrl = user?.photoUrl ?? 'https://lh3.googleusercontent.com/aida-public/AB6AXuD0wLXmNJdheSLYRV0cyw58WRptbP7Tcpj2DYe6d6sJQiytU6tgetCYTsh4-Ov0geC0LLapbMasxnzTMELIMNsnayUh4N9TGK5De10d2W71dWF73JXTBHyjaWFa07BYB77_vkOYSDrr-SvtGzREIK2cHWLZNpEc3oBxuPIFF5-lfeKEPSrbyfJCy2PIjLahEVgXVyF24D6pU3BzhZ6AQHJgFgzuPc1CohlsoHoMho2D-B73NSq78KXkdfio1LlxfaQz9d9DTHm2BG0';
+    final myAvatarUrl = user?.photoUrl ?? '';
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -263,6 +264,10 @@ class _TeamsPageState extends State<TeamsPage> with SingleTickerProviderStateMix
                   myAvatarUrl: myAvatarUrl,
                   userName: user?.name,
                   userEmail: user?.email,
+                  projectId: widget.projectId,
+                  onSearchMembers: () {
+                    _tabController.animateTo(2); // Redirects to tab index 2 (Sugerencias)
+                  },
                   onLeaveTeam: () {
                     context.read<TeamsProvider>().leaveTeam().then((_) {
                       if (mounted) {

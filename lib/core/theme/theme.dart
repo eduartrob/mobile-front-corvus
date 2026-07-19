@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 class MaterialTheme {
   final TextTheme textTheme;
@@ -142,6 +143,12 @@ class MaterialTheme {
        selectedItemColor: colorScheme.onPrimaryContainer,
        unselectedItemColor: colorScheme.onSurfaceVariant,
        type: BottomNavigationBarType.fixed,
+     ),
+     pageTransitionsTheme: const PageTransitionsTheme(
+       builders: <TargetPlatform, PageTransitionsBuilder>{
+         TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+         TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+       },
      ),
   );
 

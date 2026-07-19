@@ -20,6 +20,15 @@ class InspirationProvider extends ChangeNotifier {
   bool _isLoading = true;
   bool get isLoading => _isLoading;
 
+  bool _isFetchingMore = false;
+  bool get isFetchingMore => _isFetchingMore;
+
+  bool _hasMore = true;
+  bool get hasMore => _hasMore;
+
+  int _currentPage = 1;
+  static const int _limit = 10;
+
   bool _showWelcome = true;
   bool get showWelcome => _showWelcome;
 
@@ -30,7 +39,10 @@ class InspirationProvider extends ChangeNotifier {
 
   Future<void> _init() async {
     await checkWelcomeStatus();
-    await loadProjects();
+    // Siempre forzar recarga del servidor al iniciar:
+    // el TTL del cache en InspirationRemoteDataSource controla si realmente
+    // hace la petición de red o usa el cache local (≤ 30 min).
+    await loadProjects(forceRefresh: true);
   }
 
   Future<void> checkWelcomeStatus() async {
@@ -53,13 +65,50 @@ class InspirationProvider extends ChangeNotifier {
     }
 
     try {
-      _projects = await _dataSource.getUnexploredProjects(forceRefresh: forceRefresh);
+      _currentPage = 1;
+      final newProjects = await _dataSource.getUnexploredProjects(
+        forceRefresh: forceRefresh,
+        page: _currentPage,
+        limit: _limit,
+      );
+      _projects = newProjects;
+      _hasMore = newProjects.length == _limit;
       _checkAndStartAutoRefresh();
     } catch (e) {
-      print("Error detallado en loadProjects: $e");
+      debugPrint("Error detallado en loadProjects: $e");
       if (_projects.isEmpty) _projects = [];
     } finally {
       _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> loadMore() async {
+    if (_isFetchingMore || !_hasMore) return;
+
+    _isFetchingMore = true;
+    notifyListeners();
+
+    try {
+      final nextPage = _currentPage + 1;
+      final newProjects = await _dataSource.getUnexploredProjects(
+        forceRefresh: true, // we want fresh data for subsequent pages
+        page: nextPage,
+        limit: _limit,
+      );
+
+      if (newProjects.isEmpty) {
+        _hasMore = false;
+      } else {
+        _currentPage = nextPage;
+        _projects.addAll(newProjects);
+        _hasMore = newProjects.length == _limit;
+        _checkAndStartAutoRefresh();
+      }
+    } catch (e) {
+      debugPrint("Error fetching more projects: $e");
+    } finally {
+      _isFetchingMore = false;
       notifyListeners();
     }
   }

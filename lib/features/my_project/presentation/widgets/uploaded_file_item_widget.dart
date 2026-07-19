@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/my_project/presentation/provider/my_project_provider.dart';
+import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
 
 class UploadedFileItemWidget extends StatelessWidget {
   final MyProjectProvider provider;
@@ -72,8 +73,12 @@ class UploadedFileItemWidget extends StatelessWidget {
           ),
           if (provider.state == ProjectState.preValidated)
             IconButton(
-              onPressed: () => provider.cancelAnalysis(context.read<AuthProvider>().currentUser?.id ?? ''),
-              icon: Icon(Icons.delete_outline, color: colorScheme.onSurfaceVariant),
+              onPressed: () {
+                final userId = context.read<AuthProvider>().currentUser?.id ?? '';
+                final teamId = context.read<TeamsProvider>().myTeam?.id ?? '';
+                provider.cancelAnalysis(userId, teamId);
+              },
+              icon: Icon(Icons.cancel, color: colorScheme.onSurfaceVariant),
               hoverColor: colorScheme.errorContainer,
             ),
         ],

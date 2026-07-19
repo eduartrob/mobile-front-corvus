@@ -12,6 +12,7 @@ class InputCompleted extends StatelessWidget {
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? inputFormatters;
   final Color? iconColor;
+  final String? errorText;
 
   const InputCompleted({
     super.key,
@@ -23,6 +24,7 @@ class InputCompleted extends StatelessWidget {
     this.keyboardType,
     this.inputFormatters,
     this.iconColor,
+    this.errorText,
   });
 
   @override
@@ -40,6 +42,7 @@ class InputCompleted extends StatelessWidget {
           keyboardType: keyboardType,
           inputFormatters: inputFormatters,
           iconColor: iconColor,
+          errorText: errorText,
         ),
       ],
     );

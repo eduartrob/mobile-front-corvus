@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mobile/features/auth/data/models/user_model.dart';
 import 'package:mobile/core/network/api_config.dart';
+import 'package:mobile/core/network/api_endpoints.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
@@ -89,7 +90,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
             
             // 2 send to backend ingest
             try {
-              final ingestUrl = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/subject/ingest');
+              final ingestUrl = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.clusteringSubjectIngest}');
               final ingestResponse = await http.post(
                 ingestUrl,
                 headers: {
@@ -135,7 +136,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<UserModel> loginWithEmail(String email, String password) async {
     try {
-      final targetUrl = '${ApiConfig.apiGatewayUrl}/auth/login';
+      final targetUrl = '${ApiConfig.apiGatewayUrl}${ApiEndpoints.authLogin}';
       final response = await http.post(
         Uri.parse(targetUrl),
         headers: ApiConfig.defaultHeaders,
@@ -159,6 +160,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw Exception(errorData['error'] ?? 'Error desconocido del servidor');
       }
     } catch (e) {
+      if (e is Exception) {
+        rethrow;
+      }
       throw Exception('Excepción durante loginWithEmail: $e');
     }
   }
@@ -194,7 +198,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           final fcmToken = await FirebaseMessaging.instance.getToken();
           if (fcmToken != null && userId != null) {
             await http.post(
-              Uri.parse('${ApiConfig.apiGatewayUrl}/notifications/device'),
+              Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.notificationsDevice}'),
               headers: {
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer $token',

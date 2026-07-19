@@ -1,10 +1,8 @@
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
-import 'package:mobile/core/network/auth_interceptor_client.dart';
 import 'package:mobile/features/student_directory/domain/entities/student.dart';
 import 'package:mobile/features/teams/data/models/team_model.dart';
 import 'package:mobile/features/teams/data/models/solicitud_model.dart';
-import 'package:mobile/features/teams/data/data_source/teams_remote_data_source.dart';
+import 'package:mobile/features/teams/domain/repositories/teams_repository.dart';
 
 enum SolicitudFilter {
   recibidas,
@@ -12,10 +10,10 @@ enum SolicitudFilter {
 }
 
 class TeamsProvider extends ChangeNotifier {
-  final TeamsRemoteDataSource remoteDataSource;
+  final TeamsRepository _repository;
 
-  TeamsProvider({TeamsRemoteDataSource? remoteDataSource})
-      : remoteDataSource = remoteDataSource ?? TeamsRemoteDataSource(client: apiClient);
+  TeamsProvider({required TeamsRepository repository})
+      : _repository = repository;
 
   TeamModel? _myTeam;
   Map<String, dynamic>? _finalReviewStatus;
@@ -24,6 +22,7 @@ class TeamsProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
   SolicitudFilter _selectedFilter = SolicitudFilter.recibidas;
+  String? _activeProjectId; // project_id activo para todas las operaciones
 
   TeamModel? get myTeam => _myTeam;
   Map<String, dynamic>? get finalReviewStatus => _finalReviewStatus;
@@ -32,6 +31,7 @@ class TeamsProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   SolicitudFilter get selectedFilter => _selectedFilter;
+  String? get activeProjectId => _activeProjectId;
 
   List<Solicitud> get filteredSolicitudes {
     final targetState = _selectedFilter == SolicitudFilter.recibidas
@@ -48,17 +48,44 @@ class TeamsProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchMyTeam() async {
+  int _maxTeamMembers = 4;
+  int get maxTeamMembers => _maxTeamMembers;
+
+  Future<void> fetchMyTeam({String? projectId}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      _myTeam = await remoteDataSource.getMyTeam();
+      _myTeam = await _repository.getMyTeam(projectId: projectId);
+      String? resolvedProjectId = projectId;
+
       if (_myTeam != null) {
-        _finalReviewStatus = await remoteDataSource.getFinalReviewStatus(_myTeam!.id);
+        _finalReviewStatus =
+            await _repository.getFinalReviewStatus(_myTeam!.id);
+        // Prefer the explicit project_id passed; fallback to what's in the team object
+        resolvedProjectId ??= _myTeam!.project?['id']?.toString() ??
+            _myTeam!.project?['id_proyecto']?.toString();
       } else {
         _finalReviewStatus = null;
+        if (resolvedProjectId == null) {
+          final projectData = await _repository.fetchProjectId();
+          resolvedProjectId = projectData?['projectId']?.toString();
+        }
+      }
+
+      // Store active project ID for use in other operations
+      if (resolvedProjectId != null) {
+        _activeProjectId = resolvedProjectId;
+      }
+
+      // Fetch config to get maxTeamMembers using projectId
+      if (resolvedProjectId != null) {
+        final config = await _repository.fetchConfig(projectId: resolvedProjectId);
+        if (config['max_team_members'] != null) {
+          _maxTeamMembers =
+              int.tryParse(config['max_team_members'].toString()) ?? 4;
+        }
       }
     } catch (e) {
       _errorMessage = e.toString();
@@ -68,13 +95,19 @@ class TeamsProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> updateTeamDetails(String name, String description, List<SocialLinkModel> socialLinks) async {
+  Future<void> updateTeamDetails(
+      String name, String description, List<SocialLinkModel> socialLinks) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      _myTeam = await remoteDataSource.updateTeam(name, description, socialLinks);
+      _myTeam = await _repository.updateTeam(
+        name,
+        description,
+        socialLinks,
+        projectId: _activeProjectId, // pasar siempre el projectId activo
+      );
     } catch (e) {
       _errorMessage = e.toString();
       rethrow;
@@ -90,7 +123,7 @@ class TeamsProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await remoteDataSource.leaveTeam();
+      await _repository.leaveTeam();
       _myTeam = null;
     } catch (e) {
       _errorMessage = e.toString();
@@ -107,9 +140,10 @@ class TeamsProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await remoteDataSource.removeMember(memberId);
+      await _repository.removeMember(memberId);
       if (_myTeam != null) {
-        final updatedMembers = _myTeam!.members.where((m) => m.id != memberId).toList();
+        final updatedMembers =
+            _myTeam!.members.where((m) => m.id != memberId).toList();
         _myTeam = TeamModel(
           id: _myTeam!.id,
           name: _myTeam!.name,
@@ -128,13 +162,15 @@ class TeamsProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchSuggestions({String? skill, String? search, bool showAll = false}) async {
+  Future<void> fetchSuggestions(
+      {String? skill, String? search, bool showAll = false, String? projectId}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      final results = await remoteDataSource.getSuggestions(skill: skill, search: search, showAll: showAll);
+      final results = await _repository.getSuggestions(
+          skill: skill, search: search, showAll: showAll, projectId: projectId);
       _suggestions = results.where((s) => s.id != null).toList();
     } catch (e) {
       _errorMessage = e.toString();
@@ -144,14 +180,16 @@ class TeamsProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchRequests() async {
+  Future<void> fetchRequests({String? projectId}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      final filterStr = _selectedFilter == SolicitudFilter.recibidas ? 'recibidas' : 'enviadas';
-      _requests = await remoteDataSource.getRequests(filterStr);
+      final filterStr = _selectedFilter == SolicitudFilter.recibidas
+          ? 'recibidas'
+          : 'enviadas';
+      _requests = await _repository.getRequests(filterStr, projectId: projectId);
     } catch (e) {
       _errorMessage = e.toString();
     } finally {
@@ -166,14 +204,9 @@ class TeamsProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await remoteDataSource.sendInvitation(studentId);
-      
-      // Eliminar al estudiante de las sugerencias locales inmediatamente
+      await _repository.sendInvitation(studentId, projectId: _activeProjectId);
       _suggestions.removeWhere((student) => student.id == studentId);
-      
-      fetchRequests();
-      // Ya no llamamos fetchSuggestions sin parámetros aquí
-      // para evitar perder el filtro actual que tenía el usuario.
+      fetchRequests(projectId: _activeProjectId);
     } catch (e) {
       _errorMessage = e.toString();
       rethrow;
@@ -189,7 +222,7 @@ class TeamsProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await remoteDataSource.cancelRequest(requestId);
+      await _repository.cancelRequest(requestId);
       _requests.removeWhere((r) => r.id == requestId);
     } catch (e) {
       _errorMessage = e.toString();
@@ -206,9 +239,10 @@ class TeamsProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await remoteDataSource.acceptRequest(requestId);
-      fetchMyTeam();
-      fetchRequests();
+      await _repository.acceptRequest(requestId, projectId: _activeProjectId);
+      // Refrescar equipo y config (número de integrantes puede haber cambiado)
+      await fetchMyTeam(projectId: _activeProjectId);
+      fetchRequests(projectId: _activeProjectId);
     } catch (e) {
       _errorMessage = e.toString();
       rethrow;

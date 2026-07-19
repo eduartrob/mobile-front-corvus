@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
 import 'package:mobile/features/profile/presentation/provider/profile_provider.dart';
 import 'package:mobile/core/theme/theme_provider.dart';
 import 'package:mobile/l10n/app_localizations.dart';
@@ -13,6 +14,7 @@ import 'package:mobile/features/profile/presentation/pages/app_update_page.dart'
 import 'package:mobile/features/prof_profile/presentation/pages/prof_drive_sync_page.dart';
 import 'package:mobile/features/prof_profile/presentation/pages/prof_load_projects_page.dart';
 import 'package:mobile/features/prof_profile/presentation/pages/prof_edit_profile_page.dart' as mobile;
+import 'package:mobile/features/prof_history/presentation/pages/prof_history_page.dart';
 
 class ProfProfilePage extends StatefulWidget {
   const ProfProfilePage({super.key});
@@ -105,6 +107,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
               
               // Sincronizar con Google Drive
               ListTile(
+                hoverColor: Colors.transparent,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 leading: Icon(Icons.sync, color: colorScheme.onSurfaceVariant, size: 28),
                 title: const Text('Sincronizar con Google Drive', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
@@ -119,6 +122,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
               
               // Cómo cargar los proyectos
               ListTile(
+                hoverColor: Colors.transparent,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 leading: Icon(Icons.folder_shared, color: colorScheme.onSurfaceVariant, size: 28),
                 title: const Text('Cómo cargar los proyectos', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
@@ -131,8 +135,24 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                 },
               ),
               
+              // Historial de Decisiones
+              ListTile(
+                hoverColor: Colors.transparent,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                leading: Icon(Icons.history, color: colorScheme.onSurfaceVariant, size: 28),
+                title: const Text('Historial de Decisiones', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
+                subtitle: const Text('Registros de actividad y permisos'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ProfHistoryPage()),
+                  );
+                },
+              ),
+              
               // Apariencia
               ListTile(
+                hoverColor: Colors.transparent,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 leading: Icon(Icons.palette_outlined, color: colorScheme.onSurfaceVariant, size: 28),
                 title: const Text('Apariencia', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
@@ -173,6 +193,9 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                       ),
                     );
                     
+                    
+                    context.read<ProjectProvider>().clear();
+                    context.read<ProfileProvider>().clear();
                     await context.read<AuthProvider>().logout();
                     
                     if (context.mounted) {
@@ -183,7 +206,9 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                   icon: const Icon(Icons.logout, color: Colors.red),
                   label: const Text('Cerrar sesión', style: TextStyle(color: Colors.red)),
                   style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: colorScheme.primary),
+                    side: const BorderSide(color: Colors.red),
+                    backgroundColor: Colors.red.withValues(alpha: 0.05),
+                    overlayColor: Colors.red.withValues(alpha: 0.12),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                 ),

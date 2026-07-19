@@ -6,15 +6,18 @@ import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/teams/data/models/team_model.dart';
 import 'package:mobile/features/student_directory/domain/entities/student.dart';
 import 'package:mobile/features/student_directory/presentation/widgets/student_card.dart';
+import 'package:mobile/shared/widgets/corvus_skeleton.dart';
 
 class ProfDirectoryPage extends StatelessWidget {
-  const ProfDirectoryPage({super.key});
+  final String projectId;
+  const ProfDirectoryPage({super.key, required this.projectId});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => ProfDirectoryProvider(
         authProvider: context.read<AuthProvider>(),
+        projectId: projectId,
       )..loadDirectory(),
       child: const _ProfDirectoryPageView(),
     );
@@ -87,8 +90,35 @@ class _ProfDirectoryPageViewState extends State<_ProfDirectoryPageView> with Sin
             ),
           ),
           Expanded(
-            child: provider.isLoading
-                ? const Center(child: CircularProgressIndicator())
+            child: (provider.isLoading && provider.directoryData == null)
+                ? ListView.separated(
+                    padding: const EdgeInsets.all(16.0),
+                    itemCount: 5,
+                    separatorBuilder: (_, __) => const SizedBox(height: 16),
+                    itemBuilder: (_, __) => Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: colorScheme.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        children: [
+                          const CorvusSkeleton(width: 50, height: 50, borderRadius: BorderRadius.all(Radius.circular(25))),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: const [
+                                CorvusSkeleton(height: 16, width: 150),
+                                SizedBox(height: 8),
+                                CorvusSkeleton(height: 12, width: 100),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
                 : provider.errorMessage != null
                     ? Center(
                         child: Column(
@@ -184,10 +214,15 @@ class _ProfDirectoryPageViewState extends State<_ProfDirectoryPageView> with Sin
                     spacing: 8,
                     runSpacing: 8,
                     children: team.members.map((member) {
+                      final hasAvatar = member.avatarUrl != null && member.avatarUrl!.trim().isNotEmpty;
                       return Chip(
                         avatar: CircleAvatar(
-                          backgroundImage: member.avatarUrl != null ? NetworkImage(member.avatarUrl!) : null,
-                          child: member.avatarUrl == null ? const Icon(Icons.person, size: 16) : null,
+                          backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
+                          backgroundImage: hasAvatar ? NetworkImage(member.avatarUrl!) : null,
+                          child: !hasAvatar ? Text(
+                            (member.name ?? '?').isNotEmpty ? (member.name ?? '?')[0].toUpperCase() : '?',
+                            style: TextStyle(color: colorScheme.primary, fontSize: 12, fontWeight: FontWeight.bold),
+                          ) : null,
                         ),
                         label: Text(member.name ?? 'Sin nombre', style: const TextStyle(fontSize: 12)),
                         backgroundColor: colorScheme.surfaceContainerHighest,
@@ -221,6 +256,7 @@ class _ProfDirectoryPageViewState extends State<_ProfDirectoryPageView> with Sin
         // student.email is not available in Student model from teams_model
         // But we can use StudentCard just passing what we have.
         // Wait, StudentCard might require specific provider. Let's just build a custom ListTile to avoid issues.
+        final hasAvatar = student.avatarUrl != null && student.avatarUrl!.trim().isNotEmpty;
         return Card(
           elevation: 0,
           margin: const EdgeInsets.only(bottom: 12),
@@ -230,8 +266,12 @@ class _ProfDirectoryPageViewState extends State<_ProfDirectoryPageView> with Sin
           ),
           child: ListTile(
             leading: CircleAvatar(
-              backgroundImage: student.avatarUrl != null ? NetworkImage(student.avatarUrl!) : null,
-              child: student.avatarUrl == null ? const Icon(Icons.person) : null,
+              backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+              backgroundImage: hasAvatar ? NetworkImage(student.avatarUrl!) : null,
+              child: !hasAvatar ? Text(
+                (student.name ?? student.username ?? '?').isNotEmpty ? (student.name ?? student.username ?? '?')[0].toUpperCase() : '?',
+                style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold),
+              ) : null,
             ),
             title: Text(student.name ?? student.username ?? 'Sin nombre', style: const TextStyle(fontWeight: FontWeight.bold)),
             subtitle: student.tags.isNotEmpty 

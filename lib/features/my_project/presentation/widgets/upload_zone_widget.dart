@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/my_project/presentation/provider/my_project_provider.dart';
+import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
+import 'package:mobile/features/profile/presentation/provider/profile_provider.dart';
 
 class UploadZoneWidget extends StatelessWidget {
   final MyProjectProvider provider;
@@ -70,7 +72,12 @@ class UploadZoneWidget extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           OutlinedButton.icon(
-            onPressed: () => provider.pickFile(context.read<AuthProvider>().currentUser?.id ?? '', l10n),
+            onPressed: () {
+              final authUser = context.read<AuthProvider>().currentUser;
+              final teamId = context.read<TeamsProvider>().myTeam?.id ?? '';
+              final userName = context.read<ProfileProvider>().profile?.alumno ?? authUser?.email ?? 'Estudiante';
+              provider.pickFile(authUser?.id ?? '', teamId, userName, l10n);
+            },
             icon: const Icon(Icons.folder_open),
             label: Text(l10n.browseFiles),
             style: OutlinedButton.styleFrom(

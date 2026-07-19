@@ -12,6 +12,9 @@ class ProfRulesProvider extends ChangeNotifier {
   bool _isSaving = false;
   bool get isSaving => _isSaving;
 
+  bool _isModified = false;
+  bool get isModified => _isModified;
+
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
@@ -35,11 +38,39 @@ class ProfRulesProvider extends ChangeNotifier {
   List<dynamic> _clusterStats = [];
   List<dynamic> get clusterStats => _clusterStats;
 
-  Future<void> fetchData() async {
-    // 1. Intentar cargar desde el caché rápido (sin loader invasivo)
+  String? _lastProjectId;
+  
+  // In-memory cache for instantaneous project switching
+  final Map<String, Map<String, dynamic>> _memoryConfigCache = {};
+  final Map<String, Map<String, dynamic>> _memoryStatsCache = {};
+
+  Future<void> fetchData({String? projectId}) async {
+    final pId = projectId ?? 'default';
+    
+    if (projectId != null && projectId != _lastProjectId) {
+      if (_memoryConfigCache.containsKey(pId) && _memoryStatsCache.containsKey(pId)) {
+        // Synchronously load from memory cache so first frame is correct
+        _updateState(_memoryConfigCache[pId]!, _memoryStatsCache[pId]!);
+        _lastProjectId = projectId;
+      } else {
+        // Clear UI and show skeleton only if we have NO memory cache
+        _projectSections = [];
+        _clusterStats = [];
+        _exclusionRules = [];
+        _lastProjectId = projectId;
+        notifyListeners();
+      }
+    }
+
+    // 1. Intentar cargar desde el caché rápido de disco
     try {
-      final config = await remoteDataSource.getConfig(forceRefresh: false);
-      final statsData = await remoteDataSource.getClusterStats(forceRefresh: false);
+      final config = await remoteDataSource.getConfig(forceRefresh: false, projectId: projectId);
+      final statsData = await remoteDataSource.getClusterStats(forceRefresh: false, projectId: projectId);
+      
+      // Guardar en memoria
+      _memoryConfigCache[pId] = config;
+      _memoryStatsCache[pId] = statsData;
+      
       _updateState(config, statsData);
     } catch (e) {
       // Ignoramos errores de caché
@@ -53,8 +84,13 @@ class ProfRulesProvider extends ChangeNotifier {
 
     // 2. Traer datos frescos de la red en segundo plano
     try {
-      final config = await remoteDataSource.getConfig(forceRefresh: true);
-      final statsData = await remoteDataSource.getClusterStats(forceRefresh: true);
+      final config = await remoteDataSource.getConfig(forceRefresh: true, projectId: projectId);
+      final statsData = await remoteDataSource.getClusterStats(forceRefresh: true, projectId: projectId);
+      
+      // Guardar en memoria
+      _memoryConfigCache[pId] = config;
+      _memoryStatsCache[pId] = statsData;
+      
       _updateState(config, statsData);
       _errorMessage = null;
     } catch (e) {
@@ -68,6 +104,7 @@ class ProfRulesProvider extends ChangeNotifier {
   }
 
   void _updateState(Map<String, dynamic> config, Map<String, dynamic> statsData) {
+    _isModified = false;
     _allowedExtensions = List<String>.from(config['allowed_extensions'] ?? ['.pdf', '.docx']);
     _llmProvider = config['llm_provider'] ?? 'ollama';
     _driveFolderId = config['drive_folder_id'] ?? '';
@@ -93,18 +130,21 @@ class ProfRulesProvider extends ChangeNotifier {
     } else {
       _exclusionRules.add(clusterName);
     }
+    _isModified = true;
     notifyListeners();
   }
   
   void addExclusionRule(String rule) {
     if (rule.isNotEmpty && !_exclusionRules.contains(rule)) {
       _exclusionRules.add(rule);
+      _isModified = true;
       notifyListeners();
     }
   }
   
   void removeExclusionRule(String rule) {
     _exclusionRules.remove(rule);
+    _isModified = true;
     notifyListeners();
   }
 
@@ -118,12 +158,14 @@ class ProfRulesProvider extends ChangeNotifier {
       newSection["descripcion"] = descripcion;
     }
     _projectSections.add(newSection);
+    _isModified = true;
     notifyListeners();
   }
 
   void removeSection(int index) {
     if (index >= 0 && index < _projectSections.length) {
       _projectSections.removeAt(index);
+      _isModified = true;
       notifyListeners();
     }
   }
@@ -131,17 +173,21 @@ class ProfRulesProvider extends ChangeNotifier {
   void updateSection(int index, Map<String, dynamic> updatedSection) {
     if (index >= 0 && index < _projectSections.length) {
       _projectSections[index] = updatedSection;
+      _isModified = true;
       notifyListeners();
     }
   }
   
   void updateTeamLimits(int min, int max) {
-    _minTeamMembers = min;
-    _maxTeamMembers = max;
-    notifyListeners();
+    if (_minTeamMembers != min || _maxTeamMembers != max) {
+      _minTeamMembers = min;
+      _maxTeamMembers = max;
+      _isModified = true;
+      notifyListeners();
+    }
   }
 
-  Future<void> saveConfig({String? authorName, String? authorPhotoUrl, String? authorId}) async {
+  Future<void> saveConfig({String? projectId, String? authorName, String? authorPhotoUrl, String? authorId}) async {
     _isSaving = true;
     _errorMessage = null;
     notifyListeners();
@@ -158,9 +204,11 @@ class ProfRulesProvider extends ChangeNotifier {
         authorName: authorName,
         authorPhotoUrl: authorPhotoUrl,
         authorId: authorId,
+        projectId: projectId,
       );
+      _isModified = false;
     } catch (e) {
-      _errorMessage = e.toString();
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
     } finally {
       _isSaving = false;
       notifyListeners();

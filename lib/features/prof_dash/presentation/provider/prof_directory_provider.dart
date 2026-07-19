@@ -1,3 +1,4 @@
+import 'package:mobile/core/network/api_endpoints.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -8,12 +9,13 @@ import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 class ProfDirectoryProvider extends ChangeNotifier {
   final AuthProvider authProvider;
   final http.Client client;
+  final String projectId;
 
   ProfDirectoryModel? _directoryData;
   bool _isLoading = false;
   String? _errorMessage;
 
-  ProfDirectoryProvider({required this.authProvider, http.Client? client}) 
+  ProfDirectoryProvider({required this.authProvider, required this.projectId, http.Client? client}) 
       : client = client ?? http.Client();
 
   ProfDirectoryModel? get directoryData => _directoryData;
@@ -30,7 +32,7 @@ class ProfDirectoryProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final url = Uri.parse('${ApiConfig.apiGatewayUrl}/teams/prof/directory');
+      final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.teamsProfDirectory}?project_id=$projectId');
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
       
       final token = authProvider.currentUser?.token;

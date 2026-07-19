@@ -1,3 +1,4 @@
+import 'package:mobile/core/network/api_endpoints.dart';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:mobile/core/services/secure_storage_service.dart';
@@ -29,7 +30,7 @@ class LinkedFoldersProvider extends ChangeNotifier {
     }
 
     try {
-      final url = Uri.parse('${ApiConfig.apiGatewayUrl}/auth/folders');
+      final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authFolders}');
       final response = await http.get(url, headers: {
         'Authorization': 'Bearer $jwtToken',
       });
@@ -73,7 +74,7 @@ class LinkedFoldersProvider extends ChangeNotifier {
       notifyListeners();
 
       try {
-        final url = Uri.parse('${ApiConfig.apiGatewayUrl}/auth/folders');
+        final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authFolders}');
         await http.post(
           url,
           headers: {
@@ -127,7 +128,7 @@ class LinkedFoldersProvider extends ChangeNotifier {
 
   Future<void> _checkStatusOnceOrResume(String id, String jwtToken) async {
     try {
-      final statusUrl = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/sync-status/$id');
+      final statusUrl = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.integratorSyncStatus(id)}');
       final response = await http.get(statusUrl, headers: {
         'Authorization': 'Bearer $jwtToken',
       });
@@ -159,7 +160,7 @@ class LinkedFoldersProvider extends ChangeNotifier {
       }
       
       try {
-        final statusUrl = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/sync-status/$id');
+        final statusUrl = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.integratorSyncStatus(id)}');
         final response = await http.get(statusUrl, headers: {
           'Authorization': 'Bearer $jwtToken',
         });

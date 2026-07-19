@@ -12,8 +12,8 @@ import '../widgets/career_autocomplete_field.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/features/auth/presentation/provider/registration_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:mobile/shared/widgets/auth_layout.dart';
 import 'package:mobile/core/services/security_service.dart';
+import 'package:mobile/shared/widgets/auth_scaffold.dart';
 
 class StudentUniversityPage extends StatefulWidget {
   const StudentUniversityPage({super.key});
@@ -195,9 +195,7 @@ class _StudentUniversityPageState extends State<StudentUniversityPage> {
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
-      child: AuthLayout(
-        appTitle: 'Corvus',
-        cardTitle: 'Información institucional',
+      child: AuthScaffold(
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: colors.onSurface),
           onPressed: () {
@@ -210,8 +208,33 @@ class _StudentUniversityPageState extends State<StudentUniversityPage> {
             context.pop();
           },
         ),
-        children: [
-                    InputCompleted(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Información institucional',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: colors.onSurface,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 6),
+            Center(
+              child: Container(
+                height: 3,
+                width: 36,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [colors.primary, colors.tertiary],
+                  ),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 28),
+            InputCompleted(
                       label: "Nombre completo",
                       hint: "Ej. Juan Pérez García",
                       icon: Icons.person,
@@ -340,7 +363,8 @@ class _StudentUniversityPageState extends State<StudentUniversityPage> {
                       text: "Siguiente",
                       onPressed: _submitCareer,
                     ),
-        ],
+          ],
+        ),
       ),
     );
   }

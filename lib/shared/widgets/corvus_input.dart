@@ -9,6 +9,7 @@ class Input extends StatefulWidget {
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? inputFormatters;
   final Color? iconColor;
+  final String? errorText;
 
   const Input({
     super.key,
@@ -19,6 +20,7 @@ class Input extends StatefulWidget {
     this.keyboardType,
     this.inputFormatters,
     this.iconColor,
+    this.errorText,
   });
 
   @override
@@ -49,46 +51,63 @@ class _InputState extends State<Input> {
     final colors = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainer : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: _focusNode.hasFocus 
-              ? colors.primary 
-              : (isDark ? colors.outlineVariant.withValues(alpha: 0.3) : const Color(0xFFE2E8F0)),
-          width: _focusNode.hasFocus ? 1.5 : 1.0,
+    final bool hasError = widget.errorText != null && widget.errorText!.isNotEmpty;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: isDark ? colors.surfaceContainer : Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: hasError
+                  ? colors.error
+                  : _focusNode.hasFocus 
+                      ? colors.primary 
+                      : (isDark ? colors.outlineVariant.withValues(alpha: 0.3) : const Color(0xFFE2E8F0)),
+              width: _focusNode.hasFocus || hasError ? 1.5 : 1.0,
+            ),
+          ),
+          child: TextField(
+            controller: widget.controller,
+            focusNode: _focusNode,
+            obscureText: _isObscure,
+            keyboardType: widget.keyboardType,
+            inputFormatters: widget.inputFormatters,
+            style: TextStyle(color: colors.onSurface),
+            decoration: InputDecoration(
+              prefixIcon: Icon(widget.icon, color: widget.iconColor ?? colors.primary, size: 20),
+              hintText: widget.hint,
+              hintStyle: TextStyle(color: colors.onSurfaceVariant.withValues(alpha: 0.6)),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(vertical: 14),
+              suffixIcon: widget.obscure 
+                  ? IconButton(
+                      icon: Icon(
+                        _isObscure ? Icons.visibility_off : Icons.visibility,
+                        color: colors.onSurfaceVariant,
+                        size: 20,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isObscure = !_isObscure;
+                        });
+                      },
+                    )
+                  : null,
+            ),
+          ),
         ),
-      ),
-      child: TextField(
-        controller: widget.controller,
-        focusNode: _focusNode,
-        obscureText: _isObscure,
-        keyboardType: widget.keyboardType,
-        inputFormatters: widget.inputFormatters,
-        style: TextStyle(color: colors.onSurface),
-        decoration: InputDecoration(
-          prefixIcon: Icon(widget.icon, color: widget.iconColor ?? colors.primary, size: 20),
-          hintText: widget.hint,
-          hintStyle: TextStyle(color: colors.onSurfaceVariant.withValues(alpha: 0.6)),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 14),
-          suffixIcon: widget.obscure 
-              ? IconButton(
-                  icon: Icon(
-                    _isObscure ? Icons.visibility_off : Icons.visibility,
-                    color: colors.onSurfaceVariant,
-                    size: 20,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _isObscure = !_isObscure;
-                    });
-                  },
-                )
-              : null,
-        ),
-      ),
+        if (hasError)
+          Padding(
+            padding: const EdgeInsets.only(top: 4, left: 12),
+            child: Text(
+              widget.errorText!,
+              style: TextStyle(color: colors.error, fontSize: 12),
+            ),
+          ),
+      ],
     );
   }
 }

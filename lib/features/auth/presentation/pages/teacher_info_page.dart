@@ -1,3 +1,4 @@
+import 'package:mobile/core/network/api_endpoints.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -5,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/api_config.dart';
-import 'package:mobile/shared/widgets/auth_layout.dart';
+import 'package:mobile/shared/widgets/auth_scaffold.dart';
 import 'package:mobile/shared/widgets/corvus_input_completed.dart';
 import 'package:mobile/shared/widgets/corvus_button.dart';
 import 'package:mobile/features/auth/presentation/provider/registration_provider.dart';
@@ -112,7 +113,7 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
       }
 
       final registerResponse = await http.post(
-        Uri.parse('${ApiConfig.apiGatewayUrl}/auth/register'),
+        Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authRegister}'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(bodyData),
       );
@@ -140,7 +141,7 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
 
       // 2. Login
       final loginResponse = await http.post(
-        Uri.parse('${ApiConfig.apiGatewayUrl}/auth/login'),
+        Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authLogin}'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'email': provider.email,
@@ -169,7 +170,7 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
       // Enviamos la primera carrera como career_id y las demás como tags/skills 
       // (el backend las guardará como pueda según la limitación de 1 carrera por usuario).
       final responseProfile = await http.put(
-        Uri.parse('${ApiConfig.apiGatewayUrl}/auth/complete-student-profile'), 
+        Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authCompleteProfile}'), 
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${loginData['token']}'
@@ -211,15 +212,47 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
     final colors = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return AuthLayout(
-      appTitle: 'Corvus',
-      cardTitle: 'Tus Datos',
-      cardSubtitle: 'Comencemos a personalizar tu perfil docente en Corvus.',
+    return AuthScaffold(
       leading: IconButton(
         icon: Icon(Icons.arrow_back, color: colors.onSurface),
         onPressed: () => context.pop(),
       ),
-      children: [
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'Tus Datos',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: colors.onSurface,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 6),
+          Center(
+            child: Container(
+              height: 3,
+              width: 36,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [colors.primary, colors.tertiary],
+                ),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Comencemos a personalizar tu perfil docente en Corvus.',
+            style: TextStyle(
+              fontSize: 14,
+              color: colors.onSurfaceVariant,
+              height: 1.4,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 28),
                 if (_universityName != null)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 24.0),
@@ -330,6 +363,7 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
                   onPressed: _isLoading ? () {} : _submitProfile,
                 ),
               ],
-            );
+            ),
+          );
   }
 }

@@ -11,6 +11,19 @@ import 'package:mobile/features/inspiration/presentation/pages/blue_ocean_detail
 class ProjectCard extends StatelessWidget {
   final ProjectEntity project;
 
+  static const List<List<Color>> pastelGradients = [
+    [Color(0xFFB5F2CA), Color(0xFFFBF1B7)],
+    [Color(0xFFB5E0F2), Color(0xFFC7B5F2)],
+    [Color(0xFFF2B5C7), Color(0xFFF2D0B5)],
+    [Color(0xFFB5F2E3), Color(0xFFB5CFF2)],
+    [Color(0xFFF2CCB5), Color(0xFFFBF4B7)],
+    [Color(0xFFD4B5F2), Color(0xFFF2B5DE)],
+    [Color(0xFFFBF4B7), Color(0xFFB5F2C1)],
+    [Color(0xFFF2B5B5), Color(0xFFF2CEB5)],
+    [Color(0xFFB5D4F2), Color(0xFFD0B5F2)],
+    [Color(0xFFCEF2B5), Color(0xFFB5E9F2)],
+  ];
+
   const ProjectCard({super.key, required this.project});
 
   Future<void> _handleTap(BuildContext context) async {
@@ -96,95 +109,124 @@ class ProjectCard extends StatelessWidget {
         ? ((analysis['sugerencias_en'] as List<dynamic>?) ?? (analysis['sugerencias'] as List<dynamic>?) ?? [])
         : ((analysis['sugerencias_es'] as List<dynamic>?) ?? (analysis['sugerencias'] as List<dynamic>?) ?? []);
 
+    // Seleccionamos un gradiente basado en el ID del proyecto para que sea consistente
+    final int colorIndex = project.id.hashCode.abs() % pastelGradients.length;
+    final gradientColors = pastelGradients[colorIndex];
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: 8, top: 8),
       child: Stack(
         clipBehavior: Clip.none,
         children: [
           CorvusAnimatedCard(
             onTap: () => _handleTap(context),
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerLowest,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: colorScheme.outline.withValues(alpha: 0.12),
-                  width: 1,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: colorScheme.shadow.withValues(alpha: 0.06),
-                    blurRadius: 20,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Title and main finding
-                  Text(
-                    project.title,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                      height: 1.25,
-                      color: colorScheme.onSurface,
-                      letterSpacing: -0.2,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    descriptionText,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: colorScheme.onSurfaceVariant,
-                      height: 1.45,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-
-                  // Methodological suggestion mini-cards
-                  if (suggestions.isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    const Divider(height: 1, indent: 0, endIndent: 0),
-                    const SizedBox(height: 14),
-
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: suggestions.take(3).map((s) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: ProjectSuggestionMiniCard(suggestion: s),
-                        );
-                      }).toList(),
-                    ),
-                  ],
-
-                  const SizedBox(height: 18),
-
-                  Row(
-                    children: [
-                      Text(
-                        l10n.explore,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: colorScheme.onSurface,
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(4, 4, 4, 0),
+                    child: Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: gradientColors,
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(12),
                         ),
                       ),
-                      const Spacer(),
-                      ProjectExploreButton(isPending: project.analysisStatus == 'pending'),
-                    ],
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            project.title,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black87,
+                              height: 1.2,
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            descriptionText,
+                            maxLines: 4,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              color: Color(0xFF3B3B3B),
+                              height: 1.4,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          if (suggestions.isNotEmpty) ...[
+                            const SizedBox(height: 10),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: suggestions.take(3).map((s) {
+                                final title = s['titulo']?.toString() ?? '';
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.4),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Text(
+                                    title,
+                                    style: const TextStyle(
+                                      color: Color(0xFF3B3B3B),
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    child: Row(
+                      children: [
+                        if (isTrending)
+                          const Padding(
+                            padding: EdgeInsets.only(right: 6),
+                            child: AnimatedFireIcon(),
+                          )
+                        else
+                          Padding(
+                            padding: const EdgeInsets.only(right: 6),
+                            child: Icon(Icons.groups_outlined, size: 18, color: colorScheme.onSurfaceVariant),
+                          ),
+                        Text(
+                          '+ ${project.viewCount} Estudiantes han presionado aqui',
+                          style: TextStyle(
+                            color: colorScheme.onSurface,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const Spacer(),
+                        if (project.analysisStatus == 'pending')
+                          SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: colorScheme.onSurface),
+                          )
+                        else
+                          Icon(Icons.arrow_forward, color: colorScheme.onSurface, size: 24),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-          ),
-
           if (isTrending)
             Positioned(
               top: -8,
@@ -374,14 +416,28 @@ class _CorvusAnimatedCardState extends State<CorvusAnimatedCard> with SingleTick
   Widget build(BuildContext context) {
     return ScaleTransition(
       scale: _scaleAnimation,
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(24),
-        child: InkWell(
-          onTap: widget.onTap,
-          borderRadius: BorderRadius.circular(24),
-          splashColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
-          highlightColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.04),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.20),
+              blurRadius: 10, 
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Material(
+          color: Theme.of(context).brightness == Brightness.dark 
+              ? Theme.of(context).colorScheme.surfaceContainerHighest 
+              : Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: widget.onTap,
+            borderRadius: BorderRadius.circular(10),
+            splashColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
+            highlightColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.04),
           onHighlightChanged: (isHighlighted) {
             if (isHighlighted) {
               _controller.forward();
@@ -392,6 +448,47 @@ class _CorvusAnimatedCardState extends State<CorvusAnimatedCard> with SingleTick
           child: widget.child,
         ),
       ),
+      ),
+    );
+  }
+}
+
+/// Icono animado de fuego que palpita suavemente
+class AnimatedFireIcon extends StatefulWidget {
+  const AnimatedFireIcon({super.key});
+
+  @override
+  State<AnimatedFireIcon> createState() => _AnimatedFireIconState();
+}
+
+class _AnimatedFireIconState extends State<AnimatedFireIcon> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    )..repeat(reverse: true);
+    
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.25).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: const Text('🔥', style: TextStyle(fontSize: 16)),
     );
   }
 }
