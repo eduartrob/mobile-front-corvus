@@ -264,6 +264,7 @@ class _TeamsPageState extends State<TeamsPage> with SingleTickerProviderStateMix
                   myAvatarUrl: myAvatarUrl,
                   userName: user?.name,
                   userEmail: user?.email,
+                  projectId: widget.projectId,
                   onSearchMembers: () {
                     _tabController.animateTo(2); // Redirects to tab index 2 (Sugerencias)
                   },

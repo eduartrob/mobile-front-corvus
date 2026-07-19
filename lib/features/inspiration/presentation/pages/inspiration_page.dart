@@ -26,6 +26,14 @@ class _InspirationPageState extends State<InspirationPage> {
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final provider = context.read<InspirationProvider>();
+      if (provider.projects.isEmpty && !provider.isLoading) {
+        provider.loadProjects();
+      }
+    });
   }
 
   void _scrollListener() {
@@ -384,7 +392,7 @@ class _SectionHeaderDelegate extends SliverPersistentHeaderDelegate {
   double get minExtent => 72;
 
   @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) => false;
+  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) => true;
 }
 
 class _SkeletonLoaderList extends StatelessWidget {

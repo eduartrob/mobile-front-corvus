@@ -143,8 +143,8 @@ class ProjectCard extends StatelessWidget {
                           Text(
                             project.title,
                             style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
                               color: Colors.black87,
                               height: 1.2,
                             ),
@@ -155,7 +155,7 @@ class ProjectCard extends StatelessWidget {
                             maxLines: 4,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              fontSize: 14,
+                              fontSize: 15,
                               color: Color(0xFF3B3B3B),
                               height: 1.4,
                               fontWeight: FontWeight.w400,
@@ -200,27 +200,27 @@ class ProjectCard extends StatelessWidget {
                             child: AnimatedFireIcon(),
                           )
                         else
-                          const Padding(
-                            padding: EdgeInsets.only(right: 6),
-                            child: Icon(Icons.groups_outlined, size: 18, color: Colors.black54),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 6),
+                            child: Icon(Icons.groups_outlined, size: 18, color: colorScheme.onSurfaceVariant),
                           ),
                         Text(
                           '+ ${project.viewCount} Estudiantes han presionado aqui',
-                          style: const TextStyle(
-                            color: Colors.black87,
+                          style: TextStyle(
+                            color: colorScheme.onSurface,
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                         const Spacer(),
                         if (project.analysisStatus == 'pending')
-                          const SizedBox(
+                          SizedBox(
                             width: 20,
                             height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black87),
+                            child: CircularProgressIndicator(strokeWidth: 2, color: colorScheme.onSurface),
                           )
                         else
-                          const Icon(Icons.arrow_forward, color: Colors.black87, size: 24),
+                          Icon(Icons.arrow_forward, color: colorScheme.onSurface, size: 24),
                       ],
                     ),
                   ),
@@ -428,7 +428,9 @@ class _CorvusAnimatedCardState extends State<CorvusAnimatedCard> with SingleTick
           ],
         ),
         child: Material(
-          color: Colors.white,
+          color: Theme.of(context).brightness == Brightness.dark 
+              ? Theme.of(context).colorScheme.surfaceContainerHighest 
+              : Colors.white,
           borderRadius: BorderRadius.circular(10),
           clipBehavior: Clip.antiAlias,
           child: InkWell(

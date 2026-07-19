@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/app.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/core/router/appRouter.dart';
+import 'package:mobile/core/services/network_service.dart';
 
 import 'package:mobile/core/di/di.dart';
 import 'package:provider/provider.dart';
@@ -122,11 +123,17 @@ class _AppBootstrapState extends State<_AppBootstrap> {
     // suscribirse a tópicos FCM. El resto se carga on-demand.
     final teamsProvider = context.read<TeamsProvider>();
     final myProjectProvider = context.read<MyProjectProvider>();
+    final profileProvider = context.read<ProfileProvider>();
 
     teamsProvider.fetchMyTeam().then((_) {
       final teamId = teamsProvider.myTeam?.id ?? '';
       myProjectProvider.init(uid, teamId);
     });
+
+    profileProvider.fetchProfile();
+    final projectProvider = context.read<ProjectProvider>();
+    final token = widget.authProvider.currentUser?.token;
+    if (token != null) projectProvider.loadMyProjects(token, quiet: true);
 
     final role = widget.authProvider.currentUser?.role;
     if (role == 'student') {
@@ -144,6 +151,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   setupDependencies();
+  NetworkService().initialize(globalMessengerKey);
 
   // ─── Providers ──────────────────────────────────────────────────────────
   // Se crean todos los providers aquí pero SIN disparar llamadas API.

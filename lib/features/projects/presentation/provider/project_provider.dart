@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:mobile/features/projects/data/project_api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProjectProvider extends ChangeNotifier {
   final ProjectApi _api = ProjectApi();
@@ -19,14 +21,34 @@ class ProjectProvider extends ChangeNotifier {
   Future<void> loadMyProjects(String token, {bool quiet = false}) async {
     if (!quiet) _setLoading(true);
     try {
+      final prefs = await SharedPreferences.getInstance();
+      
+      if (_myProjects.isEmpty && _invitations.isEmpty) {
+        final cachedProjects = prefs.getString('cached_projects');
+        final cachedInvitations = prefs.getString('cached_invitations');
+        if (cachedProjects != null) {
+          _myProjects = json.decode(cachedProjects);
+        }
+        if (cachedInvitations != null) {
+          _invitations = json.decode(cachedInvitations);
+        }
+        if (_myProjects.isNotEmpty || _invitations.isNotEmpty) {
+          notifyListeners();
+        }
+      }
+
       final data = await _api.getMyProjects(token: token);
       _myProjects = data['projects'] ?? [];
       _invitations = data['invitations'] ?? [];
+      
+      await prefs.setString('cached_projects', json.encode(_myProjects));
+      await prefs.setString('cached_invitations', json.encode(_invitations));
+
       _error = null;
-      if (quiet) notifyListeners(); // Need to notify if we didn't call _setLoading
+      if (quiet) notifyListeners();
     } catch (e) {
       _error = e.toString().replaceAll('Exception: ', '');
-      if (quiet) notifyListeners(); // Need to notify to show errors if necessary
+      if (quiet) notifyListeners();
     } finally {
       if (!quiet) _setLoading(false);
     }
@@ -37,6 +59,8 @@ class ProjectProvider extends ChangeNotifier {
     String? description,
     int teamSize = 4,
     required String token,
+    String? themeColor,
+    String? themePattern,
   }) async {
     _setLoading(true);
     try {
@@ -45,6 +69,8 @@ class ProjectProvider extends ChangeNotifier {
         description: description,
         teamSize: teamSize,
         token: token,
+        themeColor: themeColor,
+        themePattern: themePattern,
       );
       await loadMyProjects(token);
       return true;
@@ -75,15 +101,25 @@ class ProjectProvider extends ChangeNotifier {
     required String projectId,
     required String newName,
     required String token,
+    String? themeColor,
+    String? themePattern,
   }) async {
     _setLoading(true);
     try {
-      await _api.updateProject(projectId: projectId, name: newName, token: token);
+      await _api.updateProject(
+        projectId: projectId, 
+        name: newName, 
+        token: token,
+        themeColor: themeColor,
+        themePattern: themePattern,
+      );
       
       // Update local list
       final index = _myProjects.indexWhere((p) => p['id'] == projectId);
       if (index != -1) {
         _myProjects[index]['name'] = newName;
+        if (themeColor != null) _myProjects[index]['theme_color'] = themeColor;
+        if (themePattern != null) _myProjects[index]['theme_pattern'] = themePattern;
         notifyListeners();
       }
       return true;
@@ -163,10 +199,15 @@ class ProjectProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void clear() {
+  void clear() async {
     _myProjects = [];
     _invitations = [];
     _error = null;
     notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('cached_projects');
+      await prefs.remove('cached_invitations');
+    } catch (_) {}
   }
 }

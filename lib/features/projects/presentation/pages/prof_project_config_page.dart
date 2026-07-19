@@ -3,6 +3,7 @@ import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/features/projects/presentation/widgets/theme_picker.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:flutter/services.dart';
 
@@ -19,6 +20,8 @@ class _ProfProjectConfigPageState extends State<ProfProjectConfigPage> {
   List<dynamic> _students = [];
   String? _projectCode;
   late TextEditingController _nameController;
+  Color _selectedColor = ThemePicker.availableColors[0];
+  String _selectedPattern = ThemePicker.availablePatterns[0];
 
   @override
   void initState() {
@@ -47,6 +50,14 @@ class _ProfProjectConfigPageState extends State<ProfProjectConfigPage> {
     if (project != null) {
       _nameController.text = project['name'] ?? '';
       _projectCode = project['code'];
+      
+      if (project['theme_color'] != null) {
+        final colorStr = project['theme_color'].toString().replaceAll('#', '0xFF');
+        _selectedColor = Color(int.parse(colorStr));
+      }
+      if (project['theme_pattern'] != null) {
+        _selectedPattern = project['theme_pattern'];
+      }
     }
 
     if (token != null) {
@@ -74,12 +85,14 @@ class _ProfProjectConfigPageState extends State<ProfProjectConfigPage> {
       projectId: widget.projectId,
       newName: newName,
       token: token,
+      themeColor: '#${_selectedColor.value.toRadixString(16).substring(2).toUpperCase()}',
+      themePattern: _selectedPattern,
     );
 
     if (mounted) {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Nombre de proyecto actualizado')),
+          const SnackBar(content: Text('Cambios guardados exitosamente')),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -236,18 +249,28 @@ class _ProfProjectConfigPageState extends State<ProfProjectConfigPage> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      FilledButton(
-                        onPressed: _updateName,
-                        style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text('Guardar'),
-                      ),
                     ],
+                  ),
+                  const SizedBox(height: 32),
+                  ThemePicker(
+                    selectedColor: _selectedColor,
+                    selectedPattern: _selectedPattern,
+                    onColorChanged: (color) => setState(() => _selectedColor = color),
+                    onPatternChanged: (pattern) => setState(() => _selectedPattern = pattern),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: _updateName,
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text('Guardar Cambios'),
+                    ),
                   ),
                   const SizedBox(height: 32),
 

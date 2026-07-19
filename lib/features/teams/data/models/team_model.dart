@@ -40,12 +40,15 @@ class TeamMemberModel {
   });
 
   factory TeamMemberModel.fromJson(Map<String, dynamic> json) {
+    final isLeader = json['is_leader'] == true || json['isLeader'] == true;
+    final roleStr = json['role'] ?? json['rol'] ?? (isLeader ? 'LEADER' : 'MEMBER');
+
     return TeamMemberModel(
       id: json['id']?.toString() ?? json['id_usuario']?.toString() ?? '',
       name: json['name'] ?? json['nombre'] ?? '',
       email: json['email'] ?? json['correo'] ?? '',
       avatarUrl: json['avatarUrl'] ?? json['foto'] ?? json['photoUrl'],
-      role: json['role'] ?? json['rol'] ?? 'MEMBER',
+      role: roleStr,
     );
   }
 
@@ -85,11 +88,20 @@ class TeamModel {
     var membersList = json['members'] as List? ?? json['integrantes'] as List? ?? [];
     var linksList = json['socialLinks'] as List? ?? json['redes_sociales'] as List? ?? [];
 
+    List<TeamMemberModel> parsedMembers = [];
+    for (int i = 0; i < membersList.length; i++) {
+      var mMap = Map<String, dynamic>.from(membersList[i]);
+      if (!mMap.containsKey('is_leader') && !mMap.containsKey('isLeader')) {
+        mMap['is_leader'] = (i == 0);
+      }
+      parsedMembers.add(TeamMemberModel.fromJson(mMap));
+    }
+
     return TeamModel(
       id: json['id']?.toString() ?? json['id_equipo']?.toString() ?? '',
       name: json['name'] ?? json['nombre'] ?? '',
       description: json['description'] ?? json['descripcion'] ?? '',
-      members: membersList.map((m) => TeamMemberModel.fromJson(m)).toList(),
+      members: parsedMembers,
       socialLinks: linksList.map((l) => SocialLinkModel.fromJson(l)).toList(),
       project: json['project'] as Map<String, dynamic>?,
       maxMembers: json['maxMembers'] ?? 3,

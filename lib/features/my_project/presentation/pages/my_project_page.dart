@@ -17,9 +17,11 @@ import 'package:mobile/features/my_project/presentation/widgets/animated_loading
 import 'package:mobile/features/my_project/presentation/widgets/invalid_document_widget.dart';
 
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
+
 import 'package:go_router/go_router.dart';
 import 'package:mobile/shared/widgets/corvus_button.dart';
 import 'package:mobile/core/theme/app_dimens.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class MyProjectPage extends StatelessWidget {
   const MyProjectPage({super.key});
@@ -104,10 +106,12 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
         child: RefreshIndicator(
           onRefresh: () async {
             final provider = context.read<MyProjectProvider>();
-            final myTeam = context.read<TeamsProvider>().myTeam;
+            final teamsProvider = context.read<TeamsProvider>();
+            final myTeam = teamsProvider.myTeam;
             final teamId = myTeam?.id;
-            String? projectId = myTeam?.project?['id']?.toString() 
-                ?? myTeam?.project?['id_proyecto']?.toString();
+            String? projectId = teamsProvider.activeProjectId ??
+                myTeam?.project?['id']?.toString() ?? 
+                myTeam?.project?['id_proyecto']?.toString();
             if (teamId != null) {
               await provider.init(userId, teamId, projectId: projectId, forceRefresh: true);
             }
@@ -155,6 +159,17 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
 
               final teamsProvider = context.watch<TeamsProvider>();
               final currentTeamId = teamsProvider.myTeam?.id;
+              final activeProjectId = teamsProvider.activeProjectId ??
+                  teamsProvider.myTeam?.project?['id']?.toString() ??
+                  teamsProvider.myTeam?.project?['id_proyecto']?.toString();
+
+              final myProjectProvider = context.read<MyProjectProvider>();
+              // Si acabamos de cargar el equipo pero el provider sigue initial, iniciarlo
+              if (currentTeamId != null && myProjectProvider.state == ProjectState.initial) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  myProjectProvider.init(userId, currentTeamId, projectId: activeProjectId);
+                });
+              }
 
               if (currentTeamId == null) {
                 return Center(
@@ -412,13 +427,6 @@ class _ProjectPageBody extends StatelessWidget {
             ),
           ),
 
-          if (provider.documentTypeError != null)
-            InvalidDocumentWidget(
-              provider: provider,
-              userId: userId,
-              specificError: provider.documentTypeError!,
-            ),
-
           // Show skeleton while loading initial state (provider is initializing in background)
           if (provider.state == ProjectState.initial)
             const _ProjectLoadingSkeleton(),
@@ -426,8 +434,14 @@ class _ProjectPageBody extends StatelessWidget {
         if (provider.state != ProjectState.initial)
           _ProjectRequirementsWidget(provider: provider),
 
+        if (provider.documentTypeError != null)
+          InvalidDocumentWidget(
+            provider: provider,
+            userId: userId,
+            specificError: provider.documentTypeError!,
+          )
         // Show upload zone only after init resolved AND there's an error (no analysis found)
-        if (provider.state == ProjectState.error && provider.documentTypeError == null)
+        else if (provider.state == ProjectState.error)
           if (isLeader)
             UploadZoneWidget(provider: provider)
           else

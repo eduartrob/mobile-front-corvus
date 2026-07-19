@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/shared/widgets/corvus_button.dart';
 
@@ -109,13 +110,20 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
                 itemBuilder: (context, index) {
                 final project = provider.myProjects[index];
                 final pastelColors = const [
-                  Color(0xFFEBF4FF), // Azul muy claro
-                  Color(0xFFF4EBF7), // Morado muy claro
-                  Color(0xFFEAF5EE), // Verde muy claro
-                  Color(0xFFFEF2E5), // Naranja muy claro
-                  Color(0xFFFCEAEF), // Rosa muy claro
+                  Color(0xFF5C88DA), // Muted Blue
+                  Color(0xFF9A73C9), // Muted Purple
+                  Color(0xFF56A98A), // Muted Green
+                  Color(0xFFD98A53), // Muted Orange
+                  Color(0xFFD67389), // Muted Pink
                 ];
-                final bgColor = pastelColors[index % pastelColors.length];
+                Color bgColor;
+                if (project['theme_color'] != null) {
+                  final colorStr = project['theme_color'].toString().replaceAll('#', '0xFF');
+                  bgColor = Color(int.parse(colorStr));
+                } else {
+                  bgColor = pastelColors[project['id'].hashCode.abs() % pastelColors.length];
+                }
+                final String? patternName = project['theme_pattern'];
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
@@ -129,44 +137,67 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
                       onTap: () {
                         if (context.mounted) context.push('/project/${project['id']}?tab=0');
                       },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.primary,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: const Icon(Icons.class_, color: Colors.white, size: 20),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    project['name'] ?? 'Proyecto',
-                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      child: Stack(
+                        children: [
+                          if (patternName != null)
+                            Positioned.fill(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
+                                child: SvgPicture.asset(
+                                  'assets/patterns/$patternName.svg',
+                                  fit: BoxFit.none,
+                                  colorFilter: ColorFilter.mode(
+                                    ThemeData.estimateBrightnessForColor(bgColor) == Brightness.dark
+                                        ? Colors.white.withValues(alpha: 0.2)
+                                        : Colors.grey.shade700.withValues(alpha: 0.2),
+                                    BlendMode.srcATop,
                                   ),
                                 ),
-                                Icon(Icons.arrow_forward_ios, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-                              ],
-                            ),
-                          if (project['description'] != null && project['description'].toString().isNotEmpty) ...[
-                            const SizedBox(height: 8),
-                            Text(
-                              project['description'].toString(),
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
                             ),
-                          ],
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withValues(alpha: 0.2),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: const Icon(Icons.class_, color: Colors.white, size: 20),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        project['name'] ?? 'Proyecto',
+                                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                    const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white70),
+                                  ],
+                                ),
+                              if (project['description'] != null && project['description'].toString().isNotEmpty) ...[
+                                const SizedBox(height: 12),
+                                Text(
+                                  project['description'].toString(),
+                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Colors.white.withValues(alpha: 0.85),
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ],
+                            ),
+                          ),
                         ],
-                        ),
                       ),
                     ),
                   ),

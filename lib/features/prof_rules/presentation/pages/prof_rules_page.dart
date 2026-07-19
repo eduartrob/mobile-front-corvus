@@ -276,7 +276,10 @@ class _ExclusionRulesTab extends StatelessWidget {
                         subtitle: Text('${item['project_count']} proyectos actuales en este tema'),
                         trailing: Switch(
                           value: isBlocked,
-                          activeThumbColor: colorScheme.error,
+                          activeColor: colorScheme.onError,
+                          activeTrackColor: colorScheme.error,
+                          inactiveThumbColor: colorScheme.outline,
+                          inactiveTrackColor: colorScheme.surfaceContainerHighest,
                           onChanged: (value) async {
                             final messenger = ScaffoldMessenger.of(context);
                             final scheme = Theme.of(context).colorScheme;

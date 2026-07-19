@@ -7,6 +7,7 @@ import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/shared/widgets/corvus_button.dart';
 import 'package:mobile/shared/widgets/corvus_input_completed.dart';
+import 'package:mobile/features/projects/presentation/widgets/theme_picker.dart';
 
 class ProfCreateProjectPage extends StatefulWidget {
   const ProfCreateProjectPage({super.key});
@@ -19,6 +20,9 @@ class _ProfCreateProjectPageState extends State<ProfCreateProjectPage> {
   final _nameController = TextEditingController();
   final _descController = TextEditingController();
   final _teamSizeController = TextEditingController(text: '4');
+  
+  Color _selectedColor = ThemePicker.availableColors[0];
+  String _selectedPattern = ThemePicker.availablePatterns[0];
 
   @override
   void dispose() {
@@ -46,6 +50,8 @@ class _ProfCreateProjectPageState extends State<ProfCreateProjectPage> {
       description: _descController.text.trim(),
       teamSize: int.tryParse(_teamSizeController.text) ?? 4,
       token: token,
+      themeColor: '#${_selectedColor.value.toRadixString(16).substring(2).toUpperCase()}',
+      themePattern: _selectedPattern,
     );
 
     if (!mounted) return;
@@ -168,6 +174,13 @@ class _ProfCreateProjectPageState extends State<ProfCreateProjectPage> {
               controller: _teamSizeController,
               iconColor: colors.primary,
               keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 32),
+            ThemePicker(
+              selectedColor: _selectedColor,
+              selectedPattern: _selectedPattern,
+              onColorChanged: (color) => setState(() => _selectedColor = color),
+              onPatternChanged: (pattern) => setState(() => _selectedPattern = pattern),
             ),
             const SizedBox(height: 48),
             CorvusButton(

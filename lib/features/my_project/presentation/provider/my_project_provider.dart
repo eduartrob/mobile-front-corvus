@@ -238,8 +238,8 @@ class MyProjectProvider extends ChangeNotifier {
       );
 
       if (result != null && result.files.single.path != null) {
-        _errorMessage = '';
-        _documentTypeError = '';
+        _errorMessage = null;
+        _documentTypeError = null;
         _serverPhaseMessage = '';
         _serverPhase = 0;
         _quickAnalysis = null;

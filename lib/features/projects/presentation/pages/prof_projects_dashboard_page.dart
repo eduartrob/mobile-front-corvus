@@ -8,6 +8,7 @@ import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/shared/widgets/corvus_skeleton.dart';
 import 'package:mobile/shared/widgets/corvus_button.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class ProfProjectsDashboardPage extends StatefulWidget {
   const ProfProjectsDashboardPage({super.key});
@@ -135,44 +136,58 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
           }
 
           if (provider.myProjects.isEmpty && provider.invitations.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.class_outlined,
-                      size: 80,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Aún no tienes proyectos',
-                      style: Theme.of(context).textTheme.headlineSmall
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Crea una clase (proyecto) para que tus alumnos puedan unirse, formar equipos y enviar sus propuestas.',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+            return RefreshIndicator(
+              onRefresh: () async {
+                final token = context.read<AuthProvider>().currentUser?.token;
+                if (token != null) {
+                  await provider.loadMyProjects(token);
+                }
+              },
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.7,
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.class_outlined,
+                            size: 80,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          const SizedBox(height: 24),
+                          Text(
+                            'Aún no tienes proyectos',
+                            style: Theme.of(context).textTheme.headlineSmall
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Crea una clase (proyecto) para que tus alumnos puedan unirse, formar equipos y enviar sus propuestas.',
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 48),
+                          CorvusButton(
+                            text: 'Crear Proyecto (Clase)',
+                            onPressed: () => context.push('/prof-create-project'),
+                          ),
+                          const SizedBox(height: 16),
+                          OutlinedButton.icon(
+                            onPressed: () => context.push('/join-project'),
+                            icon: const Icon(Icons.qr_code_scanner),
+                            label: const Text('Unirse a un Proyecto'),
+                          ),
+                        ],
                       ),
-                      textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 48),
-                    CorvusButton(
-                      text: 'Crear Proyecto (Clase)',
-                      onPressed: () => context.push('/prof-create-project'),
-                    ),
-                    const SizedBox(height: 16),
-                    OutlinedButton.icon(
-                      onPressed: () => context.push('/join-project'),
-                      icon: const Icon(Icons.qr_code_scanner),
-                      label: const Text('Unirse a un Proyecto'),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             );
@@ -245,14 +260,22 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
 
   Widget _buildProjectCard(BuildContext context, dynamic project) {
     final pastelColors = const [
-      Color(0xFFEBF4FF), // Azul muy claro
-      Color(0xFFF4EBF7), // Morado muy claro
-      Color(0xFFEAF5EE), // Verde muy claro
-      Color(0xFFFEF2E5), // Naranja muy claro
-      Color(0xFFFCEAEF), // Rosa muy claro
+      Color(0xFF5C88DA), // Muted Blue
+      Color(0xFF9A73C9), // Muted Purple
+      Color(0xFF56A98A), // Muted Green
+      Color(0xFFD98A53), // Muted Orange
+      Color(0xFFD67389), // Muted Pink
     ];
-    final colorIndex = project['id'].hashCode.abs() % pastelColors.length;
-    final bgColor = pastelColors[colorIndex];
+    Color bgColor;
+    if (project['theme_color'] != null) {
+      final colorStr = project['theme_color'].toString().replaceAll('#', '0xFF');
+      bgColor = Color(int.parse(colorStr));
+    } else {
+      final colorIndex = project['id'].hashCode.abs() % pastelColors.length;
+      bgColor = pastelColors[colorIndex];
+    }
+    
+    final String? patternName = project['theme_pattern'];
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -266,9 +289,27 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
           onTap: () {
             if (context.mounted) context.push('/prof-project/${project['id']}?tab=0');
           },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-            child: Column(
+          child: Stack(
+            children: [
+              if (patternName != null)
+                Positioned.fill(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: SvgPicture.asset(
+                      'assets/patterns/$patternName.svg',
+                      fit: BoxFit.none,
+                      colorFilter: ColorFilter.mode(
+                        ThemeData.estimateBrightnessForColor(bgColor) == Brightness.dark
+                            ? Colors.white.withValues(alpha: 0.2)
+                            : Colors.grey.shade700.withValues(alpha: 0.2),
+                        BlendMode.srcATop,
+                      ),
+                    ),
+                  ),
+                ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+                child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
@@ -276,7 +317,7 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(Icons.class_, color: Colors.white, size: 20),
@@ -287,37 +328,41 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
                         project['name'],
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                          color: Colors.white,
                         ),
                       ),
                     ),
-                    const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.black54),
+                    const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white70),
                   ],
                 ),
                 if (project['description'] != null &&
                     project['description'].toString().isNotEmpty) ...[
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
                   Text(
                     project['description'],
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black54),
-                    maxLines: 1,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.white.withValues(alpha: 0.85),
+                    ),
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 Text(
                   'Código: ${project['code']} • Equipos max: ${project['team_size']}',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
             ),
           ),
-        ),
+        ],
       ),
-    );
+    ),
+  ),
+);
   }
 
   Widget _buildInvitationCard(

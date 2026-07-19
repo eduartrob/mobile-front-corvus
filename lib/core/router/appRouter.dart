@@ -61,7 +61,7 @@ Page _buildSlideUpTransition(Widget child, LocalKey key) {
     fullscreenDialog: true,
   );
 }
-
+final GlobalKey<ScaffoldMessengerState> globalMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
 class AppRouter extends StatefulWidget {
   final ThemeData? appTheme;
@@ -282,6 +282,7 @@ class _AppRouterState extends State<AppRouter> {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Corvus',
+      scaffoldMessengerKey: globalMessengerKey,
       theme: widget.appTheme ?? ThemeData.light(),
       darkTheme: widget.darkTheme ?? ThemeData.dark(),
       themeMode: widget.themeMode ?? ThemeMode.light,

@@ -201,6 +201,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     );
                     
                     context.read<ProjectProvider>().clear();
+                    context.read<ProfileProvider>().clear();
                     await context.read<AuthProvider>().logout();
                     
                     if (context.mounted) {

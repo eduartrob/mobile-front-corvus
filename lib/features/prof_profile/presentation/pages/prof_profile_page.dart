@@ -107,6 +107,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
               
               // Sincronizar con Google Drive
               ListTile(
+                hoverColor: Colors.transparent,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 leading: Icon(Icons.sync, color: colorScheme.onSurfaceVariant, size: 28),
                 title: const Text('Sincronizar con Google Drive', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
@@ -121,6 +122,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
               
               // Cómo cargar los proyectos
               ListTile(
+                hoverColor: Colors.transparent,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 leading: Icon(Icons.folder_shared, color: colorScheme.onSurfaceVariant, size: 28),
                 title: const Text('Cómo cargar los proyectos', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
@@ -135,6 +137,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
               
               // Historial de Decisiones
               ListTile(
+                hoverColor: Colors.transparent,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 leading: Icon(Icons.history, color: colorScheme.onSurfaceVariant, size: 28),
                 title: const Text('Historial de Decisiones', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
@@ -149,6 +152,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
               
               // Apariencia
               ListTile(
+                hoverColor: Colors.transparent,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 leading: Icon(Icons.palette_outlined, color: colorScheme.onSurfaceVariant, size: 28),
                 title: const Text('Apariencia', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
@@ -191,6 +195,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                     
                     
                     context.read<ProjectProvider>().clear();
+                    context.read<ProfileProvider>().clear();
                     await context.read<AuthProvider>().logout();
                     
                     if (context.mounted) {

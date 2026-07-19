@@ -194,22 +194,23 @@ class _FloatingAiInputState extends State<FloatingAiInput>
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
               child: Container(
-                key: const ValueKey('expanded'),
-                padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    const Color(0xFF5B8DEF).withValues(alpha: 0.32),
-                    const Color(0xFF4A7DE0).withValues(alpha: 0.26),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+                  color: colorScheme.surface.withValues(alpha: 0.75),
+                  borderRadius: BorderRadius.circular(24),
                 ),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.55),
-                  width: 1,
-                ),
+                child: Container(
+                  key: const ValueKey('expanded'),
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        const Color(0xFF5B8DEF).withValues(alpha: 0.25),
+                        const Color(0xFF4A7DE0).withValues(alpha: 0.15),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(24),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -371,8 +372,9 @@ class _FloatingAiInputState extends State<FloatingAiInput>
             ),
           ),
         ),
-        ),
       ),
+    ),
+    ),
     );
   }
 

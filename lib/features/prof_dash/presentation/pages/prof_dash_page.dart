@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/shared/widgets/corvus_metric_card.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/features/prof_dash/presentation/provider/prof_dash_provider.dart';
@@ -87,6 +88,88 @@ class _ProfDashPageState extends State<ProfDashPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Consumer<ProjectProvider>(
+                  builder: (context, projProv, child) {
+                    final project = projProv.myProjects.firstWhere(
+                      (p) => p['id'] == widget.projectId, 
+                      orElse: () => null,
+                    );
+                    if (project == null) return const SizedBox.shrink();
+                    
+                    final pastelColors = const [
+                      Color(0xFF5C88DA), // Muted Blue
+                      Color(0xFF9A73C9), // Muted Purple
+                      Color(0xFF56A98A), // Muted Green
+                      Color(0xFFD98A53), // Muted Orange
+                      Color(0xFFD67389), // Muted Pink
+                    ];
+                    
+                    Color bgColor;
+                    if (project['theme_color'] != null) {
+                      final colorStr = project['theme_color'].toString().replaceAll('#', '0xFF');
+                      bgColor = Color(int.parse(colorStr));
+                    } else {
+                      bgColor = pastelColors[project['id'].hashCode.abs() % pastelColors.length];
+                    }
+                    
+                    final String? patternName = project['theme_pattern'];
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 24.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: bgColor,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Stack(
+                          children: [
+                            if (patternName != null)
+                              Positioned.fill(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: SvgPicture.asset(
+                                    'assets/patterns/$patternName.svg',
+                                    fit: BoxFit.none,
+                                    colorFilter: ColorFilter.mode(
+                                      ThemeData.estimateBrightnessForColor(bgColor) == Brightness.dark
+                                          ? Colors.white.withValues(alpha: 0.2)
+                                          : Colors.grey.shade700.withValues(alpha: 0.2),
+                                      BlendMode.srcATop,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.2),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Icon(Icons.class_, color: Colors.white, size: 20),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      project['name'],
+                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
                 Row(
                   children: [
                     Expanded(

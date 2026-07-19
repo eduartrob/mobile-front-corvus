@@ -9,6 +9,8 @@ class ProjectApi {
     String? description,
     int teamSize = 4,
     required String token,
+    String? themeColor,
+    String? themePattern,
   }) async {
     final response = await http.post(
       Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.projects}'),
@@ -20,6 +22,8 @@ class ProjectApi {
         'name': name,
         'description': description,
         'team_size': teamSize,
+        if (themeColor != null) 'theme_color': themeColor,
+        if (themePattern != null) 'theme_pattern': themePattern,
       }),
     ).timeout(ApiConfig.connectionTimeout);
 
@@ -70,6 +74,8 @@ class ProjectApi {
     required String projectId,
     required String name,
     required String token,
+    String? themeColor,
+    String? themePattern,
   }) async {
     final response = await http.put(
       Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.projectById(projectId)}'),
@@ -77,7 +83,11 @@ class ProjectApi {
         ...ApiConfig.defaultHeaders,
         'Authorization': 'Bearer $token',
       },
-      body: jsonEncode({'name': name}),
+      body: jsonEncode({
+        'name': name,
+        if (themeColor != null) 'theme_color': themeColor,
+        if (themePattern != null) 'theme_pattern': themePattern,
+      }),
     ).timeout(ApiConfig.connectionTimeout);
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
