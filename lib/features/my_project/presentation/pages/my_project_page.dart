@@ -7,22 +7,19 @@ import 'package:mobile/features/my_project/presentation/provider/my_project_prov
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
 import 'package:mobile/features/profile/presentation/provider/profile_provider.dart';
-import 'package:mobile/features/my_project/presentation/widgets/innovation_card.dart';
-import 'package:mobile/features/my_project/presentation/pages/project_defense_chat_page.dart';
+import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
 import 'package:mobile/features/my_project/presentation/widgets/upload_zone_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/uploaded_file_item_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/fast_rag_analysis_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/detailed_analysis_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/animated_loading_text_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/invalid_document_widget.dart';
-
-import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
+import 'package:mobile/features/my_project/presentation/widgets/document_preview_banner_widget.dart';
+import 'package:mobile/features/my_project/presentation/pages/project_defense_chat_page.dart';
 
 import 'package:go_router/go_router.dart';
 import 'package:mobile/shared/widgets/corvus_button.dart';
 import 'package:mobile/core/theme/app_dimens.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:mobile/l10n/app_localizations.dart';
 
 class MyProjectPage extends StatelessWidget {
   const MyProjectPage({super.key});
@@ -453,12 +450,14 @@ class _ProjectPageBody extends StatelessWidget {
         if (provider.state != ProjectState.initial)
           _ProjectRequirementsWidget(provider: provider),
 
-        if (provider.documentTypeError != null)
+        if (provider.documentTypeError != null) ...[
+          DocumentPreviewBannerWidget(provider: provider),
           InvalidDocumentWidget(
             provider: provider,
             userId: userId,
             specificError: provider.documentTypeError!,
-          )
+          ),
+        ]
         // Show upload zone only after init resolved AND there's an error (no analysis found)
         else if (provider.state == ProjectState.error)
           if (isLeader)

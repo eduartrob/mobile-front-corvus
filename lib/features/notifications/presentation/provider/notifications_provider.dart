@@ -56,22 +56,25 @@ class NotificationsProvider extends ChangeNotifier {
       final role = await storage.read(key: 'auth_role');
 
       var parsedNotifications = data
-          .map((n) => AppNotification(
-                id: n['id'].toString(),
-                message: n['title'] != null && n['title'] != ''
-                    ? "${n['title']}\n${n['body']}"
-                    : n['body'],
-                timestamp: DateTime.parse(n['timestamp']),
-                type: _getTypeFromString(n['type']),
-                isRead: n['isRead'] == 1,
-                authorName: n['authorName'],
-                authorPhotoUrl: n['authorPhotoUrl'],
-              ))
+          .map(
+            (n) => AppNotification(
+              id: n['id'].toString(),
+              message: n['title'] != null && n['title'] != ''
+                  ? "${n['title']}\n${n['body']}"
+                  : n['body'],
+              timestamp: DateTime.parse(n['timestamp']),
+              type: _getTypeFromString(n['type']),
+              isRead: n['isRead'] == 1,
+              authorName: n['authorName'],
+              authorPhotoUrl: n['authorPhotoUrl'],
+            ),
+          )
           .toList();
 
       if (role == 'PROFESOR') {
         parsedNotifications = parsedNotifications.where((n) {
-          final isConfigUpdate = n.message.contains('Temas para Proyecto') ||
+          final isConfigUpdate =
+              n.message.contains('Temas para Proyecto') ||
               n.message.contains('estructura de proyecto');
           return !isConfigUpdate;
         }).toList();
@@ -94,7 +97,9 @@ class NotificationsProvider extends ChangeNotifier {
     if (unread.isEmpty) return;
 
     // Actualización optimista en memoria
-    _notifications = _notifications.map((n) => n.copyWith(isRead: true)).toList();
+    _notifications = _notifications
+        .map((n) => n.copyWith(isRead: true))
+        .toList();
     notifyListeners();
 
     // Persistir en local
@@ -156,7 +161,9 @@ class NotificationsProvider extends ChangeNotifier {
 
   Future<void> markAllAsRead() async {
     // Optimistic update
-    _notifications = _notifications.map((n) => n.copyWith(isRead: true)).toList();
+    _notifications = _notifications
+        .map((n) => n.copyWith(isRead: true))
+        .toList();
     notifyListeners();
 
     await NotificationsLocalDataSource.markAllAsRead();

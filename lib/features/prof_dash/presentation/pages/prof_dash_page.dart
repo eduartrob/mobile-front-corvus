@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/shared/widgets/corvus_metric_card.dart';
@@ -7,9 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/features/prof_dash/presentation/provider/prof_dash_provider.dart';
-import 'package:mobile/features/prof_dash/presentation/pages/prof_directory_page.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
-import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/shared/widgets/corvus_skeleton.dart';
 
 class ProfDashPage extends StatefulWidget {
@@ -33,17 +30,6 @@ class _ProfDashPageState extends State<ProfDashPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ProfDashboardProvider>().loadDashboardStats(projectId: widget.projectId);
     });
-  }
-
-  void _showUpcomingFeature(BuildContext context, AppLocalizations l10n) {
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(l10n.featureUpcoming),
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
-      ),
-    );
   }
 
   @override
@@ -175,7 +161,7 @@ class _ProfDashPageState extends State<ProfDashPage> {
                     Expanded(
                       child: CorvusMetricCard(
                         label: l10n.teamsFormed,
-                        value: isLoading ? '' : '${data?.totalTeams}',
+                        value: isLoading ? '' : '${data.totalTeams}',
                         isLoading: isLoading,
                       ),
                     ),
@@ -187,7 +173,9 @@ class _ProfDashPageState extends State<ProfDashPage> {
                     Expanded(
                       child: CorvusMetricCard(
                         label: l10n.proposalsReady,
-                        value: isLoading ? '' : l10n.proposalsReadyDetail('${data?.readyProposals}', '${data?.totalTeams}'),
+                        value: isLoading
+                            ? ''
+                            : l10n.proposalsReadyDetail('${data.readyProposals}', '${data.totalTeams}'),
                         icon: Icons.description_outlined,
                         isLoading: isLoading,
                       ),
@@ -229,7 +217,7 @@ class _ProfDashPageState extends State<ProfDashPage> {
                       const SizedBox(height: 16),
                       if (isLoading)
                         const CorvusSkeleton(height: 80, width: double.infinity)
-                      else if (data!.alerts.isEmpty)
+                      else if (data.alerts.isEmpty)
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
@@ -371,7 +359,7 @@ class _ProfDashPageState extends State<ProfDashPage> {
                             icon: Icons.group,
                             bgColor: colorScheme.primaryContainer,
                             fgColor: colorScheme.primary,
-                            text: l10n.studentsWithTeam('${data?.studentsWithTeam}'),
+                            text: l10n.studentsWithTeam('${data.studentsWithTeam}'),
                           ),
                       const SizedBox(height: 10),
                       isLoading
@@ -384,7 +372,7 @@ class _ProfDashPageState extends State<ProfDashPage> {
                             icon: Icons.person_off,
                             bgColor: colorScheme.errorContainer,
                             fgColor: colorScheme.error,
-                            text: l10n.studentsWithoutTeam('${data?.studentsWithoutTeam}'),
+                            text: l10n.studentsWithoutTeam('${data.studentsWithoutTeam}'),
                           ),
                       const SizedBox(height: 20),
                       SizedBox(

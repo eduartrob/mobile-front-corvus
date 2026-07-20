@@ -11,12 +11,19 @@ class ProfDirectoryModel {
   });
 
   factory ProfDirectoryModel.fromJson(Map<String, dynamic> json) {
+    final rawUnassigned = json['studentsWithoutTeam'] ??
+        json['students_without_team'] ??
+        json['unassigned_students'] ??
+        json['unassigned'] ??
+        json['rezagados'] ??
+        [];
+
     return ProfDirectoryModel(
       teams: (json['teams'] as List<dynamic>?)
               ?.map((e) => TeamModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      studentsWithoutTeam: (json['studentsWithoutTeam'] as List<dynamic>?)
+      studentsWithoutTeam: (rawUnassigned as List<dynamic>?)
               ?.map((e) => Student.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],

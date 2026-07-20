@@ -19,11 +19,55 @@ class DashboardRepositoryImpl implements DashboardRepository {
     final metrics = data['metrics'] as Map<String, dynamic>? ?? {};
     final alertsRaw = data['alerts'] as List? ?? [];
 
+    int extractInt(dynamic root, Map<String, dynamic> sub, List<String> keys) {
+      for (final key in keys) {
+        if (sub[key] != null) {
+          final val = sub[key];
+          if (val is int) return val;
+          if (val is num) return val.toInt();
+          if (val is String) return int.tryParse(val) ?? 0;
+        }
+        if (root is Map && root[key] != null) {
+          final val = root[key];
+          if (val is int) return val;
+          if (val is num) return val.toInt();
+          if (val is String) return int.tryParse(val) ?? 0;
+        }
+      }
+      return 0;
+    }
+
+    final totalTeams = extractInt(data, metrics, ['total_teams', 'totalTeams', 'teams_count', 'teamsCount']);
+    final readyProposals = extractInt(data, metrics, ['ready_proposals', 'readyProposals', 'proposals_ready', 'proposalsReady']);
+    final studentsWithTeam = extractInt(data, metrics, [
+      'students_with_team',
+      'studentsWithTeam',
+      'with_team',
+      'withTeam',
+      'alumnos_con_equipo',
+      'con_equipo',
+      'students_in_team',
+    ]);
+    final studentsWithoutTeam = extractInt(data, metrics, [
+      'students_without_team',
+      'studentsWithoutTeam',
+      'without_team',
+      'withoutTeam',
+      'unassigned_students',
+      'unassignedStudents',
+      'unassigned',
+      'alumnos_sin_equipo',
+      'sin_equipo',
+      'rezagados',
+      'students_lagging',
+      'lagging_students',
+    ]);
+
     return DashboardEntity(
-      totalTeams: data['total_teams'] ?? 0,
-      readyProposals: data['ready_proposals'] ?? 0,
-      studentsWithTeam: metrics['students_with_team'] ?? 0,
-      studentsWithoutTeam: metrics['students_without_team'] ?? 0,
+      totalTeams: totalTeams,
+      readyProposals: readyProposals,
+      studentsWithTeam: studentsWithTeam,
+      studentsWithoutTeam: studentsWithoutTeam,
       alerts: alertsRaw.map((a) {
         final alert = a as Map<String, dynamic>;
         return DashboardAlertEntity(

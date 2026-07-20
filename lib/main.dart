@@ -37,7 +37,8 @@ void _handleNotificationTap(RemoteMessage message) {
   if (context != null) {
     if (message.data['type'] == 'TEAM_INVITE') {
       final myProjects = context.read<ProjectProvider>().myProjects;
-      final projectId = message.data['projectId'] ??
+      final projectId =
+          message.data['projectId'] ??
           (myProjects.isNotEmpty ? myProjects.first['id'] : null);
 
       if (projectId != null) {
@@ -72,8 +73,7 @@ class _AppBootstrapState extends State<_AppBootstrap> {
   @override
   void initState() {
     super.initState();
-    _wasAuthenticated =
-        widget.authProvider.status == AuthStatus.authenticated;
+    _wasAuthenticated = widget.authProvider.status == AuthStatus.authenticated;
     widget.authProvider.addListener(_onAuthChanged);
 
     // Si ya está autenticado al arrancar, cargar solo lo esencial
@@ -89,21 +89,34 @@ class _AppBootstrapState extends State<_AppBootstrap> {
   }
 
   void _onAuthChanged() {
-    final isAuth =
-        widget.authProvider.status == AuthStatus.authenticated;
+    final isAuth = widget.authProvider.status == AuthStatus.authenticated;
     if (isAuth && !_wasAuthenticated) {
       _wasAuthenticated = true;
       _loadEssentialData();
     } else if (!isAuth) {
       _wasAuthenticated = false;
       // Limpiar todos los providers para evitar fugas de estado entre sesiones
-      try { context.read<MyProjectProvider>().reset(''); } catch (_) {}
-      try { context.read<TeamsProvider>().clear(); } catch (_) {}
-      try { context.read<ProfileProvider>().clear(); } catch (_) {}
-      try { context.read<ProjectProvider>().clear(); } catch (_) {}
-      try { context.read<InspirationProvider>().clear(); } catch (_) {}
-      try { context.read<NotificationsProvider>().clear(); } catch (_) {}
-      try { context.read<ProfDashboardProvider>().clear(); } catch (_) {}
+      try {
+        context.read<MyProjectProvider>().reset('');
+      } catch (_) {}
+      try {
+        context.read<TeamsProvider>().clear();
+      } catch (_) {}
+      try {
+        context.read<ProfileProvider>().clear();
+      } catch (_) {}
+      try {
+        context.read<ProjectProvider>().clear();
+      } catch (_) {}
+      try {
+        context.read<InspirationProvider>().clear();
+      } catch (_) {}
+      try {
+        context.read<NotificationsProvider>().clear();
+      } catch (_) {}
+      try {
+        context.read<ProfDashboardProvider>().clear();
+      } catch (_) {}
       FirebaseMessaging.instance.unsubscribeFromTopic('config_updates');
     }
   }
@@ -129,7 +142,8 @@ class _AppBootstrapState extends State<_AppBootstrap> {
     profileProvider.fetchProfile();
     final projectProvider = context.read<ProjectProvider>();
     final token = widget.authProvider.currentUser?.token;
-    if (token != null) projectProvider.loadMyProjects(token, quiet: true, userId: uid);
+    if (token != null)
+      projectProvider.loadMyProjects(token, quiet: true, userId: uid);
 
     // Configurar userId en InspirationProvider para namespacear SharedPreferences
     context.read<InspirationProvider>().setUserId(uid);
@@ -164,27 +178,28 @@ void main() async {
   await Future.wait([
     Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform)
         .then((_) async {
-      FirebaseMessaging.onBackgroundMessage(
-          firebaseMessagingBackgroundHandler);
-      FirebaseMessaging.onMessage.listen(handleFCMMessage);
+          FirebaseMessaging.onBackgroundMessage(
+            firebaseMessagingBackgroundHandler,
+          );
+          FirebaseMessaging.onMessage.listen(handleFCMMessage);
 
-      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-        _handleNotificationTap(message);
-      });
-
-      FirebaseMessaging.instance
-          .getInitialMessage()
-          .then((RemoteMessage? message) {
-        if (message != null) {
-          Future.delayed(const Duration(milliseconds: 1500), () {
+          FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
             _handleNotificationTap(message);
           });
-        }
-      });
-    }).catchError((_) {
-      debugPrint(
-          'Firebase no inicializado: Ejecuta flutterfire configure');
-    }),
+
+          FirebaseMessaging.instance.getInitialMessage().then((
+            RemoteMessage? message,
+          ) {
+            if (message != null) {
+              Future.delayed(const Duration(milliseconds: 1500), () {
+                _handleNotificationTap(message);
+              });
+            }
+          });
+        })
+        .catchError((_) {
+          debugPrint('Firebase no inicializado: Ejecuta flutterfire configure');
+        }),
 
     themeProvider.init(),
     authProvider.checkAuthStatus(),
@@ -212,10 +227,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => sl<ProfDashboardProvider>()),
         ChangeNotifierProvider(create: (_) => sl<ProjectProvider>()),
       ],
-      child: _AppBootstrap(
-        authProvider: authProvider,
-        child: const MyApp(),
-      ),
+      child: _AppBootstrap(authProvider: authProvider, child: const MyApp()),
     ),
   );
 }
