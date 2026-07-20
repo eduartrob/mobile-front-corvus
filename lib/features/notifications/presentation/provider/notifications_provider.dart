@@ -226,6 +226,14 @@ class NotificationsProvider extends ChangeNotifier {
     }
   }
 
+  void clear() {
+    _notifications = [];
+    _isLoading = false;
+    _isSelectionMode = false;
+    _selectedIds = {};
+    notifyListeners();
+  }
+
   // ── Helpers ───────────────────────────────────────────────────────────────
 
   NotificationType _getTypeFromString(String typeStr) {

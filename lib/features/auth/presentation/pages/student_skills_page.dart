@@ -12,6 +12,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobile/core/services/security_service.dart';
 import 'package:mobile/shared/widgets/auth_scaffold.dart';
+import 'package:mobile/l10n/app_localizations.dart';
 
 class StudentSkillsPage extends StatefulWidget {
   final List<String> suggestedSkills;
@@ -41,7 +42,6 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
     super.initState();
     _securityService.preventScreenshots(true);
     if (widget.suggestedSkills.isNotEmpty) {
-      // Usar solo las sugeridas por el backend
       final Set<String> uniqueSkills = Set.from(widget.suggestedSkills);
       _displaySkills = uniqueSkills.toList();
     } else {
@@ -59,7 +59,6 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
   }
 
   void _toggleSkill(String skill) async {
-    // Add a slight delay so the user feels the ink ripple before the button moves
     await Future.delayed(const Duration(milliseconds: 150));
     
     if (!mounted) return;
@@ -71,16 +70,14 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
         if (_selectedSkills.length < 10) {
           _selectedSkills.add(skill);
         } else {
+          final l10n = AppLocalizations.of(context)!;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Puedes seleccionar un máximo de 10 habilidades'),
-            ),
+            SnackBar(content: Text(l10n.maxSkillsSelected)),
           );
         }
       }
     });
     
-    // Save to provider on toggle
     Provider.of<RegistrationProvider>(context, listen: false).setSkills(_selectedSkills);
   }
 
@@ -104,19 +101,12 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
         onTap: () => _toggleSkill(skill),
         borderRadius: BorderRadius.circular(24),
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 14,
-            vertical: 8,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (isSelected) ...[
-                Icon(
-                  Icons.check,
-                  size: 16,
-                  color: colors.primary,
-                ),
+                Icon(Icons.check, size: 16, color: colors.primary),
                 const SizedBox(width: 6),
               ],
               Text(
@@ -139,20 +129,18 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
 
   Future<void> _submitProfile() async {
     if (_selectedSkills.isEmpty) {
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Selecciona al menos una habilidad')),
+        SnackBar(content: Text(l10n.selectAtLeastOneSkill)),
       );
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     final provider = Provider.of<RegistrationProvider>(context, listen: false);
     
     try {
-      // 1. Primero registramos al usuario porque aún no tiene cuenta
       final Map<String, dynamic> bodyData = {
         'email': provider.email,
         'password': provider.password,
@@ -168,7 +156,6 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
         body: json.encode(bodyData),
       );
 
-      // Si falla el registro, revisamos el motivo
       if (registerResponse.statusCode != 201 && registerResponse.statusCode != 200) {
         if (registerResponse.statusCode == 400) {
           final errData = json.decode(registerResponse.body);
@@ -190,14 +177,10 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
         }
       }
 
-      // 1.5. Hacemos login para obtener el token porque el registro no lo devuelve
       final loginResponse = await http.post(
         Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authLogin}'),
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'email': provider.email,
-          'password': provider.password,
-        }),
+        body: json.encode({'email': provider.email, 'password': provider.password}),
       );
 
       if (loginResponse.statusCode != 200) {
@@ -209,10 +192,8 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
 
       final loginData = json.decode(loginResponse.body);
       if (loginData['token'] != null) {
-        // Guardar el token en almacenamiento seguro para que el apiClient lo use
         const storage = FlutterSecureStorage();
         await storage.write(key: 'auth_token', value: loginData['token']);
-        
         if (loginData['user'] != null) {
           await storage.write(key: 'auth_id', value: loginData['user']['id']);
           await storage.write(key: 'auth_role', value: loginData['user']['role']);
@@ -221,7 +202,6 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
         throw Exception('Error: No se recibió token en el login');
       }
 
-      // 2. Completamos el perfil del estudiante
       final response = await apiClient.put(
         Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authCompleteProfile}'),
         headers: {'Content-Type': 'application/json'},
@@ -236,14 +216,7 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
       );
 
       if (response.statusCode == 200) {
-        if (provider.googleAuthCode != null) {
-          debugPrint('🟢 [GoogleReg] Cuenta registrada con Google — googleEmail guardado en registro.');
-        } else {
-          debugPrint('🟡 [GoogleReg] Cuenta registrada con email/password normal.');
-        }
-
         if (mounted) {
-          // Actualizar el estado global para que el router nos deje pasar
           await context.read<AuthProvider>().checkAuthStatus();
           context.pushReplacement('/inspiration');
         }
@@ -253,21 +226,17 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
     } catch (e) {
       debugPrint("Error saving profile: $e");
       if (mounted) {
-        // Clean up the Exception: prefix if present
         String errorMessage = e.toString();
         if (errorMessage.startsWith('Exception: ')) {
           errorMessage = errorMessage.substring(11);
         }
-        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(errorMessage)),
         );
       }
     } finally {
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+        setState(() => _isLoading = false);
       }
     }
   }
@@ -276,6 +245,7 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return AuthScaffold(
       leading: IconButton(
@@ -289,12 +259,8 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Selecciona tus habilidades',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: colors.onSurface,
-            ),
+            l10n.selectYourSkills,
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: colors.onSurface),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 6),
@@ -303,64 +269,55 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
               height: 3,
               width: 36,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [colors.primary, colors.tertiary],
-                ),
+                gradient: LinearGradient(colors: [colors.primary, colors.tertiary]),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Elige hasta 10 habilidades que deseas obtener o mejorar en tu carrera. (${_selectedSkills.length}/10)',
-            style: TextStyle(
-              fontSize: 14,
-              color: colors.onSurfaceVariant,
-              height: 1.5,
-            ),
+            l10n.chooseSkillsSubtitle(_selectedSkills.length.toString(), '10'),
+            style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant, height: 1.5),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 28),
-        AnimatedSize(
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeOutCubic,
-          child: Container(
-            constraints: const BoxConstraints(maxHeight: 500),
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  if (_selectedSkills.isNotEmpty) ...[
+          AnimatedSize(
+            duration: const Duration(milliseconds: 400),
+            curve: Curves.easeOutCubic,
+            child: Container(
+              constraints: const BoxConstraints(maxHeight: 500),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    if (_selectedSkills.isNotEmpty) ...[
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 8,
+                        alignment: WrapAlignment.center,
+                        children: _selectedSkills.map((skill) => _buildSkillChip(skill, true, colors, isDark)).toList(),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
                     Wrap(
                       spacing: 6,
                       runSpacing: 8,
                       alignment: WrapAlignment.center,
-                      children: _selectedSkills.map((skill) {
-                        return _buildSkillChip(skill, true, colors, isDark);
-                      }).toList(),
+                      children: _displaySkills
+                          .where((s) => !_selectedSkills.contains(s))
+                          .map((skill) => _buildSkillChip(skill, false, colors, isDark))
+                          .toList(),
                     ),
-                    const SizedBox(height: 24),
                   ],
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 8,
-                    alignment: WrapAlignment.center,
-                    children: _displaySkills
-                        .where((s) => !_selectedSkills.contains(s))
-                        .map((skill) {
-                      return _buildSkillChip(skill, false, colors, isDark);
-                    }).toList(),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 24),
-        const Spacer(),
-        CorvusButton(
-          text: _isLoading ? "Guardando..." : "Finalizar",
-          onPressed: _isLoading ? () {} : _submitProfile,
-        ),
+          const SizedBox(height: 24),
+          const Spacer(),
+          CorvusButton(
+            text: _isLoading ? l10n.saving : l10n.finish,
+            onPressed: _isLoading ? () {} : _submitProfile,
+          ),
         ],
       ),
     );

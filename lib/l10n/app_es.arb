@@ -46,6 +46,7 @@
   "navTeams": "Equipos",
   "navProfile": "Perfil",
   "navSearch": "Buscar",
+  "navProjects": "Proyectos",
   "welcomeToCorvus": "Bienvenido a Corvus",
   "welcomeCorvusDesc": "Corvus analiza y agrupa repositorios académicos para revelar áreas de investigación inexploradas. Descubre oportunidades únicas para tu próximo gran proyecto.",
   "unexploredProjects": "Proyectos Inexplorados",
@@ -82,6 +83,11 @@
   "citeTeam": "Citar Equipo",
   "approve": "Aprobar",
   "reject": "Rechazar",
+  "accept": "Aceptar",
+  "delete": "Eliminar",
+  "cancel": "Cancelar",
+  "retry": "Reintentar",
+  "saveChanges": "Guardar Cambios",
   "gpa": "PROMEDIO",
   "projects": "PROYECTOS",
   "technicalSkills": "Habilidades Técnicas",
@@ -99,7 +105,6 @@
   "folderAlreadyLinked": "Carpeta vinculada (Ya estaba sincronizada previamente en Corvus).",
   "folderLinkedProcessingStarted": "¡Carpeta vinculada! El procesamiento ha comenzado en segundo plano.",
   "removeAccessTitle": "¿Quitar acceso?",
-  "cancel": "Cancelar",
   "remove": "Quitar",
   "driveAccessRequired": "Se requiere acceso a Drive para sincronizar.",
   "sendForReview": "Enviar para Revisión",
@@ -129,47 +134,209 @@
   "invalidDocumentTitle": "Documento no válido",
   "invalidDocumentDesc": "El archivo que subiste no parece ser una propuesta de proyecto integrador. Asegúrate de subir tu propuesta con secciones como Objetivo, Metodología y Tecnologías.",
   "invalidDocumentAction": "Cargar otro documento",
-  
   "blueOceanGenericCategory": "INNOVACIÓN ACADÉMICA",
   "blueOceanGenericTag": "Océano Azul Real",
   "blueOceanGenericDesc": "Este proyecto ha sido clasificado como una anomalía semántica de alta varianza, indicando un enfoque único e inexplorado respecto a todos los demás trabajos en la base de datos.",
-
   "notifUploadTitle": "Subiendo propuesta",
   "notifUploadBody": "Analizando estructura RAG rápida...",
   "notifPreValidReadyTitle": "Pre-validación lista",
   "notifPreValidReadyBody": "Puedes revisar las heurísticas iniciales.",
   "notifErrorTitle": "Error",
   "notifPreValidFailed": "Falló la pre-validación.",
-  
   "notifAnalysisStartTitle": "Análisis Detallado",
   "notifAnalysisStartBody": "La IA está evaluando rigurosidad y originalidad...",
   "notifAnalysisErrorTitle": "Error al iniciar análisis",
-  
   "notifAnalysisProgressTitle": "Corvus IA",
   "notifAnalysisProgressBody": "Analizando tu propuesta de proyecto...",
-  
   "notifAnalysisCompleteTitle": "¡Análisis Completado!",
   "notifAnalysisCompleteBody": "Tu dictamen técnico está listo. Abre la app para revisarlo.",
   "notifAnalysisFailedTitle": "Análisis no completado",
   "notifAnalysisFailedBody": "El servidor encontró un error.",
-  
   "searchPlaceholderResult": "Resultados para: {query}\n(Pronto conectado a la IA)",
   "@searchPlaceholderResult": {
     "placeholders": {
-      "query": {
-        "type": "String"
-      }
+      "query": { "type": "String" }
     }
   },
-  
   "searchFieldLabelHint": "Buscar proyectos o temas...",
   "searchEmptyState": "Escribe un tema de investigación",
   "searchSuggestion": "Buscar \"{query}\" en todos los repositorios",
   "@searchSuggestion": {
     "placeholders": {
-      "query": {
-        "type": "String"
-      }
+      "query": { "type": "String" }
     }
-  }
+  },
+  "manageTeamTitle": "Gestionar Equipo",
+  "teamNameLabel": "Nombre del Equipo",
+  "teamNameHint": "Escribe el nombre del equipo",
+  "teamNameRequired": "El nombre del equipo es obligatorio",
+  "teamDescriptionLabel": "Descripción del Equipo (Opcional)",
+  "teamDescriptionHint": "Añade una descripción amigable...",
+  "socialLinksTitle": "Enlaces a Grupos de Redes Sociales",
+  "socialLinksDesc": "Agrega enlaces para que los integrantes se unan a tus canales oficiales.",
+  "socialPlatformHint": "Red (ej. Discord)",
+  "socialLinkRequired": "Por favor, ingresa el nombre de la red social y la URL",
+  "socialUrlInvalid": "La URL debe comenzar con http:// o https://",
+  "teamSettingsSaved": "Configuración del equipo guardada con éxito",
+  "teamSettingsError": "Error al guardar cambios: {error}",
+  "@teamSettingsError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "myTeam": "Mi Equipo",
+  "virtualTeamDesc": "Crea tu equipo personalizando el nombre en el botón \"Gestionar\" de la derecha y busca integrantes en la pestaña \"Sugerencias\".",
+  "studentDefaultName": "Estudiante",
+  "yourTeamBadge": "TU EQUIPO",
+  "teamMembersCount": "{count} / {max} miembros",
+  "@teamMembersCount": {
+    "placeholders": {
+      "count": { "type": "String" },
+      "max": { "type": "String" }
+    }
+  },
+  "missingOneMember": "Te falta 1 integrante",
+  "missingMembers": "Te faltan {count} integrantes",
+  "@missingMembers": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "searchMembers": "Buscar integrantes",
+  "proposalSent": "Propuesta Enviada",
+  "proposalApproved": "Propuesta Aprobada",
+  "proposalRejected": "Propuesta Rechazada",
+  "summonedForReview": "Citados a Revisión",
+  "proposalStatusUnknown": "Estado de propuesta desconocido",
+  "proposalPendingDesc": "El profesorado revisará pronto tu proyecto.",
+  "proposalApprovedDesc": "¡Felicidades! Pueden continuar con el proyecto.",
+  "proposalRejectedDesc": "La propuesta no cumple con los criterios académicos.",
+  "appointmentDate": "Fecha: {date}",
+  "@appointmentDate": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "appointmentLocation": "Lugar/Enlace: {location}",
+  "@appointmentLocation": {
+    "placeholders": {
+      "location": { "type": "String" }
+    }
+  },
+  "searchResults": "Resultados de búsqueda",
+  "recommendedForYou": "Recomendados para ti",
+  "errorLoadingSuggestions": "Error al cargar sugerencias:\n{error}",
+  "@errorLoadingSuggestions": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "noSuggestionsFound": "No hay sugerencias encontradas",
+  "invitationSent": "Invitación enviada a {name}",
+  "@invitationSent": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "errorSendingInvitation": "Error al enviar invitación: {error}",
+  "@errorSendingInvitation": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "received": "Recibidas",
+  "sent": "Enviadas",
+  "noRequests": "No hay solicitudes en esta sección",
+  "requestCancelled": "Solicitud cancelada / rechazada",
+  "invitationAccepted": "Invitación aceptada. Te has unido al equipo!",
+  "wantsToJoinGroup": "Quiere unirse a tu grupo",
+  "invitedToGroup": "Te invitó a formar parte de su grupo",
+  "teamsFormed": "EQUIPOS FORMADOS",
+  "proposalsReady": "PROPUESTAS LISTAS",
+  "proposalsReadyDetail": "{ready} de {total} equipos",
+  "@proposalsReadyDetail": {
+    "placeholders": {
+      "ready": { "type": "String" },
+      "total": { "type": "String" }
+    }
+  },
+  "attentionRequired": "Atención Requerida",
+  "allUpToDate": "Todo al día. No hay elementos que requieran atención inmediata.",
+  "quickMetrics": "Métricas Rápidas",
+  "studentsWithTeam": "{count} Alumnos con equipo",
+  "@studentsWithTeam": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "studentsWithoutTeam": "{count} Alumnos rezagados (sin equipo)",
+  "@studentsWithoutTeam": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "viewLaggingStudentsDirectory": "Ver Directorio de Alumnos Rezagados",
+  "sessionExpired": "Tu sesión ha expirado. Por favor, inicia sesión de nuevo.",
+  "doubleTapToExit": "Toca \"Volver\" de nuevo para salir",
+  "chatUnderConstruction": "Chat Grupal con IA (En construcción)",
+  "maxSkillsSelected": "Puedes seleccionar un máximo de 10 habilidades",
+  "selectAtLeastOneSkill": "Selecciona al menos una habilidad",
+  "selectYourSkills": "Selecciona tus habilidades",
+  "chooseSkillsSubtitle": "Elige hasta 10 habilidades que deseas obtener o mejorar en tu carrera. ({selected}/{max})",
+  "@chooseSkillsSubtitle": {
+    "placeholders": {
+      "selected": { "type": "String" },
+      "max": { "type": "String" }
+    }
+  },
+  "saving": "Guardando...",
+  "finish": "Finalizar",
+  "completeAllRequiredFields": "Por favor, completa todos los campos requeridos",
+  "selectValidUniversity": "Por favor, selecciona una universidad válida de la lista",
+  "statusPending": "PENDIENTE",
+  "statusApproved": "APROBADA",
+  "statusRejected": "RECHAZADA",
+  "statusSummoned": "CITADA",
+  "noProposalsToReview": "No hay propuestas para revisión.",
+  "teamLabel": "Equipo: {name}",
+  "@teamLabel": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "membersLabel": "Integrantes: {members}",
+  "@membersLabel": {
+    "placeholders": {
+      "members": { "type": "String" }
+    }
+  },
+  "untitledProposal": "Propuesta sin título",
+  "projectProposal": "Propuesta de Proyecto",
+  "unnamedTeam": "Equipo sin nombre",
+  "nameRequired": "El nombre es requerido",
+  "errorCreating": "Error al crear",
+  "projectCreated": "¡Proyecto Creado! 🎉",
+  "shareCodeMessage": "Comparte este código de acceso con tus alumnos para que puedan unirse y formar equipos:",
+  "codeCopied": "Código copiado al portapapeles",
+  "copy": "Copiar",
+  "newProject": "Nuevo Proyecto",
+  "newProjectDesc": "Al crear un proyecto, se generará un código para que tus alumnos se unan.",
+  "projectNameLabel": "Nombre del Proyecto *",
+  "projectNameHint": "Ej: Proyecto Final Integradora",
+  "descriptionOptional": "Descripción (Opcional)",
+  "descriptionHint": "Detalles del proyecto...",
+  "maxTeamSize": "Tamaño máximo del equipo",
+  "creating": "Creando...",
+  "createProject": "Crear Proyecto",
+  "join": "Unirse",
+  "noClassesYet": "Aún no tienes clases",
+  "noClassesDesc": "Únete a una clase ingresando el código que te proporcionó tu profesor para comenzar tu proyecto.",
+  "joinClass": "Unirse a una Clase",
+  "defaultProjectName": "Proyecto",
+  "noProjectYet": "Aún no perteneces a ningún proyecto",
+  "noProjectDesc": "Para poder formar un equipo y subir tu propuesta, primero debes unirte a la clase de tu profesor usando su Código de Acceso.",
+  "joinProject": "Unirse a un Proyecto",
+  "noTeam": "No tienes un equipo",
+  "noTeamDesc": "Debes unirte o crear un equipo en la pestaña de Equipos para poder enviar una propuesta.",
+  "navProjectsLabel": "Proyectos"
 }

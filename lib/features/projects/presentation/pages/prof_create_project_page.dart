@@ -8,6 +8,7 @@ import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/shared/widgets/corvus_button.dart';
 import 'package:mobile/shared/widgets/corvus_input_completed.dart';
 import 'package:mobile/features/projects/presentation/widgets/theme_picker.dart';
+import 'package:mobile/l10n/app_localizations.dart';
 
 class ProfCreateProjectPage extends StatefulWidget {
   const ProfCreateProjectPage({super.key});
@@ -33,10 +34,11 @@ class _ProfCreateProjectPageState extends State<ProfCreateProjectPage> {
   }
 
   void _createProject() async {
+    final l10n = AppLocalizations.of(context)!;
     final name = _nameController.text.trim();
     if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('El nombre es requerido')),
+        SnackBar(content: Text(l10n.nameRequired)),
       );
       return;
     }
@@ -65,24 +67,25 @@ class _ProfCreateProjectPageState extends State<ProfCreateProjectPage> {
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(provider.error ?? 'Error al crear')),
+        SnackBar(content: Text(provider.error ?? l10n.errorCreating)),
       );
     }
   }
 
   void _showSuccessDialog(String code) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) {
         final colors = Theme.of(context).colorScheme;
         return AlertDialog(
-          title: const Text('¡Proyecto Creado! 🎉', textAlign: TextAlign.center),
+          title: Text(l10n.projectCreated, textAlign: TextAlign.center),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                'Comparte este código de acceso con tus alumnos para que puedan unirse y formar equipos:',
+              Text(
+                l10n.shareCodeMessage,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
@@ -110,18 +113,18 @@ class _ProfCreateProjectPageState extends State<ProfCreateProjectPage> {
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: code));
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Código copiado al portapapeles')),
+                  SnackBar(content: Text(l10n.codeCopied)),
                 );
               },
               icon: const Icon(Icons.copy),
-              label: const Text('Copiar'),
+              label: Text(l10n.copy),
             ),
             FilledButton(
               onPressed: () {
-                context.pop(); // Close dialog
-                context.pop(); // Go back to dash
+                context.pop();
+                context.pop();
               },
-              child: const Text('Entendido'),
+              child: Text(l10n.understood),
             ),
           ],
         );
@@ -133,6 +136,7 @@ class _ProfCreateProjectPageState extends State<ProfCreateProjectPage> {
   Widget build(BuildContext context) {
     final isLoading = context.select<ProjectProvider, bool>((p) => p.isLoading);
     final colors = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: const CorvusTopBar(),
@@ -141,34 +145,34 @@ class _ProfCreateProjectPageState extends State<ProfCreateProjectPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Nuevo Proyecto',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            Text(
+              l10n.newProject,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
-              'Al crear un proyecto, se generará un código para que tus alumnos se unan.',
+              l10n.newProjectDesc,
               style: TextStyle(fontSize: 16, color: colors.onSurfaceVariant),
             ),
             const SizedBox(height: 32),
             InputCompleted(
-              label: 'Nombre del Proyecto *',
-              hint: 'Ej: Proyecto Final Integradora',
+              label: l10n.projectNameLabel,
+              hint: l10n.projectNameHint,
               icon: Icons.school_outlined,
               controller: _nameController,
               iconColor: colors.primary,
             ),
             const SizedBox(height: 16),
             InputCompleted(
-              label: 'Descripción (Opcional)',
-              hint: 'Detalles del proyecto...',
+              label: l10n.descriptionOptional,
+              hint: l10n.descriptionHint,
               icon: Icons.description_outlined,
               controller: _descController,
               iconColor: colors.primary,
             ),
             const SizedBox(height: 16),
             InputCompleted(
-              label: 'Tamaño máximo del equipo',
+              label: l10n.maxTeamSize,
               hint: '4',
               icon: Icons.groups_outlined,
               controller: _teamSizeController,
@@ -184,7 +188,7 @@ class _ProfCreateProjectPageState extends State<ProfCreateProjectPage> {
             ),
             const SizedBox(height: 48),
             CorvusButton(
-              text: isLoading ? 'Creando...' : 'Crear Proyecto',
+              text: isLoading ? l10n.creating : l10n.createProject,
               onPressed: isLoading ? () {} : _createProject,
             ),
           ],

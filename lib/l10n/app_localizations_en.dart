@@ -149,6 +149,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navSearch => 'Search';
 
   @override
+  String get navProjects => 'Projects';
+
+  @override
   String get welcomeToCorvus => 'Welcome to Corvus';
 
   @override
@@ -266,6 +269,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reject => 'Reject';
 
   @override
+  String get accept => 'Accept';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get saveChanges => 'Save Changes';
+
+  @override
   String get gpa => 'GPA';
 
   @override
@@ -319,9 +337,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get removeAccessTitle => 'Remove access?';
-
-  @override
-  String get cancel => 'Cancel';
 
   @override
   String get remove => 'Remove';
@@ -489,4 +504,346 @@ class AppLocalizationsEn extends AppLocalizations {
   String searchSuggestion(String query) {
     return 'Search \"$query\" in all repositories';
   }
+
+  @override
+  String get manageTeamTitle => 'Manage Team';
+
+  @override
+  String get teamNameLabel => 'Team Name';
+
+  @override
+  String get teamNameHint => 'Enter the team name';
+
+  @override
+  String get teamNameRequired => 'Team name is required';
+
+  @override
+  String get teamDescriptionLabel => 'Team Description (Optional)';
+
+  @override
+  String get teamDescriptionHint => 'Add a friendly description...';
+
+  @override
+  String get socialLinksTitle => 'Social Media Group Links';
+
+  @override
+  String get socialLinksDesc =>
+      'Add links so members can join your official channels.';
+
+  @override
+  String get socialPlatformHint => 'Network (e.g. Discord)';
+
+  @override
+  String get socialLinkRequired =>
+      'Please enter the social network name and URL';
+
+  @override
+  String get socialUrlInvalid => 'URL must start with http:// or https://';
+
+  @override
+  String get teamSettingsSaved => 'Team settings saved successfully';
+
+  @override
+  String teamSettingsError(String error) {
+    return 'Error saving changes: $error';
+  }
+
+  @override
+  String get myTeam => 'My Team';
+
+  @override
+  String get virtualTeamDesc =>
+      'Create your team by customizing the name in the \"Manage\" button on the right and search for members in the \"Suggestions\" tab.';
+
+  @override
+  String get studentDefaultName => 'Student';
+
+  @override
+  String get yourTeamBadge => 'YOUR TEAM';
+
+  @override
+  String teamMembersCount(String count, String max) {
+    return '$count / $max members';
+  }
+
+  @override
+  String get missingOneMember => 'You are missing 1 member';
+
+  @override
+  String missingMembers(String count) {
+    return 'You are missing $count members';
+  }
+
+  @override
+  String get searchMembers => 'Search members';
+
+  @override
+  String get proposalSent => 'Proposal Submitted';
+
+  @override
+  String get proposalApproved => 'Proposal Approved';
+
+  @override
+  String get proposalRejected => 'Proposal Rejected';
+
+  @override
+  String get summonedForReview => 'Summoned for Review';
+
+  @override
+  String get proposalStatusUnknown => 'Unknown proposal status';
+
+  @override
+  String get proposalPendingDesc =>
+      'The faculty will review your project soon.';
+
+  @override
+  String get proposalApprovedDesc =>
+      'Congratulations! You can continue with the project.';
+
+  @override
+  String get proposalRejectedDesc =>
+      'The proposal does not meet academic criteria.';
+
+  @override
+  String appointmentDate(String date) {
+    return 'Date: $date';
+  }
+
+  @override
+  String appointmentLocation(String location) {
+    return 'Location/Link: $location';
+  }
+
+  @override
+  String get searchResults => 'Search results';
+
+  @override
+  String get recommendedForYou => 'Recommended for you';
+
+  @override
+  String errorLoadingSuggestions(String error) {
+    return 'Error loading suggestions:\n$error';
+  }
+
+  @override
+  String get noSuggestionsFound => 'No suggestions found';
+
+  @override
+  String invitationSent(String name) {
+    return 'Invitation sent to $name';
+  }
+
+  @override
+  String errorSendingInvitation(String error) {
+    return 'Error sending invitation: $error';
+  }
+
+  @override
+  String get received => 'Received';
+
+  @override
+  String get sent => 'Sent';
+
+  @override
+  String get noRequests => 'No requests in this section';
+
+  @override
+  String get requestCancelled => 'Request cancelled / rejected';
+
+  @override
+  String get invitationAccepted =>
+      'Invitation accepted. You have joined the team!';
+
+  @override
+  String get wantsToJoinGroup => 'Wants to join your group';
+
+  @override
+  String get invitedToGroup => 'Invited you to join their group';
+
+  @override
+  String get teamsFormed => 'TEAMS FORMED';
+
+  @override
+  String get proposalsReady => 'PROPOSALS READY';
+
+  @override
+  String proposalsReadyDetail(String ready, String total) {
+    return '$ready of $total teams';
+  }
+
+  @override
+  String get attentionRequired => 'Attention Required';
+
+  @override
+  String get allUpToDate =>
+      'All up to date. No items require immediate attention.';
+
+  @override
+  String get quickMetrics => 'Quick Metrics';
+
+  @override
+  String studentsWithTeam(String count) {
+    return '$count Students with team';
+  }
+
+  @override
+  String studentsWithoutTeam(String count) {
+    return '$count Lagging students (without team)';
+  }
+
+  @override
+  String get viewLaggingStudentsDirectory => 'View Lagging Students Directory';
+
+  @override
+  String get sessionExpired => 'Your session has expired. Please log in again.';
+
+  @override
+  String get doubleTapToExit => 'Tap \"Back\" again to exit';
+
+  @override
+  String get chatUnderConstruction => 'Group Chat with AI (Under construction)';
+
+  @override
+  String get maxSkillsSelected => 'You can select a maximum of 10 skills';
+
+  @override
+  String get selectAtLeastOneSkill => 'Select at least one skill';
+
+  @override
+  String get selectYourSkills => 'Select your skills';
+
+  @override
+  String chooseSkillsSubtitle(String selected, String max) {
+    return 'Choose up to 10 skills you want to acquire or improve in your career. ($selected/$max)';
+  }
+
+  @override
+  String get saving => 'Saving...';
+
+  @override
+  String get finish => 'Finish';
+
+  @override
+  String get completeAllRequiredFields => 'Please complete all required fields';
+
+  @override
+  String get selectValidUniversity =>
+      'Please select a valid university from the list';
+
+  @override
+  String get statusPending => 'PENDING';
+
+  @override
+  String get statusApproved => 'APPROVED';
+
+  @override
+  String get statusRejected => 'REJECTED';
+
+  @override
+  String get statusSummoned => 'SUMMONED';
+
+  @override
+  String get noProposalsToReview => 'No proposals to review.';
+
+  @override
+  String teamLabel(String name) {
+    return 'Team: $name';
+  }
+
+  @override
+  String membersLabel(String members) {
+    return 'Members: $members';
+  }
+
+  @override
+  String get untitledProposal => 'Untitled proposal';
+
+  @override
+  String get projectProposal => 'Project Proposal';
+
+  @override
+  String get unnamedTeam => 'Unnamed team';
+
+  @override
+  String get nameRequired => 'Name is required';
+
+  @override
+  String get errorCreating => 'Error creating';
+
+  @override
+  String get projectCreated => 'Project Created! 🎉';
+
+  @override
+  String get shareCodeMessage =>
+      'Share this access code with your students so they can join and form teams:';
+
+  @override
+  String get codeCopied => 'Code copied to clipboard';
+
+  @override
+  String get copy => 'Copy';
+
+  @override
+  String get newProject => 'New Project';
+
+  @override
+  String get newProjectDesc =>
+      'When you create a project, a code will be generated for your students to join.';
+
+  @override
+  String get projectNameLabel => 'Project Name *';
+
+  @override
+  String get projectNameHint => 'Ex: Final Integrative Project';
+
+  @override
+  String get descriptionOptional => 'Description (Optional)';
+
+  @override
+  String get descriptionHint => 'Project details...';
+
+  @override
+  String get maxTeamSize => 'Maximum team size';
+
+  @override
+  String get creating => 'Creating...';
+
+  @override
+  String get createProject => 'Create Project';
+
+  @override
+  String get join => 'Join';
+
+  @override
+  String get noClassesYet => 'No classes yet';
+
+  @override
+  String get noClassesDesc =>
+      'Join a class by entering the code provided by your professor to start your project.';
+
+  @override
+  String get joinClass => 'Join a Class';
+
+  @override
+  String get defaultProjectName => 'Project';
+
+  @override
+  String get noProjectYet => 'You are not part of any project yet';
+
+  @override
+  String get noProjectDesc =>
+      'To form a team and submit your proposal, you must first join your professor\'s class using their Access Code.';
+
+  @override
+  String get joinProject => 'Join a Project';
+
+  @override
+  String get noTeam => 'You don\'t have a team';
+
+  @override
+  String get noTeamDesc =>
+      'You must join or create a team in the Teams tab to submit a proposal.';
+
+  @override
+  String get navProjectsLabel => 'Projects';
 }

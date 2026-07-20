@@ -8,6 +8,7 @@ import 'package:mobile/features/my_project/presentation/provider/my_project_prov
 import 'package:mobile/features/teams/data/models/team_model.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
+import 'package:mobile/l10n/app_localizations.dart';
 import 'team_members_list.dart';
 import 'dashed_border_painter.dart';
 
@@ -32,6 +33,7 @@ class EquipoTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
     final user = context.watch<AuthProvider>().currentUser;
     final projectProvider = context.watch<MyProjectProvider>();
     final currentUserId = user?.id ?? '';
@@ -73,12 +75,12 @@ class EquipoTab extends StatelessWidget {
 
         final displayTeam = team ?? TeamModel(
           id: 'virtual-team',
-          name: 'Mi Equipo',
-          description: 'Crea tu equipo personalizando el nombre en el botón "Gestionar" de la derecha y busca integrantes en la pestaña "Sugerencias".',
+          name: l10n.myTeam,
+          description: l10n.virtualTeamDesc,
           members: [
             TeamMemberModel(
               id: currentUserId,
-              name: userName ?? user?.name ?? 'Estudiante',
+              name: userName ?? user?.name ?? l10n.studentDefaultName,
               email: userEmail ?? user?.email ?? '',
               avatarUrl: myAvatarUrl,
               role: 'LEADER',
@@ -95,7 +97,6 @@ class EquipoTab extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Sophisticated Project detail box (touches edges)
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.only(top: 24, left: 24, right: 24, bottom: 36),
@@ -179,7 +180,6 @@ class EquipoTab extends StatelessWidget {
                               ),
                             ),
                           ),
-                        // "TU EQUIPO" badge
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
@@ -190,7 +190,7 @@ class EquipoTab extends StatelessWidget {
                             ]
                           ),
                           child: Text(
-                            'TU EQUIPO',
+                            l10n.yourTeamBadge,
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
@@ -228,7 +228,7 @@ class EquipoTab extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         Padding(
-                          padding: const EdgeInsets.only(right: 70), // space for floating avatars
+                          padding: const EdgeInsets.only(right: 70),
                           child: Text(
                             displayTeam.description,
                             style: TextStyle(
@@ -239,7 +239,6 @@ class EquipoTab extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 20),
-                        // Integrantes pill
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
@@ -256,7 +255,7 @@ class EquipoTab extends StatelessWidget {
                               Icon(Icons.person_outline, size: 14, color: colorScheme.primary),
                               const SizedBox(width: 6),
                               Text(
-                                '${displayTeam.members.length} / $maxMembers miembros',
+                                l10n.teamMembersCount(displayTeam.members.length.toString(), maxMembers.toString()),
                                 style: TextStyle(
                                   color: colorScheme.onSurfaceVariant,
                                   fontWeight: FontWeight.w600,
@@ -275,7 +274,7 @@ class EquipoTab extends StatelessWidget {
                         child: TextButton.icon(
                           onPressed: () => context.push('/manage-team'),
                           icon: const Icon(Icons.manage_accounts_outlined, size: 18),
-                          label: const Text('Gestionar'),
+                          label: Text(l10n.manage),
                           style: TextButton.styleFrom(
                             backgroundColor: Colors.white.withValues(alpha: 0.6),
                             foregroundColor: Colors.deepPurple.shade700,
@@ -289,14 +288,13 @@ class EquipoTab extends StatelessWidget {
                   ],
                 ),
               ),
-              // Rest of the content wrapped in padding
               Padding(
                 padding: const EdgeInsets.all(AppDimens.screenMargin),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (teamsProvider.finalReviewStatus != null)
-                      _buildProposalStatusBanner(context, teamsProvider.finalReviewStatus!),
+                      _buildProposalStatusBanner(context, teamsProvider.finalReviewStatus!, l10n),
                     if (teamsProvider.finalReviewStatus != null)
                       const SizedBox(height: 16),
                     TeamMembersList(
@@ -319,8 +317,8 @@ class EquipoTab extends StatelessWidget {
                       Expanded(
                         child: Text(
                           missingCount == 1
-                              ? 'Te falta 1 integrante'
-                              : 'Te faltan $missingCount integrantes',
+                              ? l10n.missingOneMember
+                              : l10n.missingMembers(missingCount.toString()),
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -338,9 +336,9 @@ class EquipoTab extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: onSearchMembers ?? () {},
                     icon: const Icon(Icons.search, size: 20),
-                    label: const Text(
-                      'Buscar integrantes',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    label: Text(
+                      l10n.searchMembers,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: colorScheme.primary,
@@ -362,7 +360,7 @@ class EquipoTab extends StatelessWidget {
                     child: OutlinedButton.icon(
                       onPressed: onLeaveTeam,
                       icon: const Icon(Icons.exit_to_app, size: 18),
-                      label: const Text('Salir del equipo'),
+                      label: Text(l10n.leaveTeam),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: colorScheme.error,
                         side: BorderSide(color: colorScheme.error.withValues(alpha: 0.7)),
@@ -385,7 +383,7 @@ class EquipoTab extends StatelessWidget {
     );
   }
 
-  Widget _buildProposalStatusBanner(BuildContext context, Map<String, dynamic> statusData) {
+  Widget _buildProposalStatusBanner(BuildContext context, Map<String, dynamic> statusData, AppLocalizations l10n) {
     final status = statusData['status'] as String? ?? 'UNKNOWN';
     final colorScheme = Theme.of(context).colorScheme;
     
@@ -393,51 +391,51 @@ class EquipoTab extends StatelessWidget {
     Color fgColor;
     IconData icon;
     String title;
-    String subtitle = 'El profesorado revisará pronto tu proyecto.';
+    String subtitle = l10n.proposalPendingDesc;
 
     switch (status) {
       case 'PENDING':
         bgColor = Colors.amber.shade100;
         fgColor = Colors.amber.shade900;
         icon = Icons.hourglass_empty;
-        title = 'Propuesta Enviada';
+        title = l10n.proposalSent;
         break;
       case 'APPROVED':
         bgColor = Colors.green.shade100;
         fgColor = Colors.green.shade800;
         icon = Icons.check_circle;
-        title = 'Propuesta Aprobada';
-        subtitle = '¡Felicidades! Pueden continuar con el proyecto.';
+        title = l10n.proposalApproved;
+        subtitle = l10n.proposalApprovedDesc;
         break;
       case 'REJECTED':
         bgColor = colorScheme.errorContainer;
         fgColor = colorScheme.onErrorContainer;
         icon = Icons.cancel;
-        title = 'Propuesta Rechazada';
-        subtitle = statusData['reason'] ?? 'La propuesta no cumple con los criterios académicos.';
+        title = l10n.proposalRejected;
+        subtitle = statusData['reason'] ?? l10n.proposalRejectedDesc;
         break;
       case 'SUMMONED':
         bgColor = Colors.blue.shade100;
         fgColor = Colors.blue.shade900;
         icon = Icons.calendar_month;
-        title = 'Citados a Revisión';
+        title = l10n.summonedForReview;
         final date = statusData['appointment_date'] != null 
             ? DateTime.tryParse(statusData['appointment_date']) 
             : null;
         if (date != null) {
-          subtitle = 'Fecha: ${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}\n';
+          subtitle = l10n.appointmentDate('${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}') + '\n';
         } else {
           subtitle = '';
         }
         if (statusData['location_link'] != null) {
-          subtitle += 'Lugar/Enlace: ${statusData['location_link']}';
+          subtitle += l10n.appointmentLocation(statusData['location_link']);
         }
         break;
       default:
         bgColor = colorScheme.surfaceContainerHighest;
         fgColor = colorScheme.onSurfaceVariant;
         icon = Icons.info;
-        title = 'Estado de propuesta desconocido';
+        title = l10n.proposalStatusUnknown;
     }
 
     return Container(

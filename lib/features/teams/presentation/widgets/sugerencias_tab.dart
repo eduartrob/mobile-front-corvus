@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
+import 'package:mobile/l10n/app_localizations.dart';
 import 'team_members_list.dart';
 
 class SugerenciasTab extends StatelessWidget {
@@ -11,6 +12,7 @@ class SugerenciasTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Consumer<TeamsProvider>(
       builder: (context, provider, child) {
@@ -19,11 +21,10 @@ class SugerenciasTab extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header Text (Recomendados vs Resultados)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Text(
-                isFiltering ? 'Resultados de búsqueda' : 'Recomendados para ti',
+                isFiltering ? l10n.searchResults : l10n.recommendedForYou,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -31,8 +32,6 @@ class SugerenciasTab extends StatelessWidget {
                 ),
               ),
             ),
-
-            // List of filtered suggestions cards
             Expanded(
               child: provider.isLoading && suggestions.isEmpty
                   ? const Center(child: CircularProgressIndicator())
@@ -46,7 +45,7 @@ class SugerenciasTab extends StatelessWidget {
                                 const Icon(Icons.error_outline, color: Colors.red, size: 40),
                                 const SizedBox(height: 12),
                                 Text(
-                                  'Error al cargar sugerencias:\n${provider.errorMessage}',
+                                  l10n.errorLoadingSuggestions(provider.errorMessage!),
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: 14,
@@ -55,9 +54,9 @@ class SugerenciasTab extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 16),
                                 ElevatedButton.icon(
-                                  onPressed: () => provider.fetchSuggestions(), // TeamProvider will use previous values if modified or we just let it fetch default
+                                  onPressed: () => provider.fetchSuggestions(),
                                   icon: const Icon(Icons.refresh),
-                                  label: const Text('Reintentar'),
+                                  label: Text(l10n.retry),
                                 ),
                               ],
                             ),
@@ -73,7 +72,7 @@ class SugerenciasTab extends StatelessWidget {
                                     height: MediaQuery.of(context).size.height * 0.5,
                                     child: Center(
                                       child: Text(
-                                        'No hay sugerencias encontradas',
+                                        l10n.noSuggestionsFound,
                                         style: TextStyle(
                                           fontSize: 15,
                                           color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
@@ -108,7 +107,7 @@ class SugerenciasTab extends StatelessWidget {
                                           ScaffoldMessenger.of(context).hideCurrentSnackBar();
                                           ScaffoldMessenger.of(context).showSnackBar(
                                             SnackBar(
-                                              content: Text('Invitación enviada a ${student.name}'),
+                                              content: Text(l10n.invitationSent(student.name)),
                                               behavior: SnackBarBehavior.floating,
                                             ),
                                           );
@@ -116,7 +115,7 @@ class SugerenciasTab extends StatelessWidget {
                                           ScaffoldMessenger.of(context).hideCurrentSnackBar();
                                           ScaffoldMessenger.of(context).showSnackBar(
                                             SnackBar(
-                                              content: Text('Error al enviar invitación: ${error.toString().replaceAll('Exception: ', '')}'),
+                                              content: Text(l10n.errorSendingInvitation(error.toString().replaceAll('Exception: ', ''))),
                                               backgroundColor: Theme.of(context).colorScheme.error,
                                               behavior: SnackBarBehavior.floating,
                                             ),

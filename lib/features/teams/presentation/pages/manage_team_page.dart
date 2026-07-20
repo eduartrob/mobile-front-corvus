@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
 import 'package:mobile/features/teams/data/models/team_model.dart';
+import 'package:mobile/l10n/app_localizations.dart';
 
 class ManageTeamPage extends StatefulWidget {
   const ManageTeamPage({super.key});
@@ -16,7 +17,6 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
 
-  // List of social network group URLs
   final List<Map<String, String>> _socialUrls = [];
 
   final _platformController = TextEditingController();
@@ -47,14 +47,14 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
     super.dispose();
   }
 
-  void _addSocialUrl() {
+  void _addSocialUrl(AppLocalizations l10n) {
     final platform = _platformController.text.trim();
     final url = _urlController.text.trim();
 
     if (platform.isEmpty || url.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Por favor, ingresa el nombre de la red social y la URL'),
+        SnackBar(
+          content: Text(l10n.socialLinkRequired),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -63,8 +63,8 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
 
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('La URL debe comenzar con http:// o https://'),
+        SnackBar(
+          content: Text(l10n.socialUrlInvalid),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -92,12 +92,13 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final teamsProvider = context.watch<TeamsProvider>();
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Gestionar Equipo',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Text(
+          l10n.manageTeamTitle,
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: colorScheme.surface,
         elevation: 0,
@@ -116,9 +117,8 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Team Name Field
                     Text(
-                      'Nombre del Equipo',
+                      l10n.teamNameLabel,
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
@@ -129,7 +129,7 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
                     TextFormField(
                       controller: _nameController,
                       decoration: InputDecoration(
-                        hintText: 'Escribe el nombre del equipo',
+                        hintText: l10n.teamNameHint,
                         filled: true,
                         fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                         border: OutlineInputBorder(
@@ -147,16 +147,14 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'El nombre del equipo es obligatorio';
+                          return l10n.teamNameRequired;
                         }
                         return null;
                       },
                     ),
                     const SizedBox(height: 20),
-
-                    // Description Field
                     Text(
-                      'Descripción del Equipo (Opcional)',
+                      l10n.teamDescriptionLabel,
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
@@ -168,7 +166,7 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
                       controller: _descriptionController,
                       maxLines: 3,
                       decoration: InputDecoration(
-                        hintText: 'Añade una descripción amigable...',
+                        hintText: l10n.teamDescriptionHint,
                         filled: true,
                         fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                         border: OutlineInputBorder(
@@ -186,12 +184,10 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
                       ),
                     ),
                     const SizedBox(height: 20),
-
-                    // Social Networks URLs Section
                     const Divider(),
                     const SizedBox(height: 16),
                     Text(
-                      'Enlaces a Grupos de Redes Sociales',
+                      l10n.socialLinksTitle,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -200,14 +196,13 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Agrega enlaces para que los integrantes se unan a tus canales oficiales.',
+                      l10n.socialLinksDesc,
                       style: TextStyle(
                         fontSize: 13,
                         color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                       ),
                     ),
                     const SizedBox(height: 16),
-
                     Row(
                       children: [
                         Expanded(
@@ -215,7 +210,7 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
                           child: TextFormField(
                             controller: _platformController,
                             decoration: InputDecoration(
-                              hintText: 'Red (ej. Discord)',
+                              hintText: l10n.socialPlatformHint,
                               filled: true,
                               fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
                               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -231,14 +226,13 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
                           flex: 3,
                           child: TextFormField(
                             controller: _urlController,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               hintText: 'https://...',
                               filled: true,
-                              fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                              fillColor: Color(0x33000000),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
+                                borderRadius: BorderRadius.all(Radius.circular(10)),
                               ),
                             ),
                           ),
@@ -251,14 +245,12 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
                           ),
                           child: IconButton(
                             icon: const Icon(Icons.add, color: Colors.white),
-                            onPressed: _addSocialUrl,
+                            onPressed: () => _addSocialUrl(l10n),
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 16),
-
-                    // List of added URLs
                     ListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
@@ -310,8 +302,6 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
                       },
                     ),
                     const SizedBox(height: 36),
-
-                    // Save Button
                     SizedBox(
                       width: double.infinity,
                       height: 52,
@@ -334,8 +324,8 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
                                 )
                                 .then((_) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Configuración del equipo guardada con éxito'),
+                                SnackBar(
+                                  content: Text(l10n.teamSettingsSaved),
                                   behavior: SnackBarBehavior.floating,
                                   backgroundColor: Colors.green,
                                 ),
@@ -344,7 +334,7 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
                             }).catchError((error) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text('Error al guardar cambios: $error'),
+                                  content: Text(l10n.teamSettingsError(error.toString())),
                                   behavior: SnackBarBehavior.floating,
                                   backgroundColor: Colors.red,
                                 ),
@@ -360,9 +350,9 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
                           ),
                           elevation: 0,
                         ),
-                        child: const Text(
-                          'Guardar Cambios',
-                          style: TextStyle(
+                        child: Text(
+                          l10n.saveChanges,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),

@@ -1,6 +1,6 @@
 name: mobile
 description: "Corvus mobile application."
-version: 2.5.3+19
+version: 2.5.5+20
 
 environment:
   sdk: ^3.11.0
@@ -44,9 +44,10 @@ dependencies:
   flutter_tts: ^4.2.5
   image_cropper: ^12.2.1
   qr_flutter: ^4.1.0
-  mobile_scanner: ^5.2.3
+  mobile_scanner: ^7.3.0
   path_provider: ^2.1.6
   connectivity_plus: ^7.3.0
+  lottie: ^3.5.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -64,3 +65,5 @@ flutter:
   assets:
     - assets/icons/
     - assets/patterns/
+    - assets/images/
+    - assets/animations/

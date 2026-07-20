@@ -45,15 +45,23 @@ class InspirationProvider extends ChangeNotifier {
     await loadProjects(forceRefresh: true);
   }
 
+  String? _userId;
+
+  void setUserId(String? userId) {
+    _userId = userId;
+  }
+
+  String get _welcomeKey => _userId != null ? 'user_${_userId}_has_seen_welcome_inspiration' : 'has_seen_welcome_inspiration';
+
   Future<void> checkWelcomeStatus() async {
     final prefs = await SharedPreferences.getInstance();
-    _showWelcome = !(prefs.getBool('has_seen_welcome_inspiration') ?? false);
+    _showWelcome = !(prefs.getBool(_welcomeKey) ?? false);
     notifyListeners();
   }
 
   Future<void> dismissWelcome() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('has_seen_welcome_inspiration', true);
+    await prefs.setBool(_welcomeKey, true);
     _showWelcome = false;
     notifyListeners();
   }
@@ -133,6 +141,16 @@ class InspirationProvider extends ChangeNotifier {
         } catch (_) {}
       });
     }
+  }
+
+  void clear() {
+    _refreshTimer?.cancel();
+    _projects = [];
+    _isLoading = false;
+    _isFetchingMore = false;
+    _hasMore = true;
+    _currentPage = 1;
+    notifyListeners();
   }
 
   @override

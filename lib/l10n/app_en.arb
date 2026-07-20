@@ -46,6 +46,7 @@
   "navTeams": "Teams",
   "navProfile": "Profile",
   "navSearch": "Search",
+  "navProjects": "Projects",
   "welcomeToCorvus": "Welcome to Corvus",
   "welcomeCorvusDesc": "Corvus analyzes and groups academic repositories to reveal unexplored research areas. Discover unique opportunities for your next big project.",
   "unexploredProjects": "Unexplored Projects",
@@ -82,6 +83,11 @@
   "citeTeam": "Cite Team",
   "approve": "Approve",
   "reject": "Reject",
+  "accept": "Accept",
+  "delete": "Delete",
+  "cancel": "Cancel",
+  "retry": "Retry",
+  "saveChanges": "Save Changes",
   "gpa": "GPA",
   "projects": "PROJECTS",
   "technicalSkills": "Technical Skills",
@@ -99,7 +105,6 @@
   "folderAlreadyLinked": "Folder linked (Already synchronized previously in Corvus).",
   "folderLinkedProcessingStarted": "Folder linked! Processing has started in the background.",
   "removeAccessTitle": "Remove access?",
-  "cancel": "Cancel",
   "remove": "Remove",
   "driveAccessRequired": "Drive access is required to synchronize.",
   "sendForReview": "Submit for Review",
@@ -129,47 +134,209 @@
   "invalidDocumentTitle": "Invalid Document",
   "invalidDocumentDesc": "The file you uploaded does not appear to be an integrative project proposal. Make sure to upload your proposal with sections like Objective, Methodology, and Technologies.",
   "invalidDocumentAction": "Upload another document",
-  
   "blueOceanGenericCategory": "ACADEMIC INNOVATION",
   "blueOceanGenericTag": "Real Blue Ocean",
   "blueOceanGenericDesc": "This project has been classified as a high-variance semantic anomaly, indicating a unique and unexplored approach compared to all other works in the database.",
-
   "notifUploadTitle": "Uploading proposal",
   "notifUploadBody": "Analyzing quick RAG structure...",
   "notifPreValidReadyTitle": "Pre-validation ready",
   "notifPreValidReadyBody": "You can review the initial heuristics.",
   "notifErrorTitle": "Error",
   "notifPreValidFailed": "Pre-validation failed.",
-  
   "notifAnalysisStartTitle": "Detailed Analysis",
   "notifAnalysisStartBody": "The AI is evaluating rigor and originality...",
   "notifAnalysisErrorTitle": "Error starting analysis",
-  
   "notifAnalysisProgressTitle": "Corvus AI",
   "notifAnalysisProgressBody": "Analyzing your project proposal...",
-  
   "notifAnalysisCompleteTitle": "Analysis Complete!",
   "notifAnalysisCompleteBody": "Your technical report is ready. Open the app to review it.",
   "notifAnalysisFailedTitle": "Analysis incomplete",
   "notifAnalysisFailedBody": "The server encountered an error.",
-  
   "searchPlaceholderResult": "Results for: {query}\n(Soon connected to AI)",
   "@searchPlaceholderResult": {
     "placeholders": {
-      "query": {
-        "type": "String"
-      }
+      "query": { "type": "String" }
     }
   },
-  
   "searchFieldLabelHint": "Search projects or topics...",
   "searchEmptyState": "Type a research topic",
   "searchSuggestion": "Search \"{query}\" in all repositories",
   "@searchSuggestion": {
     "placeholders": {
-      "query": {
-        "type": "String"
-      }
+      "query": { "type": "String" }
     }
-  }
+  },
+  "manageTeamTitle": "Manage Team",
+  "teamNameLabel": "Team Name",
+  "teamNameHint": "Enter the team name",
+  "teamNameRequired": "Team name is required",
+  "teamDescriptionLabel": "Team Description (Optional)",
+  "teamDescriptionHint": "Add a friendly description...",
+  "socialLinksTitle": "Social Media Group Links",
+  "socialLinksDesc": "Add links so members can join your official channels.",
+  "socialPlatformHint": "Network (e.g. Discord)",
+  "socialLinkRequired": "Please enter the social network name and URL",
+  "socialUrlInvalid": "URL must start with http:// or https://",
+  "teamSettingsSaved": "Team settings saved successfully",
+  "teamSettingsError": "Error saving changes: {error}",
+  "@teamSettingsError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "myTeam": "My Team",
+  "virtualTeamDesc": "Create your team by customizing the name in the \"Manage\" button on the right and search for members in the \"Suggestions\" tab.",
+  "studentDefaultName": "Student",
+  "yourTeamBadge": "YOUR TEAM",
+  "teamMembersCount": "{count} / {max} members",
+  "@teamMembersCount": {
+    "placeholders": {
+      "count": { "type": "String" },
+      "max": { "type": "String" }
+    }
+  },
+  "missingOneMember": "You are missing 1 member",
+  "missingMembers": "You are missing {count} members",
+  "@missingMembers": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "searchMembers": "Search members",
+  "proposalSent": "Proposal Submitted",
+  "proposalApproved": "Proposal Approved",
+  "proposalRejected": "Proposal Rejected",
+  "summonedForReview": "Summoned for Review",
+  "proposalStatusUnknown": "Unknown proposal status",
+  "proposalPendingDesc": "The faculty will review your project soon.",
+  "proposalApprovedDesc": "Congratulations! You can continue with the project.",
+  "proposalRejectedDesc": "The proposal does not meet academic criteria.",
+  "appointmentDate": "Date: {date}",
+  "@appointmentDate": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "appointmentLocation": "Location/Link: {location}",
+  "@appointmentLocation": {
+    "placeholders": {
+      "location": { "type": "String" }
+    }
+  },
+  "searchResults": "Search results",
+  "recommendedForYou": "Recommended for you",
+  "errorLoadingSuggestions": "Error loading suggestions:\n{error}",
+  "@errorLoadingSuggestions": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "noSuggestionsFound": "No suggestions found",
+  "invitationSent": "Invitation sent to {name}",
+  "@invitationSent": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "errorSendingInvitation": "Error sending invitation: {error}",
+  "@errorSendingInvitation": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "received": "Received",
+  "sent": "Sent",
+  "noRequests": "No requests in this section",
+  "requestCancelled": "Request cancelled / rejected",
+  "invitationAccepted": "Invitation accepted. You have joined the team!",
+  "wantsToJoinGroup": "Wants to join your group",
+  "invitedToGroup": "Invited you to join their group",
+  "teamsFormed": "TEAMS FORMED",
+  "proposalsReady": "PROPOSALS READY",
+  "proposalsReadyDetail": "{ready} of {total} teams",
+  "@proposalsReadyDetail": {
+    "placeholders": {
+      "ready": { "type": "String" },
+      "total": { "type": "String" }
+    }
+  },
+  "attentionRequired": "Attention Required",
+  "allUpToDate": "All up to date. No items require immediate attention.",
+  "quickMetrics": "Quick Metrics",
+  "studentsWithTeam": "{count} Students with team",
+  "@studentsWithTeam": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "studentsWithoutTeam": "{count} Lagging students (without team)",
+  "@studentsWithoutTeam": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "viewLaggingStudentsDirectory": "View Lagging Students Directory",
+  "sessionExpired": "Your session has expired. Please log in again.",
+  "doubleTapToExit": "Tap \"Back\" again to exit",
+  "chatUnderConstruction": "Group Chat with AI (Under construction)",
+  "maxSkillsSelected": "You can select a maximum of 10 skills",
+  "selectAtLeastOneSkill": "Select at least one skill",
+  "selectYourSkills": "Select your skills",
+  "chooseSkillsSubtitle": "Choose up to 10 skills you want to acquire or improve in your career. ({selected}/{max})",
+  "@chooseSkillsSubtitle": {
+    "placeholders": {
+      "selected": { "type": "String" },
+      "max": { "type": "String" }
+    }
+  },
+  "saving": "Saving...",
+  "finish": "Finish",
+  "completeAllRequiredFields": "Please complete all required fields",
+  "selectValidUniversity": "Please select a valid university from the list",
+  "statusPending": "PENDING",
+  "statusApproved": "APPROVED",
+  "statusRejected": "REJECTED",
+  "statusSummoned": "SUMMONED",
+  "noProposalsToReview": "No proposals to review.",
+  "teamLabel": "Team: {name}",
+  "@teamLabel": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "membersLabel": "Members: {members}",
+  "@membersLabel": {
+    "placeholders": {
+      "members": { "type": "String" }
+    }
+  },
+  "untitledProposal": "Untitled proposal",
+  "projectProposal": "Project Proposal",
+  "unnamedTeam": "Unnamed team",
+  "nameRequired": "Name is required",
+  "errorCreating": "Error creating",
+  "projectCreated": "Project Created! 🎉",
+  "shareCodeMessage": "Share this access code with your students so they can join and form teams:",
+  "codeCopied": "Code copied to clipboard",
+  "copy": "Copy",
+  "newProject": "New Project",
+  "newProjectDesc": "When you create a project, a code will be generated for your students to join.",
+  "projectNameLabel": "Project Name *",
+  "projectNameHint": "Ex: Final Integrative Project",
+  "descriptionOptional": "Description (Optional)",
+  "descriptionHint": "Project details...",
+  "maxTeamSize": "Maximum team size",
+  "creating": "Creating...",
+  "createProject": "Create Project",
+  "join": "Join",
+  "noClassesYet": "No classes yet",
+  "noClassesDesc": "Join a class by entering the code provided by your professor to start your project.",
+  "joinClass": "Join a Class",
+  "defaultProjectName": "Project",
+  "noProjectYet": "You are not part of any project yet",
+  "noProjectDesc": "To form a team and submit your proposal, you must first join your professor's class using their Access Code.",
+  "joinProject": "Join a Project",
+  "noTeam": "You don't have a team",
+  "noTeamDesc": "You must join or create a team in the Teams tab to submit a proposal.",
+  "navProjectsLabel": "Projects"
 }
