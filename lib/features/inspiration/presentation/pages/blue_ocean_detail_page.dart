@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/features/inspiration/domain/entities/project_entity.dart';
 import 'package:mobile/features/inspiration/presentation/widgets/glass_container.dart';
-import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/features/inspiration/presentation/widgets/sugerencias_card.dart';
 import 'package:mobile/features/inspiration/presentation/widgets/blue_ocean_header.dart';
 import 'package:provider/provider.dart';
@@ -12,10 +11,24 @@ class BlueOceanDetailPage extends StatelessWidget {
 
   const BlueOceanDetailPage({super.key, required this.project});
 
+  int _parseMetricValue(dynamic metricVal) {
+    if (metricVal == null) return 0;
+    if (metricVal is int) return metricVal;
+    if (metricVal is double) return metricVal.toInt();
+    if (metricVal is num) return metricVal.toInt();
+    if (metricVal is String) {
+      return int.tryParse(metricVal.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+    }
+    if (metricVal is Map) {
+      final val = metricVal['score'] ?? metricVal['valor'] ?? metricVal['porcentaje'] ?? metricVal['value'] ?? metricVal['puntuacion'] ?? metricVal['promedio'];
+      return _parseMetricValue(val);
+    }
+    return 0;
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final l10n = AppLocalizations.of(context)!;
     
     final savedProjectsProvider = context.watch<SavedProjectsProvider>();
     final isSaved = savedProjectsProvider.isSaved(project.id);
@@ -111,19 +124,19 @@ class BlueOceanDetailPage extends StatelessWidget {
                   const SizedBox(height: 20),
                   FeasibilityMetricBar(
                     label: isEn ? 'Originality' : 'Originalidad',
-                    value: metricas['originalidad'] ?? 0,
+                    value: _parseMetricValue(metricas['originalidad']),
                     color: colorScheme.primary,
                   ),
                   const SizedBox(height: 16),
                   FeasibilityMetricBar(
                     label: isEn ? 'Data Availability' : 'Disponibilidad de Datos',
-                    value: metricas['disponibilidad_datos'] ?? 0,
+                    value: _parseMetricValue(metricas['disponibilidad_datos']),
                     color: colorScheme.secondary,
                   ),
                   const SizedBox(height: 16),
                   FeasibilityMetricBar(
                     label: isEn ? 'Academic Relevance' : 'Relevancia Académica',
-                    value: metricas['relevancia_academica'] ?? 0,
+                    value: _parseMetricValue(metricas['relevancia_academica']),
                     color: colorScheme.tertiary,
                   ),
                 ],
@@ -168,17 +181,6 @@ class BlueOceanDetailPage extends StatelessWidget {
             const SizedBox(height: 40),
           ],
         ),
-      ),
-    );
-  }
-
-  void _showComingSoon(BuildContext context, AppLocalizations l10n) {
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(l10n.featureUpcoming),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }

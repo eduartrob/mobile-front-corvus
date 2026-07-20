@@ -39,6 +39,7 @@ class ProfRulesProvider extends ChangeNotifier {
   List<dynamic> get clusterStats => _clusterStats;
 
   String? _lastProjectId;
+  String? get lastProjectId => _lastProjectId;
   
   // In-memory cache for instantaneous project switching
   final Map<String, Map<String, dynamic>> _memoryConfigCache = {};

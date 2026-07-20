@@ -4,10 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
 import 'package:mobile/features/profile/presentation/provider/profile_provider.dart';
-import 'package:mobile/core/theme/theme_provider.dart';
-import 'package:mobile/l10n/app_localizations.dart';
+import 'package:mobile/features/prof_rules/presentation/provider/prof_rules_provider.dart';
+import 'package:mobile/features/prof_rules/presentation/pages/prof_rules_page.dart';
 import 'package:mobile/core/theme/app_dimens.dart';
-import 'package:mobile/core/constants/app_version.dart';
 import '../widgets/prof_header_info.dart';
 import 'package:mobile/features/profile/presentation/pages/settings_page.dart' as mobile;
 import 'package:mobile/features/profile/presentation/pages/app_update_page.dart' as mobile;
@@ -37,7 +36,6 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final l10n = AppLocalizations.of(context)!;
     final authProvider = context.watch<AuthProvider>();
     final user = authProvider.currentUser;
     final profileProvider = context.watch<ProfileProvider>();
@@ -56,7 +54,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                 context,
                 MaterialPageRoute(builder: (context) => const mobile.ProfEditProfilePage()),
               );
-              if (mounted) {
+              if (context.mounted) {
                 context.read<ProfileProvider>().fetchProfile(forceRefresh: true);
                 context.read<AuthProvider>().checkAuthStatus();
               }
@@ -185,22 +183,67 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () async {
-                    showDialog(
+                    final rulesProvider = context.read<ProfRulesProvider>();
+                    if (rulesProvider.isModified) {
+                      final pId = rulesProvider.lastProjectId ?? 'default';
+                      final canProceed = await handleUnsavedChangesGuard(context, pId);
+                      if (!canProceed || !context.mounted) return;
+                    }
+
+                    final confirm = await showDialog<bool>(
                       context: context,
-                      barrierDismissible: false,
-                      builder: (context) => const Center(
-                        child: CircularProgressIndicator(),
-                      ),
+                      builder: (ctx) {
+                        final colorScheme = Theme.of(ctx).colorScheme;
+                        return AlertDialog(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          title: Row(
+                            children: [
+                              Icon(Icons.logout, color: colorScheme.error, size: 28),
+                              const SizedBox(width: 12),
+                              const Expanded(
+                                child: Text(
+                                  'Cerrar sesión',
+                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
+                          ),
+                          content: const Text(
+                            '¿Estás seguro de que deseas cerrar sesión en Corvus?',
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, false),
+                              child: Text('Cancelar', style: TextStyle(color: colorScheme.onSurfaceVariant)),
+                            ),
+                            FilledButton(
+                              style: FilledButton.styleFrom(backgroundColor: colorScheme.error),
+                              onPressed: () => Navigator.pop(ctx, true),
+                              child: const Text('Cerrar sesión'),
+                            ),
+                          ],
+                        );
+                      },
                     );
-                    
-                    
-                    context.read<ProjectProvider>().clear();
-                    context.read<ProfileProvider>().clear();
-                    await context.read<AuthProvider>().logout();
-                    
-                    if (context.mounted) {
-                      Navigator.of(context).pop();
-                      context.go('/');
+
+                    if (confirm == true && context.mounted) {
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) => const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+                      
+                      context.read<ProjectProvider>().clear();
+                      context.read<ProfileProvider>().clear();
+                      await context.read<AuthProvider>().logout();
+                      
+                      if (context.mounted) {
+                        Navigator.of(context).pop();
+                        context.go('/');
+                      }
                     }
                   },
                   icon: const Icon(Icons.logout, color: Colors.red),

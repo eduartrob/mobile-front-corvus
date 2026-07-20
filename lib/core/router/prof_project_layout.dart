@@ -39,17 +39,32 @@ class _ProfProjectLayoutState extends State<ProfProjectLayout> {
     }
   }
 
-  void _onItemTapped(int index) {
+  void _onItemTapped(int index) async {
     if (index == _currentIndex) return;
-    setState(() => _currentIndex = index);
+
+    if (_currentIndex == 2) {
+      final canLeave = await handleUnsavedChangesGuard(context, widget.projectId);
+      if (!canLeave || !context.mounted) return;
+    }
+
+    if (context.mounted) {
+      setState(() => _currentIndex = index);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (bool didPop, Object? result) {
+      onPopInvokedWithResult: (bool didPop, Object? result) async {
         if (didPop) return;
+
+        if (_currentIndex == 2) {
+          final canLeave = await handleUnsavedChangesGuard(context, widget.projectId);
+          if (!canLeave || !context.mounted) return;
+        }
+
+        if (!context.mounted) return;
 
         if (_currentIndex != 0) {
           setState(() => _currentIndex = 0);

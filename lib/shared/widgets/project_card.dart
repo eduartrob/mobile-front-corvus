@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/inspiration/domain/entities/project_entity.dart';
 import 'package:mobile/features/inspiration/presentation/provider/inspiration_provider.dart';
@@ -88,7 +87,6 @@ class ProjectCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final bool isTrending = project.isTrending;
     final isEn = Localizations.localeOf(context).languageCode == 'en';
@@ -204,15 +202,19 @@ class ProjectCard extends StatelessWidget {
                             padding: const EdgeInsets.only(right: 6),
                             child: Icon(Icons.groups_outlined, size: 18, color: colorScheme.onSurfaceVariant),
                           ),
-                        Text(
-                          '+ ${project.viewCount} Estudiantes han presionado aqui',
-                          style: TextStyle(
-                            color: colorScheme.onSurface,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                        Expanded(
+                          child: Text(
+                            '+ ${project.viewCount} Estudiantes han presionado aqui',
+                            style: TextStyle(
+                              color: colorScheme.onSurface,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const Spacer(),
+                        const SizedBox(width: 8),
                         if (project.analysisStatus == 'pending')
                           SizedBox(
                             width: 20,

@@ -2,14 +2,93 @@
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
-import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/features/prof_rules/presentation/provider/prof_rules_provider.dart';
-import 'package:mobile/features/prof_rules/data/data_source/prof_rules_remote_data_source.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:animated_list_plus/animated_list_plus.dart';
 import 'package:animated_list_plus/transitions.dart';
-import 'package:http/http.dart' as http;
 import 'package:mobile/shared/widgets/corvus_skeleton.dart';
+
+enum UnsavedChangesResult { save, discard, cancel }
+
+Future<UnsavedChangesResult?> showUnsavedChangesDialog(BuildContext context) {
+  final colorScheme = Theme.of(context).colorScheme;
+  return showDialog<UnsavedChangesResult>(
+    context: context,
+    barrierDismissible: false,
+    builder: (ctx) => AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: Row(
+        children: [
+          Icon(Icons.warning_amber_rounded, color: colorScheme.error, size: 28),
+          const SizedBox(width: 12),
+          const Expanded(
+            child: Text(
+              'Cambios sin guardar',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+      content: const Text(
+        'Tienes modificaciones sin guardar en la estructura o reglas del proyecto. ¿Qué deseas hacer antes de salir?',
+        style: TextStyle(fontSize: 14),
+      ),
+      actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, UnsavedChangesResult.cancel),
+          child: Text('Cancelar', style: TextStyle(color: colorScheme.onSurfaceVariant)),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, UnsavedChangesResult.discard),
+          child: Text('Descartar', style: TextStyle(color: colorScheme.error, fontWeight: FontWeight.w600)),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(ctx, UnsavedChangesResult.save),
+          child: const Text('Guardar'),
+        ),
+      ],
+    ),
+  );
+}
+
+Future<bool> handleUnsavedChangesGuard(BuildContext context, String projectId) async {
+  final provider = context.read<ProfRulesProvider>();
+  if (!provider.isModified) return true;
+
+  final user = context.read<AuthProvider>().currentUser;
+  final result = await showUnsavedChangesDialog(context);
+
+  if (result == UnsavedChangesResult.save) {
+    if (context.mounted) FocusScope.of(context).unfocus();
+    await provider.saveConfig(
+      projectId: projectId,
+      authorName: user?.name,
+      authorPhotoUrl: user?.photoUrl,
+      authorId: user?.id,
+    );
+    if (!context.mounted) return true;
+    if (provider.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error al guardar: ${provider.errorMessage}'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+      return false;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Reglas actualizadas y guardadas.')),
+      );
+      return true;
+    }
+  } else if (result == UnsavedChangesResult.discard) {
+    await provider.fetchData(projectId: projectId);
+    return true;
+  } else {
+    return false;
+  }
+}
 
 class ProfRulesPage extends StatelessWidget {
   final String projectId;
@@ -41,43 +120,51 @@ class _ProfRulesPageViewState extends State<_ProfRulesPageView> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final l10n = AppLocalizations.of(context)!;
     // Usar context.select para evitar rebuilds innecesarios de toda la página
     final isLoading = context.select<ProfRulesProvider, bool>((p) => p.isLoading);
     final clusterStatsEmpty = context.select<ProfRulesProvider, bool>((p) => p.clusterStats.isEmpty);
     final projectSectionsEmpty = context.select<ProfRulesProvider, bool>((p) => p.projectSections.isEmpty);
     final isModified = context.select<ProfRulesProvider, bool>((p) => p.isModified);
 
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: const CorvusTopBar(showBackButton: false),
-        body: Column(
-          children: [
-            TabBar(
-              labelColor: colorScheme.primary,
-              unselectedLabelColor: colorScheme.onSurfaceVariant,
-              indicatorColor: colorScheme.primary,
-              indicatorWeight: 3,
-              tabs: const [
-                Tab(text: 'Reglas de Exclusión'),
-                Tab(text: 'Estructura del Proyecto'),
-              ],
-            ),
-            Expanded(
-              child: (isLoading && clusterStatsEmpty && projectSectionsEmpty)
-                  ? const _ProfRulesLoadingSkeleton()
-                  : TabBarView(
-                      children: [
-                        _ExclusionRulesTab(projectId: widget.projectId),
-                        _ProjectStructureTab(projectId: widget.projectId),
-                      ],
-                    ),
-            ),
-          ],
-        ),
-        floatingActionButton: isLoading
-            ? null
+    return PopScope(
+      canPop: !isModified,
+      onPopInvokedWithResult: (bool didPop, Object? result) async {
+        if (didPop) return;
+        final canLeave = await handleUnsavedChangesGuard(context, widget.projectId);
+        if (canLeave && context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: DefaultTabController(
+        length: 2,
+        child: Scaffold(
+          appBar: const CorvusTopBar(showBackButton: false),
+          body: Column(
+            children: [
+              TabBar(
+                labelColor: colorScheme.primary,
+                unselectedLabelColor: colorScheme.onSurfaceVariant,
+                indicatorColor: colorScheme.primary,
+                indicatorWeight: 3,
+                tabs: const [
+                  Tab(text: 'Reglas de Exclusión'),
+                  Tab(text: 'Estructura del Proyecto'),
+                ],
+              ),
+              Expanded(
+                child: (isLoading && clusterStatsEmpty && projectSectionsEmpty)
+                    ? const _ProfRulesLoadingSkeleton()
+                    : TabBarView(
+                        children: [
+                          _ExclusionRulesTab(projectId: widget.projectId),
+                          _ProjectStructureTab(projectId: widget.projectId),
+                        ],
+                      ),
+              ),
+            ],
+          ),
+          floatingActionButton: isLoading
+              ? null
               : Builder(
                   builder: (context) {
                     final tabController = DefaultTabController.of(context);
@@ -86,20 +173,24 @@ class _ProfRulesPageViewState extends State<_ProfRulesPageView> {
                     return AnimatedBuilder(
                       animation: tabController,
                       builder: (context, child) {
-                        if (tabController.index != 1) return const SizedBox.shrink();
+                        final isStructureTab = tabController.index == 1;
+                        final isModified = fabProvider.isModified;
+                        if (!isStructureTab && !isModified) return const SizedBox.shrink();
+
                         return Column(
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            FloatingActionButton.small(
-                              heroTag: 'addSectionFAB',
-                              backgroundColor: colorScheme.primaryContainer,
-                              foregroundColor: colorScheme.onPrimaryContainer,
-                              onPressed: fabProvider.isLoading ? null : () => _showAddSectionDialog(context, fabProvider),
-                              child: const Icon(Icons.add),
-                            ),
-                            if (fabProvider.isModified) ...[
-                              const SizedBox(height: 12),
+                            if (isStructureTab)
+                              FloatingActionButton.small(
+                                heroTag: 'addSectionFAB',
+                                backgroundColor: colorScheme.primaryContainer,
+                                foregroundColor: colorScheme.onPrimaryContainer,
+                                onPressed: fabProvider.isLoading ? null : () => _showAddSectionDialog(context, fabProvider),
+                                child: const Icon(Icons.add),
+                              ),
+                            if (isModified) ...[
+                              if (isStructureTab) const SizedBox(height: 12),
                               FloatingActionButton.extended(
                                 heroTag: 'saveRulesFAB',
                                 backgroundColor: colorScheme.primary,
@@ -124,6 +215,7 @@ class _ProfRulesPageViewState extends State<_ProfRulesPageView> {
                     );
                   },
                 ),
+        ),
       ),
     );
   }
@@ -218,8 +310,8 @@ class _ExclusionRulesTab extends StatelessWidget {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: 4,
-              separatorBuilder: (_, __) => const SizedBox(height: 16),
-              itemBuilder: (_, __) => Row(
+              separatorBuilder: (_, _) => const SizedBox(height: 16),
+              itemBuilder: (_, _) => Row(
                 children: [
                   CorvusSkeleton(width: 40, height: 40, borderRadius: BorderRadius.all(Radius.circular(20))),
                   const SizedBox(width: 16),
@@ -277,21 +369,14 @@ class _ExclusionRulesTab extends StatelessWidget {
                         subtitle: Text('${item['project_count']} proyectos actuales en este tema'),
                         trailing: Switch(
                           value: isBlocked,
-                          activeColor: colorScheme.onError,
+                          activeThumbColor: colorScheme.onError,
                           activeTrackColor: colorScheme.error,
                           inactiveThumbColor: colorScheme.outline,
                           inactiveTrackColor: colorScheme.surfaceContainerHighest,
-                          onChanged: (value) async {
+                          onChanged: (value) {
                             final messenger = ScaffoldMessenger.of(context);
                             final scheme = Theme.of(context).colorScheme;
-                            final user = context.read<AuthProvider>().currentUser;
                             provider.toggleExclusionRule(clusterName);
-                            await provider.saveConfig(
-                              projectId: projectId,
-                              authorName: user?.name,
-                              authorPhotoUrl: user?.photoUrl,
-                              authorId: user?.id,
-                            );
                             
                             messenger.hideCurrentSnackBar();
                             messenger.showSnackBar(
@@ -301,11 +386,11 @@ class _ExclusionRulesTab extends StatelessWidget {
                                   children: [
                                     Icon(value ? Icons.lock_outline : Icons.lock_open_rounded, color: scheme.onInverseSurface, size: 20),
                                     const SizedBox(width: 8),
-                                    Text(value ? 'Tema bloqueado' : 'Tema desbloqueado', style: const TextStyle(fontWeight: FontWeight.w500)),
+                                    Text(value ? 'Tema bloqueado (sin guardar)' : 'Tema desbloqueado (sin guardar)', style: const TextStyle(fontWeight: FontWeight.w500)),
                                   ],
                                 ),
                                 behavior: SnackBarBehavior.floating,
-                                width: 220,
+                                width: 280,
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                                 backgroundColor: scheme.inverseSurface,
                                 duration: const Duration(seconds: 2),
@@ -320,6 +405,7 @@ class _ExclusionRulesTab extends StatelessWidget {
                 );
               },
             ),
+            const SizedBox(height: 88), // Spacing for FAB so it doesn't overlap switches
           ],
         ),
       ),
