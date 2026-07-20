@@ -33,7 +33,7 @@ class AuthInterceptorClient extends http.BaseClient {
         await HttpCertificatePinning.check(
           serverURL: 'https://corvus.eduartrob.site',
           headerHttp: {},
-          sha: SHA256,
+          sha: SHA.SHA256,
           allowedSHAFingerprints: [
             "6C:E2:90:D1:16:D6:2F:85:E3:1E:66:3C:34:F7:1A:93:16:46:17:B8:A0:82:75:EC:CD:1A:D5:B1:30:03:05:43"
           ],
