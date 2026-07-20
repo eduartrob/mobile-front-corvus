@@ -62,8 +62,8 @@ class _ProjectLayoutState extends State<ProjectLayout> {
         body: IndexedStack(
           index: _currentIndex,
           children: [
-            TeamsPage(projectId: widget.projectId),
-            const MyProjectPage(),
+            TeamsPage(key: ValueKey('teams_${widget.projectId}'), projectId: widget.projectId),
+            MyProjectPage(key: ValueKey('myproject_${widget.projectId}')),
             const TeamChatPage(),
           ],
         ),

@@ -129,6 +129,7 @@ class _ProfRulesPageViewState extends State<_ProfRulesPageView> {
   }
 
   void _saveRules(BuildContext context, ProfRulesProvider provider) async {
+    FocusScope.of(context).unfocus();
     final user = context.read<AuthProvider>().currentUser;
     await provider.saveConfig(
       projectId: widget.projectId,

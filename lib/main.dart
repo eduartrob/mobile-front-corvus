@@ -14,7 +14,6 @@ import 'package:mobile/features/teams/presentation/provider/teams_provider.dart'
 import 'package:mobile/features/student_directory/presentation/provider/clustering_provider.dart';
 import 'package:mobile/features/notifications/presentation/provider/notifications_provider.dart';
 import 'package:mobile/features/prof_rules/presentation/provider/prof_rules_provider.dart';
-import 'package:mobile/features/prof_rules/data/data_source/prof_rules_remote_data_source.dart';
 import 'package:mobile/features/profile/presentation/provider/profile_provider.dart';
 import 'package:mobile/features/auth/presentation/provider/registration_provider.dart';
 import 'package:mobile/core/network/auth_interceptor_client.dart';
@@ -25,23 +24,12 @@ import 'package:mobile/firebase_options.dart';
 import 'package:mobile/core/theme/theme_provider.dart';
 import 'package:mobile/core/services/firebase_messaging_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mobile/features/profile/data/repositories/saved_projects_repository.dart';
 import 'package:mobile/features/profile/presentation/providers/saved_projects_provider.dart';
 import 'package:mobile/features/prof_reviews/presentation/provider/prof_reviews_provider.dart';
 import 'package:mobile/features/prof_dash/presentation/provider/prof_dash_provider.dart';
 import 'package:mobile/features/prof_history/presentation/provider/prof_history_provider.dart';
 import 'package:mobile/features/profile/presentation/provider/activity_history_provider.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
-import 'package:mobile/features/my_project/data/my_project_remote_data_source.dart';
-import 'package:mobile/features/my_project/data/my_project_local_data_source.dart';
-import 'package:mobile/features/my_project/data/repositories/project_repository_impl.dart';
-import 'package:mobile/features/my_project/domain/repositories/project_repository.dart';
-import 'package:mobile/features/prof_dash/data/data_source/dashboard_remote_data_source.dart';
-import 'package:mobile/features/prof_dash/data/repositories/dashboard_repository_impl.dart';
-import 'package:mobile/features/prof_dash/domain/repositories/dashboard_repository.dart';
-import 'package:mobile/features/teams/data/data_source/teams_remote_data_source.dart';
-import 'package:mobile/features/teams/data/repositories/teams_repository_impl.dart';
-import 'package:mobile/features/teams/domain/repositories/teams_repository.dart';
 
 /// Handler para taps en notificaciones cuando la app está en background/terminada.
 void _handleNotificationTap(RemoteMessage message) {
@@ -108,6 +96,14 @@ class _AppBootstrapState extends State<_AppBootstrap> {
       _loadEssentialData();
     } else if (!isAuth) {
       _wasAuthenticated = false;
+      // Limpiar todos los providers para evitar fugas de estado entre sesiones
+      try { context.read<MyProjectProvider>().reset(''); } catch (_) {}
+      try { context.read<TeamsProvider>().clear(); } catch (_) {}
+      try { context.read<ProfileProvider>().clear(); } catch (_) {}
+      try { context.read<ProjectProvider>().clear(); } catch (_) {}
+      try { context.read<InspirationProvider>().clear(); } catch (_) {}
+      try { context.read<NotificationsProvider>().clear(); } catch (_) {}
+      try { context.read<ProfDashboardProvider>().clear(); } catch (_) {}
       FirebaseMessaging.instance.unsubscribeFromTopic('config_updates');
     }
   }
@@ -133,7 +129,10 @@ class _AppBootstrapState extends State<_AppBootstrap> {
     profileProvider.fetchProfile();
     final projectProvider = context.read<ProjectProvider>();
     final token = widget.authProvider.currentUser?.token;
-    if (token != null) projectProvider.loadMyProjects(token, quiet: true);
+    if (token != null) projectProvider.loadMyProjects(token, quiet: true, userId: uid);
+
+    // Configurar userId en InspirationProvider para namespacear SharedPreferences
+    context.read<InspirationProvider>().setUserId(uid);
 
     final role = widget.authProvider.currentUser?.role;
     if (role == 'student') {
@@ -153,39 +152,13 @@ void main() async {
   setupDependencies();
   NetworkService().initialize(globalMessengerKey);
 
-  // ─── Providers ──────────────────────────────────────────────────────────
-  // Se crean todos los providers aquí pero SIN disparar llamadas API.
-  // La carga de datos ocurre bajo demanda en cada pantalla.
-  final authProvider = sl<AuthProvider>();
-  final linkedFoldersProvider = LinkedFoldersProvider();
-
-  // ── MyProject: Clean Architecture ────────────────────────────────────
-  final projectRemoteDs = MyProjectRemoteDataSource(client: apiClient);
-  final projectLocalDs = MyProjectLocalDataSource();
-  final projectRepository = ProjectRepositoryImpl(
-    remoteDataSource: projectRemoteDs,
-    localDataSource: projectLocalDs,
-  );
-  final myProjectProvider = MyProjectProvider(repository: projectRepository);
-  final themeProvider = ThemeProvider();
-  final inspirationProvider = InspirationProvider();
-  final profRulesProvider = ProfRulesProvider(
-    remoteDataSource: ProfRulesRemoteDataSource(client: apiClient),
-  );
-  final notificationsProvider = NotificationsProvider();
-
-  // ── Teams: Clean Architecture ────────────────────────────────────────
-  final teamsRemoteDs = TeamsRemoteDataSource(client: apiClient);
-  final teamsRepository = TeamsRepositoryImpl(remoteDataSource: teamsRemoteDs);
-  final teamsProvider = TeamsProvider(repository: teamsRepository);
-  final profileProvider = ProfileProvider();
-  final profReviewsProvider = ProfReviewsProvider();
-  final profHistoryProvider = ProfHistoryProvider(client: apiClient);
-  final activityHistoryProvider = ActivityHistoryProvider(client: apiClient);
-
+  // ─── Dependencias async (SharedPreferences) ────────────────────────────
   final prefs = await SharedPreferences.getInstance();
-  final savedProjectsRepo = SavedProjectsRepository(prefs);
-  final savedProjectsProvider = SavedProjectsProvider(savedProjectsRepo);
+  setupAsyncDependencies(prefs);
+
+  // ─── Providers desde el contenedor DI ───────────────────────────────────
+  final authProvider = sl<AuthProvider>();
+  final themeProvider = sl<ThemeProvider>();
 
   // ─── Inicialización en paralelo ────────────────────────────────────────
   await Future.wait([
@@ -222,30 +195,22 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: authProvider),
-        ChangeNotifierProvider.value(value: linkedFoldersProvider),
-        ChangeNotifierProvider.value(value: myProjectProvider),
+        ChangeNotifierProvider(create: (_) => sl<LinkedFoldersProvider>()),
+        ChangeNotifierProvider(create: (_) => sl<MyProjectProvider>()),
         ChangeNotifierProvider.value(value: themeProvider),
-        ChangeNotifierProvider.value(value: inspirationProvider),
-        ChangeNotifierProvider.value(value: profRulesProvider),
-        ChangeNotifierProvider.value(value: teamsProvider),
-        ChangeNotifierProvider(create: (_) => ClusteringProvider()),
-        ChangeNotifierProvider.value(value: notificationsProvider),
-        ChangeNotifierProvider.value(value: profileProvider),
-        ChangeNotifierProvider(create: (_) => RegistrationProvider()),
-        ChangeNotifierProvider.value(value: savedProjectsProvider),
-        ChangeNotifierProvider.value(value: profReviewsProvider),
-        ChangeNotifierProvider.value(value: profHistoryProvider),
-        ChangeNotifierProvider.value(value: activityHistoryProvider),
-        ChangeNotifierProvider(
-            create: (_) {
-              final dashDs = DashboardRemoteDataSource(client: apiClient);
-              final dashRepo = DashboardRepositoryImpl(remoteDataSource: dashDs);
-              return ProfDashboardProvider(
-                authProvider: authProvider,
-                repository: dashRepo,
-              );
-            }),
-        ChangeNotifierProvider(create: (_) => ProjectProvider()),
+        ChangeNotifierProvider(create: (_) => sl<InspirationProvider>()),
+        ChangeNotifierProvider(create: (_) => sl<ProfRulesProvider>()),
+        ChangeNotifierProvider(create: (_) => sl<TeamsProvider>()),
+        ChangeNotifierProvider(create: (_) => sl<ClusteringProvider>()),
+        ChangeNotifierProvider(create: (_) => sl<NotificationsProvider>()),
+        ChangeNotifierProvider(create: (_) => sl<ProfileProvider>()),
+        ChangeNotifierProvider(create: (_) => sl<RegistrationProvider>()),
+        ChangeNotifierProvider(create: (_) => sl<SavedProjectsProvider>()),
+        ChangeNotifierProvider(create: (_) => sl<ProfReviewsProvider>()),
+        ChangeNotifierProvider(create: (_) => sl<ProfHistoryProvider>()),
+        ChangeNotifierProvider(create: (_) => sl<ActivityHistoryProvider>()),
+        ChangeNotifierProvider(create: (_) => sl<ProfDashboardProvider>()),
+        ChangeNotifierProvider(create: (_) => sl<ProjectProvider>()),
       ],
       child: _AppBootstrap(
         authProvider: authProvider,

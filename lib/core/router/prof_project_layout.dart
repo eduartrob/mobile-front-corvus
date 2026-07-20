@@ -64,12 +64,13 @@ class _ProfProjectLayoutState extends State<ProfProjectLayout> {
           index: _currentIndex,
           children: [
             ProfDashPage(
+              key: ValueKey('dash_${widget.projectId}'),
               projectId: widget.projectId,
               onSwitchToReviews: () => setState(() => _currentIndex = 1),
             ),
-            ProfReviewsPage(projectId: widget.projectId),
-            ProfRulesPage(projectId: widget.projectId),
-            ProfProjectSettingsPage(projectId: widget.projectId),
+            ProfReviewsPage(key: ValueKey('reviews_${widget.projectId}'), projectId: widget.projectId),
+            ProfRulesPage(key: ValueKey('rules_${widget.projectId}'), projectId: widget.projectId),
+            ProfProjectSettingsPage(key: ValueKey('settings_${widget.projectId}'), projectId: widget.projectId),
           ],
         ),
         bottomNavigationBar: CustomAnimatedBottomNavBar(

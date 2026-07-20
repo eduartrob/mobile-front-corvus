@@ -7,6 +7,7 @@ import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/shared/widgets/corvus_button.dart';
+import 'package:mobile/l10n/app_localizations.dart';
 
 class MyProjectsDashboardPage extends StatefulWidget {
   const MyProjectsDashboardPage({super.key});
@@ -26,7 +27,6 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
       if (token != null) {
         context.read<ProjectProvider>().loadMyProjects(token);
         
-        // Configurar polling automático cada 10 segundos
         _pollTimer = Timer.periodic(const Duration(seconds: 10), (_) {
           if (mounted) {
             final currentToken = context.read<AuthProvider>().currentUser?.token;
@@ -47,12 +47,14 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
         appBar: const CorvusTopBar(),
         floatingActionButton: context.select<ProjectProvider, bool>((p) => p.myProjects.isNotEmpty) ? FloatingActionButton.extended(
           onPressed: () => context.push('/join-project'),
           icon: const Icon(Icons.add),
-          label: const Text('Unirse'),
+          label: Text(l10n.join),
           backgroundColor: Theme.of(context).colorScheme.primary,
           foregroundColor: Theme.of(context).colorScheme.onPrimary,
         ) : null,
@@ -72,7 +74,7 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
                     Icon(Icons.class_outlined, size: 80, color: Theme.of(context).colorScheme.primary),
                     const SizedBox(height: 24),
                     Text(
-                      'Aún no tienes clases',
+                      l10n.noClassesYet,
                       style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -80,7 +82,7 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Únete a una clase ingresando el código que te proporcionó tu profesor para comenzar tu proyecto.',
+                      l10n.noClassesDesc,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
@@ -88,7 +90,7 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
                     ),
                     const SizedBox(height: 48),
                     CorvusButton(
-                      text: 'Unirse a una Clase',
+                      text: l10n.joinClass,
                       onPressed: () => context.push('/join-project'),
                     ),
                   ],
@@ -110,11 +112,11 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
                 itemBuilder: (context, index) {
                 final project = provider.myProjects[index];
                 final pastelColors = const [
-                  Color(0xFF5C88DA), // Muted Blue
-                  Color(0xFF9A73C9), // Muted Purple
-                  Color(0xFF56A98A), // Muted Green
-                  Color(0xFFD98A53), // Muted Orange
-                  Color(0xFFD67389), // Muted Pink
+                  Color(0xFF5C88DA),
+                  Color(0xFF9A73C9),
+                  Color(0xFF56A98A),
+                  Color(0xFFD98A53),
+                  Color(0xFFD67389),
                 ];
                 Color bgColor;
                 if (project['theme_color'] != null) {
@@ -173,7 +175,7 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
                                     const SizedBox(width: 12),
                                     Expanded(
                                       child: Text(
-                                        project['name'] ?? 'Proyecto',
+                                        project['name'] ?? l10n.defaultProjectName,
                                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                           fontWeight: FontWeight.bold,
                                           color: Colors.white,

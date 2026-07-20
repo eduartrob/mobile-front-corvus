@@ -9,9 +9,9 @@ class AuthScaffold extends StatelessWidget {
   final EdgeInsets padding;
   final bool bottomAlign;
   final String? role;
-  /// Painter opcional para fondo animado (se renderiza aislado con RepaintBoundary)
   final CustomPainter? backgroundPainter;
   final Widget? leading;
+  final VoidCallback? onLogoTap;
 
   const AuthScaffold({
     super.key,
@@ -22,6 +22,7 @@ class AuthScaffold extends StatelessWidget {
     this.role,
     this.backgroundPainter,
     this.leading,
+    this.onLogoTap,
   });
 
   @override
@@ -173,23 +174,26 @@ class AuthScaffold extends StatelessWidget {
                                     left: 0,
                                     right: 0,
                                     child: Center(
-                                      child: Container(
-                                        width: circleRadius * 2,
-                                        height: circleRadius * 2,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: isDark
-                                              ? colors.surfaceContainerHighest
-                                              : Colors.white,
-                                          border: Border.all(
-                                            color: colors.outlineVariant.withValues(alpha: 0.3),
-                                            width: 1.5,
+                                      child: GestureDetector(
+                                        onTap: onLogoTap,
+                                        child: Container(
+                                          width: circleRadius * 2,
+                                          height: circleRadius * 2,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: isDark
+                                                ? colors.surfaceContainerHighest
+                                                : Colors.white,
+                                            border: Border.all(
+                                              color: colors.outlineVariant.withValues(alpha: 0.3),
+                                              width: 1.5,
+                                            ),
                                           ),
-                                        ),
-                                        padding: const EdgeInsets.all(10),
-                                        child: Image.asset(
-                                          'assets/icons/logo2.png',
-                                          fit: BoxFit.contain,
+                                          padding: const EdgeInsets.all(10),
+                                          child: Image.asset(
+                                            'assets/icons/logo2.png',
+                                            fit: BoxFit.contain,
+                                          ),
                                         ),
                                       ),
                                     ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/router/appRouter.dart';
+import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/core/di/di.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/core/services/secure_storage_service.dart';
@@ -49,9 +50,10 @@ final apiClient = AuthInterceptorClient(
   onUnauthenticated: () {
     final context = rootNavigatorKey.currentContext;
     if (context != null) {
+      final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Tu sesión ha expirado. Por favor, inicia sesión de nuevo.'),
+        SnackBar(
+          content: Text(l10n?.sessionExpired ?? 'Tu sesión ha expirado. Por favor, inicia sesión de nuevo.'),
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
           duration: Duration(seconds: 4),

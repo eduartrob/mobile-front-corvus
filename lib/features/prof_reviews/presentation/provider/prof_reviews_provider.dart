@@ -23,6 +23,14 @@ class ProfReviewsProvider extends ChangeNotifier {
 
   String? _lastProjectId;
 
+  void clear() {
+    _reviews = [];
+    _lastProjectId = null;
+    _isLoading = false;
+    _errorMessage = null;
+    notifyListeners();
+  }
+
   Future<void> fetchReviews({String? projectId}) async {
     if (projectId != null && projectId != _lastProjectId) {
       _reviews = [];

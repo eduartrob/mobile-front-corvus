@@ -254,7 +254,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final fcmToken = await FirebaseMessaging.instance.getToken();
+      final fcmToken = await FirebaseMessaging.instance.getToken().timeout(const Duration(seconds: 3));
       if (fcmToken != null) {
         final uri = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.notificationsDevice}');
         await http.delete(
@@ -264,17 +264,17 @@ class AuthProvider extends ChangeNotifier {
             if (_currentUser?.token != null) 'Authorization': 'Bearer ${_currentUser!.token}',
           },
           body: jsonEncode({'fcmToken': fcmToken})
-        );
+        ).timeout(const Duration(seconds: 3));
       }
       if (_currentUser != null) {
-        await FirebaseMessaging.instance.unsubscribeFromTopic('user_${_currentUser!.id}');
+        await FirebaseMessaging.instance.unsubscribeFromTopic('user_${_currentUser!.id}').timeout(const Duration(seconds: 3));
       }
     } catch (e) {
       // FCM deregister failed silently
     }
 
     try {
-      await signOutFromGoogleUseCase();
+      await signOutFromGoogleUseCase().timeout(const Duration(seconds: 3));
     } catch (e) {
     }
 
