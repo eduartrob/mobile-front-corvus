@@ -41,6 +41,16 @@ class AuthInterceptorClient extends http.BaseClient {
         );
       }
     } catch (e) {
+      final errorStr = e.toString().toLowerCase();
+      // Si el proxy se apagó pero el celular sigue intentando conectarse a él, dará error de conexión, no de MitM.
+      if (errorStr.contains('socket') || 
+          errorStr.contains('timeout') || 
+          errorStr.contains('refused') || 
+          errorStr.contains('network is unreachable') ||
+          errorStr.contains('failed host lookup')) {
+        throw Exception('Error de conexión a internet (¿Olvidaste apagar el proxy en tu WiFi?)');
+      }
+
       // Si el pin falla, significa que el certificado fue reemplazado (ej. Charles Proxy)
       onMitMDetected();
       throw Exception('Conexión Insegura (Posible ataque MitM detectado). Abortando petición.');
