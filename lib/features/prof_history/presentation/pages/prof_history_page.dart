@@ -150,7 +150,7 @@ class _ProfHistoryPageState extends State<ProfHistoryPage> {
                 
                 if (provider.isLoading)
                   const Center(child: CircularProgressIndicator())
-                else if (provider.errorMessage != null)
+                else if (provider.errorMessage != null && !provider.errorMessage!.contains('MitM'))
                   Center(child: Text('Error: ${provider.errorMessage}', style: TextStyle(color: colorScheme.error)))
                 else if (provider.history.isEmpty)
                   Center(

@@ -138,7 +138,7 @@ class _ProfRulesPageViewState extends State<_ProfRulesPageView> {
       authorId: user?.id,
     );
     if (context.mounted) {
-      if (provider.errorMessage != null) {
+      if (provider.errorMessage != null && !provider.errorMessage!.contains('MitM')) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: ${provider.errorMessage}'), backgroundColor: Theme.of(context).colorScheme.error),
         );

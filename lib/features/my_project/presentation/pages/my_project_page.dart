@@ -424,7 +424,7 @@ class _ProjectPageBody extends StatelessWidget {
       child: Column(
         key: ValueKey('project_page_body_base'),
         children: [
-          if (provider.errorMessage != null && provider.documentTypeError == null)
+          if (provider.errorMessage != null && !provider.errorMessage!.contains('MitM') && provider.documentTypeError == null)
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(color: colorScheme.errorContainer, borderRadius: BorderRadius.circular(12)),
