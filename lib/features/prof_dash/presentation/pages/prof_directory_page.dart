@@ -119,7 +119,7 @@ class _ProfDirectoryPageViewState extends State<_ProfDirectoryPageView> with Sin
                       ),
                     ),
                   )
-                : provider.errorMessage != null
+                : (provider.errorMessage != null && !provider.errorMessage!.contains('MitM'))
                     ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
