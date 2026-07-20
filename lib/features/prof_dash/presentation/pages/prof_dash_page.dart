@@ -73,7 +73,7 @@ class _ProfDashPageState extends State<ProfDashPage> {
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () => provider.loadDashboardStats(projectId: widget.projectId),
-                    child: const Text('Reintentar'),
+                    child: Text(l10n.retry),
                   ),
                 ],
               ),
@@ -81,7 +81,7 @@ class _ProfDashPageState extends State<ProfDashPage> {
           }
 
           final data = provider.dashboardData;
-          final bool isLoading = provider.isLoading && data == null;
+          final bool isLoading = provider.isLoading || data == null;
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(20.0),
@@ -97,11 +97,11 @@ class _ProfDashPageState extends State<ProfDashPage> {
                     if (project == null) return const SizedBox.shrink();
                     
                     final pastelColors = const [
-                      Color(0xFF5C88DA), // Muted Blue
-                      Color(0xFF9A73C9), // Muted Purple
-                      Color(0xFF56A98A), // Muted Green
-                      Color(0xFFD98A53), // Muted Orange
-                      Color(0xFFD67389), // Muted Pink
+                      Color(0xFF5C88DA),
+                      Color(0xFF9A73C9),
+                      Color(0xFF56A98A),
+                      Color(0xFFD98A53),
+                      Color(0xFFD67389),
                     ];
                     
                     Color bgColor;
@@ -174,7 +174,7 @@ class _ProfDashPageState extends State<ProfDashPage> {
                   children: [
                     Expanded(
                       child: CorvusMetricCard(
-                        label: 'EQUIPOS FORMADOS',
+                        label: l10n.teamsFormed,
                         value: isLoading ? '' : '${data?.totalTeams}',
                         isLoading: isLoading,
                       ),
@@ -186,8 +186,8 @@ class _ProfDashPageState extends State<ProfDashPage> {
                   children: [
                     Expanded(
                       child: CorvusMetricCard(
-                        label: 'PROPUESTAS LISTAS',
-                        value: isLoading ? '' : '${data?.readyProposals} de ${data?.totalTeams} equipos',
+                        label: l10n.proposalsReady,
+                        value: isLoading ? '' : l10n.proposalsReadyDetail('${data?.readyProposals}', '${data?.totalTeams}'),
                         icon: Icons.description_outlined,
                         isLoading: isLoading,
                       ),
@@ -195,8 +195,6 @@ class _ProfDashPageState extends State<ProfDashPage> {
                   ],
                 ),
                 const SizedBox(height: 24),
-
-                // Tarjeta de Atención Requerida
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -219,7 +217,7 @@ class _ProfDashPageState extends State<ProfDashPage> {
                           ),
                           const SizedBox(width: 10),
                           Text(
-                            'Atención Requerida',
+                            l10n.attentionRequired,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -245,7 +243,7 @@ class _ProfDashPageState extends State<ProfDashPage> {
                               const SizedBox(width: 10),
                               Expanded(
                                 child: Text(
-                                  'Todo al día. No hay elementos que requieran atención inmediata.',
+                                  l10n.allUpToDate,
                                   style: TextStyle(
                                     color: colorScheme.onSecondaryFixedVariant,
                                     fontWeight: FontWeight.w500,
@@ -330,10 +328,7 @@ class _ProfDashPageState extends State<ProfDashPage> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 24),
-
-                // Tarjeta de Métricas Rápidas
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -356,7 +351,7 @@ class _ProfDashPageState extends State<ProfDashPage> {
                           ),
                           const SizedBox(width: 10),
                           Text(
-                            'Métricas Rápidas',
+                            l10n.quickMetrics,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -376,7 +371,7 @@ class _ProfDashPageState extends State<ProfDashPage> {
                             icon: Icons.group,
                             bgColor: colorScheme.primaryContainer,
                             fgColor: colorScheme.primary,
-                            text: '${data?.studentsWithTeam} Alumnos con equipo',
+                            text: l10n.studentsWithTeam('${data?.studentsWithTeam}'),
                           ),
                       const SizedBox(height: 10),
                       isLoading
@@ -389,7 +384,7 @@ class _ProfDashPageState extends State<ProfDashPage> {
                             icon: Icons.person_off,
                             bgColor: colorScheme.errorContainer,
                             fgColor: colorScheme.error,
-                            text: '${data?.studentsWithoutTeam} Alumnos rezagados (sin equipo)',
+                            text: l10n.studentsWithoutTeam('${data?.studentsWithoutTeam}'),
                           ),
                       const SizedBox(height: 20),
                       SizedBox(
@@ -407,9 +402,9 @@ class _ProfDashPageState extends State<ProfDashPage> {
                             foregroundColor: colorScheme.primary,
                             overlayColor: colorScheme.primary.withValues(alpha: 0.12),
                           ),
-                          child: const Text(
-                            'Ver Directorio de Alumnos Rezagados',
-                            style: TextStyle(
+                          child: Text(
+                            l10n.viewLaggingStudentsDirectory,
+                            style: const TextStyle(
                               fontWeight: FontWeight.w600,
                               letterSpacing: 0.2,
                             ),
@@ -419,7 +414,6 @@ class _ProfDashPageState extends State<ProfDashPage> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 100),
               ],
             ),

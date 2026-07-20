@@ -40,6 +40,18 @@ class TeamsProvider extends ChangeNotifier {
     return _requests.where((s) => s.state == targetState).toList();
   }
 
+  void clear() {
+    _myTeam = null;
+    _finalReviewStatus = null;
+    _suggestions = [];
+    _requests = [];
+    _activeProjectId = null;
+    _isLoading = false;
+    _errorMessage = null;
+    _selectedFilter = SolicitudFilter.recibidas;
+    notifyListeners();
+  }
+
   void selectFilter(SolicitudFilter filter) {
     if (_selectedFilter != filter) {
       _selectedFilter = filter;

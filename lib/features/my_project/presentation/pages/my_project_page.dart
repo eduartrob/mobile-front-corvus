@@ -22,6 +22,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile/shared/widgets/corvus_button.dart';
 import 'package:mobile/core/theme/app_dimens.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:mobile/l10n/app_localizations.dart';
 
 class MyProjectPage extends StatelessWidget {
   const MyProjectPage({super.key});
@@ -114,6 +115,7 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
     final userId = context.select<AuthProvider, String>(
       (a) => a.currentUser?.id ?? 'default_user',
     );
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -149,7 +151,7 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
                         Icon(Icons.class_outlined, size: 80, color: Theme.of(context).colorScheme.primary),
                         const SizedBox(height: 24),
                         Text(
-                          'Aún no perteneces a ningún proyecto',
+                          l10n.noProjectYet,
                           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -157,7 +159,7 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Para poder formar un equipo y subir tu propuesta, primero debes unirte a la clase de tu profesor usando su Código de Acceso.',
+                          l10n.noProjectDesc,
                           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
@@ -165,7 +167,7 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
                         ),
                         const SizedBox(height: 48),
                         CorvusButton(
-                          text: 'Unirse a un Proyecto',
+                          text: l10n.joinProject,
                           onPressed: () => context.push('/join-project'),
                         ),
                       ],
@@ -198,7 +200,7 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
                         Icon(Icons.group_off_outlined, size: 80, color: Theme.of(context).colorScheme.primary),
                         const SizedBox(height: 24),
                         Text(
-                          'No tienes un equipo',
+                          l10n.noTeam,
                           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -206,7 +208,7 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Debes unirte o crear un equipo en la pestaña de Equipos para poder enviar una propuesta.',
+                          l10n.noTeamDesc,
                           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),

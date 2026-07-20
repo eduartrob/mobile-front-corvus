@@ -5,6 +5,7 @@ import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/shared/widgets/corvus_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/inspiration/presentation/provider/inspiration_provider.dart';
+import 'package:mobile/l10n/app_localizations.dart';
 
 class MainLayout extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
@@ -55,8 +56,8 @@ class _MainLayoutState extends State<MainLayout> {
           if (context.mounted) {
             ScaffoldMessenger.of(context).hideCurrentSnackBar();
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Toca "Volver" de nuevo para salir'),
+              SnackBar(
+                content: Text(l10n.doubleTapToExit),
                 duration: Duration(seconds: 2),
                 behavior: SnackBarBehavior.floating,
               ),
@@ -81,7 +82,7 @@ class _MainLayoutState extends State<MainLayout> {
             CustomNavItemData(
               icon: Icons.class_outlined,
               activeIcon: Icons.class_,
-              label: 'Proyectos',
+              label: l10n.navProjectsLabel,
             ),
             CustomNavItemData(
               icon: Icons.search_outlined,

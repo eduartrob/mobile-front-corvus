@@ -25,12 +25,12 @@ class _ProfReviewsPageState extends State<ProfReviewsPage> {
     });
   }
 
-  String _getTranslatedStatus(String status) {
+  String _getTranslatedStatus(String status, AppLocalizations l10n) {
     switch (status) {
-      case 'PENDING': return 'PENDIENTE';
-      case 'APPROVED': return 'APROBADA';
-      case 'REJECTED': return 'RECHAZADA';
-      case 'SUMMONED': return 'CITADA';
+      case 'PENDING': return l10n.statusPending;
+      case 'APPROVED': return l10n.statusApproved;
+      case 'REJECTED': return l10n.statusRejected;
+      case 'SUMMONED': return l10n.statusSummoned;
       default: return status;
     }
   }
@@ -58,6 +58,7 @@ class _ProfReviewsPageState extends State<ProfReviewsPage> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
     final provider = context.watch<ProfReviewsProvider>();
     final reviews = provider.reviews;
 
@@ -103,7 +104,7 @@ class _ProfReviewsPageState extends State<ProfReviewsPage> {
               child: reviews.isEmpty
                   ? Center(
                       child: Text(
-                        'No hay propuestas para revisión.',
+                        l10n.noProposalsToReview,
                         style: TextStyle(color: colorScheme.onSurfaceVariant),
                       ),
                     )
@@ -142,12 +143,12 @@ class _ProfReviewsPageState extends State<ProfReviewsPage> {
                           }
                         }
                         
-                        String fallbackName = data['file_name']?.toString().replaceAll('.pdf', '') ?? 'Propuesta sin título';
+                        String fallbackName = data['file_name']?.toString().replaceAll('.pdf', '') ?? l10n.untitledProposal;
                         if (fallbackName.startsWith('draft_') || fallbackName.startsWith('propuesta_')) {
-                          fallbackName = 'Propuesta de Proyecto';
+                          fallbackName = l10n.projectProposal;
                         }
                         final projectName = extractedProjectName ?? fallbackName;
-                        final teamName = teamInfo['name'] ?? 'Equipo sin nombre';
+                        final teamName = teamInfo['name'] ?? l10n.unnamedTeam;
                         final membersList = teamInfo['members'] as List<dynamic>? ?? [];
                         final dateStr = DateFormat('dd MMM yyyy').format(review.createdAt);
 
@@ -182,7 +183,7 @@ class _ProfReviewsPageState extends State<ProfReviewsPage> {
                                           borderRadius: BorderRadius.circular(8),
                                         ),
                                         child: Text(
-                                          _getTranslatedStatus(review.status),
+                                          _getTranslatedStatus(review.status, l10n),
                                           style: TextStyle(
                                             fontSize: 10,
                                             fontWeight: FontWeight.bold,
@@ -209,7 +210,7 @@ class _ProfReviewsPageState extends State<ProfReviewsPage> {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    'Equipo: $teamName',
+                                    l10n.teamLabel(teamName),
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
@@ -219,7 +220,7 @@ class _ProfReviewsPageState extends State<ProfReviewsPage> {
                                   if (membersList.isNotEmpty) ...[
                                     const SizedBox(height: 4),
                                     Text(
-                                      'Integrantes: ${membersList.join(', ')}',
+                                      l10n.membersLabel(membersList.join(', ')),
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: colorScheme.onSurfaceVariant,

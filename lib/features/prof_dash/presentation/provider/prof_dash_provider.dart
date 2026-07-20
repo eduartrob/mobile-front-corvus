@@ -22,12 +22,15 @@ class ProfDashboardProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  Future<void> loadDashboardStats({String? projectId}) async {
-    final role = _authProvider.role?.toUpperCase();
-    if (role != 'PROFESOR' && role != 'DOCENTE') {
-      return;
-    }
+  void clear() {
+    _dashboardData = null;
+    _currentProjectId = null;
+    _isLoading = false;
+    _errorMessage = null;
+    notifyListeners();
+  }
 
+  Future<void> loadDashboardStats({String? projectId}) async {
     if (_currentProjectId != projectId) {
       _dashboardData = null;
       _currentProjectId = projectId;

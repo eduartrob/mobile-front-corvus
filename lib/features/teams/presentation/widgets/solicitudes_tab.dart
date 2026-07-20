@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../provider/teams_provider.dart';
 import 'package:mobile/features/teams/data/models/solicitud_model.dart';
+import 'package:mobile/l10n/app_localizations.dart';
 
 class SolicitudesTab extends StatelessWidget {
   const SolicitudesTab({super.key});
@@ -9,6 +10,7 @@ class SolicitudesTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Consumer<TeamsProvider>(
       builder: (context, provider, child) {
@@ -21,14 +23,13 @@ class SolicitudesTab extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Filter Pills Section
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
               child: Row(
                 children: [
                   _buildFilterChip(
                     context,
-                    label: 'Recibidas',
+                    label: l10n.received,
                     filter: SolicitudFilter.recibidas,
                     currentFilter: provider.selectedFilter,
                     onTap: (filter) => provider.selectFilter(filter),
@@ -36,7 +37,7 @@ class SolicitudesTab extends StatelessWidget {
                   const SizedBox(width: 10),
                   _buildFilterChip(
                     context,
-                    label: 'Enviadas',
+                    label: l10n.sent,
                     filter: SolicitudFilter.enviadas,
                     currentFilter: provider.selectedFilter,
                     onTap: (filter) => provider.selectFilter(filter),
@@ -44,7 +45,6 @@ class SolicitudesTab extends StatelessWidget {
                 ],
               ),
             ),
-            // List of Request Cards
             Expanded(
               child: filteredList.isEmpty
                   ? RefreshIndicator(
@@ -65,7 +65,7 @@ class SolicitudesTab extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 16),
                                   Text(
-                                    'No hay solicitudes en esta sección',
+                                    l10n.noRequests,
                                     style: TextStyle(
                                       fontSize: 16,
                                       color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
@@ -87,18 +87,19 @@ class SolicitudesTab extends StatelessWidget {
                           final solicitud = filteredList[index];
                           return _SolicitudCard(
                             solicitud: solicitud,
+                            l10n: l10n,
                             onReject: () {
                               provider.cancelRequest(solicitud.id).then((_) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Solicitud cancelada / rechazada'),
+                                  SnackBar(
+                                    content: Text(l10n.requestCancelled),
                                     behavior: SnackBarBehavior.floating,
                                   ),
                                 );
                               }).catchError((error) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('Error: $error'),
+                                    content: Text('${l10n.notifErrorTitle}: $error'),
                                     behavior: SnackBarBehavior.floating,
                                   ),
                                 );
@@ -107,15 +108,15 @@ class SolicitudesTab extends StatelessWidget {
                             onAccept: () {
                               provider.acceptRequest(solicitud.id).then((_) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Invitación aceptada. Te has unido al equipo!'),
+                                  SnackBar(
+                                    content: Text(l10n.invitationAccepted),
                                     behavior: SnackBarBehavior.floating,
                                   ),
                                 );
                               }).catchError((error) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('Error: $error'),
+                                    content: Text('${l10n.notifErrorTitle}: $error'),
                                     behavior: SnackBarBehavior.floating,
                                   ),
                                 );
@@ -176,11 +177,13 @@ class SolicitudesTab extends StatelessWidget {
 
 class _SolicitudCard extends StatelessWidget {
   final Solicitud solicitud;
+  final AppLocalizations l10n;
   final VoidCallback onReject;
   final VoidCallback onAccept;
 
   const _SolicitudCard({
     required this.solicitud,
+    required this.l10n,
     required this.onReject,
     required this.onAccept,
   });
@@ -194,7 +197,7 @@ class _SolicitudCard extends StatelessWidget {
     final provider = context.watch<TeamsProvider>();
     final myTeamCount = provider.myTeam?.members.length ?? 0;
     final isReceiverInTeam = myTeamCount > 1;
-    final inviteText = isReceiverInTeam ? 'Quiere unirse a tu grupo' : 'Te invitó a formar parte de su grupo';
+    final inviteText = isReceiverInTeam ? l10n.wantsToJoinGroup : l10n.invitedToGroup;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -320,9 +323,9 @@ class _SolicitudCard extends StatelessWidget {
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
-                      child: const Text(
-                        'Eliminar',
-                        style: TextStyle(
+                      child: Text(
+                        l10n.delete,
+                        style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
@@ -342,9 +345,9 @@ class _SolicitudCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         elevation: 0,
                       ),
-                      child: const Text(
-                        'Aceptar',
-                        style: TextStyle(
+                      child: Text(
+                        l10n.accept,
+                        style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
@@ -368,9 +371,9 @@ class _SolicitudCard extends StatelessWidget {
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
-                      child: const Text(
-                        'Cancelar',
-                        style: TextStyle(
+                      child: Text(
+                        l10n.cancel,
+                        style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),

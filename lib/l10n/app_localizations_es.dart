@@ -151,6 +151,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get navSearch => 'Buscar';
 
   @override
+  String get navProjects => 'Proyectos';
+
+  @override
   String get welcomeToCorvus => 'Bienvenido a Corvus';
 
   @override
@@ -269,6 +272,21 @@ class AppLocalizationsEs extends AppLocalizations {
   String get reject => 'Rechazar';
 
   @override
+  String get accept => 'Aceptar';
+
+  @override
+  String get delete => 'Eliminar';
+
+  @override
+  String get cancel => 'Cancelar';
+
+  @override
+  String get retry => 'Reintentar';
+
+  @override
+  String get saveChanges => 'Guardar Cambios';
+
+  @override
   String get gpa => 'PROMEDIO';
 
   @override
@@ -322,9 +340,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get removeAccessTitle => '¿Quitar acceso?';
-
-  @override
-  String get cancel => 'Cancelar';
 
   @override
   String get remove => 'Quitar';
@@ -497,4 +512,350 @@ class AppLocalizationsEs extends AppLocalizations {
   String searchSuggestion(String query) {
     return 'Buscar \"$query\" en todos los repositorios';
   }
+
+  @override
+  String get manageTeamTitle => 'Gestionar Equipo';
+
+  @override
+  String get teamNameLabel => 'Nombre del Equipo';
+
+  @override
+  String get teamNameHint => 'Escribe el nombre del equipo';
+
+  @override
+  String get teamNameRequired => 'El nombre del equipo es obligatorio';
+
+  @override
+  String get teamDescriptionLabel => 'Descripción del Equipo (Opcional)';
+
+  @override
+  String get teamDescriptionHint => 'Añade una descripción amigable...';
+
+  @override
+  String get socialLinksTitle => 'Enlaces a Grupos de Redes Sociales';
+
+  @override
+  String get socialLinksDesc =>
+      'Agrega enlaces para que los integrantes se unan a tus canales oficiales.';
+
+  @override
+  String get socialPlatformHint => 'Red (ej. Discord)';
+
+  @override
+  String get socialLinkRequired =>
+      'Por favor, ingresa el nombre de la red social y la URL';
+
+  @override
+  String get socialUrlInvalid => 'La URL debe comenzar con http:// o https://';
+
+  @override
+  String get teamSettingsSaved => 'Configuración del equipo guardada con éxito';
+
+  @override
+  String teamSettingsError(String error) {
+    return 'Error al guardar cambios: $error';
+  }
+
+  @override
+  String get myTeam => 'Mi Equipo';
+
+  @override
+  String get virtualTeamDesc =>
+      'Crea tu equipo personalizando el nombre en el botón \"Gestionar\" de la derecha y busca integrantes en la pestaña \"Sugerencias\".';
+
+  @override
+  String get studentDefaultName => 'Estudiante';
+
+  @override
+  String get yourTeamBadge => 'TU EQUIPO';
+
+  @override
+  String teamMembersCount(String count, String max) {
+    return '$count / $max miembros';
+  }
+
+  @override
+  String get missingOneMember => 'Te falta 1 integrante';
+
+  @override
+  String missingMembers(String count) {
+    return 'Te faltan $count integrantes';
+  }
+
+  @override
+  String get searchMembers => 'Buscar integrantes';
+
+  @override
+  String get proposalSent => 'Propuesta Enviada';
+
+  @override
+  String get proposalApproved => 'Propuesta Aprobada';
+
+  @override
+  String get proposalRejected => 'Propuesta Rechazada';
+
+  @override
+  String get summonedForReview => 'Citados a Revisión';
+
+  @override
+  String get proposalStatusUnknown => 'Estado de propuesta desconocido';
+
+  @override
+  String get proposalPendingDesc =>
+      'El profesorado revisará pronto tu proyecto.';
+
+  @override
+  String get proposalApprovedDesc =>
+      '¡Felicidades! Pueden continuar con el proyecto.';
+
+  @override
+  String get proposalRejectedDesc =>
+      'La propuesta no cumple con los criterios académicos.';
+
+  @override
+  String appointmentDate(String date) {
+    return 'Fecha: $date';
+  }
+
+  @override
+  String appointmentLocation(String location) {
+    return 'Lugar/Enlace: $location';
+  }
+
+  @override
+  String get searchResults => 'Resultados de búsqueda';
+
+  @override
+  String get recommendedForYou => 'Recomendados para ti';
+
+  @override
+  String errorLoadingSuggestions(String error) {
+    return 'Error al cargar sugerencias:\n$error';
+  }
+
+  @override
+  String get noSuggestionsFound => 'No hay sugerencias encontradas';
+
+  @override
+  String invitationSent(String name) {
+    return 'Invitación enviada a $name';
+  }
+
+  @override
+  String errorSendingInvitation(String error) {
+    return 'Error al enviar invitación: $error';
+  }
+
+  @override
+  String get received => 'Recibidas';
+
+  @override
+  String get sent => 'Enviadas';
+
+  @override
+  String get noRequests => 'No hay solicitudes en esta sección';
+
+  @override
+  String get requestCancelled => 'Solicitud cancelada / rechazada';
+
+  @override
+  String get invitationAccepted =>
+      'Invitación aceptada. Te has unido al equipo!';
+
+  @override
+  String get wantsToJoinGroup => 'Quiere unirse a tu grupo';
+
+  @override
+  String get invitedToGroup => 'Te invitó a formar parte de su grupo';
+
+  @override
+  String get teamsFormed => 'EQUIPOS FORMADOS';
+
+  @override
+  String get proposalsReady => 'PROPUESTAS LISTAS';
+
+  @override
+  String proposalsReadyDetail(String ready, String total) {
+    return '$ready de $total equipos';
+  }
+
+  @override
+  String get attentionRequired => 'Atención Requerida';
+
+  @override
+  String get allUpToDate =>
+      'Todo al día. No hay elementos que requieran atención inmediata.';
+
+  @override
+  String get quickMetrics => 'Métricas Rápidas';
+
+  @override
+  String studentsWithTeam(String count) {
+    return '$count Alumnos con equipo';
+  }
+
+  @override
+  String studentsWithoutTeam(String count) {
+    return '$count Alumnos rezagados (sin equipo)';
+  }
+
+  @override
+  String get viewLaggingStudentsDirectory =>
+      'Ver Directorio de Alumnos Rezagados';
+
+  @override
+  String get sessionExpired =>
+      'Tu sesión ha expirado. Por favor, inicia sesión de nuevo.';
+
+  @override
+  String get doubleTapToExit => 'Toca \"Volver\" de nuevo para salir';
+
+  @override
+  String get chatUnderConstruction => 'Chat Grupal con IA (En construcción)';
+
+  @override
+  String get maxSkillsSelected =>
+      'Puedes seleccionar un máximo de 10 habilidades';
+
+  @override
+  String get selectAtLeastOneSkill => 'Selecciona al menos una habilidad';
+
+  @override
+  String get selectYourSkills => 'Selecciona tus habilidades';
+
+  @override
+  String chooseSkillsSubtitle(String selected, String max) {
+    return 'Elige hasta 10 habilidades que deseas obtener o mejorar en tu carrera. ($selected/$max)';
+  }
+
+  @override
+  String get saving => 'Guardando...';
+
+  @override
+  String get finish => 'Finalizar';
+
+  @override
+  String get completeAllRequiredFields =>
+      'Por favor, completa todos los campos requeridos';
+
+  @override
+  String get selectValidUniversity =>
+      'Por favor, selecciona una universidad válida de la lista';
+
+  @override
+  String get statusPending => 'PENDIENTE';
+
+  @override
+  String get statusApproved => 'APROBADA';
+
+  @override
+  String get statusRejected => 'RECHAZADA';
+
+  @override
+  String get statusSummoned => 'CITADA';
+
+  @override
+  String get noProposalsToReview => 'No hay propuestas para revisión.';
+
+  @override
+  String teamLabel(String name) {
+    return 'Equipo: $name';
+  }
+
+  @override
+  String membersLabel(String members) {
+    return 'Integrantes: $members';
+  }
+
+  @override
+  String get untitledProposal => 'Propuesta sin título';
+
+  @override
+  String get projectProposal => 'Propuesta de Proyecto';
+
+  @override
+  String get unnamedTeam => 'Equipo sin nombre';
+
+  @override
+  String get nameRequired => 'El nombre es requerido';
+
+  @override
+  String get errorCreating => 'Error al crear';
+
+  @override
+  String get projectCreated => '¡Proyecto Creado! 🎉';
+
+  @override
+  String get shareCodeMessage =>
+      'Comparte este código de acceso con tus alumnos para que puedan unirse y formar equipos:';
+
+  @override
+  String get codeCopied => 'Código copiado al portapapeles';
+
+  @override
+  String get copy => 'Copiar';
+
+  @override
+  String get newProject => 'Nuevo Proyecto';
+
+  @override
+  String get newProjectDesc =>
+      'Al crear un proyecto, se generará un código para que tus alumnos se unan.';
+
+  @override
+  String get projectNameLabel => 'Nombre del Proyecto *';
+
+  @override
+  String get projectNameHint => 'Ej: Proyecto Final Integradora';
+
+  @override
+  String get descriptionOptional => 'Descripción (Opcional)';
+
+  @override
+  String get descriptionHint => 'Detalles del proyecto...';
+
+  @override
+  String get maxTeamSize => 'Tamaño máximo del equipo';
+
+  @override
+  String get creating => 'Creando...';
+
+  @override
+  String get createProject => 'Crear Proyecto';
+
+  @override
+  String get join => 'Unirse';
+
+  @override
+  String get noClassesYet => 'Aún no tienes clases';
+
+  @override
+  String get noClassesDesc =>
+      'Únete a una clase ingresando el código que te proporcionó tu profesor para comenzar tu proyecto.';
+
+  @override
+  String get joinClass => 'Unirse a una Clase';
+
+  @override
+  String get defaultProjectName => 'Proyecto';
+
+  @override
+  String get noProjectYet => 'Aún no perteneces a ningún proyecto';
+
+  @override
+  String get noProjectDesc =>
+      'Para poder formar un equipo y subir tu propuesta, primero debes unirte a la clase de tu profesor usando su Código de Acceso.';
+
+  @override
+  String get joinProject => 'Unirse a un Proyecto';
+
+  @override
+  String get noTeam => 'No tienes un equipo';
+
+  @override
+  String get noTeamDesc =>
+      'Debes unirte o crear un equipo en la pestaña de Equipos para poder enviar una propuesta.';
+
+  @override
+  String get navProjectsLabel => 'Proyectos';
 }
