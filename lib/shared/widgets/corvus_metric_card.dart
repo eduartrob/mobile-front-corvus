@@ -38,17 +38,23 @@ class CorvusMetricCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
-                  color: colorScheme.onSurfaceVariant,
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ),
-              if (icon != null)
+              if (icon != null) ...[
+                const SizedBox(width: 8),
                 Icon(icon, size: 20, color: colorScheme.onSurfaceVariant),
+              ],
             ],
           ),
           const SizedBox(height: 12),
@@ -56,6 +62,8 @@ class CorvusMetricCard extends StatelessWidget {
             ? const CorvusSkeleton(height: 28, width: 80)
             : Text(
                 value,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,

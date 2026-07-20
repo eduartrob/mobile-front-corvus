@@ -16,30 +16,40 @@ class DashboardRepositoryImpl implements DashboardRepository {
       token: token,
     );
 
-    final metrics = data['metrics'] as Map<String, dynamic>? ?? {};
     final alertsRaw = data['alerts'] as List? ?? [];
 
-    int extractInt(dynamic root, Map<String, dynamic> sub, List<String> keys) {
-      for (final key in keys) {
-        if (sub[key] != null) {
-          final val = sub[key];
-          if (val is int) return val;
-          if (val is num) return val.toInt();
-          if (val is String) return int.tryParse(val) ?? 0;
-        }
-        if (root is Map && root[key] != null) {
-          final val = root[key];
-          if (val is int) return val;
-          if (val is num) return val.toInt();
-          if (val is String) return int.tryParse(val) ?? 0;
+    int extractInt(dynamic jsonRoot, List<String> keys) {
+      if (jsonRoot is! Map) return 0;
+      final mapsToSearch = <Map>[
+        jsonRoot,
+        if (jsonRoot['data'] is Map) jsonRoot['data'] as Map,
+        if (jsonRoot['metrics'] is Map) jsonRoot['metrics'] as Map,
+        if (jsonRoot['stats'] is Map) jsonRoot['stats'] as Map,
+        if (jsonRoot['dashboard'] is Map) jsonRoot['dashboard'] as Map,
+        if (jsonRoot['result'] is Map) jsonRoot['result'] as Map,
+        if (jsonRoot['data'] is Map && jsonRoot['data']['metrics'] is Map) jsonRoot['data']['metrics'] as Map,
+        if (jsonRoot['data'] is Map && jsonRoot['data']['stats'] is Map) jsonRoot['data']['stats'] as Map,
+      ];
+
+      for (final map in mapsToSearch) {
+        for (final key in keys) {
+          if (map[key] != null) {
+            final val = map[key];
+            if (val is int) return val;
+            if (val is num) return val.toInt();
+            if (val is String) {
+              final parsed = int.tryParse(val);
+              if (parsed != null) return parsed;
+            }
+          }
         }
       }
       return 0;
     }
 
-    final totalTeams = extractInt(data, metrics, ['total_teams', 'totalTeams', 'teams_count', 'teamsCount']);
-    final readyProposals = extractInt(data, metrics, ['ready_proposals', 'readyProposals', 'proposals_ready', 'proposalsReady']);
-    final studentsWithTeam = extractInt(data, metrics, [
+    final totalTeams = extractInt(data, ['total_teams', 'totalTeams', 'teams_count', 'teamsCount']);
+    final readyProposals = extractInt(data, ['ready_proposals', 'readyProposals', 'proposals_ready', 'proposalsReady']);
+    final studentsWithTeam = extractInt(data, [
       'students_with_team',
       'studentsWithTeam',
       'with_team',
@@ -47,8 +57,9 @@ class DashboardRepositoryImpl implements DashboardRepository {
       'alumnos_con_equipo',
       'con_equipo',
       'students_in_team',
+      'in_team',
     ]);
-    final studentsWithoutTeam = extractInt(data, metrics, [
+    final studentsWithoutTeam = extractInt(data, [
       'students_without_team',
       'studentsWithoutTeam',
       'without_team',

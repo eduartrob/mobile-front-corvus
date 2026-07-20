@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/prof_dash/domain/entities/dashboard_entity.dart';
 import 'package:mobile/features/prof_dash/domain/repositories/dashboard_repository.dart';
+import 'package:mobile/features/prof_dash/data/models/prof_directory_model.dart';
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -54,34 +55,31 @@ class ProfDashboardProvider extends ChangeNotifier {
       int withTeam = stats.studentsWithTeam;
       int withoutTeam = stats.studentsWithoutTeam;
 
-      // Fallback: si conEquipo/sinEquipo vienen en 0 y hay projectId, consultar el directorio para calcular exacto
-      if ((withTeam == 0 && withoutTeam == 0) && projectId != null && projectId.isNotEmpty) {
+      // Calcular dinámicamente desde el directorio del salón para garantizar el conteo exacto
+      if (projectId != null && projectId.isNotEmpty) {
         try {
           final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.teamsProfDirectory}?project_id=$projectId');
           final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
           final token = _authProvider.currentUser?.token;
           if (token != null) headers['Authorization'] = 'Bearer $token';
 
-          final resp = await http.get(url, headers: headers).timeout(const Duration(seconds: 8));
+          final resp = await http.get(url, headers: headers).timeout(const Duration(seconds: 10));
           if (resp.statusCode == 200) {
-            final dirData = json.decode(utf8.decode(resp.bodyBytes));
-            final teams = dirData['teams'] as List? ?? [];
-            final unassigned = dirData['studentsWithoutTeam'] ??
-                dirData['students_without_team'] ??
-                dirData['unassigned_students'] ??
-                dirData['unassigned'] ??
-                [];
+            final decoded = json.decode(utf8.decode(resp.bodyBytes));
+            final dirModel = ProfDirectoryModel.fromJson(decoded is Map<String, dynamic> ? decoded : {});
 
-            int calculatedWithTeam = 0;
-            for (var t in teams) {
-              if (t is Map) {
-                final members = t['members'] as List? ?? [];
-                calculatedWithTeam += members.length;
-              }
+            int calcWithTeam = 0;
+            for (final team in dirModel.teams) {
+              calcWithTeam += team.members.length;
             }
+            int calcWithoutTeam = dirModel.studentsWithoutTeam.length;
 
-            if (calculatedWithTeam > 0) withTeam = calculatedWithTeam;
-            if (unassigned is List) withoutTeam = unassigned.length;
+            if (withTeam == 0 || calcWithTeam > 0) {
+              withTeam = calcWithTeam;
+            }
+            if (withoutTeam == 0 || calcWithoutTeam > 0) {
+              withoutTeam = calcWithoutTeam;
+            }
           }
         } catch (e) {
           debugPrint('Error fetching directory fallback metrics: $e');
@@ -89,7 +87,7 @@ class ProfDashboardProvider extends ChangeNotifier {
       }
 
       _dashboardData = DashboardEntity(
-        totalTeams: stats.totalTeams,
+        totalTeams: stats.totalTeams > 0 ? stats.totalTeams : (withTeam > 0 ? 1 : 0),
         readyProposals: stats.readyProposals,
         studentsWithTeam: withTeam,
         studentsWithoutTeam: withoutTeam,
