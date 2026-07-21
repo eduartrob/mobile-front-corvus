@@ -68,7 +68,18 @@ class _ArchivedProjectsPageState extends State<ArchivedProjectsPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Scaffold(
+    return PopScope(
+      canPop: !_isSelectionMode,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (_isSelectionMode) {
+          setState(() {
+            _selectedProjectIds.clear();
+            _isSelectionMode = false;
+          });
+        }
+      },
+      child: Scaffold(
       appBar: AppBar(
         title: Text(_isSelectionMode ? '${_selectedProjectIds.length} seleccionados' : 'Proyectos Archivados'),
         leading: _isSelectionMode
@@ -272,6 +283,7 @@ class _ArchivedProjectsPageState extends State<ArchivedProjectsPage> {
             ),
           );
         },
+      ),
       ),
     );
   }

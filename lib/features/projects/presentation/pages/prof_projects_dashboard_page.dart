@@ -91,6 +91,13 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
       canPop: false,
       onPopInvokedWithResult: (bool didPop, Object? result) {
         if (didPop) return;
+        if (_isSelectionMode) {
+          setState(() {
+            _selectedProjects.clear();
+            _isSelectionMode = false;
+          });
+          return;
+        }
         final now = DateTime.now();
         if (_lastPressedAt == null || now.difference(_lastPressedAt!) > const Duration(seconds: 2)) {
           _lastPressedAt = now;

@@ -85,7 +85,18 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Scaffold(
+    return PopScope(
+      canPop: !_isSelectionMode,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (_isSelectionMode) {
+          setState(() {
+            _selectedProjects.clear();
+            _isSelectionMode = false;
+          });
+        }
+      },
+      child: Scaffold(
         appBar: _isSelectionMode 
           ? AppBar(
               title: Text('${_selectedProjects.length} seleccionados'),
@@ -309,6 +320,7 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
               ),
             );
         },
+      ),
       ),
     );
   }
