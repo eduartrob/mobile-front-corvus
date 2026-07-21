@@ -190,7 +190,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                       builder: (ctx) {
                         final colorScheme = Theme.of(ctx).colorScheme;
                         return AlertDialog(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                           title: Row(
                             children: [
                               Icon(Icons.logout, color: colorScheme.error, size: 28),
