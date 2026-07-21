@@ -9,6 +9,7 @@ import 'package:mobile/features/inspiration/presentation/provider/inspiration_pr
 import 'package:mobile/core/theme/app_dimens.dart';
 import 'package:mobile/shared/widgets/project_card.dart';
 import 'package:mobile/features/inspiration/presentation/widgets/floating_ai_input.dart';
+import 'package:lottie/lottie.dart';
 
 class InspirationPage extends StatefulWidget {
   const InspirationPage({super.key});
@@ -108,17 +109,58 @@ class _InspirationPageState extends State<InspirationPage> {
                           ? const SliverToBoxAdapter(
                               child: _SkeletonLoaderList(),
                             )
-                          : SliverList(
-                              delegate: SliverChildBuilderDelegate(
-                                (context, index) {
-                                  final project = context.read<InspirationProvider>().projects[index];
-                                  return RepaintBoundary(
-                                    child: ProjectCard(project: project),
-                                  );
-                                },
-                                childCount: projectCount,
-                              ),
-                            ),
+                          : projectCount == 0
+                              ? SliverToBoxAdapter(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 40.0),
+                                    child: Center(
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Lottie.asset(
+                                            'assets/animations/empty box3.json',
+                                            width: 200,
+                                            height: 200,
+                                            fit: BoxFit.contain,
+                                            repeat: true,
+                                          ),
+                                          const SizedBox(height: 16),
+                                          const Text(
+                                            "Aún no hay Océanos Azules",
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          const Padding(
+                                            padding: EdgeInsets.symmetric(horizontal: 32.0),
+                                            child: Text(
+                                              "Escanea más proyectos para descubrirlos.",
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : SliverList(
+                                  delegate: SliverChildBuilderDelegate(
+                                    (context, index) {
+                                      final project = context.read<InspirationProvider>().projects[index];
+                                      return RepaintBoundary(
+                                        child: ProjectCard(project: project),
+                                      );
+                                    },
+                                    childCount: projectCount,
+                                  ),
+                                ),
                     ),
 
                     // Indicador de carga (loadMore)

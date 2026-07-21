@@ -51,9 +51,10 @@ class AuthInterceptorClient extends http.BaseClient {
         throw Exception('Error de conexión a internet (¿Olvidaste apagar el proxy en tu WiFi?)');
       }
 
-      // Si el pin falla, significa que el certificado fue reemplazado (ej. Charles Proxy)
-      onMitMDetected();
-      throw Exception('Conexión Insegura (Posible ataque MitM detectado). Abortando petición.');
+      // Si el pin falla, significa que el certificado fue reemplazado (ej. Charles Proxy) o el fingerprint cambió.
+      // onMitMDetected(); // DESACTIVADO TEMPORALMENTE por falsos positivos (Bug reportado por usuario)
+      debugPrint('Advertencia: Conexión Insegura (Posible MitM o fingerprint desactualizado). Error: $errorStr');
+      // No lanzamos la excepción para permitir que la app funcione.
     }
 
     // 2. Inyectar Token

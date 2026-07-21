@@ -79,7 +79,7 @@ class InspirationProvider extends ChangeNotifier {
         page: _currentPage,
         limit: _limit,
       );
-      _projects = newProjects;
+      _projects = newProjects.where((p) => p.title != "Aún no hay Océanos Azules").toList();
       _hasMore = newProjects.length == _limit;
       _checkAndStartAutoRefresh();
     } catch (e) {
@@ -109,7 +109,7 @@ class InspirationProvider extends ChangeNotifier {
         _hasMore = false;
       } else {
         _currentPage = nextPage;
-        _projects.addAll(newProjects);
+        _projects.addAll(newProjects.where((p) => p.title != "Aún no hay Océanos Azules"));
         _hasMore = newProjects.length == _limit;
         _checkAndStartAutoRefresh();
       }

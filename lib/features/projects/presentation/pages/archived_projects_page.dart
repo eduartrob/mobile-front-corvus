@@ -14,6 +14,39 @@ class ArchivedProjectsPage extends StatefulWidget {
 }
 
 class _ArchivedProjectsPageState extends State<ArchivedProjectsPage> {
+  final Set<String> _selectedProjectIds = {};
+  bool _isSelectionMode = false;
+
+  void _toggleSelection(String projectId) {
+    setState(() {
+      if (_selectedProjectIds.contains(projectId)) {
+        _selectedProjectIds.remove(projectId);
+      } else {
+        _selectedProjectIds.add(projectId);
+      }
+      _isSelectionMode = _selectedProjectIds.isNotEmpty;
+    });
+  }
+
+  void _unarchiveSelectedProjects() async {
+    final token = context.read<AuthProvider>().currentUser?.token;
+    if (token == null) return;
+
+    final success = await context.read<ProjectProvider>().unarchiveProjects(
+      projectIds: _selectedProjectIds.toList(),
+      token: token,
+    );
+
+    if (success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Proyectos restaurados exitosamente')),
+      );
+      setState(() {
+        _selectedProjectIds.clear();
+        _isSelectionMode = false;
+      });
+    }
+  }
   @override
   void initState() {
     super.initState();
@@ -37,11 +70,29 @@ class _ArchivedProjectsPageState extends State<ArchivedProjectsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Proyectos Archivados'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
+        title: Text(_isSelectionMode ? '${_selectedProjectIds.length} seleccionados' : 'Proyectos Archivados'),
+        leading: _isSelectionMode
+            ? IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () {
+                  setState(() {
+                    _selectedProjectIds.clear();
+                    _isSelectionMode = false;
+                  });
+                },
+              )
+            : IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => context.pop(),
+              ),
+        actions: [
+          if (_isSelectionMode)
+            IconButton(
+              icon: const Icon(Icons.unarchive),
+              tooltip: 'Desarchivar seleccionados',
+              onPressed: _unarchiveSelectedProjects,
+            ),
+        ],
       ),
       body: Consumer<ProjectProvider>(
         builder: (context, provider, child) {
@@ -107,21 +158,34 @@ class _ArchivedProjectsPageState extends State<ArchivedProjectsPage> {
                 }
                 final String? patternName = project['theme_pattern'];
 
+                final bool isSelected = _selectedProjectIds.contains(project['id']);
+                
                 // Hacemos que se vea "desactivado" al reducir la opacidad
                 return Opacity(
-                  opacity: 0.7,
+                  opacity: isSelected ? 1.0 : 0.7,
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 12),
-                    child: Material(
-                      color: bgColor,
-                      borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      decoration: isSelected
+                          ? BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
+                            )
+                          : null,
+                      child: Material(
+                        color: bgColor,
+                        borderRadius: BorderRadius.circular(16),
                       child: InkWell(
                         borderRadius: BorderRadius.circular(16),
                         splashColor: Colors.black.withValues(alpha: 0.12),
                         highlightColor: Colors.black.withValues(alpha: 0.04),
+                        onLongPress: () => _toggleSelection(project['id']),
                         onTap: () {
-                          // Opcional: Permitir entrar en solo lectura
-                          if (context.mounted) context.push('/project/${project['id']}?tab=0');
+                          if (_isSelectionMode) {
+                            _toggleSelection(project['id']);
+                          } else {
+                            if (context.mounted) context.push('/project/${project['id']}?tab=0');
+                          }
                         },
                         child: Stack(
                           children: [
@@ -166,7 +230,22 @@ class _ArchivedProjectsPageState extends State<ArchivedProjectsPage> {
                                           ),
                                         ),
                                       ),
-                                      const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white70),
+                                      ),
+                                      if (isSelected)
+                                        Container(
+                                          padding: const EdgeInsets.all(4),
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context).colorScheme.primaryContainer,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Icon(
+                                            Icons.check,
+                                            size: 16,
+                                            color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                          ),
+                                        )
+                                      else
+                                        const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white70),
                                     ],
                                   ),
                                   if (project['description'] != null && project['description'].toString().isNotEmpty) ...[

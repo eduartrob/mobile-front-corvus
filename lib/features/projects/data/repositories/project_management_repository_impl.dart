@@ -49,6 +49,11 @@ class ProjectManagementRepositoryImpl implements ProjectManagementRepository {
   }
 
   @override
+  Future<bool> unarchiveProjects({required List<String> projectIds, required String token}) {
+    return _api.unarchiveProjects(projectIds: projectIds, token: token);
+  }
+
+  @override
   Future<Map<String, dynamic>> updateProject({
     required String projectId,
     required String name,

@@ -106,6 +106,26 @@ class ProjectApi {
     }
   }
 
+  Future<bool> unarchiveProjects({
+    required List<String> projectIds,
+    required String token,
+  }) async {
+    final response = await http.post(
+      Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.projectsUnarchive}'),
+      headers: {
+        ...ApiConfig.defaultHeaders,
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({'projectIds': projectIds}),
+    ).timeout(ApiConfig.connectionTimeout);
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return true;
+    } else {
+      _handleError(response, 'Error al desarchivar proyectos');
+    }
+  }
+
   Future<Map<String, dynamic>> updateProject({
     required String projectId,
     required String name,

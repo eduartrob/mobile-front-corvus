@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:provider/provider.dart';
 import 'package:mobile/features/inspiration/presentation/provider/inspiration_provider.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 class FloatingAiInput extends StatefulWidget {
   final bool isVisible;
@@ -271,9 +272,16 @@ class _FloatingAiInputState extends State<FloatingAiInput>
                         maxHeight: MediaQuery.of(context).size.height * 0.45,
                       ),
                       child: SingleChildScrollView(
-                        child: Text(
-                          _ideaResult!,
-                          style: TextStyle(fontSize: 14, color: colorScheme.onSurface),
+                        child: MarkdownBody(
+                          data: _ideaResult!,
+                          selectable: true,
+                          styleSheet: MarkdownStyleSheet(
+                            p: TextStyle(fontSize: 14, color: colorScheme.onSurface),
+                            h1: TextStyle(fontSize: 20, color: colorScheme.onSurface, fontWeight: FontWeight.bold),
+                            h2: TextStyle(fontSize: 18, color: colorScheme.onSurface, fontWeight: FontWeight.bold),
+                            h3: TextStyle(fontSize: 16, color: colorScheme.onSurface, fontWeight: FontWeight.bold),
+                            strong: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSurface),
+                          ),
                         ),
                       ),
                     ),

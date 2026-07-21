@@ -97,6 +97,26 @@ class ProjectProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> unarchiveProjects({
+    required List<String> projectIds,
+    required String token,
+  }) async {
+    _setLoading(true);
+    try {
+      await _repository.unarchiveProjects(projectIds: projectIds, token: token);
+      // Remove from archived projects list locally
+      _archivedProjects.removeWhere((p) => projectIds.contains(p['id']));
+      // Force a reload of the active projects so they appear there
+      await loadMyProjects(token, quiet: true);
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString().replaceAll('Exception: ', '');
+      _setLoading(false);
+      return false;
+    }
+  }
+
   Future<bool> createProject({
     required String name,
     String? description,
