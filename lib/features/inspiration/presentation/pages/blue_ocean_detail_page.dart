@@ -34,6 +34,19 @@ class BlueOceanDetailPage extends StatelessWidget {
         
     final metricas = (analysis['metricas'] as Map<String, dynamic>?) ?? {};
 
+    int extractMetric(dynamic metric) {
+      if (metric == null) return 0;
+      if (metric is num) return metric.toInt();
+      if (metric is String) return int.tryParse(metric) ?? 0;
+      if (metric is Map) {
+        final nums = metric.values.whereType<num>().toList();
+        if (nums.isNotEmpty) {
+          return (nums.reduce((a, b) => a + b) / nums.length).round();
+        }
+      }
+      return 0;
+    }
+
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
@@ -111,19 +124,19 @@ class BlueOceanDetailPage extends StatelessWidget {
                   const SizedBox(height: 20),
                   FeasibilityMetricBar(
                     label: isEn ? 'Originality' : 'Originalidad',
-                    value: metricas['originalidad'] ?? 0,
+                    value: extractMetric(metricas['originalidad']),
                     color: colorScheme.primary,
                   ),
                   const SizedBox(height: 16),
                   FeasibilityMetricBar(
                     label: isEn ? 'Data Availability' : 'Disponibilidad de Datos',
-                    value: metricas['disponibilidad_datos'] ?? 0,
+                    value: extractMetric(metricas['disponibilidad_datos']),
                     color: colorScheme.secondary,
                   ),
                   const SizedBox(height: 16),
                   FeasibilityMetricBar(
                     label: isEn ? 'Academic Relevance' : 'Relevancia Académica',
-                    value: metricas['relevancia_academica'] ?? 0,
+                    value: extractMetric(metricas['relevancia_academica']),
                     color: colorScheme.tertiary,
                   ),
                 ],
