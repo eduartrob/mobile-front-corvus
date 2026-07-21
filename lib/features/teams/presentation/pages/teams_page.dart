@@ -291,7 +291,13 @@ class _TeamsPageState extends State<TeamsPage> with SingleTickerProviderStateMix
                   },
                 ),
                 // Tab 2: Solicitudes
-                const SolicitudesTab(),
+                SolicitudesTab(
+                  onAcceptSuccess: () {
+                    if (mounted) {
+                      _tabController.animateTo(0);
+                    }
+                  },
+                ),
                 // Tab 3: Sugerencias
                 SugerenciasTab(isFiltering: _selectedSkill.isNotEmpty || _searchQuery.isNotEmpty),
               ],

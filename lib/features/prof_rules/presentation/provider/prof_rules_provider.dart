@@ -134,6 +134,24 @@ class ProfRulesProvider extends ChangeNotifier {
     _isModified = true;
     notifyListeners();
   }
+
+  Future<void> toggleExclusionRuleAndSave(
+    String clusterName, 
+    {String? projectId, String? authorName, String? authorPhotoUrl, String? authorId}
+  ) async {
+    if (_exclusionRules.contains(clusterName)) {
+      _exclusionRules.remove(clusterName);
+    } else {
+      _exclusionRules.add(clusterName);
+    }
+    notifyListeners();
+    await saveConfig(
+      projectId: projectId,
+      authorName: authorName,
+      authorPhotoUrl: authorPhotoUrl,
+      authorId: authorId,
+    );
+  }
   
   void addExclusionRule(String rule) {
     if (rule.isNotEmpty && !_exclusionRules.contains(rule)) {
@@ -208,6 +226,7 @@ class ProfRulesProvider extends ChangeNotifier {
         projectId: projectId,
       );
       _isModified = false;
+      await remoteDataSource.notifyRulesUpdate(projectId: projectId);
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
     } finally {

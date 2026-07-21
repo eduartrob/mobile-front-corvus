@@ -1,4 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:mobile/core/network/api_config.dart';
+import 'package:mobile/core/network/auth_interceptor_client.dart';
 import 'package:mobile/features/student_directory/domain/entities/student.dart';
 import 'package:mobile/features/teams/data/models/team_model.dart';
 import 'package:mobile/features/teams/data/models/solicitud_model.dart';
@@ -75,6 +79,9 @@ class TeamsProvider extends ChangeNotifier {
       String? resolvedProjectId = projectId;
 
       if (_myTeam != null) {
+        try {
+          FirebaseMessaging.instance.subscribeToTopic('team_${_myTeam!.id}');
+        } catch (_) {}
         _finalReviewStatus =
             await _repository.getFinalReviewStatus(_myTeam!.id);
         // Prefer the explicit project_id passed; fallback to what's in the team object
@@ -137,7 +144,37 @@ class TeamsProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      final currentTeamId = _myTeam?.id;
       await _repository.leaveTeam();
+
+      if (currentTeamId != null && currentTeamId.isNotEmpty) {
+        try {
+          final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/notifications/topic/push');
+          final title = 'Integrante Abandonó el Equipo';
+          final body = 'Un compañero ha abandonado el equipo de proyecto.';
+
+          apiClient.post(
+            uri,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'topic': 'team_$currentTeamId',
+              'title': title,
+              'body': body,
+              'data': {
+                'type': 'team_update',
+                'title': title,
+                'message': body,
+                'teamId': currentTeamId,
+              }
+            })
+          ).then((_) {}).catchError((_) {});
+
+          try {
+            FirebaseMessaging.instance.unsubscribeFromTopic('team_$currentTeamId');
+          } catch (_) {}
+        } catch (_) {}
+      }
+
       _myTeam = null;
     } catch (e) {
       _errorMessage = e.toString();
@@ -154,6 +191,7 @@ class TeamsProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      final currentTeamId = _myTeam?.id;
       await _repository.removeMember(memberId);
       if (_myTeam != null) {
         final updatedMembers =
@@ -167,6 +205,49 @@ class TeamsProvider extends ChangeNotifier {
           project: _myTeam!.project,
         );
       }
+
+      // Notificar al integrante removido directamente y al grupo
+      try {
+        final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/notifications/topic/push');
+        final titleUser = 'Removido del Equipo';
+        final bodyUser = 'El líder te ha removido del equipo de proyecto.';
+
+        apiClient.post(
+          uri,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'topic': 'user_$memberId',
+            'title': titleUser,
+            'body': bodyUser,
+            'data': {
+              'type': 'team_update',
+              'title': titleUser,
+              'message': bodyUser,
+            }
+          })
+        ).then((_) {}).catchError((_) {});
+
+        if (currentTeamId != null && currentTeamId.isNotEmpty) {
+          final titleTeam = 'Integrante Removido';
+          final bodyTeam = 'Un integrante ha sido removido del equipo.';
+
+          apiClient.post(
+            uri,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'topic': 'team_$currentTeamId',
+              'title': titleTeam,
+              'body': bodyTeam,
+              'data': {
+                'type': 'team_update',
+                'title': titleTeam,
+                'message': bodyTeam,
+                'teamId': currentTeamId,
+              }
+            })
+          ).then((_) {}).catchError((_) {});
+        }
+      } catch (_) {}
     } catch (e) {
       _errorMessage = e.toString();
       rethrow;
@@ -221,6 +302,29 @@ class TeamsProvider extends ChangeNotifier {
       await _repository.sendInvitation(studentId, projectId: _activeProjectId);
       _suggestions.removeWhere((student) => student.id == studentId);
       fetchRequests(projectId: _activeProjectId);
+
+      // Notificar al estudiante invitado directamente
+      try {
+        final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/notifications/topic/push');
+        final title = 'Nueva Invitación de Equipo';
+        final teamName = _myTeam?.name ?? 'un equipo';
+        final body = 'Has recibido una invitación para unirte a $teamName.';
+
+        apiClient.post(
+          uri,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'topic': 'user_$studentId',
+            'title': title,
+            'body': body,
+            'data': {
+              'type': 'team_request',
+              'title': title,
+              'message': body,
+            }
+          })
+        ).then((_) {}).catchError((_) {});
+      } catch (_) {}
     } catch (e) {
       _errorMessage = e.toString();
       rethrow;
@@ -257,6 +361,32 @@ class TeamsProvider extends ChangeNotifier {
       // Refrescar equipo y config (número de integrantes puede haber cambiado)
       await fetchMyTeam(projectId: _activeProjectId);
       fetchRequests(projectId: _activeProjectId);
+
+      // Notificar a todos los integrantes del equipo para que se actualicen en tiempo real
+      if (_myTeam != null && _myTeam!.id.isNotEmpty) {
+        try {
+          final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/notifications/topic/push');
+          final teamId = _myTeam!.id;
+          final title = 'Nuevo Integrante en el Equipo';
+          final body = 'Un nuevo integrante se ha unido al equipo.';
+
+          apiClient.post(
+            uri,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'topic': 'team_$teamId',
+              'title': title,
+              'body': body,
+              'data': {
+                'type': 'team_accept',
+                'title': title,
+                'message': body,
+                'teamId': teamId,
+              }
+            })
+          ).then((_) {}).catchError((_) {});
+        } catch (_) {}
+      }
     } catch (e) {
       _errorMessage = e.toString();
       rethrow;

@@ -8,6 +8,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:mobile/features/my_project/domain/entities/project_analysis_entity.dart';
 import 'package:mobile/features/my_project/domain/repositories/project_repository.dart';
 import 'package:mobile/features/my_project/data/datasources/cloudinary_service.dart';
+import 'package:mobile/core/network/api_config.dart';
+import 'package:mobile/core/network/auth_interceptor_client.dart';
 import 'package:mobile/core/services/notification_service.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 
@@ -539,6 +541,29 @@ class MyProjectProvider extends ChangeNotifier {
       message: l10n?.notifAnalysisCompleteBody ??
           'Tu propuesta ha sido validada por la IA',
     );
+
+    // Enviar notificación push al profesor/proyecto sobre la nueva propuesta
+    if (_projectId != null && _projectId!.isNotEmpty) {
+      try {
+        final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/notifications/topic/push');
+        final title = 'Nueva Propuesta Enviada';
+        final teamInfo = result['team_info'] as Map<String, dynamic>? ?? {};
+        final teamName = teamInfo['name'] ?? 'Un equipo';
+        final body = '$teamName ha enviado una nueva propuesta de proyecto para revisión.';
+
+        apiClient.post(
+          uri,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'topic': 'project_${_projectId}',
+            'title': title,
+            'body': body,
+            'data': {'type': 'proposal_submitted', 'title': title, 'message': body, 'projectId': _projectId}
+          })
+        ).catchError((_) => null);
+      } catch (_) {}
+    }
+
     notifyListeners();
   }
 

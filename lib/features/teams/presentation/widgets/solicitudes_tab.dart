@@ -5,7 +5,8 @@ import 'package:mobile/features/teams/data/models/solicitud_model.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 
 class SolicitudesTab extends StatelessWidget {
-  const SolicitudesTab({super.key});
+  final VoidCallback? onAcceptSuccess;
+  const SolicitudesTab({super.key, this.onAcceptSuccess});
 
   @override
   Widget build(BuildContext context) {
@@ -107,6 +108,7 @@ class SolicitudesTab extends StatelessWidget {
                             },
                             onAccept: () {
                               provider.acceptRequest(solicitud.id).then((_) {
+                                onAcceptSuccess?.call();
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(l10n.invitationAccepted),

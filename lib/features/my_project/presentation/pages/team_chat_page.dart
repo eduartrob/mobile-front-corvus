@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+typedef PlanProPage = TeamChatPage;
+
 class TeamChatPage extends StatelessWidget {
   const TeamChatPage({super.key});
 
@@ -16,7 +18,7 @@ class TeamChatPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: AppBar(
-        title: const Text('Chat de Equipo'),
+        title: const Text('Plan Pro'),
         backgroundColor: colors.surface,
         scrolledUnderElevation: 0,
       ),

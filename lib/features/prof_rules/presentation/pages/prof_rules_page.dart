@@ -168,29 +168,27 @@ class _ProfRulesPageViewState extends State<_ProfRulesPageView> {
               : Builder(
                   builder: (context) {
                     final tabController = DefaultTabController.of(context);
-                    // Necesitamos el provider completo para el FAB
                     final fabProvider = context.watch<ProfRulesProvider>();
                     return AnimatedBuilder(
                       animation: tabController,
                       builder: (context, child) {
                         final isStructureTab = tabController.index == 1;
+                        if (!isStructureTab) return const SizedBox.shrink();
                         final isModified = fabProvider.isModified;
-                        if (!isStructureTab && !isModified) return const SizedBox.shrink();
 
                         return Column(
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            if (isStructureTab)
-                              FloatingActionButton.small(
-                                heroTag: 'addSectionFAB',
-                                backgroundColor: colorScheme.primaryContainer,
-                                foregroundColor: colorScheme.onPrimaryContainer,
-                                onPressed: fabProvider.isLoading ? null : () => _showAddSectionDialog(context, fabProvider),
-                                child: const Icon(Icons.add),
-                              ),
+                            FloatingActionButton.small(
+                              heroTag: 'addSectionFAB',
+                              backgroundColor: colorScheme.primaryContainer,
+                              foregroundColor: colorScheme.onPrimaryContainer,
+                              onPressed: fabProvider.isLoading ? null : () => _showAddSectionDialog(context, fabProvider),
+                              child: const Icon(Icons.add),
+                            ),
                             if (isModified) ...[
-                              if (isStructureTab) const SizedBox(height: 12),
+                              const SizedBox(height: 12),
                               FloatingActionButton.extended(
                                 heroTag: 'saveRulesFAB',
                                 backgroundColor: colorScheme.primary,
@@ -373,10 +371,18 @@ class _ExclusionRulesTab extends StatelessWidget {
                           activeTrackColor: colorScheme.error,
                           inactiveThumbColor: colorScheme.outline,
                           inactiveTrackColor: colorScheme.surfaceContainerHighest,
-                          onChanged: (value) {
+                          onChanged: (value) async {
                             final messenger = ScaffoldMessenger.of(context);
                             final scheme = Theme.of(context).colorScheme;
-                            provider.toggleExclusionRule(clusterName);
+                            final user = context.read<AuthProvider>().currentUser;
+                            
+                            provider.toggleExclusionRuleAndSave(
+                              clusterName,
+                              projectId: projectId,
+                              authorName: user?.name,
+                              authorPhotoUrl: user?.photoUrl,
+                              authorId: user?.id,
+                            );
                             
                             messenger.hideCurrentSnackBar();
                             messenger.showSnackBar(
@@ -386,11 +392,11 @@ class _ExclusionRulesTab extends StatelessWidget {
                                   children: [
                                     Icon(value ? Icons.lock_outline : Icons.lock_open_rounded, color: scheme.onInverseSurface, size: 20),
                                     const SizedBox(width: 8),
-                                    Text(value ? 'Tema bloqueado (sin guardar)' : 'Tema desbloqueado (sin guardar)', style: const TextStyle(fontWeight: FontWeight.w500)),
+                                    Text(value ? 'Tema bloqueado' : 'Tema desbloqueado', style: const TextStyle(fontWeight: FontWeight.w500)),
                                   ],
                                 ),
                                 behavior: SnackBarBehavior.floating,
-                                width: 280,
+                                width: 250,
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                                 backgroundColor: scheme.inverseSurface,
                                 duration: const Duration(seconds: 2),

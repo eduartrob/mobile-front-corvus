@@ -109,17 +109,19 @@ class AuthProvider extends ChangeNotifier {
           if (fcmToken != null && _currentUser != null && _currentUser!.id.isNotEmpty) {
             FirebaseMessaging.instance.subscribeToTopic('user_${_currentUser!.id}');
             final uri = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.notificationsDevice}');
-            http.post(
-              uri,
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ${_currentUser!.token}',
-              },
-              body: jsonEncode({
-                'userId': _currentUser!.id,
-                'fcmToken': fcmToken
-              })
-            ).catchError((e) => null);
+            try {
+              await http.post(
+                uri,
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Bearer ${_currentUser!.token}',
+                },
+                body: jsonEncode({
+                  'userId': _currentUser!.id,
+                  'fcmToken': fcmToken
+                }),
+              );
+            } catch (_) {}
           }
         } catch(e) {
           // FCM restore failed silently

@@ -209,10 +209,14 @@ class _ProfHistoryPageState extends State<ProfHistoryPage> {
                       String status = 'Información';
                       bool isRejected = false;
                       bool isApproved = false;
+                      bool isSummoned = false;
 
-                      if (log.action == 'EVALUATE_PROPOSAL') {
-                        title = 'Evaluación de Proyecto';
-                        if (log.detail.contains('REJECTED')) {
+                      if (log.action == 'EVALUATE_PROPOSAL' || log.action.contains('PROPOSAL')) {
+                        title = 'Evaluación de Propuesta';
+                        if (log.detail.contains('SUMMONED')) {
+                          status = 'Citado a Revisión';
+                          isSummoned = true;
+                        } else if (log.detail.contains('REJECTED')) {
                           status = 'Rechazado';
                           isRejected = true;
                         } else if (log.detail.contains('APPROVED')) {
@@ -229,6 +233,11 @@ class _ProfHistoryPageState extends State<ProfHistoryPage> {
                         status = 'Acceso';
                       }
 
+                      String formattedReason = log.detail
+                          .replaceAll('SUMMONED', 'CITADO A REVISIÓN')
+                          .replaceAll('APPROVED', 'APROBADO')
+                          .replaceAll('REJECTED', 'RECHAZADO');
+
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 16.0),
                         child: _buildHistoryCard(
@@ -236,9 +245,10 @@ class _ProfHistoryPageState extends State<ProfHistoryPage> {
                           title: title,
                           status: status,
                           date: dateStr,
-                          reason: log.detail,
+                          reason: formattedReason,
                           isRejected: isRejected,
                           isApproved: isApproved,
+                          isSummoned: isSummoned,
                         ),
                       );
                     },
@@ -261,18 +271,27 @@ class _ProfHistoryPageState extends State<ProfHistoryPage> {
     required String reason,
     required bool isRejected,
     required bool isApproved,
+    bool isSummoned = false,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
     
     final statusColor = isRejected 
         ? colorScheme.error 
-        : (isApproved ? colorScheme.primary : colorScheme.secondary);
+        : (isApproved 
+            ? Colors.green.shade800 
+            : (isSummoned ? Colors.orange.shade900 : colorScheme.secondary));
         
     final statusBgColor = isRejected 
         ? colorScheme.errorContainer.withValues(alpha: 0.5) 
-        : (isApproved ? colorScheme.primaryContainer.withValues(alpha: 0.5) : colorScheme.secondaryContainer.withValues(alpha: 0.5));
+        : (isApproved 
+            ? Colors.green.withValues(alpha: 0.2) 
+            : (isSummoned ? Colors.orange.withValues(alpha: 0.2) : colorScheme.secondaryContainer.withValues(alpha: 0.5)));
     
-    final icon = isRejected ? Icons.cancel_outlined : (isApproved ? Icons.check_circle_outline : Icons.info_outline);
+    final icon = isRejected 
+        ? Icons.cancel_outlined 
+        : (isApproved 
+            ? Icons.check_circle_outline 
+            : (isSummoned ? Icons.event : Icons.info_outline));
 
     return Container(
       padding: const EdgeInsets.all(20),

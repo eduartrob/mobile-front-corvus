@@ -31,6 +31,8 @@ import 'package:mobile/features/prof_history/presentation/provider/prof_history_
 import 'package:mobile/features/profile/presentation/provider/activity_history_provider.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
 
+import 'package:mobile/core/network/push_sync_service.dart';
+
 /// Handler para taps en notificaciones cuando la app está en background/terminada.
 void _handleNotificationTap(RemoteMessage message) {
   final context = rootNavigatorKey.currentContext;
@@ -128,8 +130,13 @@ class _AppBootstrapState extends State<_AppBootstrap> {
     final uid = widget.authProvider.currentUser?.id;
     if (uid == null) return;
 
-    // Solo cargar teams (necesario para saber si tiene equipo) y
-    // suscribirse a tópicos FCM. El resto se carga on-demand.
+    // Inicializar PushSyncService para permisos y escuchas en segundo plano
+    PushSyncService().initialize(context);
+
+    // Suscribir usuario a su tópico individual
+    FirebaseMessaging.instance.subscribeToTopic('user_$uid');
+
+    // Cargar teams y suscribirse a tópicos FCM
     final teamsProvider = context.read<TeamsProvider>();
     final myProjectProvider = context.read<MyProjectProvider>();
     final profileProvider = context.read<ProfileProvider>();
@@ -142,8 +149,17 @@ class _AppBootstrapState extends State<_AppBootstrap> {
     profileProvider.fetchProfile();
     final projectProvider = context.read<ProjectProvider>();
     final token = widget.authProvider.currentUser?.token;
-    if (token != null)
-      projectProvider.loadMyProjects(token, quiet: true, userId: uid);
+    if (token != null) {
+      projectProvider.loadMyProjects(token, quiet: true, userId: uid).then((_) {
+        // Suscribir al alumno a los tópicos de cada proyecto asignado
+        for (final proj in projectProvider.myProjects) {
+          final pId = proj['id']?.toString();
+          if (pId != null && pId.isNotEmpty) {
+            FirebaseMessaging.instance.subscribeToTopic('project_$pId');
+          }
+        }
+      });
+    }
 
     // Configurar userId en InspirationProvider para namespacear SharedPreferences
     context.read<InspirationProvider>().setUserId(uid);

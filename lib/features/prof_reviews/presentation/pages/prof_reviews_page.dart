@@ -100,7 +100,7 @@ class _ProfReviewsPageState extends State<ProfReviewsPage> {
               ),
             )
           : RefreshIndicator(
-              onRefresh: () => provider.fetchReviews(),
+              onRefresh: () => provider.fetchReviews(projectId: widget.projectId),
               child: reviews.isEmpty
                   ? Center(
                       child: Text(

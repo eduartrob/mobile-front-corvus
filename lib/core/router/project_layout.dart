@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile/shared/widgets/corvus_bottom_nav_bar.dart';
 import 'package:mobile/features/teams/presentation/pages/teams_page.dart';
 import 'package:mobile/features/my_project/presentation/pages/my_project_page.dart';
-import 'package:mobile/features/my_project/presentation/pages/team_chat_page.dart';
 
 class ProjectLayout extends StatefulWidget {
   final String projectId;
@@ -64,7 +63,6 @@ class _ProjectLayoutState extends State<ProjectLayout> {
           children: [
             TeamsPage(key: ValueKey('teams_${widget.projectId}'), projectId: widget.projectId),
             MyProjectPage(key: ValueKey('myproject_${widget.projectId}')),
-            const TeamChatPage(),
           ],
         ),
         bottomNavigationBar: CustomAnimatedBottomNavBar(
@@ -80,11 +78,6 @@ class _ProjectLayoutState extends State<ProjectLayout> {
               icon: Icons.upload_file_outlined,
               activeIcon: Icons.upload_file,
               label: 'Propuesta',
-            ),
-            CustomNavItemData(
-              icon: Icons.chat_bubble_outline,
-              activeIcon: Icons.chat_bubble,
-              label: 'Chat',
             ),
           ],
         ),

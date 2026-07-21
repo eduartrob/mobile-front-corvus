@@ -18,17 +18,32 @@ class ProfReviewDetailPage extends StatefulWidget {
 }
 
 class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
-  void _updateStatus(String status, {String? appointmentDate, String? reason}) async {
+  void _updateStatus(
+    String status, 
+    {
+      String? appointmentDate, 
+      String? reason,
+      bool isEditAppointment = false,
+      bool isCancelAppointment = false,
+    }
+  ) async {
     final provider = context.read<ProfReviewsProvider>();
     final success = await provider.updateStatus(
       widget.review.id, 
       status, 
       appointmentDate: appointmentDate,
-      reason: reason
+      reason: reason,
+      isEditAppointment: isEditAppointment,
+      isCancelAppointment: isCancelAppointment,
     );
     if (success && mounted) {
+      final String msg = isCancelAppointment
+          ? 'Cita cancelada exitosamente'
+          : isEditAppointment
+              ? 'Cita modificada exitosamente'
+              : 'Revisión actualizada: ${_getTranslatedStatus(status)}';
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Revisión actualizada: ${_getTranslatedStatus(status)}'))
+        SnackBar(content: Text(msg))
       );
       Navigator.pop(context);
     } else if (mounted) {
@@ -124,9 +139,51 @@ class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
     );
   }
 
-  void _showSummonDialog(AppLocalizations l10n) {
-    DateTime? selectedDate;
-    TimeOfDay? selectedTime;
+  void _showCancelAppointmentDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        final colorScheme = Theme.of(context).colorScheme;
+        return AlertDialog(
+          backgroundColor: colorScheme.surface,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          title: Text(
+            '¿Cancelar cita programada?',
+            style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+          content: Text(
+            '¿Estás seguro de que deseas cancelar la cita con el equipo? Se enviará una notificación directa a los integrantes.',
+            style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text('VOLVER', style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold)),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: colorScheme.error,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              onPressed: () {
+                Navigator.pop(ctx);
+                _updateStatus('PENDING', appointmentDate: null, isCancelAppointment: true);
+              },
+              child: const Text('CONFIRMAR CANCELACIÓN', style: TextStyle(fontWeight: FontWeight.bold)),
+            )
+          ],
+        );
+      }
+    );
+  }
+
+  void _showSummonDialog(AppLocalizations l10n, {bool isEdit = false}) {
+    DateTime? selectedDate = (isEdit && widget.review.appointmentDate != null)
+        ? widget.review.appointmentDate!.toLocal()
+        : null;
+    TimeOfDay? selectedTime = (isEdit && widget.review.appointmentDate != null)
+        ? TimeOfDay.fromDateTime(widget.review.appointmentDate!.toLocal())
+        : null;
 
     showDialog(
       context: context,
@@ -138,7 +195,7 @@ class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
               backgroundColor: colorScheme.surface,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               title: Text(
-                l10n.citeTeam,
+                isEdit ? 'Editar Cita' : l10n.citeTeam,
                 style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 18),
               ),
               content: Column(
@@ -146,7 +203,9 @@ class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Selecciona la fecha y hora para la defensa del proyecto.',
+                    isEdit
+                        ? 'Modifica la fecha y hora programada para la cita.'
+                        : 'Selecciona la fecha y hora para la defensa del proyecto.',
                     style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14),
                   ),
                   const SizedBox(height: 16),
@@ -162,15 +221,15 @@ class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
                           trailing: Icon(Icons.calendar_today, color: colorScheme.primary),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                           onTap: () async {
-                            DateTime nextWeekday = DateTime.now().add(const Duration(days: 1));
-                            while (nextWeekday.weekday > 5) {
-                              nextWeekday = nextWeekday.add(const Duration(days: 1));
+                            DateTime initial = selectedDate ?? DateTime.now().add(const Duration(days: 1));
+                            while (initial.weekday > 5) {
+                              initial = initial.add(const Duration(days: 1));
                             }
                             
                             final d = await showDatePicker(
                               context: context,
-                              initialDate: nextWeekday,
-                              firstDate: nextWeekday,
+                              initialDate: initial,
+                              firstDate: DateTime.now(),
                               lastDate: DateTime.now().add(const Duration(days: 60)),
                               selectableDayPredicate: (DateTime val) => val.weekday >= 1 && val.weekday <= 5,
                             );
@@ -185,7 +244,7 @@ class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
                           onTap: () async {
                             final t = await showTimePicker(
                               context: context,
-                              initialTime: const TimeOfDay(hour: 8, minute: 0),
+                              initialTime: selectedTime ?? const TimeOfDay(hour: 8, minute: 0),
                             );
                             if (t != null) {
                               if (t.hour >= 8 && (t.hour < 16 || (t.hour == 16 && t.minute == 0))) {
@@ -220,14 +279,18 @@ class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
                         selectedTime!.hour, selectedTime!.minute
                       );
                       Navigator.pop(ctx);
-                      _updateStatus('SUMMONED', appointmentDate: finalDt.toUtc().toIso8601String());
+                      _updateStatus(
+                        'SUMMONED', 
+                        appointmentDate: finalDt.toUtc().toIso8601String(),
+                        isEditAppointment: isEdit,
+                      );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Por favor selecciona fecha y hora'))
                       );
                     }
                   },
-                  child: Text(l10n.citeTeam.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                  child: Text(isEdit ? 'GUARDAR CITA' : l10n.citeTeam.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ],
             );
@@ -500,10 +563,20 @@ class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
                               const SizedBox(height: 4),
                               Text(
                                 DateFormat('dd/MM/yyyy hh:mm a').format(widget.review.appointmentDate!.toLocal()),
-                                style: TextStyle(color: Colors.orange),
+                                style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.w500),
                               ),
                             ],
                           ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.edit_calendar, color: Colors.orange),
+                          tooltip: 'Editar Cita',
+                          onPressed: () => _showSummonDialog(l10n, isEdit: true),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.event_busy, color: Colors.red),
+                          tooltip: 'Cancelar Cita',
+                          onPressed: () => _showCancelAppointmentDialog(),
                         ),
                       ],
                     ),
@@ -601,7 +674,7 @@ class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
             ),
           ),
           
-          if (widget.review.status == 'PENDING' || widget.review.status == 'APPROVED')
+          if (widget.review.status == 'PENDING' || widget.review.status == 'APPROVED' || widget.review.status == 'SUMMONED')
             Positioned(
               bottom: 0,
               left: 0,
@@ -624,33 +697,18 @@ class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    SizedBox(
-                      width: double.infinity,
-                      height: 45,
-                      child: OutlinedButton.icon(
-                        onPressed: () => _showSummonDialog(l10n),
-                        icon: const Icon(Icons.person_add_alt_1),
-                        label: Text(l10n.citeTeam),
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: colorScheme.outlineVariant),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        ),
-                      ),
-                    ),
-                    if (widget.review.status == 'PENDING') ...[
-                      const SizedBox(height: 12),
+                    if (widget.review.status == 'SUMMONED') ...[
                       Row(
                         children: [
                           Expanded(
                             child: SizedBox(
                               height: 45,
-                              child: ElevatedButton.icon(
-                                onPressed: () => _showReasonDialog('REJECTED'),
-                                icon: const Icon(Icons.close),
-                                label: Text(l10n.reject),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: colorScheme.error,
-                                  foregroundColor: colorScheme.onError,
+                              child: OutlinedButton.icon(
+                                onPressed: () => _showSummonDialog(l10n, isEdit: true),
+                                icon: const Icon(Icons.edit_calendar),
+                                label: const Text('Editar Cita'),
+                                style: OutlinedButton.styleFrom(
+                                  side: BorderSide(color: colorScheme.primary),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                 ),
                               ),
@@ -660,13 +718,13 @@ class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
                           Expanded(
                             child: SizedBox(
                               height: 45,
-                              child: ElevatedButton.icon(
-                                onPressed: () => _showReasonDialog('APPROVED'),
-                                icon: const Icon(Icons.check),
-                                label: Text(l10n.approve),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: colorScheme.primary,
-                                  foregroundColor: colorScheme.onPrimary,
+                              child: OutlinedButton.icon(
+                                onPressed: () => _showCancelAppointmentDialog(),
+                                icon: const Icon(Icons.event_busy),
+                                label: const Text('Cancelar Cita'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: colorScheme.error,
+                                  side: BorderSide(color: colorScheme.error),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                 ),
                               ),
@@ -674,7 +732,58 @@ class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
                           ),
                         ],
                       ),
+                      const SizedBox(height: 12),
+                    ] else ...[
+                      SizedBox(
+                        width: double.infinity,
+                        height: 45,
+                        child: OutlinedButton.icon(
+                          onPressed: () => _showSummonDialog(l10n),
+                          icon: const Icon(Icons.person_add_alt_1),
+                          label: Text(l10n.citeTeam),
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: colorScheme.outlineVariant),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
                     ],
+                    Row(
+                      children: [
+                        Expanded(
+                          child: SizedBox(
+                            height: 45,
+                            child: ElevatedButton.icon(
+                              onPressed: () => _showReasonDialog('REJECTED'),
+                              icon: const Icon(Icons.close),
+                              label: Text(l10n.reject),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: colorScheme.error,
+                                foregroundColor: colorScheme.onError,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: SizedBox(
+                            height: 45,
+                            child: ElevatedButton.icon(
+                              onPressed: () => _showReasonDialog('APPROVED'),
+                              icon: const Icon(Icons.check),
+                              label: Text(l10n.approve),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: colorScheme.primary,
+                                foregroundColor: colorScheme.onPrimary,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),

@@ -32,17 +32,18 @@ class ProfReviewsProvider extends ChangeNotifier {
   }
 
   Future<void> fetchReviews({String? projectId}) async {
-    if (projectId != null && projectId != _lastProjectId) {
+    final effectiveProjectId = (projectId != null && projectId.isNotEmpty) ? projectId : _lastProjectId;
+    if (effectiveProjectId != null && effectiveProjectId != _lastProjectId) {
       _reviews = [];
-      _lastProjectId = projectId;
     }
+    _lastProjectId = effectiveProjectId;
 
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      _reviews = await _dataSource.getFinalReviews(projectId: projectId);
+      _reviews = await _dataSource.getFinalReviews(projectId: effectiveProjectId);
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
     } finally {
@@ -51,7 +52,17 @@ class ProfReviewsProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> updateStatus(String reviewId, String status, {String? appointmentDate, String? locationLink, String? reason}) async {
+  Future<bool> updateStatus(
+    String reviewId, 
+    String status, 
+    {
+      String? appointmentDate, 
+      String? locationLink, 
+      String? reason,
+      bool isEditAppointment = false,
+      bool isCancelAppointment = false,
+    }
+  ) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -71,29 +82,65 @@ class ProfReviewsProvider extends ChangeNotifier {
       }
       
       try {
+        String title = 'Actualización de Propuesta';
         String body = 'Tu propuesta ha sido actualizada.';
-        if (status == 'APPROVED') body = '¡Felicidades! Tu propuesta ha sido APROBADA.';
-        if (status == 'REJECTED') body = 'Tu propuesta ha sido RECHAZADA.';
-        if (status == 'SUMMONED') {
-          body = 'Has sido CITADO para revisión.';
-          if (updated.appointmentDate != null) {
-            body = 'Has sido CITADO para revisión el ${DateFormat('dd/MM/yyyy - hh:mm a').format(updated.appointmentDate!.toLocal())}.';
+        
+        if (isCancelAppointment) {
+          title = 'Cita Cancelada';
+          body = 'su cita fue cancelada';
+        } else if (isEditAppointment) {
+          title = 'Cita Modificada';
+          final dtStr = updated.appointmentDate != null
+              ? DateFormat('dd/MM/yyyy - hh:mm a').format(updated.appointmentDate!.toLocal())
+              : '';
+          body = 'su cita fue modificada a: $dtStr';
+        } else if (status == 'SUMMONED') {
+          title = 'Cita Programada';
+          final dtStr = updated.appointmentDate != null
+              ? DateFormat('dd/MM/yyyy - hh:mm a').format(updated.appointmentDate!.toLocal())
+              : '';
+          body = 'Has sido CITADO para revisión el $dtStr.';
+        } else if (status == 'APPROVED') {
+          title = 'Propuesta Aprobada';
+          body = '¡Felicidades! Tu propuesta ha sido APROBADA.';
+          if (reason != null && reason.trim().isNotEmpty) {
+            body += '\nComentario del docente: ${reason.trim()}';
+          }
+        } else if (status == 'REJECTED') {
+          title = 'Propuesta Rechazada';
+          body = 'Tu propuesta de proyecto ha sido RECHAZADA.';
+          if (reason != null && reason.trim().isNotEmpty) {
+            body += '\nMotivo: ${reason.trim()}';
           }
         }
         
         final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/notifications/topic/push');
+        
+        // Push directo al estudiante / creador
         apiClient.post(
           uri,
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'topic': 'user_${updated.studentId}',
-            'title': 'Actualización de Propuesta',
+            'title': title,
             'body': body,
-            'data': {
-              'type': 'info'
-            }
+            'data': {'type': 'info', 'title': title, 'message': body}
           })
-        ).catchError((_) => null); // Ignore if push fails
+        ).catchError((_) => null);
+        
+        // Push directo al canal del equipo
+        if (updated.teamId.isNotEmpty) {
+          apiClient.post(
+            uri,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'topic': 'team_${updated.teamId}',
+              'title': title,
+              'body': body,
+              'data': {'type': 'info', 'title': title, 'message': body}
+            })
+          ).catchError((_) => null);
+        }
       } catch (_) {}
       
       return true;
@@ -117,6 +164,49 @@ class ProfReviewsProvider extends ChangeNotifier {
       if (index != -1) {
         _reviews[index] = updated;
       }
+
+      // Enviar notificación push al estudiante y equipo con el comentario completo
+      try {
+        final String title = isApproved ? 'Propuesta Aprobada' : 'Propuesta Rechazada';
+        String body = isApproved 
+            ? '¡Felicidades! Tu propuesta ha sido APROBADA.' 
+            : 'Tu propuesta de proyecto ha sido RECHAZADA.';
+
+        if (comment.trim().isNotEmpty) {
+          body += isApproved 
+              ? '\nComentario del docente: ${comment.trim()}' 
+              : '\nMotivo: ${comment.trim()}';
+        }
+
+        final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/notifications/topic/push');
+
+        // Push directo al estudiante / creador
+        apiClient.post(
+          uri,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'topic': 'user_${updated.studentId}',
+            'title': title,
+            'body': body,
+            'data': {'type': 'info', 'title': title, 'message': body}
+          })
+        ).catchError((_) => null);
+
+        // Push directo al equipo completo
+        if (updated.teamId.isNotEmpty) {
+          apiClient.post(
+            uri,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'topic': 'team_${updated.teamId}',
+              'title': title,
+              'body': body,
+              'data': {'type': 'info', 'title': title, 'message': body}
+            })
+          ).catchError((_) => null);
+        }
+      } catch (_) {}
+
       return true;
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');

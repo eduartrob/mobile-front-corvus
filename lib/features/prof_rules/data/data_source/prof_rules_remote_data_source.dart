@@ -130,12 +130,13 @@ class ProfRulesRemoteDataSource {
 
 
 
-  Future<void> notifyRulesUpdate() async {
-    final url = Uri.parse('${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/notify-rules');
+  Future<void> notifyRulesUpdate({String? projectId}) async {
+    final urlStr = projectId != null
+        ? '${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/notify-rules?projectId=$projectId'
+        : '${ApiConfig.apiGatewayUrl}/clustering/integrator/admin/notify-rules';
+    final url = Uri.parse(urlStr);
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
-
-
 
       await client.post(url, headers: headers).timeout(const Duration(seconds: 10));
     } catch (e) {

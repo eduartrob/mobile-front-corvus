@@ -29,12 +29,23 @@ Future<void> handleFCMMessage(RemoteMessage message) async {
   final storage = SecureStorageService();
   final role = await storage.read(key: 'auth_role');
 
-  if (message.notification != null) {
+  String? title = message.notification?.title ?? data['title'];
+  String? body = message.notification?.body ?? data['body'];
+
+  if (title == null && data['type'] == 'CONFIG_UPDATED') {
+    title = 'Configuración Actualizada';
+    body = data['message'] ?? 'El profesor actualizó las reglas o configuración del proyecto.';
+  } else if (title == null && (data['type'] != null || data['message'] != null)) {
+    title = data['title'] ?? 'Nueva Notificación';
+    body = data['message'] ?? 'Tienes una nueva actualización.';
+  }
+
+  if (title != null) {
     // Guardar en SQLite (historial temporal o caché) con un ID generado para satisfacer el schema
     await NotificationsLocalDataSource.insertNotification({
       'id': 'temp_${DateTime.now().millisecondsSinceEpoch}',
-      'title': message.notification!.title ?? 'Nueva Notificación',
-      'body': message.notification!.body ?? '',
+      'title': title,
+      'body': body ?? '',
       'type': data['type'] ?? 'info',
       'timestamp': DateTime.now().toIso8601String(),
       'isRead': 0,
@@ -75,8 +86,8 @@ Future<void> handleFCMMessage(RemoteMessage message) async {
 
     if (!skipHeadsUp) {
       NotificationService().showResultNotification(
-        message.notification!.title ?? 'Nueva Notificación',
-        message.notification!.body ?? '',
+        title,
+        body ?? '',
         payload: data['type'],
       );
     } else {
