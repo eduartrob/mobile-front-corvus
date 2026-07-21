@@ -558,23 +558,45 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
                 builder: (ctx) => AlertDialog(
                   backgroundColor: colorScheme.surface,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  title: Text('¿Salir del proyecto?',
-                    style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 18)),
+                  icon: Icon(
+                    Icons.warning_amber_rounded,
+                    color: colorScheme.error,
+                    size: 40,
+                  ),
+                  title: Text(
+                    '¿Salir del proyecto?',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
                   content: Text(
                     '¿Estás seguro de que deseas salir de este proyecto? Ya no serás colaborador.',
-                    style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14, height: 1.5),
                   ),
+                  actionsAlignment: MainAxisAlignment.spaceEvenly,
+                  actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
                   actions: [
-                    TextButton(
+                    OutlinedButton(
                       onPressed: () => Navigator.pop(ctx),
-                      child: Text('CANCELAR', style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold)),
+                      style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      ),
+                      child: const Text('Cancelar'),
                     ),
-                    TextButton(
+                    ElevatedButton(
                       onPressed: () {
                         Navigator.pop(ctx);
                         _removeCollaborator(c['id']);
                       },
-                      child: Text('SALIR', style: TextStyle(color: colorScheme.error, fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colorScheme.error,
+                        foregroundColor: colorScheme.onError,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      ),
+                      child: const Text('Salir'),
                     ),
                   ],
                 ),
@@ -592,23 +614,45 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
                 builder: (ctx) => AlertDialog(
                   backgroundColor: colorScheme.surface,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  title: Text('¿Eliminar colaborador?',
-                    style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 18)),
+                  icon: Icon(
+                    Icons.warning_amber_rounded,
+                    color: colorScheme.error,
+                    size: 40,
+                  ),
+                  title: Text(
+                    '¿Eliminar colaborador?',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
                   content: Text(
                     '¿Estás seguro de eliminar a $name del proyecto?',
-                    style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14, height: 1.5),
                   ),
+                  actionsAlignment: MainAxisAlignment.spaceEvenly,
+                  actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
                   actions: [
-                    TextButton(
+                    OutlinedButton(
                       onPressed: () => Navigator.pop(ctx),
-                      child: Text('CANCELAR', style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold)),
+                      style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      ),
+                      child: const Text('Cancelar'),
                     ),
-                    TextButton(
+                    ElevatedButton(
                       onPressed: () {
                         Navigator.pop(ctx);
                         _removeCollaborator(c['id']);
                       },
-                      child: Text('ELIMINAR', style: TextStyle(color: colorScheme.error, fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colorScheme.error,
+                        foregroundColor: colorScheme.onError,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      ),
+                      child: const Text('Eliminar'),
                     ),
                   ],
                 ),
