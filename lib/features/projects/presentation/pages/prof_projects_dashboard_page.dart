@@ -201,7 +201,7 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
                 }
               },
               child: ListView(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
                 children: [
                   if (provider.myProjects.isNotEmpty) ...[
                     ...provider.myProjects.map(
