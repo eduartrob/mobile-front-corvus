@@ -70,6 +70,42 @@ class ProjectApi {
     }
   }
 
+  Future<Map<String, dynamic>> getArchivedProjects({required String token}) async {
+    final response = await http.get(
+      Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.projectsArchived}'),
+      headers: {
+        ...ApiConfig.defaultHeaders,
+        'Authorization': 'Bearer $token',
+      },
+    ).timeout(ApiConfig.connectionTimeout);
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return jsonDecode(response.body);
+    } else {
+      _handleError(response, 'Error al obtener proyectos archivados');
+    }
+  }
+
+  Future<bool> archiveProjects({
+    required List<String> projectIds,
+    required String token,
+  }) async {
+    final response = await http.post(
+      Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.projectsArchive}'),
+      headers: {
+        ...ApiConfig.defaultHeaders,
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({'projectIds': projectIds}),
+    ).timeout(ApiConfig.connectionTimeout);
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return true;
+    } else {
+      _handleError(response, 'Error al archivar proyectos');
+    }
+  }
+
   Future<Map<String, dynamic>> updateProject({
     required String projectId,
     required String name,

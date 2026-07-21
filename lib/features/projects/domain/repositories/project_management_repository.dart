@@ -16,6 +16,8 @@ abstract class ProjectManagementRepository {
   });
 
   Future<Map<String, dynamic>> getMyProjects({required String token});
+  Future<Map<String, dynamic>> getArchivedProjects({required String token});
+  Future<bool> archiveProjects({required List<String> projectIds, required String token});
 
   Future<Map<String, dynamic>> updateProject({
     required String projectId,

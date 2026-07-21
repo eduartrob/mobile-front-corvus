@@ -18,6 +18,42 @@ class MyProjectsDashboardPage extends StatefulWidget {
 
 class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
   Timer? _pollTimer;
+  final Set<String> _selectedProjects = {};
+  bool _isSelectionMode = false;
+
+  void _toggleSelection(String projectId) {
+    setState(() {
+      if (_selectedProjects.contains(projectId)) {
+        _selectedProjects.remove(projectId);
+        if (_selectedProjects.isEmpty) {
+          _isSelectionMode = false;
+        }
+      } else {
+        _selectedProjects.add(projectId);
+        _isSelectionMode = true;
+      }
+    });
+  }
+
+  void _archiveSelectedProjects() async {
+    final token = context.read<AuthProvider>().currentUser?.token;
+    if (token == null || _selectedProjects.isEmpty) return;
+
+    final success = await context.read<ProjectProvider>().archiveProjects(
+      projectIds: _selectedProjects.toList(),
+      token: token,
+    );
+
+    if (success && mounted) {
+      setState(() {
+        _selectedProjects.clear();
+        _isSelectionMode = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Proyectos archivados exitosamente')),
+      );
+    }
+  }
 
   @override
   void initState() {
@@ -50,8 +86,28 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-        appBar: const CorvusTopBar(),
-        floatingActionButton: context.select<ProjectProvider, bool>((p) => p.myProjects.isNotEmpty) ? FloatingActionButton.extended(
+        appBar: _isSelectionMode 
+          ? AppBar(
+              title: Text('${_selectedProjects.length} seleccionados'),
+              leading: IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () {
+                  setState(() {
+                    _selectedProjects.clear();
+                    _isSelectionMode = false;
+                  });
+                },
+              ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.archive),
+                  tooltip: 'Archivar seleccionados',
+                  onPressed: _archiveSelectedProjects,
+                ),
+              ],
+            )
+          : const CorvusTopBar(),
+        floatingActionButton: context.select<ProjectProvider, bool>((p) => p.myProjects.isNotEmpty) && !_isSelectionMode ? FloatingActionButton.extended(
           onPressed: () => context.push('/join-project'),
           icon: const Icon(Icons.add),
           label: Text(l10n.join),
@@ -108,8 +164,22 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
               },
               child: ListView.builder(
                 padding: const EdgeInsets.all(16),
-                itemCount: provider.myProjects.length,
+                itemCount: provider.myProjects.length + 1,
                 itemBuilder: (context, index) {
+                if (index == provider.myProjects.length) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 16.0, bottom: 32.0),
+                    child: Center(
+                      child: TextButton.icon(
+                        icon: const Icon(Icons.archive_outlined),
+                        label: const Text('Mostrar proyectos archivados'),
+                        onPressed: () {
+                          context.push('/archived-projects');
+                        },
+                      ),
+                    ),
+                  );
+                }
                 final project = provider.myProjects[index];
                 final pastelColors = const [
                   Color(0xFF5C88DA),
@@ -136,8 +206,15 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
                       borderRadius: BorderRadius.circular(16),
                       splashColor: Colors.black.withValues(alpha: 0.12),
                       highlightColor: Colors.black.withValues(alpha: 0.04),
+                      onLongPress: () {
+                        _toggleSelection(project['id']);
+                      },
                       onTap: () {
-                        if (context.mounted) context.push('/project/${project['id']}?tab=0');
+                        if (_isSelectionMode) {
+                          _toggleSelection(project['id']);
+                        } else {
+                          if (context.mounted) context.push('/project/${project['id']}?tab=0');
+                        }
                       },
                       child: Stack(
                         children: [
@@ -199,6 +276,29 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
                             ],
                             ),
                           ),
+                          if (_isSelectionMode)
+                            Positioned(
+                              top: 16,
+                              right: 16,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: _selectedProjects.contains(project['id'])
+                                      ? Theme.of(context).colorScheme.primary
+                                      : Colors.white.withValues(alpha: 0.3),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(4.0),
+                                  child: Icon(
+                                    Icons.check,
+                                    size: 20,
+                                    color: _selectedProjects.contains(project['id'])
+                                        ? Theme.of(context).colorScheme.onPrimary
+                                        : Colors.transparent,
+                                  ),
+                                ),
+                              ),
+                            ),
                         ],
                       ),
                     ),

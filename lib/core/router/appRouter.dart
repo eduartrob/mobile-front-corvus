@@ -32,6 +32,7 @@ import 'package:mobile/features/prof_dash/presentation/pages/prof_dash_page.dart
 import 'package:mobile/features/prof_reviews/presentation/pages/prof_reviews_page.dart';
 import 'package:mobile/features/prof_rules/presentation/pages/prof_rules_page.dart';
 import 'package:mobile/features/search/presentation/pages/search_page.dart';
+import 'package:mobile/features/projects/presentation/pages/archived_projects_page.dart';
 import 'package:mobile/features/prof_history/presentation/pages/prof_history_page.dart';
 import 'package:mobile/features/prof_profile/presentation/pages/prof_profile_page.dart';
 import 'package:mobile/features/profile/presentation/pages/activity_history_page.dart';
@@ -175,6 +176,10 @@ class _AppRouterState extends State<AppRouter> {
         GoRoute(
           path: '/prof-create-project',
           pageBuilder: (context, state) => _buildSlideUpTransition(const ProfCreateProjectPage(), state.pageKey),
+        ),
+        GoRoute(
+          path: '/archived-projects',
+          pageBuilder: (context, state) => _buildCupertinoTransition(const ArchivedProjectsPage(), state.pageKey),
         ),
         GoRoute(
           path: '/register-teacher-verification',

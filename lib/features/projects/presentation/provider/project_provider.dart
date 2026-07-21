@@ -23,6 +23,9 @@ class ProjectProvider extends ChangeNotifier {
   List<dynamic> _invitations = [];
   List<dynamic> get invitations => _invitations;
 
+  List<dynamic> _archivedProjects = [];
+  List<dynamic> get archivedProjects => _archivedProjects;
+
   Future<void> loadMyProjects(String token, {bool quiet = false, String? userId}) async {
     if (!quiet) _setLoading(true);
     try {
@@ -58,6 +61,39 @@ class ProjectProvider extends ChangeNotifier {
       if (quiet) notifyListeners();
     } finally {
       if (!quiet) _setLoading(false);
+    }
+  }
+
+  Future<void> loadArchivedProjects(String token, {bool quiet = false}) async {
+    if (!quiet) _setLoading(true);
+    try {
+      final data = await _repository.getArchivedProjects(token: token);
+      _archivedProjects = data['projects'] ?? [];
+      _error = null;
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString().replaceAll('Exception: ', '');
+      if (quiet) notifyListeners();
+    } finally {
+      if (!quiet) _setLoading(false);
+    }
+  }
+
+  Future<bool> archiveProjects({
+    required List<String> projectIds,
+    required String token,
+  }) async {
+    _setLoading(true);
+    try {
+      await _repository.archiveProjects(projectIds: projectIds, token: token);
+      // Remove from active projects list locally
+      _myProjects.removeWhere((p) => projectIds.contains(p['id']));
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString().replaceAll('Exception: ', '');
+      _setLoading(false);
+      return false;
     }
   }
 
