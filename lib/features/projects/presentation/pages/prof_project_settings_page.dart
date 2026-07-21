@@ -36,7 +36,7 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
   @override
   void initState() {
     super.initState();
-    _loadCollaborators();
+    _loadCollaborators(forceRefresh: true);
     _searchProfessors('');
   }
 
