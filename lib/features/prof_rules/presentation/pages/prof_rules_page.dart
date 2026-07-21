@@ -41,7 +41,7 @@ Future<UnsavedChangesResult?> showUnsavedChangesDialog(BuildContext context) {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(ctx, UnsavedChangesResult.cancel),
-          child: Text('Cancelar', style: TextStyle(color: colorScheme.onSurfaceVariant)),
+          child: Text('Seguir editando', style: TextStyle(color: colorScheme.onSurfaceVariant)),
         ),
         TextButton(
           onPressed: () => Navigator.pop(ctx, UnsavedChangesResult.discard),
@@ -84,7 +84,7 @@ Future<bool> handleUnsavedChangesGuard(BuildContext context, String projectId) a
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Reglas actualizadas y guardadas.')),
       );
-      return true;
+      return false;
     }
   } else if (result == UnsavedChangesResult.discard) {
     await provider.fetchData(projectId: projectId);
