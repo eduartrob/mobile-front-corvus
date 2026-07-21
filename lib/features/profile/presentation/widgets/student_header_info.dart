@@ -43,6 +43,7 @@ class _StudentHeaderInfoState extends State<StudentHeaderInfo> {
           Consumer<ProfileProvider>(
             builder: (context, profileProvider, child) {
               final profile = profileProvider.profile;
+              final authProvider = context.watch<AuthProvider>();
               
               final nameToShow = (profile?.alumno != null && profile!.alumno.trim().isNotEmpty && profile.alumno != profile.correo) 
                   ? profile.alumno 
@@ -137,6 +138,24 @@ class _StudentHeaderInfoState extends State<StudentHeaderInfo> {
                       ],
                     ],
                   ),
+                  if (authProvider.isProActive) ...[
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF315BD5),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Text(
+                        'PRO',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
                   if (profile?.correoSecundario != null && profile!.correoSecundario!.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(
