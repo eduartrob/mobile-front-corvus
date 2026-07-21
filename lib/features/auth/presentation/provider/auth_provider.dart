@@ -18,6 +18,20 @@ import 'package:mobile/features/auth/domain/use_cases/login_with_email_usecase.d
 
 enum AuthStatus { initial, loading, authenticated, unauthenticated, error }
 
+class PaymentCreationResult {
+  final String id;
+  final String urlPago;
+
+  PaymentCreationResult({required this.id, required this.urlPago});
+
+  factory PaymentCreationResult.fromJson(Map<String, dynamic> json) {
+    return PaymentCreationResult(
+      id: json['id']?.toString() ?? '',
+      urlPago: json['url_pago']?.toString() ?? json['urlPago']?.toString() ?? '',
+    );
+  }
+}
+
 class AuthProvider extends ChangeNotifier {
   final SignInWithGoogleUseCase signInWithGoogleUseCase;
   final LoginWithEmailUseCase loginWithEmailUseCase;
@@ -46,6 +60,13 @@ class AuthProvider extends ChangeNotifier {
   UserEntity? get currentUser => _currentUser;
   String? get role => _currentUser?.role ?? _cachedRole;
   String? get errorMessage => _errorMessage;
+
+  bool _isProActive = false;
+  String? _proPlan;
+  String? _proExpiresAt;
+  bool get isProActive => _isProActive;
+  String? get proPlan => _proPlan;
+  String? get proExpiresAt => _proExpiresAt;
 
   Future<void> checkAuthStatus() async {
     _status = AuthStatus.loading;
@@ -287,8 +308,73 @@ class AuthProvider extends ChangeNotifier {
     await _storage.delete(key: 'auth_photo');
     _currentUser = null;
     _cachedRole = null;
+    _isProActive = false;
+    _proPlan = null;
+    _proExpiresAt = null;
     _status = AuthStatus.unauthenticated;
     notifyListeners();
+  }
+
+  Future<void> fetchProSubscriptionStatus({String? email}) async {
+    final currentEmail = email ?? _currentUser?.email ?? await _storage.read(key: 'auth_email');
+    if (currentEmail == null || currentEmail.isEmpty) return;
+    try {
+      final uri = Uri.parse('http://52.86.105.18:8001/pagos/suscripcion/' + Uri.encodeComponent(currentEmail));
+      final response = await http.get(uri).timeout(const Duration(seconds: 10));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        _isProActive = data['activa'] == true || data['activa']?.toString().toLowerCase() == 'true';
+        _proPlan = data['plan']?.toString();
+        _proExpiresAt = data['vence']?.toString();
+      } else {
+        _isProActive = false;
+        _proPlan = null;
+        _proExpiresAt = null;
+      }
+    } catch (_) {
+      _isProActive = false;
+      _proPlan = null;
+      _proExpiresAt = null;
+    }
+    notifyListeners();
+  }
+
+  Future<PaymentCreationResult> createPayment({required String metodo}) async {
+    final email = _currentUser?.email ?? await _storage.read(key: 'auth_email');
+    if (email == null || email.isEmpty) {
+      throw Exception('No se encontró el email del usuario');
+    }
+    final uri = Uri.parse('http://52.86.105.18:8001/pagos/crear');
+    final body = jsonEncode({
+      'alumno_email': email,
+      'concepto': 'Plan Pro mensual',
+      'monto': 50.00,
+      'metodo': metodo,
+    });
+    final response = await http.post(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: body,
+    ).timeout(const Duration(seconds: 15));
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final data = jsonDecode(response.body);
+      final result = PaymentCreationResult.fromJson(data);
+      if (result.id.isEmpty || result.urlPago.isEmpty) {
+        throw Exception('Respuesta inválida del servicio de pagos');
+      }
+      return result;
+    }
+    throw Exception('Error al crear pago: ' + response.statusCode.toString());
+  }
+
+  Future<Map<String, dynamic>> checkPaymentStatus(String paymentId) async {
+    if (paymentId.isEmpty) throw Exception('ID de pago inválido');
+    final uri = Uri.parse('http://52.86.105.18:8001/pagos/' + paymentId);
+    final response = await http.get(uri).timeout(const Duration(seconds: 10));
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    }
+    throw Exception('Error al consultar estado de pago: ' + response.statusCode.toString());
   }
 
   void clearError() {

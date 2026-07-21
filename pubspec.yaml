@@ -49,6 +49,7 @@ dependencies:
   connectivity_plus: ^7.3.0
   lottie: ^3.5.1
   http_certificate_pinning: ^3.0.1
+  flutter_pdfview: ^1.4.4
 dev_dependencies:
   flutter_test:
     sdk: flutter

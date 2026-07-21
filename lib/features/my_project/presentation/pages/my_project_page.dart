@@ -15,7 +15,7 @@ import 'package:mobile/features/my_project/presentation/widgets/fast_rag_analysi
 import 'package:mobile/features/my_project/presentation/widgets/detailed_analysis_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/animated_loading_text_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/invalid_document_widget.dart';
-
+import 'package:mobile/features/my_project/presentation/widgets/document_preview_banner_widget.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
 
 import 'package:go_router/go_router.dart';
@@ -453,12 +453,14 @@ class _ProjectPageBody extends StatelessWidget {
         if (provider.state != ProjectState.initial)
           _ProjectRequirementsWidget(provider: provider),
 
-        if (provider.documentTypeError != null)
+        if (provider.documentTypeError != null) ...[
+          DocumentPreviewBannerWidget(provider: provider),
           InvalidDocumentWidget(
             provider: provider,
             userId: userId,
             specificError: provider.documentTypeError!,
-          )
+          ),
+        ]
         // Show upload zone only after init resolved AND there's an error (no analysis found)
         else if (provider.state == ProjectState.error)
           if (isLeader)
