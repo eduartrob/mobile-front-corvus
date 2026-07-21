@@ -6,6 +6,7 @@ import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/features/prof_rules/presentation/provider/prof_rules_provider.dart';
 import 'package:mobile/features/prof_rules/data/data_source/prof_rules_remote_data_source.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
 import 'package:animated_list_plus/animated_list_plus.dart';
 import 'package:animated_list_plus/transitions.dart';
 import 'package:http/http.dart' as http;
@@ -235,6 +236,7 @@ class _ProfRulesPageViewState extends State<_ProfRulesPageView> {
           SnackBar(content: Text('Error: ${provider.errorMessage}'), backgroundColor: Theme.of(context).colorScheme.error),
         );
       } else {
+        context.read<ProjectProvider>().touchProject(widget.projectId);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Reglas actualizadas y notificación enviada.')),
         );
