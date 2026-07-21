@@ -14,6 +14,7 @@ import 'package:mobile/features/profile/presentation/pages/skills_section_page.d
 import 'package:mobile/features/profile/presentation/pages/saved_projects_page.dart';
 import 'package:mobile/features/profile/presentation/pages/activity_history_page.dart' as mobile;
 import 'package:mobile/features/profile/presentation/pages/app_update_page.dart' as mobile;
+import 'package:mobile/features/profile/presentation/pages/pro_plan_page.dart' as mobile;
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:go_router/go_router.dart';
 
