@@ -88,7 +88,7 @@ Future<bool> handleUnsavedChangesGuard(BuildContext context, String projectId) a
     }
   } else if (result == UnsavedChangesResult.discard) {
     await provider.fetchData(projectId: projectId);
-    return true;
+    return false; // Se queda en la vista (refrescada)
   } else {
     return false;
   }
