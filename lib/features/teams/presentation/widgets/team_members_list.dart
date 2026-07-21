@@ -23,7 +23,7 @@ class TeamMembersList extends StatelessWidget {
         final colorScheme = Theme.of(context).colorScheme;
         return AlertDialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(8),
           ),
           icon: Icon(
             Icons.warning_amber_rounded,
@@ -53,7 +53,7 @@ class TeamMembersList extends StatelessWidget {
               onPressed: () => Navigator.of(context).pop(),
               style: OutlinedButton.styleFrom(
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               ),
@@ -83,7 +83,7 @@ class TeamMembersList extends StatelessWidget {
                 foregroundColor: colorScheme.onError,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               ),

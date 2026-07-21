@@ -269,25 +269,86 @@ class _TeamsPageState extends State<TeamsPage> with SingleTickerProviderStateMix
                     _tabController.animateTo(2); // Redirects to tab index 2 (Sugerencias)
                   },
                   onLeaveTeam: () {
-                    context.read<TeamsProvider>().leaveTeam().then((_) {
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Has abandonado el equipo'),
-                            behavior: SnackBarBehavior.floating,
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext dialogContext) {
+                        final colorScheme = Theme.of(dialogContext).colorScheme;
+                        return AlertDialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                        );
-                      }
-                    }).catchError((error) {
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Error: $error'),
-                            behavior: SnackBarBehavior.floating,
+                          icon: Icon(
+                            Icons.warning_amber_rounded,
+                            color: colorScheme.error,
+                            size: 40,
                           ),
+                          title: Text(
+                            '¿Abandonar el equipo?',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.onSurface,
+                            ),
+                          ),
+                          content: Text(
+                            'Si abandonas el equipo, perderás el acceso a la información y deberás ser invitado nuevamente para volver. ¿Estás seguro?',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: colorScheme.onSurfaceVariant,
+                              height: 1.5,
+                            ),
+                          ),
+                          actionsAlignment: MainAxisAlignment.spaceEvenly,
+                          actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+                          actions: [
+                            OutlinedButton(
+                              onPressed: () => Navigator.of(dialogContext).pop(),
+                              style: OutlinedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              ),
+                              child: const Text('Cancelar'),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(dialogContext).pop();
+                                context.read<TeamsProvider>().leaveTeam().then((_) {
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Has abandonado el equipo'),
+                                        behavior: SnackBarBehavior.floating,
+                                      ),
+                                    );
+                                  }
+                                }).catchError((error) {
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Error: $error'),
+                                        behavior: SnackBarBehavior.floating,
+                                      ),
+                                    );
+                                  }
+                                });
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: colorScheme.error,
+                                foregroundColor: colorScheme.onError,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              ),
+                              child: const Text('Abandonar'),
+                            ),
+                          ],
                         );
-                      }
-                    });
+                      },
+                    );
                   },
                 ),
                 // Tab 2: Solicitudes
