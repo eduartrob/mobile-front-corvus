@@ -175,94 +175,94 @@ class _ArchivedProjectsPageState extends State<ArchivedProjectsPage> {
                       child: Material(
                         color: bgColor,
                         borderRadius: BorderRadius.circular(16),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(16),
-                        splashColor: Colors.black.withValues(alpha: 0.12),
-                        highlightColor: Colors.black.withValues(alpha: 0.04),
-                        onLongPress: () => _toggleSelection(project['id']),
-                        onTap: () {
-                          if (_isSelectionMode) {
-                            _toggleSelection(project['id']);
-                          } else {
-                            if (context.mounted) context.push('/project/${project['id']}?tab=0');
-                          }
-                        },
-                        child: Stack(
-                          children: [
-                            if (patternName != null)
-                              Positioned.fill(
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(16),
-                                  child: SvgPicture.asset(
-                                    'assets/patterns/$patternName.svg',
-                                    fit: BoxFit.none,
-                                    colorFilter: ColorFilter.mode(
-                                      ThemeData.estimateBrightnessForColor(bgColor) == Brightness.dark
-                                          ? Colors.white.withValues(alpha: 0.2)
-                                          : Colors.grey.shade700.withValues(alpha: 0.2),
-                                      BlendMode.srcATop,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(16),
+                          splashColor: Colors.black.withValues(alpha: 0.12),
+                          highlightColor: Colors.black.withValues(alpha: 0.04),
+                          onLongPress: () => _toggleSelection(project['id']),
+                          onTap: () {
+                            if (_isSelectionMode) {
+                              _toggleSelection(project['id']);
+                            } else {
+                              if (context.mounted) context.push('/project/${project['id']}?tab=0');
+                            }
+                          },
+                          child: Stack(
+                            children: [
+                              if (patternName != null)
+                                Positioned.fill(
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: SvgPicture.asset(
+                                      'assets/patterns/$patternName.svg',
+                                      fit: BoxFit.none,
+                                      colorFilter: ColorFilter.mode(
+                                        ThemeData.estimateBrightnessForColor(bgColor) == Brightness.dark
+                                            ? Colors.white.withValues(alpha: 0.2)
+                                            : Colors.grey.shade700.withValues(alpha: 0.2),
+                                        BlendMode.srcATop,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withValues(alpha: 0.2),
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                        child: const Icon(Icons.archive_outlined, color: Colors.white, size: 20),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: Text(
-                                          project['name'] ?? l10n.defaultProjectName,
-                                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ),
-                                      ),
-                                      if (isSelected)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
                                         Container(
-                                          padding: const EdgeInsets.all(4),
+                                          padding: const EdgeInsets.all(8),
                                           decoration: BoxDecoration(
-                                            color: Theme.of(context).colorScheme.primaryContainer,
-                                            shape: BoxShape.circle,
+                                            color: Colors.white.withValues(alpha: 0.2),
+                                            borderRadius: BorderRadius.circular(8),
                                           ),
-                                          child: Icon(
-                                            Icons.check,
-                                            size: 16,
-                                            color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                          child: const Icon(Icons.archive_outlined, color: Colors.white, size: 20),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Text(
+                                            project['name'] ?? l10n.defaultProjectName,
+                                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
                                           ),
-                                        )
-                                      else
-                                        const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white70),
-                                    ],
-                                  ),
-                                  if (project['description'] != null && project['description'].toString().isNotEmpty) ...[
-                                    const SizedBox(height: 12),
-                                    Text(
-                                      project['description'].toString(),
-                                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                        color: Colors.white.withValues(alpha: 0.85),
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
+                                        ),
+                                        if (isSelected)
+                                          Container(
+                                            padding: const EdgeInsets.all(4),
+                                            decoration: BoxDecoration(
+                                              color: Theme.of(context).colorScheme.primaryContainer,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Icon(
+                                              Icons.check,
+                                              size: 16,
+                                              color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                            ),
+                                          )
+                                        else
+                                          const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white70),
+                                      ],
                                     ),
+                                    if (project['description'] != null && project['description'].toString().isNotEmpty) ...[
+                                      const SizedBox(height: 12),
+                                      Text(
+                                        project['description'].toString(),
+                                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                          color: Colors.white.withValues(alpha: 0.85),
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
                                   ],
-                                ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
