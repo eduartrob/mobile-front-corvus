@@ -406,6 +406,9 @@ class _ProfDashPageState extends State<ProfDashPage> {
                           ),
                           child: Text(
                             l10n.viewLaggingStudentsDirectory,
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               fontWeight: FontWeight.w600,
                               letterSpacing: 0.2,

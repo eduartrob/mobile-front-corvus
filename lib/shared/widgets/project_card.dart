@@ -204,15 +204,19 @@ class ProjectCard extends StatelessWidget {
                             padding: const EdgeInsets.only(right: 6),
                             child: Icon(Icons.groups_outlined, size: 18, color: colorScheme.onSurfaceVariant),
                           ),
-                        Text(
-                          '+ ${project.viewCount} Estudiantes han presionado aqui',
-                          style: TextStyle(
-                            color: colorScheme.onSurface,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                        Expanded(
+                          child: Text(
+                            '+ ${project.viewCount} Estudiantes han presionado aqui',
+                            style: TextStyle(
+                              color: colorScheme.onSurface,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const Spacer(),
+                        const SizedBox(width: 8),
                         if (project.analysisStatus == 'pending')
                           SizedBox(
                             width: 20,

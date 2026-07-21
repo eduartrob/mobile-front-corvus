@@ -172,11 +172,47 @@ class _ProfilePageState extends State<ProfilePage> {
                 },
               ),
               
+              // Plan Pro
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                leading: const Icon(Icons.workspace_premium, color: Color(0xFF315BD5), size: 28),
+                title: const Text(
+                  'Plan pro',
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: Color(0xFF315BD5)),
+                ),
+                subtitle: const Text('Cámbiate a Plan Pro para acceder a funcionalidades exclusivas'),
+                trailing: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF315BD5),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Text(
+                    'PRO',
+                    style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const mobile.ProPlanPage()),
+                  );
+                },
+              ),
+
               // Actualización de la aplicación
               ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                leading: Icon(Icons.system_update, color: colorScheme.onSurfaceVariant, size: 28),
-                title: const Text('Actualización de la aplicación', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: colorScheme.secondaryContainer,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(Icons.system_update_alt, color: colorScheme.onSecondaryContainer),
+                ),
+                title: const Text('Actualización de la aplicación', style: TextStyle(fontWeight: FontWeight.w500)),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
                 onTap: () {
                   Navigator.push(
                     context,
@@ -184,29 +220,69 @@ class _ProfilePageState extends State<ProfilePage> {
                   );
                 },
               ),
+
+              const SizedBox(height: 32),
               
-              const SizedBox(height: 24),
-              
-              // Cerrar sesión
+              // Logout Button
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () async {
-                    showDialog(
+                    final confirm = await showDialog<bool>(
                       context: context,
-                      barrierDismissible: false,
-                      builder: (context) => const Center(
-                        child: CircularProgressIndicator(),
-                      ),
+                      builder: (ctx) {
+                        final colorScheme = Theme.of(ctx).colorScheme;
+
+                        return AlertDialog(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          title: Row(
+                            children: [
+                              Icon(Icons.logout, color: colorScheme.error, size: 28),
+                              const SizedBox(width: 12),
+                              const Expanded(
+                                child: Text(
+                                  'Cerrar sesión',
+                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
+                          ),
+                          content: const Text(
+                            '¿Estás seguro de que deseas cerrar sesión en Corvus?',
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, false),
+                              child: Text('Cancelar', style: TextStyle(color: colorScheme.onSurfaceVariant)),
+                            ),
+                            FilledButton(
+                              style: FilledButton.styleFrom(backgroundColor: colorScheme.error),
+                              onPressed: () => Navigator.pop(ctx, true),
+                              child: const Text('Cerrar sesión'),
+                            ),
+                          ],
+                        );
+                      },
                     );
-                    
-                    context.read<ProjectProvider>().clear();
-                    context.read<ProfileProvider>().clear();
-                    await context.read<AuthProvider>().logout();
-                    
-                    if (context.mounted) {
-                      Navigator.of(context).pop();
-                      context.go('/');
+
+                    if (confirm == true && context.mounted) {
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) => const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+
+                      context.read<ProjectProvider>().clear();
+                      context.read<ProfileProvider>().clear();
+                      await context.read<AuthProvider>().logout();
+
+                      if (context.mounted) {
+                        Navigator.of(context).pop();
+                        context.go('/');
+                      }
                     }
                   },
                   icon: const Icon(Icons.logout, color: Colors.red),

@@ -200,7 +200,7 @@ class _OnboardingPageState extends State<OnboardingPage>
     final bgColor = _getBackgroundColor(index, colors);
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final orbColor = isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05);
+    final orbColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05);
     
     // We create a unique key for the button in this slide so we can find its position
     final GlobalKey btnKey = GlobalKey();
@@ -229,104 +229,246 @@ class _OnboardingPageState extends State<OnboardingPage>
 
         // Content
         SafeArea(
-          child: Column(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isLandscape = constraints.maxHeight < 550 || constraints.maxWidth > constraints.maxHeight;
+              if (isLandscape) {
+                return _buildLandscapeLayout(index, slide, fgColor, bgColor, btnKey, constraints);
+              } else {
+                return _buildPortraitLayout(index, slide, fgColor, bgColor, btnKey, constraints);
+              }
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPortraitLayout(
+    int index,
+    _OnboardingSlideData slide,
+    Color fgColor,
+    Color bgColor,
+    GlobalKey btnKey,
+    BoxConstraints constraints,
+  ) {
+    return Column(
+      children: [
+        // Top bar
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Top bar
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Image.asset('assets/icons/logo2.png', height: 36),
-                    TextButton(
-                      onPressed: _skipOrComplete,
-                      child: Text(
-                        'Omitir',
-                        style: TextStyle(
-                          color: fgColor.withOpacity(0.6),
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
+              Image.asset('assets/icons/logo2.png', height: 36),
+              TextButton(
+                onPressed: _skipOrComplete,
+                child: Text(
+                  'Omitir',
+                  style: TextStyle(
+                    color: fgColor.withValues(alpha: 0.6),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Main info
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 12),
+                
+                // Lottie Animation
+                Expanded(
+                  flex: 5,
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: fgColor.withValues(alpha: 0.05),
+                      ),
+                      child: Lottie.asset(
+                        slide.lottiePath,
+                        fit: BoxFit.contain,
+                        errorBuilder: (ctx, err, stack) => Icon(
+                          Icons.error_outline,
+                          size: 80,
+                          color: fgColor.withValues(alpha: 0.5),
                         ),
                       ),
                     ),
-                  ],
+                  ),
+                ),
+                
+                const SizedBox(height: 24),
+
+                // Text
+                Expanded(
+                  flex: 4,
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          slide.title,
+                          style: TextStyle(
+                            color: fgColor,
+                            fontSize: 32,
+                            fontWeight: FontWeight.w900,
+                            height: 1.1,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          slide.description,
+                          style: TextStyle(
+                            color: fgColor.withValues(alpha: 0.85),
+                            fontSize: 16,
+                            height: 1.4,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // Bottom Dynamic Controls
+        Padding(
+          padding: const EdgeInsets.fromLTRB(32, 12, 32, 24),
+          child: _buildDynamicControls(index, fgColor, bgColor, btnKey),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLandscapeLayout(
+    int index,
+    _OnboardingSlideData slide,
+    Color fgColor,
+    Color bgColor,
+    GlobalKey btnKey,
+    BoxConstraints constraints,
+  ) {
+    return Column(
+      children: [
+        // Compact Top Bar
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Image.asset('assets/icons/logo2.png', height: 28),
+              TextButton(
+                onPressed: _skipOrComplete,
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Text(
+                  'Omitir',
+                  style: TextStyle(
+                    color: fgColor.withValues(alpha: 0.6),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
+            ],
+          ),
+        ),
 
-              // Main info
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
+        // Row side-by-side layout for Landscape
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+            child: Row(
+              children: [
+                // Left: Lottie animation
+                Expanded(
+                  flex: 4,
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: fgColor.withValues(alpha: 0.05),
+                      ),
+                      child: Lottie.asset(
+                        slide.lottiePath,
+                        fit: BoxFit.contain,
+                        errorBuilder: (ctx, err, stack) => Icon(
+                          Icons.error_outline,
+                          size: 60,
+                          color: fgColor.withValues(alpha: 0.5),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(width: 20),
+
+                // Right: Title, description, and controls
+                Expanded(
+                  flex: 5,
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 20),
-                      
-                      // Lottie Animation
                       Expanded(
-                        flex: 6,
-                        child: Center(
-                          child: Container(
-                            padding: const EdgeInsets.all(24),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: fgColor.withOpacity(0.05),
-                            ),
-                            child: Lottie.asset(
-                              slide.lottiePath,
-                              fit: BoxFit.contain,
-                              errorBuilder: (ctx, err, stack) => Icon(
-                                Icons.error_outline,
-                                size: 100,
-                                color: fgColor.withOpacity(0.5),
+                        child: SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                slide.title,
+                                style: TextStyle(
+                                  color: fgColor,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w900,
+                                  height: 1.15,
+                                ),
                               ),
-                            ),
+                              const SizedBox(height: 8),
+                              Text(
+                                slide.description,
+                                style: TextStyle(
+                                  color: fgColor.withValues(alpha: 0.85),
+                                  fontSize: 14,
+                                  height: 1.35,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                      
-                      const SizedBox(height: 40),
-
-                      // Text
-                      Expanded(
-                        flex: 5,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              slide.title,
-                              style: TextStyle(
-                                color: fgColor,
-                                fontSize: 34,
-                                fontWeight: FontWeight.w900,
-                                height: 1.1,
-                                letterSpacing: -0.5,
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            Text(
-                              slide.description,
-                              style: TextStyle(
-                                color: fgColor.withOpacity(0.85),
-                                fontSize: 17,
-                                height: 1.5,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8, bottom: 8),
+                        child: _buildDynamicControls(index, fgColor, bgColor, btnKey, isLandscape: true),
                       ),
                     ],
                   ),
                 ),
-              ),
-
-              // Bottom Dynamic Controls
-              Padding(
-                padding: const EdgeInsets.fromLTRB(32, 0, 32, 40),
-                child: _buildDynamicControls(index, fgColor, bgColor, btnKey),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],
@@ -334,20 +476,25 @@ class _OnboardingPageState extends State<OnboardingPage>
   }
 
   Widget _buildDynamicControls(
-      int index, Color fgColor, Color bgColor, GlobalKey btnKey) {
-    // Dynamic position logic based on slide index
+      int index, Color fgColor, Color bgColor, GlobalKey btnKey, {bool isLandscape = false}) {
+    final gapHeight = isLandscape ? 10.0 : 24.0;
+    final btnSize = isLandscape ? 52.0 : 64.0;
+    final wideBtnHeight = isLandscape ? 48.0 : 60.0;
+
     if (index == 0) {
       // Slide 1: Button Centered
       return Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           _buildDots(index, fgColor),
-          const SizedBox(height: 24),
+          SizedBox(height: gapHeight),
           _AnimatedBounceButton(
             key: btnKey,
             onPressed: () => _triggerReveal(btnKey, 1),
             fgColor: fgColor,
             bgColor: bgColor,
             icon: Icons.arrow_downward_rounded,
+            size: btnSize,
           ),
         ],
       );
@@ -363,21 +510,24 @@ class _OnboardingPageState extends State<OnboardingPage>
             fgColor: fgColor,
             bgColor: bgColor,
             icon: Icons.arrow_forward_rounded,
+            size: btnSize,
           ),
         ],
       );
     } else {
       // Slide 3: Full Width Button
       return Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           _buildDots(index, fgColor),
-          const SizedBox(height: 24),
+          SizedBox(height: gapHeight),
           _AnimatedWideButton(
             key: btnKey,
             onPressed: _skipOrComplete,
             fgColor: fgColor,
             bgColor: bgColor,
             text: 'Comenzar Aventura',
+            height: wideBtnHeight,
           ),
         ],
       );
@@ -396,7 +546,7 @@ class _OnboardingPageState extends State<OnboardingPage>
           height: 8,
           width: index == i ? 32 : 8,
           decoration: BoxDecoration(
-            color: fgColor.withOpacity(index == i ? 1.0 : 0.3),
+            color: fgColor.withValues(alpha: index == i ? 1.0 : 0.3),
             borderRadius: BorderRadius.circular(4),
           ),
         ),
@@ -412,6 +562,7 @@ class _AnimatedBounceButton extends StatefulWidget {
   final Color fgColor;
   final Color bgColor;
   final IconData icon;
+  final double size;
 
   const _AnimatedBounceButton({
     super.key,
@@ -419,6 +570,7 @@ class _AnimatedBounceButton extends StatefulWidget {
     required this.fgColor,
     required this.bgColor,
     required this.icon,
+    this.size = 64,
   });
 
   @override
@@ -460,20 +612,20 @@ class _AnimatedBounceButtonState extends State<_AnimatedBounceButton>
       child: ScaleTransition(
         scale: _scale,
         child: Container(
-          width: 64,
-          height: 64,
+          width: widget.size,
+          height: widget.size,
           decoration: BoxDecoration(
             color: widget.fgColor,
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: widget.fgColor.withOpacity(0.3),
+                color: widget.fgColor.withValues(alpha: 0.3),
                 blurRadius: 15,
                 offset: const Offset(0, 5),
               ),
             ],
           ),
-          child: Icon(widget.icon, color: widget.bgColor, size: 32),
+          child: Icon(widget.icon, color: widget.bgColor, size: widget.size * 0.5),
         ),
       ),
     );
@@ -485,6 +637,7 @@ class _AnimatedWideButton extends StatefulWidget {
   final Color fgColor;
   final Color bgColor;
   final String text;
+  final double height;
 
   const _AnimatedWideButton({
     super.key,
@@ -492,6 +645,7 @@ class _AnimatedWideButton extends StatefulWidget {
     required this.fgColor,
     required this.bgColor,
     required this.text,
+    this.height = 60,
   });
 
   @override
@@ -534,13 +688,13 @@ class _AnimatedWideButtonState extends State<_AnimatedWideButton>
         scale: _scale,
         child: Container(
           width: double.infinity,
-          height: 60,
+          height: widget.height,
           decoration: BoxDecoration(
             color: widget.fgColor,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: widget.fgColor.withOpacity(0.3),
+                color: widget.fgColor.withValues(alpha: 0.3),
                 blurRadius: 15,
                 offset: const Offset(0, 5),
               ),
@@ -551,7 +705,7 @@ class _AnimatedWideButtonState extends State<_AnimatedWideButton>
             widget.text,
             style: TextStyle(
               color: widget.bgColor,
-              fontSize: 18,
+              fontSize: widget.height > 50 ? 18 : 16,
               fontWeight: FontWeight.w700,
             ),
           ),
