@@ -272,7 +272,8 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 16.0, bottom: 16.0),
-                      child: Center(
+                      child: Align(
+                        alignment: Alignment.centerLeft,
                         child: TextButton.icon(
                           icon: const Icon(Icons.archive_outlined),
                           label: const Text('Mostrar proyectos archivados'),
