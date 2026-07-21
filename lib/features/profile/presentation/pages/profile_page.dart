@@ -209,7 +209,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const ProPlanPage()),
+                    MaterialPageRoute(builder: (context) => ProPlanPage()),
                   );
                 },
               ),

@@ -3,13 +3,11 @@ import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-typedef PlanProPage = TeamChatPage;
-
 class ProPlanPage extends StatefulWidget {
-  const TeamChatPage({super.key});
+  const ProPlanPage({super.key});
 
   @override
-  State<ProPlanPage> createState() => _TeamChatPageState();
+  State<ProPlanPage> createState() => _ProPlanPageState();
 }
 
 class _ProPlanPageState extends State<ProPlanPage> with WidgetsBindingObserver {
