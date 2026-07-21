@@ -178,66 +178,29 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                 },
               ),
               
+              const SizedBox(height: 24),
+              
               // Cerrar sesión
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () async {
-                    final confirm = await showDialog<bool>(
+                    showDialog(
                       context: context,
-                      builder: (ctx) {
-                        final colorScheme = Theme.of(ctx).colorScheme;
-
-                        return AlertDialog(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                          title: Row(
-                            children: [
-                              Icon(Icons.logout, color: colorScheme.error, size: 28),
-                              const SizedBox(width: 12),
-                              const Expanded(
-                                child: Text(
-                                  'Cerrar sesión',
-                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ],
-                          ),
-                          content: const Text(
-                            '¿Estás seguro de que deseas cerrar sesión en Corvus?',
-                            style: TextStyle(fontSize: 14),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(ctx, false),
-                              child: Text('Cancelar', style: TextStyle(color: colorScheme.onSurfaceVariant)),
-                            ),
-                            FilledButton(
-                              style: FilledButton.styleFrom(backgroundColor: colorScheme.error),
-                              onPressed: () => Navigator.pop(ctx, true),
-                              child: const Text('Cerrar sesión'),
-                            ),
-                          ],
-                        );
-                      },
+                      barrierDismissible: false,
+                      builder: (context) => const Center(
+                        child: CircularProgressIndicator(),
+                      ),
                     );
-
-                    if (confirm == true && context.mounted) {
-                      showDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        builder: (context) => const Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                      );
-                      
-                      context.read<ProjectProvider>().clear();
-                      context.read<ProfileProvider>().clear();
-                      await context.read<AuthProvider>().logout();
-                      
-                      if (context.mounted) {
-                        Navigator.of(context).pop();
-                        context.go('/');
-                      }
+                    
+                    
+                    context.read<ProjectProvider>().clear();
+                    context.read<ProfileProvider>().clear();
+                    await context.read<AuthProvider>().logout();
+                    
+                    if (context.mounted) {
+                      Navigator.of(context).pop();
+                      context.go('/');
                     }
                   },
                   icon: const Icon(Icons.logout, color: Colors.red),

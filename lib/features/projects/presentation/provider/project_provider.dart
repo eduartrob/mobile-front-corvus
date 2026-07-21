@@ -51,21 +51,6 @@ class ProjectProvider extends ChangeNotifier {
       _myProjects = data['projects'] ?? [];
       _invitations = data['invitations'] ?? [];
 
-      _myProjects.sort((a, b) {
-        final aDateStr = a['updated_at'] ?? a['updatedAt'];
-        final bDateStr = b['updated_at'] ?? b['updatedAt'];
-        final aDate = aDateStr != null ? DateTime.tryParse(aDateStr.toString()) : null;
-        final bDate = bDateStr != null ? DateTime.tryParse(bDateStr.toString()) : null;
-        if (aDate != null && bDate != null) {
-          return bDate.compareTo(aDate);
-        } else if (aDate != null) {
-          return -1;
-        } else if (bDate != null) {
-          return 1;
-        }
-        return 0;
-      });
-
       await prefs.setString(projectsKey, json.encode(_myProjects));
       await prefs.setString(invitationsKey, json.encode(_invitations));
 
@@ -286,15 +271,5 @@ class ProjectProvider extends ChangeNotifier {
       await prefs.remove(projectsKey);
       await prefs.remove(invitationsKey);
     } catch (_) {}
-  }
-
-  void touchProject(String projectId) {
-    final index = _myProjects.indexWhere((p) => p['id'] == projectId);
-    if (index != -1) {
-      final project = _myProjects.removeAt(index);
-      project['updated_at'] = DateTime.now().toIso8601String();
-      _myProjects.insert(0, project);
-      notifyListeners();
-    }
   }
 }

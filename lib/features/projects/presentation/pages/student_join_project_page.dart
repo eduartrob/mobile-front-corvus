@@ -61,16 +61,6 @@ class _StudentJoinProjectPageState extends State<StudentJoinProjectPage> {
       return;
     }
 
-    if (code.length > 8 || _validationError != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(_validationError ?? 'Los códigos de clase constan de 5-8 caracteres.'),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
-      );
-      return;
-    }
-
     final token = context.read<AuthProvider>().currentUser?.token;
     if (token == null) return;
 

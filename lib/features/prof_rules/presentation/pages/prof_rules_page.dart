@@ -6,7 +6,6 @@ import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/features/prof_rules/presentation/provider/prof_rules_provider.dart';
 import 'package:mobile/features/prof_rules/data/data_source/prof_rules_remote_data_source.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
-import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
 import 'package:animated_list_plus/animated_list_plus.dart';
 import 'package:animated_list_plus/transitions.dart';
 import 'package:http/http.dart' as http;
@@ -49,115 +48,82 @@ class _ProfRulesPageViewState extends State<_ProfRulesPageView> {
     final projectSectionsEmpty = context.select<ProfRulesProvider, bool>((p) => p.projectSections.isEmpty);
     final isModified = context.select<ProfRulesProvider, bool>((p) => p.isModified);
 
-    return PopScope(
-      canPop: !isModified,
-      onPopInvokedWithResult: (bool didPop, Object? result) async {
-        if (didPop) return;
-        
-        // Show confirmation dialog
-        final canLeave = await showDialog<bool>(
-          context: context,
-          builder: (ctx) {
-            return AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: const Text('Cambios sin guardar'),
-              content: const Text('Tienes cambios sin guardar. ¿Estás seguro de que deseas salir y descartar los cambios?'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx, false),
-                  child: const Text('Cancelar'),
-                ),
-                FilledButton(
-                  style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
-                  onPressed: () => Navigator.pop(ctx, true),
-                  child: const Text('Salir sin guardar'),
-                ),
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: const CorvusTopBar(showBackButton: false),
+        body: Column(
+          children: [
+            TabBar(
+              labelColor: colorScheme.primary,
+              unselectedLabelColor: colorScheme.onSurfaceVariant,
+              indicatorColor: colorScheme.primary,
+              indicatorWeight: 3,
+              tabs: const [
+                Tab(text: 'Reglas de Exclusión'),
+                Tab(text: 'Estructura del Proyecto'),
               ],
-            );
-          },
-        );
-
-        if (canLeave == true && context.mounted) {
-          Navigator.of(context).pop();
-        }
-      },
-      child: DefaultTabController(
-        length: 2,
-        child: Scaffold(
-          appBar: const CorvusTopBar(showBackButton: false),
-          body: Column(
-            children: [
-              TabBar(
-                labelColor: colorScheme.primary,
-                unselectedLabelColor: colorScheme.onSurfaceVariant,
-                indicatorColor: colorScheme.primary,
-                indicatorWeight: 3,
-                tabs: const [
-                  Tab(text: 'Reglas de Exclusión'),
-                  Tab(text: 'Estructura del Proyecto'),
-                ],
-              ),
-              Expanded(
-                child: (isLoading && clusterStatsEmpty && projectSectionsEmpty)
-                    ? const _ProfRulesLoadingSkeleton()
-                    : TabBarView(
-                        children: [
-                          _ExclusionRulesTab(projectId: widget.projectId),
-                          _ProjectStructureTab(projectId: widget.projectId),
-                        ],
-                      ),
-              ),
-            ],
-          ),
-          floatingActionButton: isLoading
-              ? null
-                : Builder(
-                    builder: (context) {
-                      final tabController = DefaultTabController.of(context);
-                      // Necesitamos el provider completo para el FAB
-                      final fabProvider = context.watch<ProfRulesProvider>();
-                      return AnimatedBuilder(
-                        animation: tabController,
-                        builder: (context, child) {
-                          if (tabController.index != 1) return const SizedBox.shrink();
-                          return Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              FloatingActionButton.small(
-                                heroTag: 'addSectionFAB',
-                                backgroundColor: colorScheme.primaryContainer,
-                                foregroundColor: colorScheme.onPrimaryContainer,
-                                onPressed: fabProvider.isLoading ? null : () => _showAddSectionDialog(context, fabProvider),
-                                child: const Icon(Icons.add),
-                              ),
-                              if (fabProvider.isModified) ...[
-                                const SizedBox(height: 12),
-                                FloatingActionButton.extended(
-                                  heroTag: 'saveRulesFAB',
-                                  backgroundColor: colorScheme.primary,
-                                  foregroundColor: colorScheme.onPrimary,
-                                  onPressed: fabProvider.isSaving ? null : () => _saveRules(context, fabProvider),
-                                  icon: fabProvider.isSaving
-                                      ? const SizedBox(
-                                          width: 16,
-                                          height: 16,
-                                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                                        )
-                                      : const Icon(Icons.save, size: 18),
-                                  label: Text(
-                                    fabProvider.isSaving ? 'Guardando...' : 'Guardar',
-                                    style: const TextStyle(fontSize: 13),
-                                  ),
-                                ),
-                              ],
-                            ],
-                          );
-                        },
-                      );
-                    },
-                  ),
+            ),
+            Expanded(
+              child: (isLoading && clusterStatsEmpty && projectSectionsEmpty)
+                  ? const _ProfRulesLoadingSkeleton()
+                  : TabBarView(
+                      children: [
+                        _ExclusionRulesTab(projectId: widget.projectId),
+                        _ProjectStructureTab(projectId: widget.projectId),
+                      ],
+                    ),
+            ),
+          ],
         ),
+        floatingActionButton: isLoading
+            ? null
+              : Builder(
+                  builder: (context) {
+                    final tabController = DefaultTabController.of(context);
+                    // Necesitamos el provider completo para el FAB
+                    final fabProvider = context.watch<ProfRulesProvider>();
+                    return AnimatedBuilder(
+                      animation: tabController,
+                      builder: (context, child) {
+                        if (tabController.index != 1) return const SizedBox.shrink();
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            FloatingActionButton.small(
+                              heroTag: 'addSectionFAB',
+                              backgroundColor: colorScheme.primaryContainer,
+                              foregroundColor: colorScheme.onPrimaryContainer,
+                              onPressed: fabProvider.isLoading ? null : () => _showAddSectionDialog(context, fabProvider),
+                              child: const Icon(Icons.add),
+                            ),
+                            if (fabProvider.isModified) ...[
+                              const SizedBox(height: 12),
+                              FloatingActionButton.extended(
+                                heroTag: 'saveRulesFAB',
+                                backgroundColor: colorScheme.primary,
+                                foregroundColor: colorScheme.onPrimary,
+                                onPressed: fabProvider.isSaving ? null : () => _saveRules(context, fabProvider),
+                                icon: fabProvider.isSaving
+                                    ? const SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                      )
+                                    : const Icon(Icons.save, size: 18),
+                                label: Text(
+                                  fabProvider.isSaving ? 'Guardando...' : 'Guardar',
+                                  style: const TextStyle(fontSize: 13),
+                                ),
+                              ),
+                            ],
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
       ),
     );
   }
@@ -177,7 +143,6 @@ class _ProfRulesPageViewState extends State<_ProfRulesPageView> {
           SnackBar(content: Text('Error: ${provider.errorMessage}'), backgroundColor: Theme.of(context).colorScheme.error),
         );
       } else {
-        context.read<ProjectProvider>().touchProject(widget.projectId);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Reglas actualizadas y notificación enviada.')),
         );

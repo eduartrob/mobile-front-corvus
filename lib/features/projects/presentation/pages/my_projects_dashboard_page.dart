@@ -168,9 +168,8 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
                 itemBuilder: (context, index) {
                 if (index == provider.myProjects.length) {
                   return Padding(
-                    padding: const EdgeInsets.only(top: 16.0, bottom: 100.0),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
+                    padding: const EdgeInsets.only(top: 16.0, bottom: 32.0),
+                    child: Center(
                       child: TextButton.icon(
                         icon: const Icon(Icons.archive_outlined),
                         label: const Text('Mostrar proyectos archivados'),
