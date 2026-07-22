@@ -278,7 +278,7 @@ class MyProjectProvider extends ChangeNotifier {
         _state = ProjectState.error;
         notifyListeners();
       }
-    } catch (e) {
+    } catch (e, st) {
       debugPrint("Error inicializando MyProjectProvider: $e");
       _state = ProjectState.error;
       notifyListeners();
@@ -324,7 +324,7 @@ class MyProjectProvider extends ChangeNotifier {
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('draft_file_path_$userId', permanentFile.path);
           await prefs.setString('draft_file_path_$teamId', permanentFile.path);
-        } catch (e) {
+        } catch (e, st) {
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('draft_file_path_$userId', file.path);
           await prefs.setString('draft_file_path_$teamId', file.path);
@@ -336,7 +336,7 @@ class MyProjectProvider extends ChangeNotifier {
 
         await _preValidate(userId, teamId, userName, l10n);
       }
-    } catch (e) {
+    } catch (e, st) {
       _errorMessage =
           'Error seleccionando archivo: ${e.toString().replaceAll('Exception: ', '')}';
       _state = ProjectState.error;
@@ -373,7 +373,7 @@ class MyProjectProvider extends ChangeNotifier {
         }
         notifyListeners();
       }
-    } catch (e) {
+    } catch (e, st) {
       String errorStr = e
           .toString()
           .replaceAll('Exception: ', '')
@@ -422,7 +422,7 @@ class MyProjectProvider extends ChangeNotifier {
       }
 
       await _repository.analyzeDraftDetailed(teamId);
-    } catch (e) {
+    } catch (e, st) {
       _statusTimer?.cancel();
       _notificationService.cancelAnalysisNotification();
       final cleanMsg = e.toString().replaceAll('Exception: ', '');
@@ -624,7 +624,7 @@ class MyProjectProvider extends ChangeNotifier {
       await _notificationService.cancelAnalysisNotification();
       await _notificationService.cancelSyncNotification();
       await _repository.cancelAnalysis(teamId);
-    } catch (e) {
+    } catch (e, st) {
       debugPrint("Error canceling analysis: $e");
     } finally {
       reset(userId);

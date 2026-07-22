@@ -156,7 +156,7 @@ class AuthProvider extends ChangeNotifier {
       } else {
         _status = AuthStatus.unauthenticated;
       }
-    } catch (e) {
+    } catch (e, st) {
       _status = AuthStatus.unauthenticated;
     }
     notifyListeners();
@@ -255,7 +255,7 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> requestDriveAccess() async {
     try {
       return await requestDriveScopeUseCase();
-    } catch (e) {
+    } catch (e, st) {
       return false;
     }
   }
@@ -265,7 +265,7 @@ class AuthProvider extends ChangeNotifier {
       final token = await _storage.read(key: 'auth_token');
       if (token == null) return false;
       return await requestClassroomScopesUseCase(token);
-    } catch (e) {
+    } catch (e, st) {
       return false;
     }
   }
@@ -273,7 +273,7 @@ class AuthProvider extends ChangeNotifier {
   Future<String?> getDriveAccessToken() async {
     try {
       return await getDriveAccessTokenUseCase();
-    } catch (e) {
+    } catch (e, st) {
       return null;
     }
   }
@@ -298,13 +298,13 @@ class AuthProvider extends ChangeNotifier {
       if (_currentUser != null) {
         await FirebaseMessaging.instance.unsubscribeFromTopic('user_${_currentUser!.id}').timeout(const Duration(seconds: 3));
       }
-    } catch (e) {
+    } catch (e, st) {
       // FCM deregister failed silently
     }
 
     try {
       await signOutFromGoogleUseCase().timeout(const Duration(seconds: 3));
-    } catch (e) {
+    } catch (e, st) {
     }
 
     await _storage.delete(key: 'auth_token');
@@ -420,7 +420,7 @@ class AuthProvider extends ChangeNotifier {
       _errorMessage = 'Código de universidad inválido';
       notifyListeners();
       return false;
-    } catch (e) {
+    } catch (e, st) {
       _errorMessage = 'Error al validar el código';
       notifyListeners();
       return false;
@@ -453,7 +453,7 @@ class AuthProvider extends ChangeNotifier {
         }
       }
       return false;
-    } catch (e) {
+    } catch (e, st) {
       return false;
     }
   }
@@ -477,7 +477,7 @@ class AuthProvider extends ChangeNotifier {
         return true;
       }
       return false;
-    } catch (e) {
+    } catch (e, st) {
       return false;
     }
   }
@@ -497,7 +497,7 @@ class AuthProvider extends ChangeNotifier {
         return true;
       }
       return false;
-    } catch (e) {
+    } catch (e, st) {
       return false;
     }
   }

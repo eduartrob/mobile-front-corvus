@@ -103,7 +103,7 @@ class ProfileProvider extends ChangeNotifier {
   Future<void> requestVerificationCode(String type) async {
     try {
       await remoteDataSource.requestVerificationCode(type);
-    } catch (e) {
+    } catch (e, st) {
       throw Exception(e.toString());
     }
   }
@@ -116,7 +116,7 @@ class ProfileProvider extends ChangeNotifier {
     try {
       await remoteDataSource.confirmVerificationCode(code, type);
       await fetchProfile(forceRefresh: true);
-    } catch (e) {
+    } catch (e, st) {
       _isLoading = false;
       notifyListeners();
       throw Exception(e.toString());
@@ -131,7 +131,7 @@ class ProfileProvider extends ChangeNotifier {
     try {
       await remoteDataSource.linkGoogleAccount(authCode);
       await fetchProfile(forceRefresh: true);
-    } catch (e) {
+    } catch (e, st) {
       _isLoading = false;
       notifyListeners();
       throw Exception(e.toString());
@@ -146,7 +146,7 @@ class ProfileProvider extends ChangeNotifier {
     try {
       await remoteDataSource.addSecondaryEmail(email);
       await fetchProfile(forceRefresh: true);
-    } catch (e) {
+    } catch (e, st) {
       _isLoading = false;
       notifyListeners();
       throw Exception(e.toString());
@@ -161,7 +161,7 @@ class ProfileProvider extends ChangeNotifier {
     try {
       await remoteDataSource.deleteEmail(type);
       await fetchProfile(forceRefresh: true);
-    } catch (e) {
+    } catch (e, st) {
       _isLoading = false;
       notifyListeners();
       throw Exception(e.toString());

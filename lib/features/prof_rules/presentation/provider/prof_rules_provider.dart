@@ -74,7 +74,7 @@ class ProfRulesProvider extends ChangeNotifier {
       _memoryStatsCache[pId] = statsData;
       
       _updateState(config, statsData);
-    } catch (e) {
+    } catch (e, st) {
       // Ignoramos errores de caché
     }
 
@@ -95,7 +95,7 @@ class ProfRulesProvider extends ChangeNotifier {
       
       _updateState(config, statsData);
       _errorMessage = null;
-    } catch (e) {
+    } catch (e, st) {
       if (_projectSections.isEmpty && _clusterStats.isEmpty) {
         _errorMessage = mapErrorToMessage(e, stackTrace: st);
       }

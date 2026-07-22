@@ -116,7 +116,7 @@ class SearchProvider extends ChangeNotifier {
       
       // Only save to history if search succeeds (doesn't throw)
       await _addSearchToHistory(query);
-    } catch (e) {
+    } catch (e, st) {
       print("SEARCH ERROR: $e"); 
       _error = mapErrorToMessage(e, stackTrace: st);
     } finally {
