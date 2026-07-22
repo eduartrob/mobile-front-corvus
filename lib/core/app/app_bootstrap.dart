@@ -89,6 +89,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
     final teamsProvider = context.read<TeamsProvider>();
     final myProjectProvider = context.read<MyProjectProvider>();
     final profileProvider = context.read<ProfileProvider>();
+    final notificationsProvider = context.read<NotificationsProvider>();
 
     // Teams es necesario para saber si el alumno ya tiene equipo
     teamsProvider.fetchMyTeam().then((_) {
@@ -98,6 +99,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
     });
 
     profileProvider.fetchProfile();
+    notificationsProvider.fetchNotifications(silent: true);
 
     // Cargar proyectos silenciosamente
     final projectProvider = context.read<ProjectProvider>();
