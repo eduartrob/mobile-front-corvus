@@ -50,11 +50,7 @@ class _NotificationsView extends StatelessWidget {
     final provider = context.watch<NotificationsProvider>();
     final auth = context.read<AuthProvider>();
     
-    // Filter out student-specific notifications if the user is a PROFESSOR
-    final notifications = provider.notifications.where((n) {
-      if ((auth.role == 'PROFESOR' || auth.role == 'DOCENTE') && n.message.startsWith('Actualización de Propuesta')) return false;
-      return true;
-    }).toList();
+    final notifications = provider.notifications;
     
     final isSelecting = provider.isSelectionMode;
 

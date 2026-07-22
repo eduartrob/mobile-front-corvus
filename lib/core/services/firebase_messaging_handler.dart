@@ -51,73 +51,80 @@ Future<void> handleFCMMessage(RemoteMessage message) async {
   final notifType = data['type'] ?? '';
   final deepLink = data['deepLink'] as String?;
 
-  final storage = SecureStorageService();
-  final role = await storage.read(key: 'auth_role');
+    final storage = SecureStorageService();
+    final role = await storage.read(key: 'auth_role');
 
-  if (message.notification != null) {
-    // Guardar en SQLite
-    await NotificationsLocalDataSource.insertNotification({
-      'id': 'temp_${DateTime.now().millisecondsSinceEpoch}',
-      'title': message.notification!.title ?? 'Nueva Notificacion',
-      'body': message.notification!.body ?? '',
-      'type': notifType,
-      'deepLink': deepLink,
-      'timestamp': DateTime.now().toIso8601String(),
-      'isRead': 0,
-      'authorName': data['authorName'],
-      'authorPhotoUrl': data['authorPhotoUrl'],
-    });
-
-    final context = rootNavigatorKey.currentContext;
-    if (context != null) {
-      try {
-        context.read<NotificationsProvider>().fetchNotifications(silent: true);
-
-        // Reactividad: actualizar providers segun tipo
-        if (notifType == 'team_request' || notifType == 'team_accept' ||
-            notifType == 'team_invite' || notifType == 'team_accepted' ||
-            notifType == 'team_rejected' || notifType == 'team_updated') {
-          context.read<TeamsProvider>().fetchMyTeam();
-          context.read<TeamsProvider>().fetchRequests();
-          context.read<TeamsProvider>().fetchSuggestions();
-        }
-
-        if (notifType == 'CONFIG_UPDATED' || notifType == 'project_updated') {
-          context.read<TeamsProvider>().fetchMyTeam();
-          context.read<MyProjectProvider>().refreshConfig();
-        }
-      } catch (e) {
-        debugPrint('Provider no disponible en context: $e');
-      }
-    }
-
-    // -- Logica WhatsApp-like: suprimir si estamos en la pantalla correcta --
+    // -- Lógica WhatsApp-like: determinar si la pantalla actual coincide --
     bool skipHeadsUp = false;
     final currentRoute = _getCurrentRoute();
 
     // Si estamos en /notifications suprimir siempre
     if (NotificationsPage.isOpen) skipHeadsUp = true;
 
-    // Suprimir config updates para profesores
+    // Suprimir config updates para profesores si era de esa forma (legacy)
     if (notifType == 'CONFIG_UPDATED' && role == 'PROFESOR') skipHeadsUp = true;
 
-    // Si el deepLink coincide con la ruta actual, suprimir heads-up
-    if (deepLink != null && currentRoute != null) {
-      final deepLinkBase = deepLink.split('?').first;
-      final currentBase = currentRoute.split('?').first;
-      if (deepLinkBase == currentBase) skipHeadsUp = true;
+    // Intentar inferir la ruta destino si no viene deepLink
+    String? expectedRoute = deepLink;
+    if (expectedRoute == null) {
+      if (notifType == 'CLASSROOM_UPDATE' || notifType == 'PROJECT_UPDATE') expectedRoute = '/my-project';
+      else if (notifType.startsWith('team_') || notifType.startsWith('TEAM_')) expectedRoute = '/teams';
+      else if (notifType == 'PROPOSAL_ACTION' || notifType == 'review_updated') expectedRoute = '/project';
+      else if (notifType == 'SECURITY_DEVICE' || notifType == 'SUBSCRIPTION_CHANGE') expectedRoute = '/profile';
     }
 
-    if (!skipHeadsUp) {
-      NotificationService().showResultNotification(
-        message.notification!.title ?? 'Nueva Notificacion',
-        message.notification!.body ?? '',
-        payload: deepLink ?? notifType,
-      );
-    } else {
-      debugPrint('Alerta visual suprimida: estas en la pantalla relevante.');
+    // Si la ruta base coincide, suprimimos alerta y marcamos como leída
+    if (expectedRoute != null && currentRoute != null) {
+      final expectedBase = expectedRoute.split('?').first;
+      final currentBase = currentRoute.split('?').first;
+      if (currentBase.startsWith(expectedBase)) skipHeadsUp = true;
     }
-  }
+
+    if (message.notification != null) {
+      // Guardar en SQLite con el estado isRead dinámico
+      await NotificationsLocalDataSource.insertNotification({
+        'id': 'temp_${DateTime.now().millisecondsSinceEpoch}',
+        'title': message.notification!.title ?? 'Nueva Notificacion',
+        'body': message.notification!.body ?? '',
+        'type': notifType,
+        'deepLink': deepLink,
+        'timestamp': DateTime.now().toIso8601String(),
+        'isRead': skipHeadsUp ? 1 : 0,
+        'authorName': data['authorName'],
+        'authorPhotoUrl': data['authorPhotoUrl'],
+      });
+
+      final context = rootNavigatorKey.currentContext;
+      if (context != null) {
+        try {
+          context.read<NotificationsProvider>().fetchNotifications(silent: true);
+
+          // Reactividad: actualizar providers según tipo
+          if (notifType.startsWith('team_') || notifType.startsWith('TEAM_')) {
+            context.read<TeamsProvider>().fetchMyTeam();
+            context.read<TeamsProvider>().fetchRequests();
+            context.read<TeamsProvider>().fetchSuggestions();
+          }
+
+          if (notifType == 'CONFIG_UPDATED' || notifType == 'CLASSROOM_UPDATE' || notifType == 'PROJECT_UPDATE') {
+            context.read<TeamsProvider>().fetchMyTeam();
+            context.read<MyProjectProvider>().refreshConfig();
+          }
+        } catch (e) {
+          debugPrint('Provider no disponible en context: $e');
+        }
+      }
+
+      if (!skipHeadsUp) {
+        NotificationService().showResultNotification(
+          message.notification!.title ?? 'Nueva Notificacion',
+          message.notification!.body ?? '',
+          payload: deepLink ?? notifType,
+        );
+      } else {
+        debugPrint('Alerta visual suprimida (estilo WhatsApp): usuario en pantalla activa.');
+      }
+    }
 
   // -- Handlers especiales por tipo --
 

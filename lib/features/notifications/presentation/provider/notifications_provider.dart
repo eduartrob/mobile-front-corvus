@@ -74,14 +74,6 @@ class NotificationsProvider extends ChangeNotifier {
               ))
           .toList();
 
-      if (role == 'PROFESOR') {
-        parsedNotifications = parsedNotifications.where((n) {
-          final isConfigUpdate = n.message.contains('Temas para Proyecto') ||
-              n.message.contains('estructura de proyecto');
-          return !isConfigUpdate;
-        }).toList();
-      }
-
       _notifications = parsedNotifications;
       _notifications.sort((a, b) => b.timestamp.compareTo(a.timestamp));
     } catch (e) {
