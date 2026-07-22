@@ -155,7 +155,9 @@
   "searchPlaceholderResult": "Resultados para: {query}\n(Pronto conectado a la IA)",
   "@searchPlaceholderResult": {
     "placeholders": {
-      "query": { "type": "String" }
+      "query": {
+        "type": "String"
+      }
     }
   },
   "searchFieldLabelHint": "Buscar proyectos o temas...",
@@ -163,7 +165,9 @@
   "searchSuggestion": "Buscar \"{query}\" en todos los repositorios",
   "@searchSuggestion": {
     "placeholders": {
-      "query": { "type": "String" }
+      "query": {
+        "type": "String"
+      }
     }
   },
   "manageTeamTitle": "Gestionar Equipo",
@@ -181,7 +185,9 @@
   "teamSettingsError": "Error al guardar cambios: {error}",
   "@teamSettingsError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "myTeam": "Mi Equipo",
@@ -191,15 +197,21 @@
   "teamMembersCount": "{count} / {max} miembros",
   "@teamMembersCount": {
     "placeholders": {
-      "count": { "type": "String" },
-      "max": { "type": "String" }
+      "count": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
     }
   },
   "missingOneMember": "Te falta 1 integrante",
   "missingMembers": "Te faltan {count} integrantes",
   "@missingMembers": {
     "placeholders": {
-      "count": { "type": "String" }
+      "count": {
+        "type": "String"
+      }
     }
   },
   "searchMembers": "Buscar integrantes",
@@ -214,13 +226,17 @@
   "appointmentDate": "Fecha: {date}",
   "@appointmentDate": {
     "placeholders": {
-      "date": { "type": "String" }
+      "date": {
+        "type": "String"
+      }
     }
   },
   "appointmentLocation": "Lugar/Enlace: {location}",
   "@appointmentLocation": {
     "placeholders": {
-      "location": { "type": "String" }
+      "location": {
+        "type": "String"
+      }
     }
   },
   "searchResults": "Resultados de búsqueda",
@@ -228,20 +244,26 @@
   "errorLoadingSuggestions": "Error al cargar sugerencias:\n{error}",
   "@errorLoadingSuggestions": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "noSuggestionsFound": "No hay sugerencias encontradas",
   "invitationSent": "Invitación enviada a {name}",
   "@invitationSent": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "errorSendingInvitation": "Error al enviar invitación: {error}",
   "@errorSendingInvitation": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "received": "Recibidas",
@@ -256,8 +278,12 @@
   "proposalsReadyDetail": "{ready} de {total} equipos",
   "@proposalsReadyDetail": {
     "placeholders": {
-      "ready": { "type": "String" },
-      "total": { "type": "String" }
+      "ready": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
     }
   },
   "attentionRequired": "Atención Requerida",
@@ -266,13 +292,17 @@
   "studentsWithTeam": "{count} Alumnos con equipo",
   "@studentsWithTeam": {
     "placeholders": {
-      "count": { "type": "String" }
+      "count": {
+        "type": "String"
+      }
     }
   },
   "studentsWithoutTeam": "{count} Alumnos rezagados (sin equipo)",
   "@studentsWithoutTeam": {
     "placeholders": {
-      "count": { "type": "String" }
+      "count": {
+        "type": "String"
+      }
     }
   },
   "viewLaggingStudentsDirectory": "Ver Directorio de Alumnos Rezagados",
@@ -285,8 +315,12 @@
   "chooseSkillsSubtitle": "Elige hasta 10 habilidades que deseas obtener o mejorar en tu carrera. ({selected}/{max})",
   "@chooseSkillsSubtitle": {
     "placeholders": {
-      "selected": { "type": "String" },
-      "max": { "type": "String" }
+      "selected": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
     }
   },
   "saving": "Guardando...",
@@ -301,13 +335,17 @@
   "teamLabel": "Equipo: {name}",
   "@teamLabel": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "membersLabel": "Integrantes: {members}",
   "@membersLabel": {
     "placeholders": {
-      "members": { "type": "String" }
+      "members": {
+        "type": "String"
+      }
     }
   },
   "untitledProposal": "Propuesta sin título",
@@ -338,5 +376,10 @@
   "joinProject": "Unirse a un Proyecto",
   "noTeam": "No tienes un equipo",
   "noTeamDesc": "Debes unirte o crear un equipo en la pestaña de Equipos para poder enviar una propuesta.",
-  "navProjectsLabel": "Proyectos"
+  "navProjectsLabel": "Proyectos",
+  "networkError": "Problema de conexión a internet. Verifica tu red e inténtalo de nuevo.",
+  "fileTooLarge": "El archivo excede el tamaño máximo permitido.",
+  "unsupportedFileType": "Tipo de archivo no soportado.",
+  "requestTimeout": "La petición tardó demasiado. Verifica tu conexión e inténtalo de nuevo.",
+  "unexpectedError": "Ocurrió un error inesperado. Por favor reintenta en un momento."
 }

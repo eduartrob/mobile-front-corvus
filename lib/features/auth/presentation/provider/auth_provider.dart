@@ -15,6 +15,10 @@ import 'dart:convert';
 import 'package:mobile/core/network/api_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/features/auth/domain/use_cases/login_with_email_usecase.dart';
+import 'package:mobile/core/error/error_handler.dart';
+import 'package:mobile/core/error/app_exception.dart';
+import 'package:mobile/core/di/di.dart';
+import 'package:mobile/core/network/auth_interceptor_client.dart';
 
 enum AuthStatus { initial, loading, authenticated, unauthenticated, error }
 
@@ -99,7 +103,7 @@ class AuthProvider extends ChangeNotifier {
         fetchProSubscriptionStatus(email: savedEmail).catchError((_) {});
         
         // Fetch /me to update profile info silently in background
-        apiClient.get(Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authMe}')).then((response) {
+        sl<AuthInterceptorClient>().get(Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authMe}')).then((response) {
           if (response.statusCode == 200) {
             final data = jsonDecode(response.body);
             final userData = data['user'];
@@ -185,13 +189,13 @@ class AuthProvider extends ChangeNotifier {
 
       try {
         // Trigger profile parsing in background silently
-        final clusteringDs = ClusteringRemoteDataSource(client: apiClient);
+        final clusteringDs = ClusteringRemoteDataSource(client: sl<AuthInterceptorClient>());
         clusteringDs.syncStudentProfile().catchError((_) => <String, dynamic>{});
       } catch (_) {}
 
       _status = AuthStatus.authenticated;
       notifyListeners();
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       String errorStr = e.toString();
       if (errorStr.contains('USER_NOT_REGISTERED|')) {
         _errorMessage = errorStr.replaceAll('Exception: ', '');
@@ -234,15 +238,15 @@ class AuthProvider extends ChangeNotifier {
       await NotificationService().requestPermission();
 
       try {
-        final clusteringDs = ClusteringRemoteDataSource(client: apiClient);
+        final clusteringDs = ClusteringRemoteDataSource(client: sl<AuthInterceptorClient>());
         clusteringDs.syncStudentProfile().catchError((_) => <String, dynamic>{});
       } catch (_) {}
 
       _status = AuthStatus.authenticated;
       fetchProSubscriptionStatus(email: user.email).catchError((_) {});
       notifyListeners();
-    } catch (e) {
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
+    } catch (e, st) {
+      _errorMessage = mapErrorToMessage(e, stackTrace: st);
       _status = AuthStatus.error;
       notifyListeners();
     }
@@ -325,7 +329,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       final token = await _storage.read(key: 'auth_token');
       final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/pagos/suscripcion/' + Uri.encodeComponent(currentEmail));
-      final response = await apiClient.get(uri).timeout(const Duration(seconds: 10));
+      final response = await sl<AuthInterceptorClient>().get(uri).timeout(const Duration(seconds: 10));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         _isProActive = data['activa'] == true || data['activa']?.toString().toLowerCase() == 'true';
@@ -359,7 +363,7 @@ class AuthProvider extends ChangeNotifier {
       'monto': 50.00,
       'metodo': metodo,
     });
-    final response = await apiClient.post(
+    final response = await sl<AuthInterceptorClient>().post(
       uri,
       headers: {
         'Content-Type': 'application/json',
@@ -381,7 +385,7 @@ class AuthProvider extends ChangeNotifier {
     if (paymentId.isEmpty) throw Exception('ID de pago inválido');
     final token = await _storage.read(key: 'auth_token');
     final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/pagos/' + paymentId);
-    final response = await apiClient.get(uri).timeout(const Duration(seconds: 10));
+    final response = await sl<AuthInterceptorClient>().get(uri).timeout(const Duration(seconds: 10));
     if (response.statusCode == 200) {
       return jsonDecode(response.body) as Map<String, dynamic>;
     }
@@ -395,7 +399,7 @@ class AuthProvider extends ChangeNotifier {
 
   Future<bool> validateUniversityCode(String code) async {
     try {
-      final response = await apiClient.post(
+      final response = await sl<AuthInterceptorClient>().post(
         Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authUniversitiesValidate}'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'code': code}),
@@ -429,7 +433,7 @@ class AuthProvider extends ChangeNotifier {
       if (token == null) return false;
 
       // Actualizar foto en el backend usando Cloudinary
-      final response = await apiClient.put(
+      final response = await sl<AuthInterceptorClient>().put(
         Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authProfilePicture}'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'imageBase64': base64Image}),
@@ -459,7 +463,7 @@ class AuthProvider extends ChangeNotifier {
       final token = await _storage.read(key: 'auth_token');
       if (token == null) return false;
 
-      final response = await apiClient.delete(
+      final response = await sl<AuthInterceptorClient>().delete(
         Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authProfilePicture}'),
         headers: {'Content-Type': 'application/json'},
       );
@@ -483,7 +487,7 @@ class AuthProvider extends ChangeNotifier {
       final token = await _storage.read(key: 'auth_token');
       if (token == null) return false;
 
-      final response = await apiClient.delete(
+      final response = await sl<AuthInterceptorClient>().delete(
         Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authDeleteAccount}'),
         headers: {'Content-Type': 'application/json'},
       );

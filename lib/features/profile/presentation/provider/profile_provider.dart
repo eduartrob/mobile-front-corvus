@@ -5,12 +5,16 @@ import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/auth_interceptor_client.dart';
 import 'package:mobile/core/services/secure_storage_service.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:mobile/core/error/error_handler.dart';
+import 'package:mobile/core/error/app_exception.dart';
+import 'package:mobile/core/di/di.dart';
+import 'package:mobile/core/network/auth_interceptor_client.dart';
 
 class ProfileProvider extends ChangeNotifier {
   final ProfileRemoteDataSource remoteDataSource;
 
   ProfileProvider({ProfileRemoteDataSource? remoteDataSource})
-      : remoteDataSource = remoteDataSource ?? ProfileRemoteDataSource(client: apiClient);
+      : remoteDataSource = remoteDataSource ?? ProfileRemoteDataSource(client: sl<AuthInterceptorClient>());
 
   ProfileCompletoModel? _profile;
   bool _isLoading = false;
@@ -42,8 +46,8 @@ class ProfileProvider extends ChangeNotifier {
         _isLoading = false;
         notifyListeners();
       }
-    } catch (e) {
-      _errorMessage = e.toString();
+    } catch (e, st) {
+      _errorMessage = mapErrorToMessage(e, stackTrace: st);
       _isLoading = false;
       notifyListeners();
     }
@@ -60,8 +64,8 @@ class ProfileProvider extends ChangeNotifier {
           notifyListeners();
           break;
         }
-      } catch (e) {
-        _errorMessage = e.toString();
+      } catch (e, st) {
+        _errorMessage = mapErrorToMessage(e, stackTrace: st);
         notifyListeners();
         break;
       }
@@ -88,8 +92,8 @@ class ProfileProvider extends ChangeNotifier {
         careers: careers,
       );
       await fetchProfile(forceRefresh: true);
-    } catch (e) {
-      _errorMessage = e.toString();
+    } catch (e, st) {
+      _errorMessage = mapErrorToMessage(e, stackTrace: st);
       _isLoading = false;
       notifyListeners();
       throw Exception(_errorMessage);

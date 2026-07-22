@@ -2,6 +2,8 @@ import 'package:mobile/core/network/api_endpoints.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/api_config.dart';
+import 'package:mobile/core/error/app_exception.dart';
+import 'package:mobile/core/error/error_handler.dart';
 import 'package:mobile/features/teams/data/models/team_model.dart';
 import 'package:mobile/features/teams/data/models/solicitud_model.dart';
 import 'package:mobile/features/student_directory/domain/entities/student.dart';
@@ -30,8 +32,8 @@ class TeamsRemoteDataSource {
       } else {
         _handleError(response);
       }
-    } catch (e) {
-      throw Exception(e.toString().replaceAll('Exception: ', ''));
+    } catch (e, st) {
+      throw NetworkException(e.toString());
     }
     return null;
   }
@@ -80,8 +82,8 @@ class TeamsRemoteDataSource {
       } else {
         _handleError(response);
       }
-    } catch (e) {
-      throw Exception(e.toString().replaceAll('Exception: ', ''));
+    } catch (e, st) {
+      throw NetworkException(e.toString());
     }
     throw Exception('Error desconocido al actualizar equipo');
   }
@@ -95,8 +97,8 @@ class TeamsRemoteDataSource {
       if (response.statusCode != 200 && response.statusCode != 204) {
         _handleError(response);
       }
-    } catch (e) {
-      throw Exception(e.toString().replaceAll('Exception: ', ''));
+    } catch (e, st) {
+      throw NetworkException(e.toString());
     }
   }
 
@@ -109,8 +111,8 @@ class TeamsRemoteDataSource {
       if (response.statusCode != 200 && response.statusCode != 204) {
         _handleError(response);
       }
-    } catch (e) {
-      throw Exception(e.toString().replaceAll('Exception: ', ''));
+    } catch (e, st) {
+      throw NetworkException(e.toString());
     }
   }
 
@@ -149,8 +151,8 @@ class TeamsRemoteDataSource {
       } else {
         _handleError(response);
       }
-    } catch (e) {
-      throw Exception(e.toString().replaceAll('Exception: ', ''));
+    } catch (e, st) {
+      throw NetworkException(e.toString());
     }
     return [];
   }
@@ -176,8 +178,8 @@ class TeamsRemoteDataSource {
       } else {
         _handleError(response);
       }
-    } catch (e) {
-      throw Exception(e.toString().replaceAll('Exception: ', ''));
+    } catch (e, st) {
+      throw NetworkException(e.toString());
     }
     return [];
   }
@@ -199,8 +201,8 @@ class TeamsRemoteDataSource {
       } else {
         _handleError(response);
       }
-    } catch (e) {
-      throw Exception(e.toString().replaceAll('Exception: ', ''));
+    } catch (e, st) {
+      throw NetworkException(e.toString());
     }
     return [];
   }
@@ -222,8 +224,8 @@ class TeamsRemoteDataSource {
       if (response.statusCode != 200 && response.statusCode != 201) {
         _handleError(response);
       }
-    } catch (e) {
-      throw Exception(e.toString().replaceAll('Exception: ', ''));
+    } catch (e, st) {
+      throw NetworkException(e.toString());
     }
   }
 
@@ -236,8 +238,8 @@ class TeamsRemoteDataSource {
       if (response.statusCode != 200 && response.statusCode != 204) {
         _handleError(response);
       }
-    } catch (e) {
-      throw Exception(e.toString().replaceAll('Exception: ', ''));
+    } catch (e, st) {
+      throw NetworkException(e.toString());
     }
   }
 
@@ -253,8 +255,8 @@ class TeamsRemoteDataSource {
       if (response.statusCode != 200 && response.statusCode != 204) {
         _handleError(response);
       }
-    } catch (e) {
-      throw Exception(e.toString().replaceAll('Exception: ', ''));
+    } catch (e, st) {
+      throw NetworkException(e.toString());
     }
   }
 
@@ -265,8 +267,8 @@ class TeamsRemoteDataSource {
       final errorJson = json.decode(bodyText);
       errorMessage = errorJson['detail'] ?? errorJson['message'] ?? errorMessage;
     } catch (_) {
-      errorMessage = 'Error del servidor: ${response.statusCode} - $bodyText';
+      errorMessage = 'Error del servidor (\${response.statusCode})';
     }
-    throw Exception(errorMessage);
+    throw mapHttpError(response.statusCode, bodyText);
   }
 }

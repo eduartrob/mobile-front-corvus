@@ -10,6 +10,8 @@ import 'package:mobile/features/my_project/domain/repositories/project_repositor
 import 'package:mobile/features/my_project/data/datasources/cloudinary_service.dart';
 import 'package:mobile/core/services/notification_service.dart';
 import 'package:mobile/l10n/app_localizations.dart';
+import 'package:mobile/core/error/error_handler.dart';
+import 'package:mobile/core/error/app_exception.dart';
 
 enum ProjectState {
   initial,
@@ -733,8 +735,8 @@ class MyProjectProvider extends ChangeNotifier {
         'Tu propuesta ha sido enviada a revisión final con el equipo y el análisis.',
       );
       return true;
-    } catch (e) {
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
+    } catch (e, st) {
+      _errorMessage = mapErrorToMessage(e, stackTrace: st);
       await _notificationService.showResultNotification(
         'Error al enviar',
         _errorMessage ?? 'Hubo un error al enviar la revisión final.',

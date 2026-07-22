@@ -5,6 +5,8 @@ import 'package:mobile/core/network/auth_interceptor_client.dart';
 import '../../domain/entities/app_notification.dart';
 import '../../data/notifications_local_data_source.dart';
 import '../../data/notifications_remote_data_source.dart';
+import 'package:mobile/core/di/di.dart';
+import 'package:mobile/core/network/auth_interceptor_client.dart';
 
 class NotificationsProvider extends ChangeNotifier {
   List<AppNotification> _notifications = [];
@@ -15,7 +17,7 @@ class NotificationsProvider extends ChangeNotifier {
   bool _isSelectionMode = false;
 
   final NotificationsRemoteDataSource _remoteDataSource =
-      NotificationsRemoteDataSource(client: apiClient);
+      NotificationsRemoteDataSource(client: sl<AuthInterceptorClient>());
 
   List<AppNotification> get notifications => _notifications;
   bool get isLoading => _isLoading;

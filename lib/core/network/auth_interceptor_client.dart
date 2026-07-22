@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:go_router/go_router.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:mobile/core/router/appRouter.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/core/di/di.dart';
@@ -27,16 +28,33 @@ class AuthInterceptorClient extends http.BaseClient {
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
     // 1. SSL/TLS Pinning Check (Anti-MitM)
+    // El fingerprint se obtiene de Firebase Remote Config para poder
+    // actualizarlo remotamente cuando Let's Encrypt renueve el certificado
+    // (cada ~90 días) sin necesidad de publicar una nueva versión de la app.
     try {
-      // Validamos el host destino si es nuestro servidor principal
       if (request.url.host == 'corvus.eduartrob.site') {
+        // Fallback: fingerprint quemado como último recurso
+        const fallbackFingerprint =
+            "6C:E2:90:D1:16:D6:2F:85:E3:1E:66:3C:34:F7:1A:93:16:46:17:B8:A0:82:75:EC:CD:1A:D5:B1:30:03:05:43";
+
+        // Intentar obtener desde Remote Config
+        String fingerprint = fallbackFingerprint;
+        try {
+          final remoteConfig = FirebaseRemoteConfig.instance;
+          final remoteFingerprint = remoteConfig.getString('ssl_fingerprint');
+          if (remoteFingerprint.isNotEmpty) {
+            fingerprint = remoteFingerprint;
+          }
+        } catch (_) {
+          // Si Remote Config falla, usar el fallback hardcodeado
+          debugPrint('SSL: Remote Config no disponible, usando fingerprint de respaldo');
+        }
+
         await HttpCertificatePinning.check(
           serverURL: 'https://corvus.eduartrob.site',
           headerHttp: {},
           sha: SHA.SHA256,
-          allowedSHAFingerprints: [
-            "6C:E2:90:D1:16:D6:2F:85:E3:1E:66:3C:34:F7:1A:93:16:46:17:B8:A0:82:75:EC:CD:1A:D5:B1:30:03:05:43"
-          ],
+          allowedSHAFingerprints: [fingerprint],
           timeout: 50,
         );
       }
@@ -80,49 +98,7 @@ class AuthInterceptorClient extends http.BaseClient {
   }
 }
 
-// Cliente global que intercepta el 401 para hacer logout y previene ataques MitM
-final apiClient = AuthInterceptorClient(
-  onUnauthenticated: () {
-    final context = rootNavigatorKey.currentContext;
-    if (context != null) {
-      final l10n = AppLocalizations.of(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n?.sessionExpired ?? 'Tu sesión ha expirado. Por favor, inicia sesión de nuevo.'),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 4),
-        ),
-      );
-      // redirigir al login
-      context.go('/login');
-      
-      // Desconecta al usuario usando la instancia real del Provider
-      try {
-        Provider.of<AuthProvider>(context, listen: false).logout();
-      } catch (e) {
-        debugPrint('Error durante el logout interceptado: $e');
-      }
-      // Si no hay contexto, al menos intentamos usar el sl como fallback
-      try {
-        sl<AuthProvider>().logout();
-      } catch (_) {}
-    }
-  },
-  onMitMDetected: () {
-    final context = rootNavigatorKey.currentContext;
-    if (context != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Alerta de Seguridad Crítica Se ha detectado una conexión insegura. Por su seguridad, la conexión ha sido bloqueada inmediatamente.',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          backgroundColor: Colors.redAccent,
-          behavior: SnackBarBehavior.floating,
-          duration: Duration(seconds: 8),
-        ),
-      );
-    }
-  },
-);
+// ─── NOTA: El sl<AuthInterceptorClient>() ya NO es una variable global.
+// Se registra en GetIt (di.dart) como LazySingleton y se inyecta
+// por constructor en cada data source que lo necesita.
+// Esto permite mockear el cliente en tests y sigue el principio DI.

@@ -8,6 +8,8 @@ import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/projects/data/professor_api.dart';
 import 'dart:async';
 import 'package:mobile/features/teams/presentation/widgets/dashed_border_painter.dart';
+import 'package:mobile/core/di/di.dart';
+import 'package:mobile/core/network/auth_interceptor_client.dart';
 
 class ProfProjectSettingsPage extends StatefulWidget {
   final String projectId;
@@ -107,7 +109,7 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
       final url = Uri.parse(
         '${ApiConfig.apiGatewayUrl}${ApiEndpoints.projectCollaborators(widget.projectId)}',
       );
-      final response = await apiClient.get(
+      final response = await sl<AuthInterceptorClient>().get(
         url,
         headers: ApiConfig.defaultHeaders,
       );
@@ -145,7 +147,7 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
       headers['Content-Type'] = 'application/json';
 
-      final response = await apiClient.post(
+      final response = await sl<AuthInterceptorClient>().post(
         url,
         headers: headers,
         body: jsonEncode({'email': email}),
@@ -178,7 +180,7 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
       final url = Uri.parse(
         '${ApiConfig.apiGatewayUrl}${ApiEndpoints.projectCollaborators(widget.projectId)}',
       );
-      final response = await apiClient.delete(
+      final response = await sl<AuthInterceptorClient>().delete(
         url,
         headers: ApiConfig.defaultHeaders,
         body: jsonEncode({'userId': targetUserId}),

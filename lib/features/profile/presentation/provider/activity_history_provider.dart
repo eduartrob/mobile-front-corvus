@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/api_config.dart';
 import 'package:mobile/features/prof_history/data/models/activity_log_model.dart';
+import 'package:mobile/core/error/error_handler.dart';
+import 'package:mobile/core/error/app_exception.dart';
 
 class ActivityHistoryProvider extends ChangeNotifier {
   final http.Client client;
@@ -37,8 +39,8 @@ class ActivityHistoryProvider extends ChangeNotifier {
       } else {
         throw Exception('Failed to load history: ${response.statusCode}');
       }
-    } catch (e) {
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
+    } catch (e, st) {
+      _errorMessage = mapErrorToMessage(e, stackTrace: st);
     } finally {
       _isLoading = false;
       notifyListeners();

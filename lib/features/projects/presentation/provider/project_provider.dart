@@ -4,6 +4,8 @@ import 'package:mobile/features/projects/data/project_api.dart';
 import 'package:mobile/features/projects/data/repositories/project_management_repository_impl.dart';
 import 'package:mobile/features/projects/domain/repositories/project_management_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mobile/core/error/error_handler.dart';
+import 'package:mobile/core/error/app_exception.dart';
 
 class ProjectProvider extends ChangeNotifier {
   final ProjectManagementRepository _repository;
@@ -71,8 +73,8 @@ class ProjectProvider extends ChangeNotifier {
 
       _error = null;
       if (quiet) notifyListeners();
-    } catch (e) {
-      _error = e.toString().replaceAll('Exception: ', '');
+    } catch (e, st) {
+      _error = mapErrorToMessage(e, stackTrace: st);
       if (quiet) notifyListeners();
     } finally {
       if (!quiet) _setLoading(false);
@@ -86,8 +88,8 @@ class ProjectProvider extends ChangeNotifier {
       _archivedProjects = data['projects'] ?? [];
       _error = null;
       notifyListeners();
-    } catch (e) {
-      _error = e.toString().replaceAll('Exception: ', '');
+    } catch (e, st) {
+      _error = mapErrorToMessage(e, stackTrace: st);
       if (quiet) notifyListeners();
     } finally {
       if (!quiet) _setLoading(false);
@@ -104,8 +106,8 @@ class ProjectProvider extends ChangeNotifier {
       // Remove from active projects list locally
       _myProjects.removeWhere((p) => projectIds.contains(p['id']));
       return true;
-    } catch (e) {
-      _error = e.toString().replaceAll('Exception: ', '');
+    } catch (e, st) {
+      _error = mapErrorToMessage(e, stackTrace: st);
       return false;
     } finally {
       _setLoading(false);
@@ -124,8 +126,8 @@ class ProjectProvider extends ChangeNotifier {
       // Force a reload of the active projects so they appear there
       await loadMyProjects(token, quiet: true);
       return true;
-    } catch (e) {
-      _error = e.toString().replaceAll('Exception: ', '');
+    } catch (e, st) {
+      _error = mapErrorToMessage(e, stackTrace: st);
       return false;
     } finally {
       _setLoading(false);
@@ -152,8 +154,8 @@ class ProjectProvider extends ChangeNotifier {
       );
       await loadMyProjects(token);
       return true;
-    } catch (e) {
-      _error = e.toString().replaceAll('Exception: ', '');
+    } catch (e, st) {
+      _error = mapErrorToMessage(e, stackTrace: st);
       _setLoading(false);
       return false;
     }
@@ -168,8 +170,8 @@ class ProjectProvider extends ChangeNotifier {
       final res = await _repository.joinProject(code: code, token: token);
       await loadMyProjects(token);
       return res['project'] != null ? res['project']['id'] : null;
-    } catch (e) {
-      _error = e.toString().replaceAll('Exception: ', '');
+    } catch (e, st) {
+      _error = mapErrorToMessage(e, stackTrace: st);
       _setLoading(false);
       return null;
     }
@@ -200,8 +202,8 @@ class ProjectProvider extends ChangeNotifier {
         notifyListeners();
       }
       return true;
-    } catch (e) {
-      _error = e.toString().replaceAll('Exception: ', '');
+    } catch (e, st) {
+      _error = mapErrorToMessage(e, stackTrace: st);
       _setLoading(false);
       return false;
     } finally {
@@ -219,8 +221,8 @@ class ProjectProvider extends ChangeNotifier {
       _myProjects.removeWhere((p) => p['id'] == projectId);
       notifyListeners();
       return true;
-    } catch (e) {
-      _error = e.toString().replaceAll('Exception: ', '');
+    } catch (e, st) {
+      _error = mapErrorToMessage(e, stackTrace: st);
       return false;
     } finally {
       _setLoading(false);
@@ -233,8 +235,8 @@ class ProjectProvider extends ChangeNotifier {
   }) async {
     try {
       return await _repository.getProjectStudents(projectId: projectId, token: token);
-    } catch (e) {
-      _error = e.toString().replaceAll('Exception: ', '');
+    } catch (e, st) {
+      _error = mapErrorToMessage(e, stackTrace: st);
       return [];
     }
   }
@@ -247,8 +249,8 @@ class ProjectProvider extends ChangeNotifier {
         await loadMyProjects(token);
       }
       return success;
-    } catch (e) {
-      _error = e.toString().replaceAll('Exception: ', '');
+    } catch (e, st) {
+      _error = mapErrorToMessage(e, stackTrace: st);
       _setLoading(false);
       return false;
     }
@@ -262,8 +264,8 @@ class ProjectProvider extends ChangeNotifier {
         await loadMyProjects(token);
       }
       return success;
-    } catch (e) {
-      _error = e.toString().replaceAll('Exception: ', '');
+    } catch (e, st) {
+      _error = mapErrorToMessage(e, stackTrace: st);
       _setLoading(false);
       return false;
     }

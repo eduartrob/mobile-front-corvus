@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mobile/features/search/domain/entities/smart_search_result.dart';
 import 'package:mobile/features/search/domain/use_cases/smart_search_usecase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mobile/core/error/error_handler.dart';
+import 'package:mobile/core/error/app_exception.dart';
 
 class SearchProvider extends ChangeNotifier {
   final SmartSearchUseCase _smartSearchUseCase;
@@ -116,7 +118,7 @@ class SearchProvider extends ChangeNotifier {
       await _addSearchToHistory(query);
     } catch (e) {
       print("SEARCH ERROR: $e"); 
-      _error = e.toString().replaceAll('Exception: ', '');
+      _error = mapErrorToMessage(e, stackTrace: st);
     } finally {
       _isLoading = false;
       notifyListeners();

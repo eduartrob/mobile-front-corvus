@@ -54,6 +54,9 @@ dependencies:
   record: ^7.1.1
   audioplayers: ^6.8.1
   webview_flutter: ^4.14.1
+  flutter_dotenv: ^6.0.1
+  cached_network_image: ^3.4.1
+  firebase_remote_config: ^6.5.5
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -73,3 +76,4 @@ flutter:
     - assets/patterns/
     - assets/images/
     - assets/animations/
+    - .env

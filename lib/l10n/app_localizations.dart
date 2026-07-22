@@ -1633,6 +1633,36 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Proyectos'**
   String get navProjectsLabel;
+
+  /// No description provided for @networkError.
+  ///
+  /// In es, this message translates to:
+  /// **'Problema de conexión a internet. Verifica tu red e inténtalo de nuevo.'**
+  String get networkError;
+
+  /// No description provided for @fileTooLarge.
+  ///
+  /// In es, this message translates to:
+  /// **'El archivo excede el tamaño máximo permitido.'**
+  String get fileTooLarge;
+
+  /// No description provided for @unsupportedFileType.
+  ///
+  /// In es, this message translates to:
+  /// **'Tipo de archivo no soportado.'**
+  String get unsupportedFileType;
+
+  /// No description provided for @requestTimeout.
+  ///
+  /// In es, this message translates to:
+  /// **'La petición tardó demasiado. Verifica tu conexión e inténtalo de nuevo.'**
+  String get requestTimeout;
+
+  /// No description provided for @unexpectedError.
+  ///
+  /// In es, this message translates to:
+  /// **'Ocurrió un error inesperado. Por favor reintenta en un momento.'**
+  String get unexpectedError;
 }
 
 class _AppLocalizationsDelegate

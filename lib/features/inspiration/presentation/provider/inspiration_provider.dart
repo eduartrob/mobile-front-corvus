@@ -5,6 +5,8 @@ import 'package:mobile/features/inspiration/data/data_source/inspiration_remote_
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/auth_interceptor_client.dart';
 import 'dart:async';
+import 'package:mobile/core/di/di.dart';
+import 'package:mobile/core/network/auth_interceptor_client.dart';
 
 class InspirationProvider extends ChangeNotifier {
   final InspirationRemoteDataSource _dataSource;
@@ -36,7 +38,7 @@ class InspirationProvider extends ChangeNotifier {
   int get proLockedCount => _dataSource.proLockedCount;
 
   InspirationProvider({InspirationRemoteDataSource? dataSource}) 
-      : _dataSource = dataSource ?? InspirationRemoteDataSource(client: apiClient) {
+      : _dataSource = dataSource ?? InspirationRemoteDataSource(client: sl<AuthInterceptorClient>()) {
     _init();
   }
 
