@@ -42,31 +42,46 @@ class NotificationNavigationService {
     Map<String, dynamic> data,
   ) {
     switch (notifType) {
+      case 'CLASSROOM_UPDATE':
+      case 'PROJECT_UPDATE':
+        final projectId = _resolveProjectId(context, data);
+        if (projectId != null) {
+          context.push('/project/$projectId');
+        } else {
+          context.push('/my-project');
+        }
+        break;
+
       case 'TEAM_INVITE':
       case 'team_invite':
+      case 'TEAM_UPDATE':
       case 'team_accepted':
       case 'team_rejected':
       case 'team_updated':
-        final projectId = _resolveProjectId(context, data);
-        if (projectId != null) {
-          context.push('/project/$projectId?tab=1');
-        } else {
-          context.push('/inspiration');
-        }
+        context.push('/teams');
+        break;
 
+      case 'PROPOSAL_ACTION':
       case 'review_updated':
-        final projectId = data['projectId'] as String?;
+        final projectId = _resolveProjectId(context, data);
         if (projectId != null) {
           context.push('/project/$projectId?tab=2');
         } else {
           context.push('/notifications?highlightLatest=true');
         }
+        break;
 
+      case 'SECURITY_DEVICE':
       case 'security_new_device':
-        context.push('/security-alert');
-
-      case 'payment_update':
+        // Ideally this would go to a specific security settings page, assuming /profile for now
+        // if /security-alert doesn't exist. We will use /profile as a safe fallback.
         context.push('/profile');
+        break;
+
+      case 'SUBSCRIPTION_CHANGE':
+      case 'payment_update':
+        context.push('/profile'); // User's billing settings usually in profile
+        break;
 
       default:
         context.push('/notifications?highlightLatest=true');
