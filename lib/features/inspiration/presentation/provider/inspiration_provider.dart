@@ -5,6 +5,8 @@ import 'package:mobile/features/inspiration/data/data_source/inspiration_remote_
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/auth_interceptor_client.dart';
 import 'dart:async';
+import 'package:mobile/core/di/di.dart';
+import 'package:mobile/core/network/auth_interceptor_client.dart';
 
 class InspirationProvider extends ChangeNotifier {
   final InspirationRemoteDataSource _dataSource;
@@ -32,8 +34,11 @@ class InspirationProvider extends ChangeNotifier {
   bool _showWelcome = true;
   bool get showWelcome => _showWelcome;
 
+  bool get reachedProLimit => _dataSource.reachedProLimit;
+  int get proLockedCount => _dataSource.proLockedCount;
+
   InspirationProvider({InspirationRemoteDataSource? dataSource}) 
-      : _dataSource = dataSource ?? InspirationRemoteDataSource(client: apiClient) {
+      : _dataSource = dataSource ?? InspirationRemoteDataSource(client: sl<AuthInterceptorClient>()) {
     _init();
   }
 
@@ -79,7 +84,7 @@ class InspirationProvider extends ChangeNotifier {
         page: _currentPage,
         limit: _limit,
       );
-      _projects = newProjects;
+      _projects = newProjects.where((p) => p.title != "Aún no hay Océanos Azules").toList();
       _hasMore = newProjects.length == _limit;
       _checkAndStartAutoRefresh();
     } catch (e) {
@@ -109,7 +114,7 @@ class InspirationProvider extends ChangeNotifier {
         _hasMore = false;
       } else {
         _currentPage = nextPage;
-        _projects.addAll(newProjects);
+        _projects.addAll(newProjects.where((p) => p.title != "Aún no hay Océanos Azules"));
         _hasMore = newProjects.length == _limit;
         _checkAndStartAutoRefresh();
       }

@@ -2,6 +2,8 @@ import 'package:mobile/core/network/api_endpoints.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/api_config.dart';
+import 'package:mobile/core/error/app_exception.dart';
+import 'package:mobile/core/error/error_handler.dart';
 import 'package:mobile/features/prof_reviews/data/models/final_review_model.dart';
 
 class ProfReviewsRemoteDataSource {
@@ -33,8 +35,7 @@ class ProfReviewsRemoteDataSource {
         }
       }
     } catch (e) {
-      final msg = e.toString().replaceAll('Exception: ', '');
-      throw Exception(msg);
+      throw NetworkException(e.toString());
     }
   }
 
@@ -73,8 +74,7 @@ class ProfReviewsRemoteDataSource {
         }
       }
     } catch (e) {
-      final msg = e.toString().replaceAll('Exception: ', '');
-      throw Exception(msg);
+      throw NetworkException(e.toString());
     }
   }
 
@@ -113,8 +113,7 @@ class ProfReviewsRemoteDataSource {
         }
       }
     } catch (e) {
-      final msg = e.toString().replaceAll('Exception: ', '');
-      throw Exception(msg);
+      throw NetworkException(e.toString());
     }
   }
 }

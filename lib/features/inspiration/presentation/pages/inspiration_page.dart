@@ -9,6 +9,9 @@ import 'package:mobile/features/inspiration/presentation/provider/inspiration_pr
 import 'package:mobile/core/theme/app_dimens.dart';
 import 'package:mobile/shared/widgets/project_card.dart';
 import 'package:mobile/features/inspiration/presentation/widgets/floating_ai_input.dart';
+import 'package:mobile/shared/widgets/pro_avatar.dart';
+import 'package:lottie/lottie.dart';
+import 'package:mobile/features/profile/presentation/pages/my_subscription_page.dart';
 
 class InspirationPage extends StatefulWidget {
   const InspirationPage({super.key});
@@ -57,6 +60,9 @@ class _InspirationPageState extends State<InspirationPage> {
     final isFetchingMore = context.select<InspirationProvider, bool>((p) => p.isFetchingMore);
     final showWelcome = context.select<InspirationProvider, bool>((p) => p.showWelcome);
     final projectCount = context.select<InspirationProvider, int>((p) => p.projects.length);
+    final reachedProLimit = context.select<InspirationProvider, bool>((p) => p.reachedProLimit);
+    final proLockedCount = context.select<InspirationProvider, int>((p) => p.proLockedCount);
+    final isProUser = context.select<AuthProvider, bool>((p) => p.isProActive);
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -108,17 +114,58 @@ class _InspirationPageState extends State<InspirationPage> {
                           ? const SliverToBoxAdapter(
                               child: _SkeletonLoaderList(),
                             )
-                          : SliverList(
-                              delegate: SliverChildBuilderDelegate(
-                                (context, index) {
-                                  final project = context.read<InspirationProvider>().projects[index];
-                                  return RepaintBoundary(
-                                    child: ProjectCard(project: project),
-                                  );
-                                },
-                                childCount: projectCount,
-                              ),
-                            ),
+                          : projectCount == 0
+                              ? SliverToBoxAdapter(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 40.0),
+                                    child: Center(
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Lottie.asset(
+                                            'assets/animations/empty box3.json',
+                                            width: 200,
+                                            height: 200,
+                                            fit: BoxFit.contain,
+                                            repeat: true,
+                                          ),
+                                          const SizedBox(height: 16),
+                                          const Text(
+                                            "Aún no hay Océanos Azules",
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          const Padding(
+                                            padding: EdgeInsets.symmetric(horizontal: 32.0),
+                                            child: Text(
+                                              "Escanea más proyectos para descubrirlos.",
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : SliverList(
+                                  delegate: SliverChildBuilderDelegate(
+                                    (context, index) {
+                                      final project = context.read<InspirationProvider>().projects[index];
+                                      return RepaintBoundary(
+                                        child: ProjectCard(project: project),
+                                      );
+                                    },
+                                    childCount: projectCount,
+                                  ),
+                                ),
                     ),
 
                     // Indicador de carga (loadMore)
@@ -128,6 +175,59 @@ class _InspirationPageState extends State<InspirationPage> {
                           padding: EdgeInsets.symmetric(vertical: 24.0),
                           child: Center(
                             child: CircularProgressIndicator(),
+                          ),
+                        ),
+                      ),
+
+                    // Banner de Límite Pro
+                    if (reachedProLimit && !isProUser)
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: AppDimens.screenMargin, vertical: 16.0),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const MySubscriptionPage()),
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(16),
+                            child: Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: Colors.orange.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(50),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.workspace_premium, color: Colors.orange.shade700, size: 32),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Hazte PRO',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.orange.shade800,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          'Hay $proLockedCount Océanos Azules más esperando por ti.',
+                                          style: TextStyle(
+                                            color: Colors.orange.shade900.withValues(alpha: 0.8),
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -244,34 +344,25 @@ class _ProfileAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final photoUrl = context.select<AuthProvider, String?>((a) => a.currentUser?.photoUrl);
-    final role = context.select<AuthProvider, String?>((a) => a.role);
-
-    if (photoUrl != null && photoUrl.isNotEmpty) {
-      return Padding(
-        padding: const EdgeInsets.only(right: 16.0),
-        child: Material(
-          type: MaterialType.circle,
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () => _navigateToProfile(context, role),
-            customBorder: const CircleBorder(),
-            child: CircleAvatar(
-              backgroundImage: NetworkImage(photoUrl),
-              radius: 18,
-            ),
-          ),
-        ),
-      );
-    }
-
     return Padding(
       padding: const EdgeInsets.only(right: 16.0),
-      child: GestureDetector(
-        onTap: () => _navigateToProfile(context, role),
-        child: const CircleAvatar(
-          radius: 18,
-          child: Icon(Icons.person),
+      child: Material(
+        type: MaterialType.circle,
+        color: Colors.transparent,
+        child: Consumer<AuthProvider>(
+          builder: (context, authProvider, child) {
+            final role = authProvider.role;
+            return InkWell(
+              onTap: () => _navigateToProfile(context, role),
+              customBorder: const CircleBorder(),
+              child: ProAvatar(
+                photoUrl: authProvider.currentUser?.photoUrl,
+                radius: 18,
+                isPro: authProvider.isProActive,
+                fallbackInitial: authProvider.currentUser?.name ?? 'U',
+              ),
+            );
+          },
         ),
       ),
     );

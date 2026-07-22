@@ -9,7 +9,10 @@ class InspirationRemoteDataSource {
   final http.Client client;
   static const String _cacheKey = 'cached_blue_oceans';
   static const String _cacheTimestampKey = 'cached_blue_oceans_timestamp';
-  static const int _cacheTtlMinutes = 30; // Invalidar cache cada 30 minutos
+  static const int _cacheTtlMinutes = 1; // Invalidar cache cada 1 minuto para mantener datos actualizados
+
+  bool reachedProLimit = false;
+  int proLockedCount = 0;
 
   InspirationRemoteDataSource({required this.client});
 
@@ -27,8 +30,11 @@ class InspirationRemoteDataSource {
       final now = DateTime.now().millisecondsSinceEpoch;
       final ageMinutes = (now - cachedTimestamp) / 60000;
 
-      // Usar cache solo si existe Y tiene menos de 30 minutos
-      if (cachedStr != null && ageMinutes < _cacheTtlMinutes) {
+      // Purga automática si la caché local del teléfono contiene textos viejos
+      if (cachedStr != null && cachedStr.toLowerCase().contains('colisión semántica')) {
+        await prefs.remove(_cacheKey);
+        await prefs.remove(_cacheTimestampKey);
+      } else if (cachedStr != null && ageMinutes < _cacheTtlMinutes) {
         try {
           final List<dynamic> decoded = json.decode(cachedStr);
           return decoded.map((e) => ProjectModel.fromJson(e)).toList();
@@ -47,6 +53,10 @@ class InspirationRemoteDataSource {
 
       if (response.statusCode == 200) {
         final data = json.decode(utf8.decode(response.bodyBytes));
+        
+        reachedProLimit = data['reached_pro_limit'] ?? false;
+        proLockedCount = data['pro_locked_count'] ?? 0;
+        
         final List<dynamic> nichesJson = data['niches'] ?? [];
         final models = nichesJson.map((niche) => ProjectModel.fromJson(niche)).toList();
         

@@ -2,12 +2,16 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/auth_interceptor_client.dart';
 import 'package:mobile/features/student_directory/data/data_source/clustering_remote_data_source.dart';
+import 'package:mobile/core/error/error_handler.dart';
+import 'package:mobile/core/error/app_exception.dart';
+import 'package:mobile/core/di/di.dart';
+import 'package:mobile/core/network/auth_interceptor_client.dart';
 
 class ClusteringProvider extends ChangeNotifier {
   final ClusteringRemoteDataSource remoteDataSource;
 
   ClusteringProvider({ClusteringRemoteDataSource? remoteDataSource})
-      : remoteDataSource = remoteDataSource ?? ClusteringRemoteDataSource(client: apiClient);
+      : remoteDataSource = remoteDataSource ?? ClusteringRemoteDataSource(client: sl<AuthInterceptorClient>());
 
   List<dynamic> _courses = [];
   Map<String, dynamic>? _clusteringSummary;
@@ -31,8 +35,8 @@ class ClusteringProvider extends ChangeNotifier {
     try {
       await remoteDataSource.loginClassroom();
       // Handle login response redirect URL or success status if needed
-    } catch (e) {
-      _errorMessage = e.toString();
+    } catch (e, st) {
+      _errorMessage = mapErrorToMessage(e, stackTrace: st);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -46,8 +50,8 @@ class ClusteringProvider extends ChangeNotifier {
 
     try {
       _courses = await remoteDataSource.getClassroomCourses();
-    } catch (e) {
-      _errorMessage = e.toString();
+    } catch (e, st) {
+      _errorMessage = mapErrorToMessage(e, stackTrace: st);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -63,8 +67,8 @@ class ClusteringProvider extends ChangeNotifier {
       await remoteDataSource.processClustering(courseId);
       // Immediately load the summary
       await fetchClusteringSummary(courseId);
-    } catch (e) {
-      _errorMessage = e.toString();
+    } catch (e, st) {
+      _errorMessage = mapErrorToMessage(e, stackTrace: st);
       rethrow;
     } finally {
       _isLoading = false;
@@ -79,8 +83,8 @@ class ClusteringProvider extends ChangeNotifier {
 
     try {
       _clusteringSummary = await remoteDataSource.getClusteringSummary(courseId);
-    } catch (e) {
-      _errorMessage = e.toString();
+    } catch (e, st) {
+      _errorMessage = mapErrorToMessage(e, stackTrace: st);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -105,8 +109,8 @@ class ClusteringProvider extends ChangeNotifier {
         _isLoading = false;
         notifyListeners();
       }
-    } catch (e) {
-      _errorMessage = e.toString();
+    } catch (e, st) {
+      _errorMessage = mapErrorToMessage(e, stackTrace: st);
       _isLoading = false;
       _isProcessingProfile = false;
       notifyListeners();
@@ -124,8 +128,8 @@ class ClusteringProvider extends ChangeNotifier {
           notifyListeners();
           break;
         }
-      } catch (e) {
-        _errorMessage = e.toString();
+      } catch (e, st) {
+        _errorMessage = mapErrorToMessage(e, stackTrace: st);
         _isProcessingProfile = false;
         notifyListeners();
         break;

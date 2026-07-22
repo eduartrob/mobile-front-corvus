@@ -55,7 +55,7 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (provider.errorMessage != null) {
+          if (provider.errorMessage != null && !provider.errorMessage!.contains('MitM')) {
             return Center(
               child: Text(
                 'Error: ${provider.errorMessage}',

@@ -13,6 +13,10 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobile/core/services/security_service.dart';
 import 'package:mobile/shared/widgets/auth_scaffold.dart';
 import 'package:mobile/l10n/app_localizations.dart';
+import 'package:mobile/core/error/error_handler.dart';
+import 'package:mobile/core/error/app_exception.dart';
+import 'package:mobile/core/di/di.dart';
+import 'package:mobile/core/network/auth_interceptor_client.dart';
 
 class StudentSkillsPage extends StatefulWidget {
   final List<String> suggestedSkills;
@@ -202,7 +206,7 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
         throw Exception('Error: No se recibió token en el login');
       }
 
-      final response = await apiClient.put(
+      final response = await sl<AuthInterceptorClient>().put(
         Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authCompleteProfile}'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({

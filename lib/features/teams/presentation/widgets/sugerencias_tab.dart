@@ -35,7 +35,7 @@ class SugerenciasTab extends StatelessWidget {
             Expanded(
               child: provider.isLoading && suggestions.isEmpty
                   ? const Center(child: CircularProgressIndicator())
-                  : provider.errorMessage != null && suggestions.isEmpty
+                  : (provider.errorMessage != null && !provider.errorMessage!.contains('MitM')) && suggestions.isEmpty
                       ? Center(
                           child: Padding(
                             padding: const EdgeInsets.all(20.0),

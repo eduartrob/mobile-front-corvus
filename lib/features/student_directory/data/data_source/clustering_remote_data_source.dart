@@ -2,6 +2,8 @@ import 'package:mobile/core/network/api_endpoints.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/api_config.dart';
+import 'package:mobile/core/error/app_exception.dart';
+import 'package:mobile/core/error/error_handler.dart';
 
 class ClusteringRemoteDataSource {
   final http.Client client;
@@ -20,8 +22,8 @@ class ClusteringRemoteDataSource {
       } else {
         _handleError(response);
       }
-    } catch (e) {
-      throw Exception(e.toString().replaceAll('Exception: ', ''));
+    } catch (e, st) {
+      throw NetworkException(e.toString());
     }
     throw Exception('Error al iniciar sesión en Classroom');
   }
@@ -38,8 +40,8 @@ class ClusteringRemoteDataSource {
       } else {
         _handleError(response);
       }
-    } catch (e) {
-      throw Exception(e.toString().replaceAll('Exception: ', ''));
+    } catch (e, st) {
+      throw NetworkException(e.toString());
     }
     return [];
   }
@@ -56,8 +58,8 @@ class ClusteringRemoteDataSource {
       } else {
         _handleError(response);
       }
-    } catch (e) {
-      throw Exception(e.toString().replaceAll('Exception: ', ''));
+    } catch (e, st) {
+      throw NetworkException(e.toString());
     }
     throw Exception('Error al procesar el agrupamiento');
   }
@@ -74,8 +76,8 @@ class ClusteringRemoteDataSource {
       } else {
         _handleError(response);
       }
-    } catch (e) {
-      throw Exception(e.toString().replaceAll('Exception: ', ''));
+    } catch (e, st) {
+      throw NetworkException(e.toString());
     }
     throw Exception('Error al obtener el resumen de grupos');
   }
@@ -92,8 +94,8 @@ class ClusteringRemoteDataSource {
       } else {
         _handleError(response);
       }
-    } catch (e) {
-      throw Exception(e.toString().replaceAll('Exception: ', ''));
+    } catch (e, st) {
+      throw NetworkException(e.toString());
     }
     throw Exception('Error al sincronizar el perfil del estudiante');
   }
@@ -110,8 +112,8 @@ class ClusteringRemoteDataSource {
       } else {
         _handleError(response);
       }
-    } catch (e) {
-      throw Exception(e.toString().replaceAll('Exception: ', ''));
+    } catch (e, st) {
+      throw NetworkException(e.toString());
     }
     throw Exception('Error al obtener el perfil completo del estudiante');
   }
@@ -120,7 +122,7 @@ class ClusteringRemoteDataSource {
     final bodyText = utf8.decode(response.bodyBytes);
     try {
       final errorJson = json.decode(bodyText);
-      throw Exception(errorJson['detail'] ?? errorJson['message'] ?? 'Error del servidor (${response.statusCode})');
+      throw mapHttpError(response.statusCode, bodyText);
     } catch (_) {
       throw Exception('Error del servidor: ${response.statusCode} - $bodyText');
     }

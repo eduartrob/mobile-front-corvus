@@ -6,6 +6,8 @@ import '../widgets/skill_filter_chips.dart';
 import '../widgets/student_card.dart';
 import 'package:mobile/core/network/auth_interceptor_client.dart';
 import 'package:mobile/features/teams/data/data_source/teams_remote_data_source.dart';
+import 'package:mobile/core/di/di.dart';
+import 'package:mobile/core/network/auth_interceptor_client.dart';
 
 class StudentDirectoryPage extends StatelessWidget {
   const StudentDirectoryPage({super.key});
@@ -14,7 +16,7 @@ class StudentDirectoryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => StudentDirectoryProvider(
-        remoteDataSource: TeamsRemoteDataSource(client: apiClient),
+        remoteDataSource: TeamsRemoteDataSource(client: sl<AuthInterceptorClient>()),
       ),
       child: const _StudentDirectoryView(),
     );

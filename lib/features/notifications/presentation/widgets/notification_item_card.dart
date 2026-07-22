@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../domain/entities/app_notification.dart';
 import '../provider/notifications_provider.dart';
 
@@ -119,6 +120,16 @@ class _NotificationItemCardState extends State<NotificationItemCard> with Single
         bgColor = const Color(0xFFFEE2E2);
         iconData = Icons.cancel_outlined;
         break;
+      case NotificationType.security:
+        iconColor = const Color(0xFFFF6B00);
+        bgColor = const Color(0xFFFFF0E6);
+        iconData = Icons.security_rounded;
+        break;
+      case NotificationType.payment:
+        iconColor = const Color(0xFF8B5CF6);
+        bgColor = const Color(0xFFF5F3FF);
+        iconData = Icons.credit_card_rounded;
+        break;
       case NotificationType.info:
         iconColor = const Color(0xFF3B82F6);
         bgColor = const Color(0xFFEFF6FF);
@@ -181,11 +192,19 @@ class _NotificationItemCardState extends State<NotificationItemCard> with Single
                 provider.toggleSelection(notification.id);
                 return;
               }
+              // Si tiene deepLink, navegar directamente sin expandir
+              if (notification.deepLink != null && notification.deepLink!.isNotEmpty) {
+                if (!notification.isRead) {
+                  provider.markAsRead(notification.id);
+                }
+                context.go(notification.deepLink!);
+                return;
+              }
               setState(() {
                 _isExpanded = !_isExpanded;
               });
               if (!notification.isRead) {
-                context.read<NotificationsProvider>().markAsRead(notification.id);
+                provider.markAsRead(notification.id);
               }
             },
             child: Padding(
@@ -281,6 +300,16 @@ class _NotificationItemCardState extends State<NotificationItemCard> with Single
                       decoration: BoxDecoration(
                         color: colorScheme.primary,
                         shape: BoxShape.circle,
+                      ),
+                    ),
+                  // Flecha indicando que al tocar navega a algún lugar
+                  if (notification.deepLink != null && notification.deepLink!.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 4, top: 2),
+                      child: Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 14,
+                        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                       ),
                     ),
                 ],

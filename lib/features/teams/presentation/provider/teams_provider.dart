@@ -3,6 +3,8 @@ import 'package:mobile/features/student_directory/domain/entities/student.dart';
 import 'package:mobile/features/teams/data/models/team_model.dart';
 import 'package:mobile/features/teams/data/models/solicitud_model.dart';
 import 'package:mobile/features/teams/domain/repositories/teams_repository.dart';
+import 'package:mobile/core/error/error_handler.dart';
+import 'package:mobile/core/error/app_exception.dart';
 
 enum SolicitudFilter {
   recibidas,
@@ -68,7 +70,8 @@ class TeamsProvider extends ChangeNotifier {
     _errorMessage = null;
     _myTeam = null;
     _finalReviewStatus = null;
-    notifyListeners();
+    // Use microtask to avoid calling notifyListeners during Flutter build phase
+    Future.microtask(() => notifyListeners());
 
     try {
       _myTeam = await _repository.getMyTeam(projectId: projectId);
@@ -101,8 +104,8 @@ class TeamsProvider extends ChangeNotifier {
               int.tryParse(config['max_team_members'].toString()) ?? 4;
         }
       }
-    } catch (e) {
-      _errorMessage = e.toString();
+    } catch (e, st) {
+      _errorMessage = mapErrorToMessage(e, stackTrace: st);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -122,8 +125,8 @@ class TeamsProvider extends ChangeNotifier {
         socialLinks,
         projectId: _activeProjectId, // pasar siempre el projectId activo
       );
-    } catch (e) {
-      _errorMessage = e.toString();
+    } catch (e, st) {
+      _errorMessage = mapErrorToMessage(e, stackTrace: st);
       rethrow;
     } finally {
       _isLoading = false;
@@ -139,8 +142,8 @@ class TeamsProvider extends ChangeNotifier {
     try {
       await _repository.leaveTeam();
       _myTeam = null;
-    } catch (e) {
-      _errorMessage = e.toString();
+    } catch (e, st) {
+      _errorMessage = mapErrorToMessage(e, stackTrace: st);
       rethrow;
     } finally {
       _isLoading = false;
@@ -167,8 +170,8 @@ class TeamsProvider extends ChangeNotifier {
           project: _myTeam!.project,
         );
       }
-    } catch (e) {
-      _errorMessage = e.toString();
+    } catch (e, st) {
+      _errorMessage = mapErrorToMessage(e, stackTrace: st);
       rethrow;
     } finally {
       _isLoading = false;
@@ -186,8 +189,8 @@ class TeamsProvider extends ChangeNotifier {
       final results = await _repository.getSuggestions(
           skill: skill, search: search, showAll: showAll, projectId: projectId);
       _suggestions = results.where((s) => s.id != null).toList();
-    } catch (e) {
-      _errorMessage = e.toString();
+    } catch (e, st) {
+      _errorMessage = mapErrorToMessage(e, stackTrace: st);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -204,8 +207,8 @@ class TeamsProvider extends ChangeNotifier {
           ? 'recibidas'
           : 'enviadas';
       _requests = await _repository.getRequests(filterStr, projectId: projectId);
-    } catch (e) {
-      _errorMessage = e.toString();
+    } catch (e, st) {
+      _errorMessage = mapErrorToMessage(e, stackTrace: st);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -221,8 +224,8 @@ class TeamsProvider extends ChangeNotifier {
       await _repository.sendInvitation(studentId, projectId: _activeProjectId);
       _suggestions.removeWhere((student) => student.id == studentId);
       fetchRequests(projectId: _activeProjectId);
-    } catch (e) {
-      _errorMessage = e.toString();
+    } catch (e, st) {
+      _errorMessage = mapErrorToMessage(e, stackTrace: st);
       rethrow;
     } finally {
       _isLoading = false;
@@ -238,8 +241,8 @@ class TeamsProvider extends ChangeNotifier {
     try {
       await _repository.cancelRequest(requestId);
       _requests.removeWhere((r) => r.id == requestId);
-    } catch (e) {
-      _errorMessage = e.toString();
+    } catch (e, st) {
+      _errorMessage = mapErrorToMessage(e, stackTrace: st);
       rethrow;
     } finally {
       _isLoading = false;
@@ -257,8 +260,8 @@ class TeamsProvider extends ChangeNotifier {
       // Refrescar equipo y config (número de integrantes puede haber cambiado)
       await fetchMyTeam(projectId: _activeProjectId);
       fetchRequests(projectId: _activeProjectId);
-    } catch (e) {
-      _errorMessage = e.toString();
+    } catch (e, st) {
+      _errorMessage = mapErrorToMessage(e, stackTrace: st);
       rethrow;
     } finally {
       _isLoading = false;

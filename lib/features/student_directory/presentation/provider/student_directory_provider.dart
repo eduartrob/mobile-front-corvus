@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/features/teams/data/data_source/teams_remote_data_source.dart';
 import '../../domain/entities/student.dart';
+import 'package:mobile/core/error/error_handler.dart';
+import 'package:mobile/core/error/app_exception.dart';
 
 class StudentDirectoryProvider extends ChangeNotifier {
   String _searchQuery = '';
@@ -29,8 +31,8 @@ class StudentDirectoryProvider extends ChangeNotifier {
 
     try {
       _allStudents = await _remoteDataSource.getStudentDirectory();
-    } catch (e) {
-      _error = e.toString();
+    } catch (e, st) {
+      _error = mapErrorToMessage(e, stackTrace: st);
     } finally {
       _isLoading = false;
       notifyListeners();

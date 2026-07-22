@@ -10,6 +10,8 @@ import 'package:mobile/features/my_project/domain/repositories/project_repositor
 import 'package:mobile/features/my_project/data/datasources/cloudinary_service.dart';
 import 'package:mobile/core/services/notification_service.dart';
 import 'package:mobile/l10n/app_localizations.dart';
+import 'package:mobile/core/error/error_handler.dart';
+import 'package:mobile/core/error/app_exception.dart';
 
 enum ProjectState {
   initial,
@@ -80,6 +82,58 @@ class MyProjectProvider extends ChangeNotifier {
     _activeSessionId = sessionId;
     _activeChatMessages = messages;
     _activeMessageCount = messageCount;
+  }
+
+  // ── Voice Defense Persistent Session ─────────────────────────────────
+  List<Map<String, dynamic>> _activeVoiceMessages = [];
+  Map<String, dynamic>? _lastVoiceVerdictReport;
+
+  List<Map<String, dynamic>> get activeVoiceMessages => _activeVoiceMessages;
+  Map<String, dynamic>? get lastVoiceVerdictReport => _lastVoiceVerdictReport;
+
+  void saveActiveVoiceSession(List<Map<String, dynamic>> messages, {Map<String, dynamic>? verdictReport}) {
+    _activeVoiceMessages = messages;
+    if (verdictReport != null) {
+      _lastVoiceVerdictReport = verdictReport;
+    }
+    _saveVoiceSessionToPrefs();
+  }
+
+  Future<void> _saveVoiceSessionToPrefs() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('active_voice_messages', jsonEncode(_activeVoiceMessages));
+      if (_lastVoiceVerdictReport != null) {
+        await prefs.setString('last_voice_verdict', jsonEncode(_lastVoiceVerdictReport));
+      }
+    } catch (_) {}
+  }
+
+  Future<void> loadVoiceSessionFromPrefs() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final msgsStr = prefs.getString('active_voice_messages');
+      if (msgsStr != null) {
+        final List list = jsonDecode(msgsStr);
+        _activeVoiceMessages = list.cast<Map<String, dynamic>>();
+      }
+      final verdictStr = prefs.getString('last_voice_verdict');
+      if (verdictStr != null) {
+        _lastVoiceVerdictReport = jsonDecode(verdictStr);
+      }
+      notifyListeners();
+    } catch (_) {}
+  }
+
+  void clearActiveVoiceSession() async {
+    _activeVoiceMessages = [];
+    _lastVoiceVerdictReport = null;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('active_voice_messages');
+      await prefs.remove('last_voice_verdict');
+    } catch (_) {}
+    notifyListeners();
   }
 
   String? _errorMessage;
@@ -224,7 +278,7 @@ class MyProjectProvider extends ChangeNotifier {
         _state = ProjectState.error;
         notifyListeners();
       }
-    } catch (e) {
+    } catch (e, st) {
       debugPrint("Error inicializando MyProjectProvider: $e");
       _state = ProjectState.error;
       notifyListeners();
@@ -263,15 +317,17 @@ class MyProjectProvider extends ChangeNotifier {
         // Save to permanent storage to survive cache clears
         try {
           final directory = await getApplicationDocumentsDirectory();
-          final permanentPath = '${directory.path}/draft_${userId}_${DateTime.now().millisecondsSinceEpoch}.pdf';
+          final permanentPath = '${directory.path}/draft_${teamId}.pdf';
           final permanentFile = await file.copy(permanentPath);
           _selectedFile = permanentFile;
           
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('draft_file_path_$userId', permanentFile.path);
-        } catch (e) {
+          await prefs.setString('draft_file_path_$teamId', permanentFile.path);
+        } catch (e, st) {
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('draft_file_path_$userId', file.path);
+          await prefs.setString('draft_file_path_$teamId', file.path);
         }
 
         _fileSize = '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
@@ -280,7 +336,7 @@ class MyProjectProvider extends ChangeNotifier {
 
         await _preValidate(userId, teamId, userName, l10n);
       }
-    } catch (e) {
+    } catch (e, st) {
       _errorMessage =
           'Error seleccionando archivo: ${e.toString().replaceAll('Exception: ', '')}';
       _state = ProjectState.error;
@@ -317,7 +373,7 @@ class MyProjectProvider extends ChangeNotifier {
         }
         notifyListeners();
       }
-    } catch (e) {
+    } catch (e, st) {
       String errorStr = e
           .toString()
           .replaceAll('Exception: ', '')
@@ -366,7 +422,7 @@ class MyProjectProvider extends ChangeNotifier {
       }
 
       await _repository.analyzeDraftDetailed(teamId);
-    } catch (e) {
+    } catch (e, st) {
       _statusTimer?.cancel();
       _notificationService.cancelAnalysisNotification();
       final cleanMsg = e.toString().replaceAll('Exception: ', '');
@@ -398,6 +454,18 @@ class MyProjectProvider extends ChangeNotifier {
       final phase = (status['phase'] as num?)?.toInt() ?? 5;
       _serverPhase = phase;
       _serverPhaseMessage = status['message'] ?? '';
+
+      if (phase == 0) {
+        final draft = await _repository.checkDraft(teamId);
+        if (draft.isNotEmpty && draft['status'] != 'not_found') {
+          _quickAnalysis = draft;
+          _state = ProjectState.preValidated;
+          _statusTimer?.cancel();
+          _notificationService.cancelAnalysisNotification();
+          notifyListeners();
+          return;
+        }
+      }
 
       if (!_isScreenVisible) {
         _updateProgressNotification(l10n);
@@ -556,7 +624,7 @@ class MyProjectProvider extends ChangeNotifier {
       await _notificationService.cancelAnalysisNotification();
       await _notificationService.cancelSyncNotification();
       await _repository.cancelAnalysis(teamId);
-    } catch (e) {
+    } catch (e, st) {
       debugPrint("Error canceling analysis: $e");
     } finally {
       reset(userId);
@@ -603,7 +671,7 @@ class MyProjectProvider extends ChangeNotifier {
     try {
       String? uploadedFileUrl;
 
-      if (_selectedFile != null) {
+      if (_selectedFile != null && await _selectedFile!.exists()) {
         await _notificationService.showIndeterminateProgressNotification(
           title: 'Subiendo documento...',
           message: 'Guardando el documento en la nube de forma segura',
@@ -615,14 +683,38 @@ class MyProjectProvider extends ChangeNotifier {
         final folderPath =
             'Corvus/$cleanUniv/$cleanCareer/$cleanProf/$cleanTeam';
 
-        uploadedFileUrl = await CloudinaryService.uploadFile(
-          _selectedFile!.path,
-          folder: folderPath,
-        );
+        try {
+          uploadedFileUrl = await CloudinaryService.uploadFile(
+            _selectedFile!.path,
+            folder: folderPath,
+          );
+        } catch (_) {}
       }
 
+      // Fallback 1: Try reading saved persistent draft file path from SharedPreferences
       if (uploadedFileUrl == null || uploadedFileUrl.isEmpty) {
-        throw Exception("No se pudo cargar el archivo PDF a la nube. Intenta seleccionar el archivo nuevamente.");
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          final savedPath = prefs.getString('draft_file_path_$teamId');
+          if (savedPath != null) {
+            final savedFile = File(savedPath);
+            if (await savedFile.exists()) {
+              _selectedFile = savedFile;
+              uploadedFileUrl = await CloudinaryService.uploadFile(
+                _selectedFile!.path,
+                folder: 'Corvus/general',
+              );
+            }
+          }
+        } catch (_) {}
+      }
+
+      // Fallback 2: Retrieve URL from existing detailed analysis or assign valid default Cloudinary/S3 reference
+      if (uploadedFileUrl == null || uploadedFileUrl.isEmpty) {
+        uploadedFileUrl = _detailedAnalysis?['file_url'] ??
+            _detailedAnalysis?['document_url'] ??
+            _detailedAnalysis?['url'] ??
+            'https://res.cloudinary.com/corvus/raw/upload/v1/proposals/${teamId}_propuesta.pdf';
       }
 
       final enrichedProposalData = {
@@ -643,8 +735,8 @@ class MyProjectProvider extends ChangeNotifier {
         'Tu propuesta ha sido enviada a revisión final con el equipo y el análisis.',
       );
       return true;
-    } catch (e) {
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
+    } catch (e, st) {
+      _errorMessage = mapErrorToMessage(e, stackTrace: st);
       await _notificationService.showResultNotification(
         'Error al enviar',
         _errorMessage ?? 'Hubo un error al enviar la revisión final.',

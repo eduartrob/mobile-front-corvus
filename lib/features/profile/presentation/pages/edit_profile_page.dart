@@ -6,6 +6,7 @@ import 'package:mobile/features/profile/presentation/pages/edit_field_page.dart'
 import 'package:mobile/features/profile/presentation/pages/edit_skills_page.dart';
 import 'package:mobile/features/profile/presentation/pages/edit_email_page.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/shared/widgets/pro_avatar.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'dart:convert';
@@ -199,15 +200,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
             Center(
               child: Stack(
                 children: [
-                  CircleAvatar(
+                  ProAvatar(
+                    photoUrl: currentUser?.photoUrl,
                     radius: 80,
-                    backgroundColor: colorScheme.surfaceContainerHighest,
-                    backgroundImage: (currentUser?.photoUrl != null && currentUser!.photoUrl!.isNotEmpty)
-                        ? NetworkImage(currentUser.photoUrl!)
-                        : null,
-                    child: (currentUser?.photoUrl == null || currentUser!.photoUrl!.isEmpty)
-                        ? Icon(Icons.person, size: 70, color: colorScheme.onSurfaceVariant)
-                        : null,
+                    isPro: authProvider.isProActive,
+                    fallbackInitial: currentUser?.name ?? 'U',
                   ),
                   Positioned(
                     bottom: 0,

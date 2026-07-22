@@ -15,8 +15,26 @@ import 'dart:convert';
 import 'package:mobile/core/network/api_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/features/auth/domain/use_cases/login_with_email_usecase.dart';
+import 'package:mobile/core/error/error_handler.dart';
+import 'package:mobile/core/error/app_exception.dart';
+import 'package:mobile/core/di/di.dart';
+import 'package:mobile/core/network/auth_interceptor_client.dart';
 
 enum AuthStatus { initial, loading, authenticated, unauthenticated, error }
+
+class PaymentCreationResult {
+  final String id;
+  final String urlPago;
+
+  PaymentCreationResult({required this.id, required this.urlPago});
+
+  factory PaymentCreationResult.fromJson(Map<String, dynamic> json) {
+    return PaymentCreationResult(
+      id: json['id']?.toString() ?? '',
+      urlPago: json['url_pago']?.toString() ?? json['urlPago']?.toString() ?? '',
+    );
+  }
+}
 
 class AuthProvider extends ChangeNotifier {
   final SignInWithGoogleUseCase signInWithGoogleUseCase;
@@ -47,6 +65,13 @@ class AuthProvider extends ChangeNotifier {
   String? get role => _currentUser?.role ?? _cachedRole;
   String? get errorMessage => _errorMessage;
 
+  bool _isProActive = false;
+  String? _proPlan;
+  String? _proExpiresAt;
+  bool get isProActive => _isProActive;
+  String? get proPlan => _proPlan;
+  String? get proExpiresAt => _proExpiresAt;
+
   Future<void> checkAuthStatus() async {
     _status = AuthStatus.loading;
     notifyListeners();
@@ -71,11 +96,14 @@ class AuthProvider extends ChangeNotifier {
           token: token,
           role: savedRole,
         );
+        final savedProActive = await _storage.read(key: 'auth_pro_active');
+        _isProActive = (savedProActive == 'true');
 
         _status = AuthStatus.authenticated;
+        fetchProSubscriptionStatus(email: savedEmail).catchError((_) {});
         
         // Fetch /me to update profile info silently in background
-        apiClient.get(Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authMe}')).then((response) {
+        sl<AuthInterceptorClient>().get(Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authMe}')).then((response) {
           if (response.statusCode == 200) {
             final data = jsonDecode(response.body);
             final userData = data['user'];
@@ -128,7 +156,7 @@ class AuthProvider extends ChangeNotifier {
       } else {
         _status = AuthStatus.unauthenticated;
       }
-    } catch (e) {
+    } catch (e, st) {
       _status = AuthStatus.unauthenticated;
     }
     notifyListeners();
@@ -161,13 +189,13 @@ class AuthProvider extends ChangeNotifier {
 
       try {
         // Trigger profile parsing in background silently
-        final clusteringDs = ClusteringRemoteDataSource(client: apiClient);
+        final clusteringDs = ClusteringRemoteDataSource(client: sl<AuthInterceptorClient>());
         clusteringDs.syncStudentProfile().catchError((_) => <String, dynamic>{});
       } catch (_) {}
 
       _status = AuthStatus.authenticated;
       notifyListeners();
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       String errorStr = e.toString();
       if (errorStr.contains('USER_NOT_REGISTERED|')) {
         _errorMessage = errorStr.replaceAll('Exception: ', '');
@@ -210,14 +238,15 @@ class AuthProvider extends ChangeNotifier {
       await NotificationService().requestPermission();
 
       try {
-        final clusteringDs = ClusteringRemoteDataSource(client: apiClient);
+        final clusteringDs = ClusteringRemoteDataSource(client: sl<AuthInterceptorClient>());
         clusteringDs.syncStudentProfile().catchError((_) => <String, dynamic>{});
       } catch (_) {}
 
       _status = AuthStatus.authenticated;
+      fetchProSubscriptionStatus(email: user.email).catchError((_) {});
       notifyListeners();
-    } catch (e) {
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
+    } catch (e, st) {
+      _errorMessage = mapErrorToMessage(e, stackTrace: st);
       _status = AuthStatus.error;
       notifyListeners();
     }
@@ -226,7 +255,7 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> requestDriveAccess() async {
     try {
       return await requestDriveScopeUseCase();
-    } catch (e) {
+    } catch (e, st) {
       return false;
     }
   }
@@ -236,7 +265,7 @@ class AuthProvider extends ChangeNotifier {
       final token = await _storage.read(key: 'auth_token');
       if (token == null) return false;
       return await requestClassroomScopesUseCase(token);
-    } catch (e) {
+    } catch (e, st) {
       return false;
     }
   }
@@ -244,7 +273,7 @@ class AuthProvider extends ChangeNotifier {
   Future<String?> getDriveAccessToken() async {
     try {
       return await getDriveAccessTokenUseCase();
-    } catch (e) {
+    } catch (e, st) {
       return null;
     }
   }
@@ -269,13 +298,13 @@ class AuthProvider extends ChangeNotifier {
       if (_currentUser != null) {
         await FirebaseMessaging.instance.unsubscribeFromTopic('user_${_currentUser!.id}').timeout(const Duration(seconds: 3));
       }
-    } catch (e) {
+    } catch (e, st) {
       // FCM deregister failed silently
     }
 
     try {
       await signOutFromGoogleUseCase().timeout(const Duration(seconds: 3));
-    } catch (e) {
+    } catch (e, st) {
     }
 
     await _storage.delete(key: 'auth_token');
@@ -287,8 +316,80 @@ class AuthProvider extends ChangeNotifier {
     await _storage.delete(key: 'auth_photo');
     _currentUser = null;
     _cachedRole = null;
+    _isProActive = false;
+    _proPlan = null;
+    _proExpiresAt = null;
     _status = AuthStatus.unauthenticated;
     notifyListeners();
+  }
+
+  Future<void> fetchProSubscriptionStatus({String? email}) async {
+    final currentEmail = email ?? _currentUser?.email ?? await _storage.read(key: 'auth_email');
+    if (currentEmail == null || currentEmail.isEmpty) return;
+    try {
+      final token = await _storage.read(key: 'auth_token');
+      final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/pagos/suscripcion/' + Uri.encodeComponent(currentEmail));
+      final response = await sl<AuthInterceptorClient>().get(uri).timeout(const Duration(seconds: 10));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        _isProActive = data['activa'] == true || data['activa']?.toString().toLowerCase() == 'true';
+        _proPlan = data['plan']?.toString();
+        _proExpiresAt = data['vence']?.toString();
+        await _storage.write(key: 'auth_pro_active', value: _isProActive ? 'true' : 'false');
+      } else {
+        _isProActive = false;
+        _proPlan = null;
+        _proExpiresAt = null;
+        await _storage.write(key: 'auth_pro_active', value: 'false');
+      }
+    } catch (_) {
+      _isProActive = false;
+      _proPlan = null;
+      _proExpiresAt = null;
+    }
+    notifyListeners();
+  }
+
+  Future<PaymentCreationResult> createPayment({required String metodo}) async {
+    final email = _currentUser?.email ?? await _storage.read(key: 'auth_email');
+    if (email == null || email.isEmpty) {
+      throw Exception('No se encontró el email del usuario');
+    }
+    final token = await _storage.read(key: 'auth_token');
+    final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/pagos/crear');
+    final body = jsonEncode({
+      'alumno_email': email,
+      'concepto': 'Plan Pro mensual',
+      'monto': 50.00,
+      'metodo': metodo,
+    });
+    final response = await sl<AuthInterceptorClient>().post(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: body,
+    ).timeout(const Duration(seconds: 15));
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final data = jsonDecode(response.body);
+      final result = PaymentCreationResult.fromJson(data);
+      if (result.id.isEmpty || result.urlPago.isEmpty) {
+        throw Exception('Respuesta inválida del servicio de pagos');
+      }
+      return result;
+    }
+    throw Exception('Error al crear pago: ' + response.statusCode.toString());
+  }
+
+  Future<Map<String, dynamic>> checkPaymentStatus(String paymentId) async {
+    if (paymentId.isEmpty) throw Exception('ID de pago inválido');
+    final token = await _storage.read(key: 'auth_token');
+    final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/pagos/' + paymentId);
+    final response = await sl<AuthInterceptorClient>().get(uri).timeout(const Duration(seconds: 10));
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    }
+    throw Exception('Error al consultar estado de pago: ' + response.statusCode.toString());
   }
 
   void clearError() {
@@ -298,7 +399,7 @@ class AuthProvider extends ChangeNotifier {
 
   Future<bool> validateUniversityCode(String code) async {
     try {
-      final response = await apiClient.post(
+      final response = await sl<AuthInterceptorClient>().post(
         Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authUniversitiesValidate}'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'code': code}),
@@ -319,7 +420,7 @@ class AuthProvider extends ChangeNotifier {
       _errorMessage = 'Código de universidad inválido';
       notifyListeners();
       return false;
-    } catch (e) {
+    } catch (e, st) {
       _errorMessage = 'Error al validar el código';
       notifyListeners();
       return false;
@@ -332,7 +433,7 @@ class AuthProvider extends ChangeNotifier {
       if (token == null) return false;
 
       // Actualizar foto en el backend usando Cloudinary
-      final response = await apiClient.put(
+      final response = await sl<AuthInterceptorClient>().put(
         Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authProfilePicture}'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'imageBase64': base64Image}),
@@ -352,7 +453,7 @@ class AuthProvider extends ChangeNotifier {
         }
       }
       return false;
-    } catch (e) {
+    } catch (e, st) {
       return false;
     }
   }
@@ -362,7 +463,7 @@ class AuthProvider extends ChangeNotifier {
       final token = await _storage.read(key: 'auth_token');
       if (token == null) return false;
 
-      final response = await apiClient.delete(
+      final response = await sl<AuthInterceptorClient>().delete(
         Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authProfilePicture}'),
         headers: {'Content-Type': 'application/json'},
       );
@@ -376,7 +477,7 @@ class AuthProvider extends ChangeNotifier {
         return true;
       }
       return false;
-    } catch (e) {
+    } catch (e, st) {
       return false;
     }
   }
@@ -386,7 +487,7 @@ class AuthProvider extends ChangeNotifier {
       final token = await _storage.read(key: 'auth_token');
       if (token == null) return false;
 
-      final response = await apiClient.delete(
+      final response = await sl<AuthInterceptorClient>().delete(
         Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authDeleteAccount}'),
         headers: {'Content-Type': 'application/json'},
       );
@@ -396,7 +497,7 @@ class AuthProvider extends ChangeNotifier {
         return true;
       }
       return false;
-    } catch (e) {
+    } catch (e, st) {
       return false;
     }
   }

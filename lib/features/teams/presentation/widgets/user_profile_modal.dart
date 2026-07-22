@@ -1,4 +1,7 @@
 /*  */import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/shared/widgets/pro_avatar.dart';
 
 Future<void> showUserProfileModal({
   required BuildContext context,
@@ -75,32 +78,18 @@ class _UserProfileModal extends StatelessWidget {
                   // Profile Avatar
                   Positioned(
                     left: 16,
-                    top: 150 - 45, // Half inside, half outside
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: colorScheme.surface,
-                          width: 4,
-                        ),
-                      ),
-                      child: CircleAvatar(
-                        radius: 45,
-                        backgroundColor: colorScheme.primaryContainer,
-                        backgroundImage: (avatarUrl.isNotEmpty) 
-                            ? NetworkImage(avatarUrl) 
-                            : null,
-                        child: (avatarUrl.isEmpty)
-                            ? Text(
-                                name.isNotEmpty ? name.substring(0, 1).toUpperCase() : '?',
-                                style: TextStyle(
-                                  color: colorScheme.onPrimaryContainer,
-                                  fontSize: 36,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              )
-                            : null,
-                      ),
+                    top: 150 - 45,
+                    child: Consumer<AuthProvider>(
+                      builder: (context, auth, child) {
+                        final isMeUser = avatarUrl == auth.currentUser?.photoUrl || name == auth.currentUser?.name;
+                        final isUserPro = (isMeUser && auth.isProActive);
+                        return ProAvatar(
+                          photoUrl: avatarUrl,
+                          radius: 45,
+                          isPro: isUserPro,
+                          fallbackInitial: name,
+                        );
+                      },
                     ),
                   ),
                   // Name and Mocked Description next to Avatar

@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/api_config.dart';
+import 'package:mobile/core/error/app_exception.dart';
+import 'package:mobile/core/error/error_handler.dart';
 import 'package:mobile/features/profile/data/models/profile_completo_model.dart';
 
 class ProfileRemoteDataSource {
@@ -21,10 +23,10 @@ class ProfileRemoteDataSource {
       } else {
         final bodyText = utf8.decode(response.bodyBytes);
         final errorJson = json.decode(bodyText);
-        throw Exception(errorJson['detail'] ?? errorJson['message'] ?? 'Error del servidor (${response.statusCode})');
+        throw mapHttpError(response.statusCode, bodyText);
       }
-    } catch (e) {
-      throw Exception(e.toString().replaceAll('Exception: ', ''));
+    } catch (e, st) {
+      throw NetworkException(e.toString());
     }
   }
 
@@ -61,8 +63,8 @@ class ProfileRemoteDataSource {
         throw Exception(errorJson['error'] ?? 'Error al actualizar perfil');
       }
 
-    } catch (e) {
-      throw Exception(e.toString().replaceAll('Exception: ', ''));
+    } catch (e, st) {
+      throw NetworkException(e.toString());
     }
   }
 
@@ -78,8 +80,8 @@ class ProfileRemoteDataSource {
         final errorJson = json.decode(utf8.decode(response.bodyBytes));
         throw Exception(errorJson['error'] ?? 'Error al solicitar código');
       }
-    } catch (e) {
-      throw Exception(e.toString().replaceAll('Exception: ', ''));
+    } catch (e, st) {
+      throw NetworkException(e.toString());
     }
   }
 
@@ -96,8 +98,8 @@ class ProfileRemoteDataSource {
         final errorJson = json.decode(utf8.decode(response.bodyBytes));
         throw Exception(errorJson['error'] ?? 'Error al verificar código');
       }
-    } catch (e) {
-      throw Exception(e.toString().replaceAll('Exception: ', ''));
+    } catch (e, st) {
+      throw NetworkException(e.toString());
     }
   }
 
@@ -114,8 +116,8 @@ class ProfileRemoteDataSource {
         final errorJson = json.decode(utf8.decode(response.bodyBytes));
         throw Exception(errorJson['error'] ?? 'Error al vincular cuenta');
       }
-    } catch (e) {
-      throw Exception(e.toString().replaceAll('Exception: ', ''));
+    } catch (e, st) {
+      throw NetworkException(e.toString());
     }
   }
 
@@ -132,8 +134,8 @@ class ProfileRemoteDataSource {
         final errorJson = json.decode(utf8.decode(response.bodyBytes));
         throw Exception(errorJson['error'] ?? 'Error al añadir correo secundario');
       }
-    } catch (e) {
-      throw Exception(e.toString().replaceAll('Exception: ', ''));
+    } catch (e, st) {
+      throw NetworkException(e.toString());
     }
   }
 
@@ -150,8 +152,8 @@ class ProfileRemoteDataSource {
         final errorJson = json.decode(utf8.decode(response.bodyBytes));
         throw Exception(errorJson['error'] ?? 'Error al borrar correo');
       }
-    } catch (e) {
-      throw Exception(e.toString().replaceAll('Exception: ', ''));
+    } catch (e, st) {
+      throw NetworkException(e.toString());
     }
   }
 }

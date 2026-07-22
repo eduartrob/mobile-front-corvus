@@ -13,6 +13,8 @@ import 'package:mobile/features/auth/presentation/provider/registration_provider
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/auth/presentation/widgets/career_autocomplete_field.dart';
 import 'package:mobile/core/services/security_service.dart';
+import 'package:mobile/core/error/error_handler.dart';
+import 'package:mobile/core/error/app_exception.dart';
 
 class TeacherInfoPage extends StatefulWidget {
   const TeacherInfoPage({super.key});
@@ -195,13 +197,13 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
         await context.read<AuthProvider>().checkAuthStatus();
         context.pushReplacement('/prof-dash');
       }
-    } catch (e) {
+    } catch (e, st) {
       setState(() {
         _isLoading = false;
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
+          SnackBar(content: Text(mapErrorToMessage(e))),
         );
       }
     }

@@ -64,7 +64,7 @@ class _ProjectLayoutState extends State<ProjectLayout> {
           children: [
             TeamsPage(key: ValueKey('teams_${widget.projectId}'), projectId: widget.projectId),
             MyProjectPage(key: ValueKey('myproject_${widget.projectId}')),
-            const TeamChatPage(),
+            // const TeamChatPage(), // Oculto temporalmente
           ],
         ),
         bottomNavigationBar: CustomAnimatedBottomNavBar(
@@ -81,11 +81,11 @@ class _ProjectLayoutState extends State<ProjectLayout> {
               activeIcon: Icons.upload_file,
               label: 'Propuesta',
             ),
-            CustomNavItemData(
+            /* CustomNavItemData(
               icon: Icons.chat_bubble_outline,
               activeIcon: Icons.chat_bubble,
               label: 'Chat',
-            ),
+            ), */
           ],
         ),
       ),

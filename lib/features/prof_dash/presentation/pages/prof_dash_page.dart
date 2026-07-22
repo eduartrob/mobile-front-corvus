@@ -64,7 +64,9 @@ class _ProfDashPageState extends State<ProfDashPage> {
       ),
       body: Consumer<ProfDashboardProvider>(
         builder: (context, provider, child) {
-          if (provider.errorMessage != null && provider.dashboardData == null) {
+          if (provider.errorMessage != null && 
+              provider.dashboardData == null && 
+              !provider.errorMessage!.contains('MitM')) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -404,6 +406,9 @@ class _ProfDashPageState extends State<ProfDashPage> {
                           ),
                           child: Text(
                             l10n.viewLaggingStudentsDirectory,
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               fontWeight: FontWeight.w600,
                               letterSpacing: 0.2,

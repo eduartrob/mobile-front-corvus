@@ -155,7 +155,9 @@
   "searchPlaceholderResult": "Results for: {query}\n(Soon connected to AI)",
   "@searchPlaceholderResult": {
     "placeholders": {
-      "query": { "type": "String" }
+      "query": {
+        "type": "String"
+      }
     }
   },
   "searchFieldLabelHint": "Search projects or topics...",
@@ -163,7 +165,9 @@
   "searchSuggestion": "Search \"{query}\" in all repositories",
   "@searchSuggestion": {
     "placeholders": {
-      "query": { "type": "String" }
+      "query": {
+        "type": "String"
+      }
     }
   },
   "manageTeamTitle": "Manage Team",
@@ -181,7 +185,9 @@
   "teamSettingsError": "Error saving changes: {error}",
   "@teamSettingsError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "myTeam": "My Team",
@@ -191,15 +197,21 @@
   "teamMembersCount": "{count} / {max} members",
   "@teamMembersCount": {
     "placeholders": {
-      "count": { "type": "String" },
-      "max": { "type": "String" }
+      "count": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
     }
   },
   "missingOneMember": "You are missing 1 member",
   "missingMembers": "You are missing {count} members",
   "@missingMembers": {
     "placeholders": {
-      "count": { "type": "String" }
+      "count": {
+        "type": "String"
+      }
     }
   },
   "searchMembers": "Search members",
@@ -214,13 +226,17 @@
   "appointmentDate": "Date: {date}",
   "@appointmentDate": {
     "placeholders": {
-      "date": { "type": "String" }
+      "date": {
+        "type": "String"
+      }
     }
   },
   "appointmentLocation": "Location/Link: {location}",
   "@appointmentLocation": {
     "placeholders": {
-      "location": { "type": "String" }
+      "location": {
+        "type": "String"
+      }
     }
   },
   "searchResults": "Search results",
@@ -228,20 +244,26 @@
   "errorLoadingSuggestions": "Error loading suggestions:\n{error}",
   "@errorLoadingSuggestions": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "noSuggestionsFound": "No suggestions found",
   "invitationSent": "Invitation sent to {name}",
   "@invitationSent": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "errorSendingInvitation": "Error sending invitation: {error}",
   "@errorSendingInvitation": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "received": "Received",
@@ -256,8 +278,12 @@
   "proposalsReadyDetail": "{ready} of {total} teams",
   "@proposalsReadyDetail": {
     "placeholders": {
-      "ready": { "type": "String" },
-      "total": { "type": "String" }
+      "ready": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
     }
   },
   "attentionRequired": "Attention Required",
@@ -266,13 +292,17 @@
   "studentsWithTeam": "{count} Students with team",
   "@studentsWithTeam": {
     "placeholders": {
-      "count": { "type": "String" }
+      "count": {
+        "type": "String"
+      }
     }
   },
   "studentsWithoutTeam": "{count} Lagging students (without team)",
   "@studentsWithoutTeam": {
     "placeholders": {
-      "count": { "type": "String" }
+      "count": {
+        "type": "String"
+      }
     }
   },
   "viewLaggingStudentsDirectory": "View Lagging Students Directory",
@@ -285,8 +315,12 @@
   "chooseSkillsSubtitle": "Choose up to 10 skills you want to acquire or improve in your career. ({selected}/{max})",
   "@chooseSkillsSubtitle": {
     "placeholders": {
-      "selected": { "type": "String" },
-      "max": { "type": "String" }
+      "selected": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
     }
   },
   "saving": "Saving...",
@@ -301,13 +335,17 @@
   "teamLabel": "Team: {name}",
   "@teamLabel": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "membersLabel": "Members: {members}",
   "@membersLabel": {
     "placeholders": {
-      "members": { "type": "String" }
+      "members": {
+        "type": "String"
+      }
     }
   },
   "untitledProposal": "Untitled proposal",
@@ -338,5 +376,10 @@
   "joinProject": "Join a Project",
   "noTeam": "You don't have a team",
   "noTeamDesc": "You must join or create a team in the Teams tab to submit a proposal.",
-  "navProjectsLabel": "Projects"
+  "navProjectsLabel": "Projects",
+  "networkError": "Internet connection problem. Check your network and try again.",
+  "fileTooLarge": "The file exceeds the maximum allowed size.",
+  "unsupportedFileType": "Unsupported file type.",
+  "requestTimeout": "The request took too long. Check your connection and try again.",
+  "unexpectedError": "An unexpected error occurred. Please try again in a moment."
 }
