@@ -68,7 +68,8 @@ class TeamsProvider extends ChangeNotifier {
     _errorMessage = null;
     _myTeam = null;
     _finalReviewStatus = null;
-    notifyListeners();
+    // Use microtask to avoid calling notifyListeners during Flutter build phase
+    Future.microtask(() => notifyListeners());
 
     try {
       _myTeam = await _repository.getMyTeam(projectId: projectId);

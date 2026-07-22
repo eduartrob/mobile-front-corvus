@@ -48,7 +48,8 @@ import 'package:mobile/features/projects/presentation/pages/prof_project_config_
 
 import 'package:mobile/features/student_directory/presentation/pages/student_directory_page.dart';
 import 'package:mobile/features/notifications/presentation/pages/notifications_page.dart';
-import 'package:mobile/l10n/app_localizations.dart';
+import 'package:mobile/features/auth/presentation/pages/security_alert_page.dart';
+
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -188,6 +189,10 @@ class _AppRouterState extends State<AppRouter> {
         GoRoute(
           path: '/register-teacher-info',
           pageBuilder: (context, state) => _buildCupertinoTransition(const TeacherInfoPage(), state.pageKey),
+        ),
+        GoRoute(
+          path: '/security-alert',
+          pageBuilder: (context, state) => _buildSlideUpTransition(const SecurityAlertPage(), state.pageKey),
         ),
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) {

@@ -34,20 +34,54 @@ import 'package:mobile/features/projects/presentation/provider/project_provider.
 /// Handler para taps en notificaciones cuando la app está en background/terminada.
 void _handleNotificationTap(RemoteMessage message) {
   final context = rootNavigatorKey.currentContext;
-  if (context != null) {
-    if (message.data['type'] == 'TEAM_INVITE') {
-      final myProjects = context.read<ProjectProvider>().myProjects;
-      final projectId = message.data['projectId'] ??
-          (myProjects.isNotEmpty ? myProjects.first['id'] : null);
+  if (context == null) return;
 
+  final data = message.data;
+  final deepLink = data['deepLink'] as String?;
+  final notifType = data['type'] ?? '';
+
+  // Priorizar deepLink si viene del backend
+  if (deepLink != null && deepLink.isNotEmpty) {
+    try {
+      context.go(deepLink);
+      return;
+    } catch (e) {
+      debugPrint('Error navigando a deepLink $deepLink: $e');
+    }
+  }
+
+  // Fallback por tipo de notificacion
+  switch (notifType) {
+    case 'TEAM_INVITE':
+    case 'team_invite':
+    case 'team_accepted':
+    case 'team_rejected':
+    case 'team_updated':
+      final myProjects = context.read<ProjectProvider>().myProjects;
+      final projectId = data['projectId'] ??
+          (myProjects.isNotEmpty ? myProjects.first['id'] : null);
       if (projectId != null) {
         context.push('/project/$projectId?tab=1');
       } else {
         context.push('/inspiration');
       }
-    } else {
+      break;
+    case 'review_updated':
+      final projectId = data['projectId'];
+      if (projectId != null) {
+        context.push('/project/$projectId?tab=2');
+      } else {
+        context.push('/notifications?highlightLatest=true');
+      }
+      break;
+    case 'security_new_device':
+      context.push('/security-alert');
+      break;
+    case 'payment_update':
+      context.push('/profile');
+      break;
+    default:
       context.push('/notifications?highlightLatest=true');
-    }
   }
 }
 
@@ -78,7 +112,7 @@ class _AppBootstrapState extends State<_AppBootstrap> {
 
     // Si ya está autenticado al arrancar, cargar solo lo esencial
     if (_wasAuthenticated) {
-      _loadEssentialData();
+      WidgetsBinding.instance.addPostFrameCallback((_) => _loadEssentialData());
     }
   }
 

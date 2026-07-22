@@ -32,6 +32,9 @@ class InspirationProvider extends ChangeNotifier {
   bool _showWelcome = true;
   bool get showWelcome => _showWelcome;
 
+  bool get reachedProLimit => _dataSource.reachedProLimit;
+  int get proLockedCount => _dataSource.proLockedCount;
+
   InspirationProvider({InspirationRemoteDataSource? dataSource}) 
       : _dataSource = dataSource ?? InspirationRemoteDataSource(client: apiClient) {
     _init();

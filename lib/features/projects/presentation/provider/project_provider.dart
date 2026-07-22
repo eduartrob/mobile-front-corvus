@@ -103,12 +103,12 @@ class ProjectProvider extends ChangeNotifier {
       await _repository.archiveProjects(projectIds: projectIds, token: token);
       // Remove from active projects list locally
       _myProjects.removeWhere((p) => projectIds.contains(p['id']));
-      notifyListeners();
       return true;
     } catch (e) {
       _error = e.toString().replaceAll('Exception: ', '');
-      _setLoading(false);
       return false;
+    } finally {
+      _setLoading(false);
     }
   }
 
@@ -123,12 +123,12 @@ class ProjectProvider extends ChangeNotifier {
       _archivedProjects.removeWhere((p) => projectIds.contains(p['id']));
       // Force a reload of the active projects so they appear there
       await loadMyProjects(token, quiet: true);
-      notifyListeners();
       return true;
     } catch (e) {
       _error = e.toString().replaceAll('Exception: ', '');
-      _setLoading(false);
       return false;
+    } finally {
+      _setLoading(false);
     }
   }
 

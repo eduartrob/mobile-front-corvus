@@ -70,7 +70,10 @@ class ProjectCard extends StatelessWidget {
 
       rootNavigator.pop();
     } else {
-      provider.trackNicheView(project.id, avatarUrl);
+      final updated = await provider.trackNicheView(project.id, avatarUrl);
+      if (updated != null) {
+        projectToNav = updated;
+      }
     }
 
     if (projectToNav != null) {
@@ -94,6 +97,10 @@ class ProjectCard extends StatelessWidget {
     final isEn = Localizations.localeOf(context).languageCode == 'en';
 
     final analysis = project.analysisData ?? {};
+
+    final String displayTitle = (analysis['titulo_propuesta'] != null && analysis['titulo_propuesta'].toString().isNotEmpty)
+        ? analysis['titulo_propuesta'].toString()
+        : project.title;
 
     final String mainFinding = (analysis.isNotEmpty)
         ? (isEn
@@ -141,9 +148,9 @@ class ProjectCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            project.title,
+                            displayTitle,
                             style: const TextStyle(
-                              fontSize: 20,
+                              fontSize: 18,
                               fontWeight: FontWeight.w700,
                               color: Colors.black87,
                               height: 1.2,

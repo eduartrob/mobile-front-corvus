@@ -24,6 +24,10 @@ class BlueOceanDetailPage extends StatelessWidget {
 
     final analysis = project.analysisData ?? {};
     
+    final String displayTitle = (analysis['titulo_propuesta'] != null && analysis['titulo_propuesta'].toString().isNotEmpty)
+        ? analysis['titulo_propuesta'].toString()
+        : project.title;
+    
     final hallazgo = isEn 
         ? (analysis['hallazgo_principal_en'] ?? analysis['hallazgo_principal'] ?? 'Could not load the main finding.')
         : (analysis['hallazgo_principal_es'] ?? analysis['hallazgo_principal'] ?? 'No se pudo cargar el hallazgo principal.');
@@ -78,8 +82,8 @@ class BlueOceanDetailPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              project.title,
-              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, height: 1.2),
+              displayTitle,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, height: 1.2),
             ),
             const SizedBox(height: 12),
             Text(

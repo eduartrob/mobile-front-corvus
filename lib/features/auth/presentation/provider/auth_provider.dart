@@ -92,8 +92,11 @@ class AuthProvider extends ChangeNotifier {
           token: token,
           role: savedRole,
         );
+        final savedProActive = await _storage.read(key: 'auth_pro_active');
+        _isProActive = (savedProActive == 'true');
 
         _status = AuthStatus.authenticated;
+        fetchProSubscriptionStatus(email: savedEmail).catchError((_) {});
         
         // Fetch /me to update profile info silently in background
         apiClient.get(Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authMe}')).then((response) {
@@ -236,6 +239,7 @@ class AuthProvider extends ChangeNotifier {
       } catch (_) {}
 
       _status = AuthStatus.authenticated;
+      fetchProSubscriptionStatus(email: user.email).catchError((_) {});
       notifyListeners();
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
@@ -319,17 +323,20 @@ class AuthProvider extends ChangeNotifier {
     final currentEmail = email ?? _currentUser?.email ?? await _storage.read(key: 'auth_email');
     if (currentEmail == null || currentEmail.isEmpty) return;
     try {
-      final uri = Uri.parse('http://52.86.105.18:8001/pagos/suscripcion/' + Uri.encodeComponent(currentEmail));
-      final response = await http.get(uri).timeout(const Duration(seconds: 10));
+      final token = await _storage.read(key: 'auth_token');
+      final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/pagos/suscripcion/' + Uri.encodeComponent(currentEmail));
+      final response = await apiClient.get(uri).timeout(const Duration(seconds: 10));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         _isProActive = data['activa'] == true || data['activa']?.toString().toLowerCase() == 'true';
         _proPlan = data['plan']?.toString();
         _proExpiresAt = data['vence']?.toString();
+        await _storage.write(key: 'auth_pro_active', value: _isProActive ? 'true' : 'false');
       } else {
         _isProActive = false;
         _proPlan = null;
         _proExpiresAt = null;
+        await _storage.write(key: 'auth_pro_active', value: 'false');
       }
     } catch (_) {
       _isProActive = false;
@@ -344,16 +351,19 @@ class AuthProvider extends ChangeNotifier {
     if (email == null || email.isEmpty) {
       throw Exception('No se encontró el email del usuario');
     }
-    final uri = Uri.parse('http://52.86.105.18:8001/pagos/crear');
+    final token = await _storage.read(key: 'auth_token');
+    final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/pagos/crear');
     final body = jsonEncode({
       'alumno_email': email,
       'concepto': 'Plan Pro mensual',
       'monto': 50.00,
       'metodo': metodo,
     });
-    final response = await http.post(
+    final response = await apiClient.post(
       uri,
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: body,
     ).timeout(const Duration(seconds: 15));
     if (response.statusCode == 200 || response.statusCode == 201) {
@@ -369,8 +379,9 @@ class AuthProvider extends ChangeNotifier {
 
   Future<Map<String, dynamic>> checkPaymentStatus(String paymentId) async {
     if (paymentId.isEmpty) throw Exception('ID de pago inválido');
-    final uri = Uri.parse('http://52.86.105.18:8001/pagos/' + paymentId);
-    final response = await http.get(uri).timeout(const Duration(seconds: 10));
+    final token = await _storage.read(key: 'auth_token');
+    final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/pagos/' + paymentId);
+    final response = await apiClient.get(uri).timeout(const Duration(seconds: 10));
     if (response.statusCode == 200) {
       return jsonDecode(response.body) as Map<String, dynamic>;
     }

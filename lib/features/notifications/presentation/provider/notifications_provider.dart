@@ -40,6 +40,7 @@ class NotificationsProvider extends ChangeNotifier {
             'title': n['title'],
             'body': n['body'],
             'type': n['type'],
+            'deepLink': n['deepLink'],
             'timestamp': n['timestamp'],
             'isRead': n['isRead'] ? 1 : 0,
             'authorName': n['authorName'],
@@ -58,9 +59,11 @@ class NotificationsProvider extends ChangeNotifier {
       var parsedNotifications = data
           .map((n) => AppNotification(
                 id: n['id'].toString(),
+                notifTitle: n['title']?.toString(),
                 message: n['title'] != null && n['title'] != ''
                     ? "${n['title']}\n${n['body']}"
                     : n['body'],
+                deepLink: n['deepLink']?.toString(),
                 timestamp: DateTime.parse(n['timestamp']),
                 type: _getTypeFromString(n['type']),
                 isRead: n['isRead'] == 1,
@@ -236,7 +239,7 @@ class NotificationsProvider extends ChangeNotifier {
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
-  NotificationType _getTypeFromString(String typeStr) {
+  NotificationType _getTypeFromString(String? typeStr) {
     switch (typeStr) {
       case 'success':
         return NotificationType.success;
@@ -244,6 +247,11 @@ class NotificationsProvider extends ChangeNotifier {
         return NotificationType.warning;
       case 'error':
         return NotificationType.error;
+      case 'security_login':
+      case 'security_new_device':
+        return NotificationType.security;
+      case 'payment_update':
+        return NotificationType.payment;
       case 'info':
       default:
         return NotificationType.info;

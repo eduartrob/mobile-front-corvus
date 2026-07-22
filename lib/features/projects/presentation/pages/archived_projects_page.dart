@@ -16,6 +16,7 @@ class ArchivedProjectsPage extends StatefulWidget {
 class _ArchivedProjectsPageState extends State<ArchivedProjectsPage> {
   final Set<String> _selectedProjectIds = {};
   bool _isSelectionMode = false;
+  bool _isPatternsPrecached = false;
 
   void _toggleSelection(String projectId) {
     setState(() {
@@ -50,6 +51,7 @@ class _ArchivedProjectsPageState extends State<ArchivedProjectsPage> {
   @override
   void initState() {
     super.initState();
+    _initPatterns();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final token = context.read<AuthProvider>().currentUser?.token;
       if (token != null) {
@@ -62,6 +64,26 @@ class _ArchivedProjectsPageState extends State<ArchivedProjectsPage> {
         }
       }
     });
+  }
+
+  Future<void> _initPatterns() async {
+    await _precachePatterns();
+    if (mounted) {
+      setState(() {
+        _isPatternsPrecached = true;
+      });
+    }
+  }
+
+  Future<void> _precachePatterns() async {
+    try {
+      final futures = <Future>[];
+      for (int i = 1; i <= 15; i++) {
+        final loader = SvgAssetLoader('assets/patterns/pattern_$i.svg');
+        futures.add(vg.loadPicture(loader, null));
+      }
+      await Future.wait(futures);
+    } catch (_) {}
   }
 
   @override
@@ -107,7 +129,7 @@ class _ArchivedProjectsPageState extends State<ArchivedProjectsPage> {
       ),
       body: Consumer<ProjectProvider>(
         builder: (context, provider, child) {
-          if (provider.isLoading && provider.archivedProjects.isEmpty) {
+          if ((provider.isLoading && provider.archivedProjects.isEmpty) || !_isPatternsPrecached) {
             return const Center(child: CircularProgressIndicator());
           }
 

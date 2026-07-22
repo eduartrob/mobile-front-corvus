@@ -15,6 +15,7 @@ import 'package:mobile/features/profile/presentation/pages/saved_projects_page.d
 import 'package:mobile/features/profile/presentation/pages/activity_history_page.dart' as mobile;
 import 'package:mobile/features/profile/presentation/pages/app_update_page.dart' as mobile;
 import 'package:mobile/features/profile/presentation/pages/pro_plan_page.dart';
+import 'package:mobile/features/profile/presentation/pages/my_subscription_page.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:go_router/go_router.dart';
 
@@ -191,10 +192,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 leading: const Icon(Icons.workspace_premium, color: Color(0xFF315BD5), size: 28),
                 title: const Text(
-                  'Plan pro',
+                  'Plan Pro',
                   style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: Color(0xFF315BD5)),
                 ),
-                subtitle: const Text('Cámbiate a Plan Pro para acceder a funcionalidades exclusivas'),
+                subtitle: const Text('Consulta los detalles de tu plan actual o gestiona tu suscripción'),
                 trailing: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
@@ -209,7 +210,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ProPlanPage()),
+                    MaterialPageRoute(builder: (context) => const MySubscriptionPage()),
                   );
                 },
               ),

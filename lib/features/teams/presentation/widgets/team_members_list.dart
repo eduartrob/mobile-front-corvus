@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/shared/widgets/pro_avatar.dart';
 import 'package:mobile/features/teams/presentation/widgets/user_profile_modal.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/teams/presentation/widgets/team_member_card.dart';
@@ -220,22 +223,17 @@ class InvitationCard extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(
-                radius: 40,
-                backgroundColor: colorScheme.primaryContainer,
-                backgroundImage: (avatarUrl.isNotEmpty) 
-                    ? NetworkImage(avatarUrl) 
-                    : null,
-                child: (avatarUrl.isEmpty)
-                    ? Text(
-                        name.isNotEmpty ? name.substring(0, 1).toUpperCase() : '?',
-                        style: TextStyle(
-                          color: colorScheme.onPrimaryContainer,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 32,
-                        ),
-                      )
-                    : null,
+              Consumer<AuthProvider>(
+                builder: (context, auth, child) {
+                  final isMeMember = avatarUrl == auth.currentUser?.photoUrl || name == auth.currentUser?.name;
+                  final isUserPro = (isMeMember && auth.isProActive);
+                  return ProAvatar(
+                    photoUrl: avatarUrl,
+                    radius: 40,
+                    isPro: isUserPro,
+                    fallbackInitial: name,
+                  );
+                },
               ),
               const SizedBox(width: 16),
               Expanded(
