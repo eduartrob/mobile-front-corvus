@@ -858,4 +858,22 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get navProjectsLabel => 'Proyectos';
+
+  @override
+  String get networkError =>
+      'Problema de conexión a internet. Verifica tu red e inténtalo de nuevo.';
+
+  @override
+  String get fileTooLarge => 'El archivo excede el tamaño máximo permitido.';
+
+  @override
+  String get unsupportedFileType => 'Tipo de archivo no soportado.';
+
+  @override
+  String get requestTimeout =>
+      'La petición tardó demasiado. Verifica tu conexión e inténtalo de nuevo.';
+
+  @override
+  String get unexpectedError =>
+      'Ocurrió un error inesperado. Por favor reintenta en un momento.';
 }

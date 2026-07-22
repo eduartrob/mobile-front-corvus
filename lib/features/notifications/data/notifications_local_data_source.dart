@@ -29,7 +29,7 @@ class NotificationsLocalDataSource {
 
     return await openDatabase(
       path,
-      version: 3,
+      version: 4,
       password: key,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
@@ -45,6 +45,11 @@ class NotificationsLocalDataSource {
       await db.execute('DROP TABLE IF EXISTS notifications');
       await _createDB(db, newVersion);
     }
+    if (oldVersion < 4) {
+      try {
+        await db.execute('ALTER TABLE notifications ADD COLUMN deepLink TEXT;');
+      } catch (_) {}
+    }
   }
 
   static Future _createDB(Database db, int version) async {
@@ -54,6 +59,7 @@ class NotificationsLocalDataSource {
         title TEXT NOT NULL,
         body TEXT NOT NULL,
         type TEXT NOT NULL,
+        deepLink TEXT,
         timestamp TEXT NOT NULL,
         isRead INTEGER NOT NULL,
         authorName TEXT,

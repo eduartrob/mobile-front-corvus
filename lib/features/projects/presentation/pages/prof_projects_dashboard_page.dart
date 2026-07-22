@@ -21,10 +21,48 @@ class ProfProjectsDashboardPage extends StatefulWidget {
 class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
   DateTime? _lastPressedAt;
   Timer? _pollTimer;
+  final Set<String> _selectedProjects = {};
+  bool _isSelectionMode = false;
+  bool _isPatternsPrecached = false;
+
+  void _toggleSelection(String projectId) {
+    setState(() {
+      if (_selectedProjects.contains(projectId)) {
+        _selectedProjects.remove(projectId);
+        if (_selectedProjects.isEmpty) {
+          _isSelectionMode = false;
+        }
+      } else {
+        _selectedProjects.add(projectId);
+        _isSelectionMode = true;
+      }
+    });
+  }
+
+  void _archiveSelectedProjects() async {
+    final token = context.read<AuthProvider>().currentUser?.token;
+    if (token == null || _selectedProjects.isEmpty) return;
+
+    final success = await context.read<ProjectProvider>().archiveProjects(
+      projectIds: _selectedProjects.toList(),
+      token: token,
+    );
+
+    if (success && mounted) {
+      setState(() {
+        _selectedProjects.clear();
+        _isSelectionMode = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Proyectos archivados exitosamente')),
+      );
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    _initPatterns();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final token = context.read<AuthProvider>().currentUser?.token;
       if (token != null) {
@@ -43,6 +81,26 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
     });
   }
 
+  Future<void> _initPatterns() async {
+    await _precachePatterns();
+    if (mounted) {
+      setState(() {
+        _isPatternsPrecached = true;
+      });
+    }
+  }
+
+  Future<void> _precachePatterns() async {
+    try {
+      final futures = <Future>[];
+      for (int i = 1; i <= 15; i++) {
+        final loader = SvgAssetLoader('assets/patterns/pattern_$i.svg');
+        futures.add(vg.loadPicture(loader, null));
+      }
+      await Future.wait(futures);
+    } catch (_) {}
+  }
+
   @override
   void dispose() {
     _pollTimer?.cancel();
@@ -55,6 +113,13 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
       canPop: false,
       onPopInvokedWithResult: (bool didPop, Object? result) {
         if (didPop) return;
+        if (_isSelectionMode) {
+          setState(() {
+            _selectedProjects.clear();
+            _isSelectionMode = false;
+          });
+          return;
+        }
         final now = DateTime.now();
         if (_lastPressedAt == null || now.difference(_lastPressedAt!) > const Duration(seconds: 2)) {
           _lastPressedAt = now;
@@ -71,8 +136,28 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
         }
       },
       child: Scaffold(
-        appBar: const CorvusTopBar(),
-        floatingActionButton: context.select<ProjectProvider, bool>((p) => p.myProjects.isNotEmpty || p.invitations.isNotEmpty) ? Column(
+        appBar: _isSelectionMode 
+          ? AppBar(
+              title: Text('${_selectedProjects.length} seleccionados'),
+              leading: IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () {
+                  setState(() {
+                    _selectedProjects.clear();
+                    _isSelectionMode = false;
+                  });
+                },
+              ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.archive),
+                  tooltip: 'Archivar seleccionados',
+                  onPressed: _archiveSelectedProjects,
+                ),
+              ],
+            )
+          : const CorvusTopBar(),
+        floatingActionButton: context.select<ProjectProvider, bool>((p) => p.myProjects.isNotEmpty || p.invitations.isNotEmpty) && !_isSelectionMode ? Column(
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -102,9 +187,7 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
         ) : null,
       body: Consumer<ProjectProvider>(
         builder: (context, provider, child) {
-          if (provider.isLoading &&
-              provider.myProjects.isEmpty &&
-              provider.invitations.isEmpty) {
+          if ((provider.isLoading && provider.myProjects.isEmpty) || !_isPatternsPrecached) {
             return ListView.separated(
               padding: const EdgeInsets.all(16),
               itemCount: 4,
@@ -201,11 +284,24 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
                 }
               },
               child: ListView(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
                 children: [
                   if (provider.myProjects.isNotEmpty) ...[
                     ...provider.myProjects.map(
                       (project) => _buildProjectCard(context, project),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16.0, bottom: 16.0),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton.icon(
+                          icon: const Icon(Icons.archive_outlined),
+                          label: const Text('Mostrar proyectos archivados'),
+                          onPressed: () {
+                            context.push('/archived-projects');
+                          },
+                        ),
+                      ),
                     ),
                   ],
                   if (provider.myProjects.isEmpty &&
@@ -286,8 +382,15 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
           borderRadius: BorderRadius.circular(16),
           splashColor: Colors.black.withValues(alpha: 0.12),
           highlightColor: Colors.black.withValues(alpha: 0.04),
+          onLongPress: () {
+            _toggleSelection(project['id']);
+          },
           onTap: () {
-            if (context.mounted) context.push('/prof-project/${project['id']}?tab=0');
+            if (_isSelectionMode) {
+              _toggleSelection(project['id']);
+            } else {
+              if (context.mounted) context.push('/prof-project/${project['id']}?tab=0');
+            }
           },
           child: Stack(
             children: [
@@ -358,6 +461,29 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
               ],
             ),
           ),
+          if (_isSelectionMode)
+            Positioned(
+              top: 16,
+              right: 16,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: _selectedProjects.contains(project['id'])
+                      ? Theme.of(context).colorScheme.primary
+                      : Colors.white.withValues(alpha: 0.3),
+                  shape: BoxShape.circle,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Icon(
+                    Icons.check,
+                    size: 20,
+                    color: _selectedProjects.contains(project['id'])
+                        ? Theme.of(context).colorScheme.onPrimary
+                        : Colors.transparent,
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     ),

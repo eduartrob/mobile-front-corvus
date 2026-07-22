@@ -1,6 +1,7 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class ApiConfig {
-  static const String apiGatewayUrl = 'https://corvus.eduartrob.site/api/v1';
-  //static const String apiGatewayUrl = 'https://corvus.eduartrob.site:8443/api/v1';
+  static String get apiGatewayUrl => dotenv.env['API_GATEWAY_URL'] ?? 'https://corvus.eduartrob.site/api/v1';
 
   static const String authGoogleEndpoint = '/auth/google';
   
@@ -12,6 +13,6 @@ class ApiConfig {
   };
 
   // Cloudinary constants
-  static const String cloudinaryCloudName = 'zpqp1swt';
-  static const String cloudinaryUploadPreset = 'corvus_unsigned';
+  static String get cloudinaryCloudName => dotenv.env['CLOUDINARY_CLOUD_NAME'] ?? 'zpqp1swt';
+  static String get cloudinaryUploadPreset => dotenv.env['CLOUDINARY_UPLOAD_PRESET'] ?? 'corvus_unsigned';
 }

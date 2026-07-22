@@ -129,16 +129,35 @@ class _CareerAutocompleteFieldState extends State<CareerAutocompleteField> {
                     color: Colors.greenAccent,
                     size: 20,
                   ),
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.arrow_drop_down),
-                    onPressed: () {
-                      if (textEditingController.text.isEmpty) {
-                        textEditingController.text = ' ';
-                        textEditingController.text = '';
-                      }
-                      focusNode.requestFocus();
-                    },
-                  ),
+                  suffixIcon: textEditingController.text.trim().isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.close, size: 20),
+                          onPressed: () {
+                            setState(() {
+                              textEditingController.clear();
+                              widget.controller.clear();
+                              widget.onSelected('');
+                            });
+                            focusNode.unfocus();
+                            Future.delayed(const Duration(milliseconds: 100), () {
+                              if (context.mounted) {
+                                textEditingController.text = ' ';
+                                textEditingController.text = '';
+                                focusNode.requestFocus();
+                              }
+                            });
+                          },
+                        )
+                      : IconButton(
+                          icon: const Icon(Icons.arrow_drop_down),
+                          onPressed: () {
+                            if (textEditingController.text.isEmpty) {
+                              textEditingController.text = ' ';
+                              textEditingController.text = '';
+                            }
+                            focusNode.requestFocus();
+                          },
+                        ),
                 ),
               ),
             );

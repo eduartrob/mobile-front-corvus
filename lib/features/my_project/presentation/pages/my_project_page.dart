@@ -9,13 +9,14 @@ import 'package:mobile/features/teams/presentation/provider/teams_provider.dart'
 import 'package:mobile/features/profile/presentation/provider/profile_provider.dart';
 import 'package:mobile/features/my_project/presentation/widgets/innovation_card.dart';
 import 'package:mobile/features/my_project/presentation/pages/project_defense_chat_page.dart';
+import 'package:mobile/features/my_project/presentation/pages/voice_defense_page.dart';
 import 'package:mobile/features/my_project/presentation/widgets/upload_zone_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/uploaded_file_item_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/fast_rag_analysis_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/detailed_analysis_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/animated_loading_text_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/invalid_document_widget.dart';
-
+import 'package:mobile/features/my_project/presentation/widgets/document_preview_banner_widget.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
 
 import 'package:go_router/go_router.dart';
@@ -383,6 +384,106 @@ class _ProjectPageBody extends StatelessWidget {
   final String userId;
   const _ProjectPageBody({required this.userId});
 
+  String _buildFullProposalSummary(MyProjectProvider provider) {
+    final Map<String, dynamic> analysis = provider.detailedAnalysis ?? {};
+    final StringBuffer sb = StringBuffer();
+
+    final title = analysis['project_title'] ?? 
+        analysis['title'] ?? 
+        analysis['nombre_proyecto'] ?? 
+        'Propuesta de Innovación';
+    sb.writeln('Título del Proyecto: $title');
+
+    if (analysis.containsKey('innovation_index')) {
+      final innovation = analysis['innovation_index'];
+      if (innovation is Map) {
+        sb.writeln('Nivel de Innovación: ${innovation['score']}/100 (${innovation['label']})');
+      }
+    }
+
+    if (analysis.containsKey('semantic_collision_risk')) {
+      final collision = analysis['semantic_collision_risk'];
+      if (collision is Map && collision['explanation'] != null) {
+        sb.writeln('Análisis Semántico y Problemática: ${collision['explanation']}');
+      }
+    }
+
+    if (analysis.containsKey('recommendations') && analysis['recommendations'] is List) {
+      final recs = analysis['recommendations'] as List;
+      sb.writeln('Aspectos Clave y Puntos a Desarrollar:');
+      for (var r in recs) {
+        if (r is Map && r['title'] != null) {
+          sb.writeln('- ${r['title']}: ${r['description'] ?? ''}');
+        }
+      }
+    }
+
+    if (analysis.containsKey('ollama_analysis') && analysis['ollama_analysis'] is Map) {
+      final Map<String, dynamic> ollama = Map<String, dynamic>.from(analysis['ollama_analysis']);
+      if (ollama['summary'] != null) {
+        sb.writeln('\nResumen de la Propuesta:\n${ollama['summary']}');
+      }
+    }
+
+    return sb.toString().trim();
+  }
+
+  Widget _buildDefenseButton(BuildContext context, MyProjectProvider provider, bool isPro) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          final teamsProvider = context.read<TeamsProvider>();
+          final profileProvider = context.read<ProfileProvider>();
+          final fullSummary = _buildFullProposalSummary(provider);
+
+          if (isPro) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => VoiceDefensePage(
+                  teamId: teamsProvider.myTeam?.id ?? '',
+                  studentName: profileProvider.profile?.alumno ?? 'Estudiante',
+                  proposalSummary: fullSummary,
+                  sessionId: 'live_${DateTime.now().millisecondsSinceEpoch}',
+                ),
+              ),
+            );
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProjectDefenseChatPage(
+                  teamId: teamsProvider.myTeam?.id ?? '',
+                  studentName: profileProvider.profile?.alumno ?? 'Estudiante',
+                  teamMembers: teamsProvider.myTeam?.members.map((m) => m.name).toList(),
+                  proposalSummary: fullSummary,
+                  analysisResult: provider.detailedAnalysis ?? {},
+                ),
+              ),
+            ).then((result) {
+              if (result != null && result is List<Map<String, String>>) {
+                provider.setDefensePassed(result);
+              }
+            });
+          }
+        },
+        icon: Icon(isPro ? Icons.record_voice_over : Icons.security, size: 18),
+        label: Text(
+          isPro ? 'Defender Propuesta ante IA (Voz/Texto)' : 'Defender Propuesta ante IA (Texto)',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: isPro ? Colors.amber.shade700 : colorScheme.tertiary,
+          foregroundColor: isPro ? Colors.black : colorScheme.onTertiary,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -424,7 +525,7 @@ class _ProjectPageBody extends StatelessWidget {
       child: Column(
         key: ValueKey('project_page_body_base'),
         children: [
-          if (provider.errorMessage != null && provider.documentTypeError == null)
+          if (provider.errorMessage != null && !provider.errorMessage!.contains('MitM') && provider.documentTypeError == null)
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(color: colorScheme.errorContainer, borderRadius: BorderRadius.circular(12)),
@@ -453,12 +554,14 @@ class _ProjectPageBody extends StatelessWidget {
         if (provider.state != ProjectState.initial)
           _ProjectRequirementsWidget(provider: provider),
 
-        if (provider.documentTypeError != null)
+        if (provider.documentTypeError != null) ...[
+          DocumentPreviewBannerWidget(provider: provider),
           InvalidDocumentWidget(
             provider: provider,
             userId: userId,
             specificError: provider.documentTypeError!,
-          )
+          ),
+        ]
         // Show upload zone only after init resolved AND there's an error (no analysis found)
         else if (provider.state == ProjectState.error)
           if (isLeader)
@@ -656,7 +759,7 @@ class _ProjectPageBody extends StatelessWidget {
         ],
 
         if (provider.state == ProjectState.detailedAnalysis) ...[
-          if (isUnderReview)
+          if (isUnderReview) ...[
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
@@ -688,47 +791,16 @@ class _ProjectPageBody extends StatelessWidget {
                   }),
                 ],
               ),
-            )
-          else ...[
-            if (!provider.hasPassedDefense)
-              SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton.icon(
-                onPressed: () async {
-                  final result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        final teamsProvider = context.read<TeamsProvider>();
-                        final profileProvider = context.read<ProfileProvider>();
-                        final teamId = teamsProvider.myTeam?.id ?? '';
-                        final studentName = profileProvider.profile?.alumno ?? 'Estudiante';
-                        
-                        return ProjectDefenseChatPage(
-                          teamId: teamId,
-                          studentName: studentName,
-                          teamMembers: teamsProvider.myTeam?.members.map((m) => m.name).toList(),
-                          proposalSummary: provider.detailedAnalysis?['verdict'] ?? 'Propuesta de innovación',
-                          analysisResult: provider.detailedAnalysis ?? {},
-                        );
-                      },
-                    ),
-                  );
-                  if (result != null && result is List<Map<String, String>>) {
-                    provider.setDefensePassed(result);
-                  }
-                },
-                icon: const Icon(Icons.security, size: 18),
-                label: const Text('Defender Propuesta ante IA', style: TextStyle(fontWeight: FontWeight.bold)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colorScheme.tertiary,
-                  foregroundColor: colorScheme.onTertiary,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-              ),
-            )
-          else if (isLeader)
+            ),
+            if (auth.isProActive) ...[
+              const SizedBox(height: 12),
+              _buildDefenseButton(context, provider, true),
+            ],
+          ] else ...[
+            const SizedBox(height: 12),
+            _buildDefenseButton(context, provider, auth.isProActive),
+            if (isLeader) ...[
+              const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
               height: 50,
@@ -759,6 +831,50 @@ class _ProjectPageBody extends StatelessWidget {
                       );
                     }
                     return;
+                  }
+
+                  final activeMsgs = provider.activeVoiceMessages;
+                  if (activeMsgs.length < 4 && !provider.hasPassedDefense) {
+                    final proceedWarning = await showDialog<bool>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          backgroundColor: colorScheme.surface,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          title: Row(
+                            children: const [
+                              Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
+                              SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  '¿Enviar propuesta con defensa incompleta?',
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                ),
+                              ),
+                            ],
+                          ),
+                          content: Text(
+                            'Llevas únicamente ${activeMsgs.length} intervenciones registradas con el tribunal IA. Enviar el expediente con poca fundamentación aumenta la posibilidad de que esté incompleto y que tu profesor RECHACE tu propuesta.\n\n¿Deseas profundizar más tu defensa o enviar de todos modos?',
+                            style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14, height: 1.4),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: Text('PROFUNDIZAR DEFENSA IA', style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold)),
+                            ),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.orange,
+                                foregroundColor: Colors.white,
+                              ),
+                              onPressed: () => Navigator.of(context).pop(true),
+                              child: const Text('ENVIAR DE TODOS MODOS', style: TextStyle(fontWeight: FontWeight.bold)),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                    if (proceedWarning != true) return;
                   }
 
                   if (myTeam.members.length < myTeam.maxMembers) {
@@ -819,27 +935,30 @@ class _ProjectPageBody extends StatelessWidget {
                 ),
               ),
             ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: OutlinedButton(
-              onPressed: () => provider.reset(userId),
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(color: colorScheme.primary),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              child: Text(
-                l10n.uploadAnotherProposal,
-                style: TextStyle(color: colorScheme.primary),
-              ),
-            ),
-          ),
           ],
         ],
       ],
-    ),
-    );
+      if (provider.state == ProjectState.detailedAnalysis || provider.state == ProjectState.preValidated) ...[
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: OutlinedButton(
+            onPressed: () => provider.reset(userId),
+            style: OutlinedButton.styleFrom(
+              side: BorderSide(color: colorScheme.primary),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: Text(
+              l10n.uploadAnotherProposal,
+              style: TextStyle(color: colorScheme.primary),
+            ),
+          ),
+        ),
+      ],
+    ],
+  ),
+);
   }
 }
 

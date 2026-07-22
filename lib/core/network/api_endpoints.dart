@@ -24,6 +24,9 @@ class ApiEndpoints {
   static const String projects = '/projects';
   static const String projectsJoin = '/projects/join';
   static const String projectsMyProjects = '/projects/my-projects';
+  static const String projectsArchived = '/projects/archived';
+  static const String projectsArchive = '/projects/archive';
+  static const String projectsUnarchive = '/projects/unarchive';
   static String projectById(String id) => '/projects/$id';
   static String projectStudents(String id) => '/projects/$id/students';
   static String projectCollaborators(String id) => '/projects/$id/collaborators';

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/features/prof_rules/data/data_source/prof_rules_remote_data_source.dart';
+import 'package:mobile/core/error/error_handler.dart';
+import 'package:mobile/core/error/app_exception.dart';
 
 class ProfRulesProvider extends ChangeNotifier {
   final ProfRulesRemoteDataSource remoteDataSource;
@@ -72,7 +74,7 @@ class ProfRulesProvider extends ChangeNotifier {
       _memoryStatsCache[pId] = statsData;
       
       _updateState(config, statsData);
-    } catch (e) {
+    } catch (e, st) {
       // Ignoramos errores de caché
     }
 
@@ -93,9 +95,9 @@ class ProfRulesProvider extends ChangeNotifier {
       
       _updateState(config, statsData);
       _errorMessage = null;
-    } catch (e) {
+    } catch (e, st) {
       if (_projectSections.isEmpty && _clusterStats.isEmpty) {
-        _errorMessage = e.toString();
+        _errorMessage = mapErrorToMessage(e, stackTrace: st);
       }
     } finally {
       _isLoading = false;
@@ -207,8 +209,8 @@ class ProfRulesProvider extends ChangeNotifier {
         projectId: projectId,
       );
       _isModified = false;
-    } catch (e) {
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
+    } catch (e, st) {
+      _errorMessage = mapErrorToMessage(e, stackTrace: st);
     } finally {
       _isSaving = false;
       notifyListeners();

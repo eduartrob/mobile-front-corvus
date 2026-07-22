@@ -4,6 +4,7 @@ import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/my_project/presentation/provider/my_project_provider.dart';
 import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
+import 'package:mobile/features/my_project/presentation/widgets/document_preview_banner_widget.dart';
 
 class UploadedFileItemWidget extends StatelessWidget {
   final MyProjectProvider provider;
@@ -20,7 +21,6 @@ class UploadedFileItemWidget extends StatelessWidget {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
@@ -33,8 +33,16 @@ class UploadedFileItemWidget extends StatelessWidget {
           )
         ],
       ),
-      child: Row(
-        children: [
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () => openDocumentFile(context, provider),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
           Container(
             width: 48,
             height: 48,
@@ -83,6 +91,9 @@ class UploadedFileItemWidget extends StatelessWidget {
             ),
         ],
       ),
+    ),
+  ),
+),
     );
   }
 }

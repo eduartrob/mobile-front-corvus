@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/shared/widgets/pro_avatar.dart';
 
 class TeamMemberCard extends StatelessWidget {
   final String? avatarUrl;
@@ -43,22 +46,18 @@ class TeamMemberCard extends StatelessWidget {
           ),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 26,
-            backgroundColor: colorScheme.primaryContainer,
-            backgroundImage: (avatarUrl != null && avatarUrl!.isNotEmpty)
-                ? NetworkImage(avatarUrl!)
-                : null,
-            child: (avatarUrl == null || avatarUrl!.isEmpty)
-                ? Text(
-                    name.isNotEmpty ? name.substring(0, 1).toUpperCase() : '?',
-                    style: TextStyle(
-                      color: colorScheme.onPrimaryContainer,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
-                  )
-                : null,
+          Consumer<AuthProvider>(
+            builder: (context, auth, child) {
+              final isMeMember = isMe || email == auth.currentUser?.email;
+              final isUserPro = (isMeMember && auth.isProActive);
+
+              return ProAvatar(
+                photoUrl: avatarUrl,
+                radius: 26,
+                isPro: isUserPro,
+                fallbackInitial: name,
+              );
+            },
           ),
           const SizedBox(width: 16),
           Expanded(

@@ -1,8 +1,10 @@
-enum NotificationType { success, warning, error, info }
+enum NotificationType { success, warning, error, info, security, payment }
 
 class AppNotification {
   final String id;
   final String message;
+  final String? notifTitle;
+  final String? deepLink;
   final DateTime timestamp;
   final NotificationType type;
   final bool isRead;
@@ -12,6 +14,8 @@ class AppNotification {
   const AppNotification({
     required this.id,
     required this.message,
+    this.notifTitle,
+    this.deepLink,
     required this.timestamp,
     required this.type,
     this.isRead = false,
@@ -22,6 +26,8 @@ class AppNotification {
   AppNotification copyWith({
     String? id,
     String? message,
+    String? notifTitle,
+    String? deepLink,
     DateTime? timestamp,
     NotificationType? type,
     bool? isRead,
@@ -31,6 +37,8 @@ class AppNotification {
     return AppNotification(
       id: id ?? this.id,
       message: message ?? this.message,
+      notifTitle: notifTitle ?? this.notifTitle,
+      deepLink: deepLink ?? this.deepLink,
       timestamp: timestamp ?? this.timestamp,
       type: type ?? this.type,
       isRead: isRead ?? this.isRead,

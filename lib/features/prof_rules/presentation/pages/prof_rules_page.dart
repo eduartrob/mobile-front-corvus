@@ -1,4 +1,4 @@
-       import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
@@ -6,10 +6,95 @@ import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/features/prof_rules/presentation/provider/prof_rules_provider.dart';
 import 'package:mobile/features/prof_rules/data/data_source/prof_rules_remote_data_source.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
 import 'package:animated_list_plus/animated_list_plus.dart';
 import 'package:animated_list_plus/transitions.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/shared/widgets/corvus_skeleton.dart';
+import 'package:mobile/core/error/error_handler.dart';
+import 'package:mobile/core/error/app_exception.dart';
+
+enum UnsavedChangesResult { save, discard, cancel }
+
+Future<UnsavedChangesResult?> showUnsavedChangesDialog(BuildContext context) {
+  final colorScheme = Theme.of(context).colorScheme;
+  return showDialog<UnsavedChangesResult>(
+    context: context,
+    barrierDismissible: false,
+    builder: (ctx) => AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: Row(
+        children: [
+          Icon(Icons.warning_amber_rounded, color: colorScheme.error, size: 28),
+          const SizedBox(width: 12),
+          const Expanded(
+            child: Text(
+              'Cambios sin guardar',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+      content: const Text(
+        'Tienes modificaciones sin guardar en la estructura o reglas del proyecto. ¿Qué deseas hacer antes de salir?',
+        style: TextStyle(fontSize: 14),
+      ),
+      actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, UnsavedChangesResult.cancel),
+          child: Text('Seguir editando', style: TextStyle(color: colorScheme.onSurfaceVariant)),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, UnsavedChangesResult.discard),
+          child: Text('Descartar', style: TextStyle(color: colorScheme.error, fontWeight: FontWeight.w600)),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(ctx, UnsavedChangesResult.save),
+          child: const Text('Guardar'),
+        ),
+      ],
+    ),
+  );
+}
+
+Future<bool> handleUnsavedChangesGuard(BuildContext context, String projectId) async {
+  final provider = context.read<ProfRulesProvider>();
+  if (!provider.isModified) return true;
+
+  final user = context.read<AuthProvider>().currentUser;
+  final result = await showUnsavedChangesDialog(context);
+
+  if (result == UnsavedChangesResult.save) {
+    if (context.mounted) FocusScope.of(context).unfocus();
+    await provider.saveConfig(
+      projectId: projectId,
+      authorName: user?.name,
+      authorPhotoUrl: user?.photoUrl,
+      authorId: user?.id,
+    );
+    if (!context.mounted) return true;
+    if (provider.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error al guardar: ${provider.errorMessage}'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+      return false;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Reglas actualizadas y guardadas.')),
+      );
+      return false;
+    }
+  } else if (result == UnsavedChangesResult.discard) {
+    await provider.fetchData(projectId: projectId);
+    return false; // Se queda en la vista (refrescada)
+  } else {
+    return false;
+  }
+}
 
 class ProfRulesPage extends StatelessWidget {
   final String projectId;
@@ -48,9 +133,18 @@ class _ProfRulesPageViewState extends State<_ProfRulesPageView> {
     final projectSectionsEmpty = context.select<ProfRulesProvider, bool>((p) => p.projectSections.isEmpty);
     final isModified = context.select<ProfRulesProvider, bool>((p) => p.isModified);
 
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
+    return PopScope(
+      canPop: !isModified,
+      onPopInvokedWithResult: (bool didPop, Object? result) async {
+        if (didPop) return;
+        final canLeave = await handleUnsavedChangesGuard(context, widget.projectId);
+        if (canLeave && context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: DefaultTabController(
+        length: 2,
+        child: Scaffold(
         appBar: const CorvusTopBar(showBackButton: false),
         body: Column(
           children: [
@@ -124,6 +218,7 @@ class _ProfRulesPageViewState extends State<_ProfRulesPageView> {
                     );
                   },
                 ),
+        ),
       ),
     );
   }
@@ -138,11 +233,12 @@ class _ProfRulesPageViewState extends State<_ProfRulesPageView> {
       authorId: user?.id,
     );
     if (context.mounted) {
-      if (provider.errorMessage != null) {
+      if (provider.errorMessage != null && !provider.errorMessage!.contains('MitM')) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: ${provider.errorMessage}'), backgroundColor: Theme.of(context).colorScheme.error),
         );
       } else {
+        context.read<ProjectProvider>().touchProject(widget.projectId);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Reglas actualizadas y notificación enviada.')),
         );

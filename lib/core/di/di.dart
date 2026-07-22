@@ -1,6 +1,12 @@
 import 'package:get_it/get_it.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/core/network/auth_interceptor_client.dart';
+import 'package:mobile/core/router/appRouter.dart';
+import 'package:mobile/core/services/secure_storage_service.dart';
 import 'package:mobile/features/auth/data/data_source/auth_remote_data_source.dart';
 import 'package:mobile/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:mobile/features/auth/domain/repositories/auth_repository.dart';
@@ -63,6 +69,42 @@ import 'package:mobile/core/theme/theme_provider.dart';
 final sl = GetIt.instance;
 
 void setupDependencies() {
+  // ── HTTP Client (ApiClient) ───────────────────────────────────────────
+  sl.registerLazySingleton<AuthInterceptorClient>(() => AuthInterceptorClient(
+    storage: SecureStorageService(),
+    onUnauthenticated: () {
+      final context = rootNavigatorKey.currentContext;
+      if (context == null) return;
+      final l10n = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n?.sessionExpired ?? 'Tu sesión ha expirado. Por favor, inicia sesión de nuevo.'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+      context.go('/login');
+      try { Provider.of<AuthProvider>(context, listen: false).logout(); } catch (_) {}
+      try { sl<AuthProvider>().logout(); } catch (_) {}
+    },
+    onMitMDetected: () {
+      final context = rootNavigatorKey.currentContext;
+      if (context == null) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Alerta de Seguridad: Conexión insegura detectada. Por tu seguridad, la operación fue bloqueada.',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 8),
+        ),
+      );
+    },
+  ));
+
   // ── Auth ──────────────────────────────────────────────────────────────
   sl.registerLazySingleton<AuthRemoteDataSource>(
     () => AuthRemoteDataSourceImpl(),
@@ -97,7 +139,7 @@ void setupDependencies() {
 
   // ── Search ────────────────────────────────────────────────────────────
   sl.registerLazySingleton<SearchRemoteDataSource>(
-    () => SearchRemoteDataSourceImpl(client: apiClient),
+    () => SearchRemoteDataSourceImpl(client: sl<AuthInterceptorClient>()),
   );
   sl.registerLazySingleton<SearchRepository>(
     () => SearchRepositoryImpl(sl()),
@@ -107,7 +149,7 @@ void setupDependencies() {
 
   // ── MyProject ─────────────────────────────────────────────────────────
   sl.registerLazySingleton<MyProjectRemoteDataSource>(
-    () => MyProjectRemoteDataSource(client: apiClient),
+    () => MyProjectRemoteDataSource(client: sl<AuthInterceptorClient>()),
   );
   sl.registerLazySingleton<MyProjectLocalDataSource>(
     () => MyProjectLocalDataSource(),
@@ -122,7 +164,7 @@ void setupDependencies() {
 
   // ── Teams ─────────────────────────────────────────────────────────────
   sl.registerLazySingleton<TeamsRemoteDataSource>(
-    () => TeamsRemoteDataSource(client: apiClient),
+    () => TeamsRemoteDataSource(client: sl<AuthInterceptorClient>()),
   );
   sl.registerLazySingleton<TeamsRepository>(
     () => TeamsRepositoryImpl(remoteDataSource: sl()),
@@ -137,7 +179,7 @@ void setupDependencies() {
 
   // ── Prof Dashboard ───────────────────────────────────────────────────
   sl.registerLazySingleton<DashboardRemoteDataSource>(
-    () => DashboardRemoteDataSource(client: apiClient),
+    () => DashboardRemoteDataSource(client: sl<AuthInterceptorClient>()),
   );
   sl.registerLazySingleton<DashboardRepository>(
     () => DashboardRepositoryImpl(remoteDataSource: sl()),
@@ -149,7 +191,7 @@ void setupDependencies() {
 
   // ── Prof Rules ───────────────────────────────────────────────────────
   sl.registerLazySingleton<ProfRulesRemoteDataSource>(
-    () => ProfRulesRemoteDataSource(client: apiClient),
+    () => ProfRulesRemoteDataSource(client: sl<AuthInterceptorClient>()),
   );
   sl.registerFactory(() => ProfRulesProvider(remoteDataSource: sl()));
 
@@ -160,8 +202,8 @@ void setupDependencies() {
   sl.registerFactory(() => NotificationsProvider());
   sl.registerFactory(() => ProfileProvider());
   sl.registerFactory(() => ProfReviewsProvider());
-  sl.registerFactory(() => ProfHistoryProvider(client: apiClient));
-  sl.registerFactory(() => ActivityHistoryProvider(client: apiClient));
+  sl.registerFactory(() => ProfHistoryProvider(client: sl<AuthInterceptorClient>()));
+  sl.registerFactory(() => ActivityHistoryProvider(client: sl<AuthInterceptorClient>()));
   sl.registerFactory(() => ClusteringProvider());
   sl.registerFactory(() => RegistrationProvider());
 

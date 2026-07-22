@@ -42,6 +42,31 @@ class _ProjectDefenseChatPageState extends State<ProjectDefenseChatPage> {
   final int _maxMessages = 10;
   late MyProjectProvider _providerRef;
   Timer? _pollTimer;
+  String _previousText = '';
+
+  void _onTextChanged(String newText) {
+    final diff = newText.length - _previousText.length;
+    // Si se pegan más de 15 caracteres de golpe (típico de pegar texto o dictado por voz)
+    if (diff > 15) {
+      _textController.text = _previousText;
+      _textController.selection = TextSelection.fromPosition(
+        TextPosition(offset: _previousText.length),
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('⚠️ Por integridad académica, no se permite pegar texto ni usar dictado por voz del teclado. Redacta tu respuesta a mano.'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.orange,
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+      return;
+    }
+    _previousText = newText;
+  }
   
   @override
   void initState() {
@@ -145,7 +170,6 @@ class _ProjectDefenseChatPageState extends State<ProjectDefenseChatPage> {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
         final remoteMsgs = data['messages'] as List;
         
-        bool hasNew = false;
         int newUserCount = 0;
         
         final List<Map<String, String>> parsedMsgs = [];
@@ -182,6 +206,7 @@ class _ProjectDefenseChatPageState extends State<ProjectDefenseChatPage> {
 
     setState(() {
       _messages.add({'role': 'user', 'content': text});
+      _previousText = '';
       _isLoading = true;
       _messageCount++;
     });
@@ -385,6 +410,11 @@ class _ProjectDefenseChatPageState extends State<ProjectDefenseChatPage> {
                     child: TextField(
                       controller: _textController,
                       enabled: !_isLoading && !_defensePassed,
+                      enableSuggestions: false,
+                      autocorrect: false,
+                      keyboardType: TextInputType.text,
+                      contextMenuBuilder: (context, editableTextState) => const SizedBox.shrink(),
+                      onChanged: _onTextChanged,
                       maxLines: 4,
                       minLines: 1,
                       decoration: InputDecoration(

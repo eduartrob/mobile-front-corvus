@@ -5,12 +5,16 @@ import 'package:mobile/core/network/auth_interceptor_client.dart';
 import 'package:mobile/features/prof_reviews/data/models/final_review_model.dart';
 import 'package:mobile/features/prof_reviews/data/prof_reviews_remote_data_source.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile/core/error/error_handler.dart';
+import 'package:mobile/core/error/app_exception.dart';
+import 'package:mobile/core/di/di.dart';
+import 'package:mobile/core/network/auth_interceptor_client.dart';
 
 class ProfReviewsProvider extends ChangeNotifier {
   final ProfReviewsRemoteDataSource _dataSource;
 
   ProfReviewsProvider({ProfReviewsRemoteDataSource? dataSource})
-      : _dataSource = dataSource ?? ProfReviewsRemoteDataSource(client: apiClient);
+      : _dataSource = dataSource ?? ProfReviewsRemoteDataSource(client: sl<AuthInterceptorClient>());
 
   List<FinalReviewModel> _reviews = [];
   List<FinalReviewModel> get reviews => _reviews;
@@ -43,8 +47,8 @@ class ProfReviewsProvider extends ChangeNotifier {
 
     try {
       _reviews = await _dataSource.getFinalReviews(projectId: projectId);
-    } catch (e) {
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
+    } catch (e, st) {
+      _errorMessage = mapErrorToMessage(e, stackTrace: st);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -82,7 +86,7 @@ class ProfReviewsProvider extends ChangeNotifier {
         }
         
         final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/notifications/topic/push');
-        apiClient.post(
+        sl<AuthInterceptorClient>().post(
           uri,
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
@@ -97,8 +101,8 @@ class ProfReviewsProvider extends ChangeNotifier {
       } catch (_) {}
       
       return true;
-    } catch (e) {
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
+    } catch (e, st) {
+      _errorMessage = mapErrorToMessage(e, stackTrace: st);
       return false;
     } finally {
       _isLoading = false;
@@ -118,8 +122,8 @@ class ProfReviewsProvider extends ChangeNotifier {
         _reviews[index] = updated;
       }
       return true;
-    } catch (e) {
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
+    } catch (e, st) {
+      _errorMessage = mapErrorToMessage(e, stackTrace: st);
       return false;
     } finally {
       _isLoading = false;

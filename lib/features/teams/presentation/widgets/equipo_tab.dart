@@ -11,6 +11,8 @@ import 'package:mobile/features/projects/presentation/provider/project_provider.
 import 'package:mobile/l10n/app_localizations.dart';
 import 'team_members_list.dart';
 import 'dashed_border_painter.dart';
+import 'package:mobile/core/error/error_handler.dart';
+import 'package:mobile/core/error/app_exception.dart';
 
 class EquipoTab extends StatelessWidget {
   final String myAvatarUrl;

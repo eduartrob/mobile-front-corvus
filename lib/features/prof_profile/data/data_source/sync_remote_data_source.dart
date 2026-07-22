@@ -3,6 +3,10 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/auth_interceptor_client.dart';
 import 'package:mobile/core/network/api_config.dart';
+import 'package:mobile/core/error/app_exception.dart';
+import 'package:mobile/core/error/error_handler.dart';
+import 'package:mobile/core/di/di.dart';
+import 'package:mobile/core/network/auth_interceptor_client.dart';
 
 abstract class SyncRemoteDataSource {
   Future<Map<String, dynamic>> processFolder(String folderId, String accessToken, String jwtToken, String userId);
@@ -13,7 +17,7 @@ class SyncRemoteDataSourceImpl implements SyncRemoteDataSource {
   @override
   Future<Map<String, dynamic>> processFolder(String folderId, String accessToken, String jwtToken, String userId) async {
     try {
-      final response = await apiClient.post(
+      final response = await sl<AuthInterceptorClient>().post(
         Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.integratorProcessFolder}'),
         headers: {
           'Content-Type': 'application/json',
@@ -40,8 +44,7 @@ class SyncRemoteDataSourceImpl implements SyncRemoteDataSource {
         throw Exception(error.toString());
       }
     } catch (e) {
-      final msg = e.toString().replaceAll('Exception: ', '');
-      throw Exception(msg);
+      throw NetworkException(e.toString());
     }
   }
 
@@ -53,7 +56,7 @@ class SyncRemoteDataSourceImpl implements SyncRemoteDataSource {
         'fields': "files(id,name,owners)",
       });
 
-      final response = await apiClient.get(
+      final response = await sl<AuthInterceptorClient>().get(
         uri,
         headers: {
           'Authorization': 'Bearer $accessToken',
@@ -82,8 +85,7 @@ class SyncRemoteDataSourceImpl implements SyncRemoteDataSource {
         throw Exception(error);
       }
     } catch (e) {
-      final msg = e.toString().replaceAll('Exception: ', '');
-      throw Exception(msg);
+      throw NetworkException(e.toString());
     }
   }
 }

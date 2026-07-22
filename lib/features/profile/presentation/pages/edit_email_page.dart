@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/profile/presentation/provider/profile_provider.dart';
+import 'package:mobile/core/error/error_handler.dart';
+import 'package:mobile/core/error/app_exception.dart';
 
 class EditEmailPage extends StatefulWidget {
   const EditEmailPage({super.key});
@@ -71,11 +73,11 @@ class _EditEmailPageState extends State<EditEmailPage> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Correo verificado exitosamente'), backgroundColor: Colors.green),
                       );
-                    } catch (e) {
+                    } catch (e, st) {
                       setStateDialog(() => isVerifying = false);
                       if (!mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error: ${e.toString()}'), backgroundColor: Colors.red),
+                        SnackBar(content: Text(mapErrorToMessage(e)), backgroundColor: Colors.red),
                       );
                     }
                   },
@@ -97,9 +99,9 @@ class _EditEmailPageState extends State<EditEmailPage> {
       await provider.requestVerificationCode(type);
       if (!mounted) return;
       _showVerifyCodeDialog(type);
-    } catch (e) {
+    } catch (e, st) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}'), backgroundColor: Colors.red),
+        SnackBar(content: Text(mapErrorToMessage(e)), backgroundColor: Colors.red),
       );
     }
   }
@@ -139,11 +141,11 @@ class _EditEmailPageState extends State<EditEmailPage> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Correo añadido. Recuerda verificarlo.'), backgroundColor: Colors.green),
                       );
-                    } catch (e) {
+                    } catch (e, st) {
                       setStateDialog(() => isAdding = false);
                       if (!mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error: ${e.toString()}'), backgroundColor: Colors.red),
+                        SnackBar(content: Text(mapErrorToMessage(e)), backgroundColor: Colors.red),
                       );
                     }
                   },
@@ -167,9 +169,9 @@ class _EditEmailPageState extends State<EditEmailPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Correo borrado exitosamente'), backgroundColor: Colors.green),
       );
-    } catch (e) {
+    } catch (e, st) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}'), backgroundColor: Colors.red),
+        SnackBar(content: Text(mapErrorToMessage(e)), backgroundColor: Colors.red),
       );
     }
   }

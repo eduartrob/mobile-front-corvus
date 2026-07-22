@@ -32,6 +32,7 @@ import 'package:mobile/features/prof_dash/presentation/pages/prof_dash_page.dart
 import 'package:mobile/features/prof_reviews/presentation/pages/prof_reviews_page.dart';
 import 'package:mobile/features/prof_rules/presentation/pages/prof_rules_page.dart';
 import 'package:mobile/features/search/presentation/pages/search_page.dart';
+import 'package:mobile/features/projects/presentation/pages/archived_projects_page.dart';
 import 'package:mobile/features/prof_history/presentation/pages/prof_history_page.dart';
 import 'package:mobile/features/prof_profile/presentation/pages/prof_profile_page.dart';
 import 'package:mobile/features/profile/presentation/pages/activity_history_page.dart';
@@ -47,7 +48,8 @@ import 'package:mobile/features/projects/presentation/pages/prof_project_config_
 
 import 'package:mobile/features/student_directory/presentation/pages/student_directory_page.dart';
 import 'package:mobile/features/notifications/presentation/pages/notifications_page.dart';
-import 'package:mobile/l10n/app_localizations.dart';
+import 'package:mobile/features/auth/presentation/pages/security_alert_page.dart';
+
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -177,12 +179,20 @@ class _AppRouterState extends State<AppRouter> {
           pageBuilder: (context, state) => _buildSlideUpTransition(const ProfCreateProjectPage(), state.pageKey),
         ),
         GoRoute(
+          path: '/archived-projects',
+          pageBuilder: (context, state) => _buildCupertinoTransition(const ArchivedProjectsPage(), state.pageKey),
+        ),
+        GoRoute(
           path: '/register-teacher-verification',
           pageBuilder: (context, state) => _buildCupertinoTransition(const TeacherVerificationPage(), state.pageKey),
         ),
         GoRoute(
           path: '/register-teacher-info',
           pageBuilder: (context, state) => _buildCupertinoTransition(const TeacherInfoPage(), state.pageKey),
+        ),
+        GoRoute(
+          path: '/security-alert',
+          pageBuilder: (context, state) => _buildSlideUpTransition(const SecurityAlertPage(), state.pageKey),
         ),
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) {

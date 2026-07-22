@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/notifications/presentation/provider/notifications_provider.dart';
+import 'package:mobile/shared/widgets/pro_avatar.dart';
 
 class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showLogo;
@@ -88,40 +89,16 @@ class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
         ),
         const SizedBox(width: 8),
 
-        if (photoUrl != null && photoUrl.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: Material(
-              type: MaterialType.circle,
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  if (role == 'PROFESOR') {
-                    if (GoRouterState.of(context).matchedLocation != '/prof-profile') {
-                       context.push('/prof-profile');
-                    }
-                  } else {
-                    if (GoRouterState.of(context).matchedLocation != '/profile') {
-                      context.push('/profile');
-                    }
-                  }
-                },
-                customBorder: const CircleBorder(),
-                child: CircleAvatar(
-                  backgroundImage: NetworkImage(photoUrl),
-                  radius: 18,
-                ),
-              ),
-            ),
-          )
-        else
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: GestureDetector(
+        Padding(
+          padding: const EdgeInsets.only(right: 16.0),
+          child: Material(
+            type: MaterialType.circle,
+            color: Colors.transparent,
+            child: InkWell(
               onTap: () {
                 if (role == 'PROFESOR') {
                   if (GoRouterState.of(context).matchedLocation != '/prof-profile') {
-                    context.push('/prof-profile');
+                     context.push('/prof-profile');
                   }
                 } else {
                   if (GoRouterState.of(context).matchedLocation != '/profile') {
@@ -129,12 +106,20 @@ class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
                   }
                 }
               },
-              child: const CircleAvatar(
-                radius: 18,
-                child: Icon(Icons.person),
+              customBorder: const CircleBorder(),
+              child: Consumer<AuthProvider>(
+                builder: (context, authProvider, child) {
+                  return ProAvatar(
+                    photoUrl: authProvider.currentUser?.photoUrl,
+                    radius: 18,
+                    isPro: authProvider.isProActive,
+                    fallbackInitial: authProvider.currentUser?.name ?? 'U',
+                  );
+                },
               ),
             ),
           ),
+        ),
       ],
     );
   }
