@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:mobile/shared/widgets/corvus_bottom_nav_bar.dart';
 import 'package:mobile/features/prof_dash/presentation/pages/prof_dash_page.dart';
 import 'package:mobile/features/prof_reviews/presentation/pages/prof_reviews_page.dart';
+import 'package:mobile/features/prof_reviews/presentation/provider/prof_reviews_provider.dart';
 import 'package:mobile/features/prof_rules/presentation/pages/prof_rules_page.dart';
 import 'package:mobile/features/projects/presentation/pages/prof_project_settings_page.dart';
 
@@ -42,6 +44,14 @@ class _ProfProjectLayoutState extends State<ProfProjectLayout> {
   void _onItemTapped(int index) {
     if (index == _currentIndex) return;
     setState(() => _currentIndex = index);
+    // When switching to the Revisiones tab, silently refresh the list
+    if (index == 1) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          context.read<ProfReviewsProvider>().fetchReviews(projectId: widget.projectId);
+        }
+      });
+    }
   }
 
   @override
@@ -66,7 +76,15 @@ class _ProfProjectLayoutState extends State<ProfProjectLayout> {
             ProfDashPage(
               key: ValueKey('dash_${widget.projectId}'),
               projectId: widget.projectId,
-              onSwitchToReviews: () => setState(() => _currentIndex = 1),
+              onSwitchToReviews: () {
+                setState(() => _currentIndex = 1);
+                // Also refresh reviews when switching from the dashboard shortcut
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) {
+                    context.read<ProfReviewsProvider>().fetchReviews(projectId: widget.projectId);
+                  }
+                });
+              },
             ),
             ProfReviewsPage(key: ValueKey('reviews_${widget.projectId}'), projectId: widget.projectId),
             ProfRulesPage(key: ValueKey('rules_${widget.projectId}'), projectId: widget.projectId),

@@ -8,11 +8,13 @@ import 'package:mobile/features/my_project/presentation/pages/team_chat_page.dar
 class ProjectLayout extends StatefulWidget {
   final String projectId;
   final int initialTab;
+  final int teamTab;
 
   const ProjectLayout({
     super.key,
     required this.projectId,
     this.initialTab = 0,
+    this.teamTab = 0,
   });
 
   @override
@@ -25,7 +27,8 @@ class _ProjectLayoutState extends State<ProjectLayout> {
   @override
   void initState() {
     super.initState();
-    _currentIndex = widget.initialTab;
+    // Validamos que initialTab no exceda el número de pestañas activas (actualmente 2: index 0 y 1)
+    _currentIndex = widget.initialTab.clamp(0, 1);
   }
 
   @override
@@ -33,7 +36,7 @@ class _ProjectLayoutState extends State<ProjectLayout> {
     super.didUpdateWidget(oldWidget);
     if (widget.initialTab != oldWidget.initialTab) {
       setState(() {
-        _currentIndex = widget.initialTab;
+        _currentIndex = widget.initialTab.clamp(0, 1);
       });
     }
   }
@@ -62,7 +65,11 @@ class _ProjectLayoutState extends State<ProjectLayout> {
         body: IndexedStack(
           index: _currentIndex,
           children: [
-            TeamsPage(key: ValueKey('teams_${widget.projectId}'), projectId: widget.projectId),
+            TeamsPage(
+              key: ValueKey('teams_${widget.projectId}'), 
+              projectId: widget.projectId,
+              initialTabIndex: widget.teamTab,
+            ),
             MyProjectPage(key: ValueKey('myproject_${widget.projectId}')),
             // const TeamChatPage(), // Oculto temporalmente
           ],

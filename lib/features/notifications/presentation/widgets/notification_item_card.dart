@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../domain/entities/app_notification.dart';
 import '../provider/notifications_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:mobile/core/services/notification_navigation_service.dart';
 
 class NotificationItemCard extends StatefulWidget {
   final AppNotification notification;
@@ -193,14 +194,24 @@ class _NotificationItemCardState extends State<NotificationItemCard> with Single
                 provider.toggleSelection(notification.id);
                 return;
               }
-              // Si tiene deepLink, navegar directamente sin expandir
-              if (notification.deepLink != null && notification.deepLink!.isNotEmpty) {
+              // Si tiene deepLink o rawType, intentar navegar
+              if ((notification.deepLink != null && notification.deepLink!.isNotEmpty) ||
+                  (notification.rawType != null && notification.rawType!.isNotEmpty)) {
+                
                 if (!notification.isRead) {
                   provider.markAsRead(notification.id);
                 }
-                context.go(notification.deepLink!);
+
+                if (notification.deepLink != null && notification.deepLink!.isNotEmpty) {
+                  context.go(notification.deepLink!);
+                } else {
+                  // Fallback a navegación por tipo
+                  NotificationNavigationService.handleByType(context, notification.rawType!, {});
+                }
                 return;
               }
+
+              // Si no tiene a donde ir, solo expandir
               setState(() {
                 _isExpanded = !_isExpanded;
               });

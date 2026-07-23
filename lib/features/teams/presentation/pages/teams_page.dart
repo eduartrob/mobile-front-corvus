@@ -217,6 +217,74 @@ class _TeamsPageState extends State<TeamsPage> with SingleTickerProviderStateMix
     );
   }
 
+  PreferredSizeWidget _buildSugerenciasTopBar(BuildContext context, TeamsProvider provider) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(80.0),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 52,
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (val) => _onSearchChanged(val, provider),
+                    style: TextStyle(color: colorScheme.onSurface, fontSize: 16),
+                    decoration: InputDecoration(
+                      hintText: 'Buscar compañero...',
+                      hintStyle: TextStyle(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7)),
+                      prefixIcon: Icon(Icons.search, color: colorScheme.onSurfaceVariant),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 0),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(26),
+                        borderSide: BorderSide.none,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(26),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(26),
+                        borderSide: BorderSide(
+                          color: colorScheme.primary.withValues(alpha: 0.5),
+                          width: 1,
+                        ),
+                      ),
+                      filled: true,
+                      fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              InkWell(
+                onTap: () => _showFilterSheet(context, provider),
+                borderRadius: BorderRadius.circular(26),
+                child: Container(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    color: _selectedSkill.isNotEmpty || _showAllStudents
+                        ? colorScheme.primaryContainer
+                        : colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.filter_list,
+                    color: _selectedSkill.isNotEmpty ? colorScheme.onPrimaryContainer : colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -228,7 +296,9 @@ class _TeamsPageState extends State<TeamsPage> with SingleTickerProviderStateMix
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: _tabController.index == 0 
           ? const CorvusTopBar() 
-          : _buildSolicitudesTopBar(context, provider),
+          : _tabController.index == 1
+              ? _buildSolicitudesTopBar(context, provider)
+              : _buildSugerenciasTopBar(context, provider),
       body: Column(
         children: [
           // TabBar container

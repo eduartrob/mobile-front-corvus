@@ -35,8 +35,22 @@ class NotificationsProvider extends ChangeNotifier {
       // 1. Try to fetch from remote and sync to local
       try {
         final remoteData = await _remoteDataSource.fetchMyNotifications();
+        
+        // Preserve local read state before wiping
+        final currentLocal = await NotificationsLocalDataSource.getNotifications();
+        final readStatusMap = <String, bool>{};
+        for (var n in currentLocal) {
+          if (n['isRead'] == 1) {
+            readStatusMap[n['id'].toString()] = true;
+          }
+        }
+
         await NotificationsLocalDataSource.deleteAllRemote();
         for (var n in remoteData) {
+          final nId = n['id'].toString();
+          final isReadLocally = readStatusMap[nId] ?? false;
+          final isReadRemote = n['isRead'] == true;
+          
           await NotificationsLocalDataSource.insertNotification({
             'id': n['id'],
             'title': n['title'],
@@ -44,7 +58,7 @@ class NotificationsProvider extends ChangeNotifier {
             'type': n['type'],
             'deepLink': n['deepLink'],
             'timestamp': n['timestamp'],
-            'isRead': n['isRead'] ? 1 : 0,
+            'isRead': (isReadLocally || isReadRemote) ? 1 : 0,
             'authorName': n['authorName'],
             'authorPhotoUrl': n['authorPhotoUrl'],
           });
@@ -66,6 +80,7 @@ class NotificationsProvider extends ChangeNotifier {
                     ? "${n['title']}\n${n['body']}"
                     : n['body'],
                 deepLink: n['deepLink']?.toString(),
+                rawType: n['type']?.toString(),
                 timestamp: DateTime.parse(n['timestamp']),
                 type: _getTypeFromString(n['type']),
                 isRead: n['isRead'] == 1,
@@ -74,7 +89,23 @@ class NotificationsProvider extends ChangeNotifier {
               ))
           .toList();
 
-      _notifications = parsedNotifications;
+      final deduplicated = <AppNotification>[];
+      for (final n in parsedNotifications) {
+        final isDuplicate = deduplicated.any((existing) => 
+            existing.message == n.message && 
+            existing.type == n.type &&
+            n.timestamp.difference(existing.timestamp).inMinutes.abs() < 5
+        );
+        if (!isDuplicate) {
+          deduplicated.add(n);
+        } else {
+          // Self-heal: Delete the duplicate from the server asynchronously
+          _remoteDataSource.deleteNotification(n.id).catchError((_) {});
+          NotificationsLocalDataSource.deleteNotification(n.id).catchError((_) {});
+        }
+      }
+
+      _notifications = deduplicated;
       _notifications.sort((a, b) => b.timestamp.compareTo(a.timestamp));
     } catch (e) {
       debugPrint('Error fetching notifications: $e');

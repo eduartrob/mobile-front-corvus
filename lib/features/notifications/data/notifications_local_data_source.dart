@@ -70,7 +70,11 @@ class NotificationsLocalDataSource {
 
   static Future<int> insertNotification(Map<String, dynamic> notification) async {
     final db = await database;
-    return await db.insert('notifications', notification);
+    return await db.insert(
+      'notifications', 
+      notification,
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   static Future<List<Map<String, dynamic>>> getNotifications() async {

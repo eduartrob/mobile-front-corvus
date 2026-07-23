@@ -301,7 +301,7 @@ class EquipoTab extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (teamsProvider.finalReviewStatus != null)
-                      _buildProposalStatusBanner(context, teamsProvider.finalReviewStatus!, l10n),
+                      _buildProposalStatusBanners(context, teamsProvider.finalReviewStatus!, l10n),
                     if (teamsProvider.finalReviewStatus != null)
                       const SizedBox(height: 16),
                     TeamMembersList(
@@ -391,10 +391,36 @@ class EquipoTab extends StatelessWidget {
     );
   }
 
-  Widget _buildProposalStatusBanner(BuildContext context, Map<String, dynamic> statusData, AppLocalizations l10n) {
+  /// Renders one or two status banners.
+  /// When status == SUMMONED and a previous_status is stored in proposal_data,
+  /// shows the appointment card first, then the prior approval/rejection card.
+  Widget _buildProposalStatusBanners(BuildContext context, Map<String, dynamic> statusData, AppLocalizations l10n) {
     final status = statusData['status'] as String? ?? 'UNKNOWN';
+    final proposalData = statusData['proposal_data'] as Map<String, dynamic>? ?? {};
+    final previousStatus = proposalData['previous_status'] as String?;
+
+    if (status == 'SUMMONED' && (previousStatus == 'APPROVED' || previousStatus == 'REJECTED')) {
+      return Column(
+        children: [
+          _buildSingleBanner(context, statusData, l10n, overrideStatus: 'SUMMONED'),
+          const SizedBox(height: 8),
+          _buildSingleBanner(context, statusData, l10n, overrideStatus: previousStatus),
+        ],
+      );
+    }
+
+    return _buildSingleBanner(context, statusData, l10n);
+  }
+
+  Widget _buildSingleBanner(
+    BuildContext context,
+    Map<String, dynamic> statusData,
+    AppLocalizations l10n, {
+    String? overrideStatus,
+  }) {
+    final status = overrideStatus ?? statusData['status'] as String? ?? 'UNKNOWN';
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     Color bgColor;
     Color fgColor;
     IconData icon;
@@ -427,8 +453,8 @@ class EquipoTab extends StatelessWidget {
         fgColor = Colors.blue.shade900;
         icon = Icons.calendar_month;
         title = l10n.summonedForReview;
-        final date = statusData['appointment_date'] != null 
-            ? DateTime.tryParse(statusData['appointment_date']) 
+        final date = statusData['appointment_date'] != null
+            ? DateTime.tryParse(statusData['appointment_date'])?.toLocal()
             : null;
         if (date != null) {
           subtitle = l10n.appointmentDate('${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}') + '\n';

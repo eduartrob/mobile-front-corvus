@@ -33,10 +33,10 @@ class NotificationNavigationService {
     }
 
     // 2. Fallback por tipo de notificación
-    _handleByType(context, notifType, data);
+    handleByType(context, notifType, data);
   }
 
-  static void _handleByType(
+  static void handleByType(
     BuildContext context,
     String notifType,
     Map<String, dynamic> data,
@@ -58,14 +58,19 @@ class NotificationNavigationService {
       case 'team_accepted':
       case 'team_rejected':
       case 'team_updated':
-        context.push('/teams');
+        final projectId = _resolveProjectId(context, data);
+        if (projectId != null) {
+          context.push('/project/$projectId?tab=0&teamTab=1');
+        } else {
+          context.push('/notifications?highlightLatest=true');
+        }
         break;
 
       case 'PROPOSAL_ACTION':
       case 'review_updated':
         final projectId = _resolveProjectId(context, data);
         if (projectId != null) {
-          context.push('/project/$projectId?tab=2');
+          context.push('/project/$projectId?tab=1'); // Tab 1 is Propuesta
         } else {
           context.push('/notifications?highlightLatest=true');
         }

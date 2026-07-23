@@ -234,8 +234,9 @@ class _AppRouterState extends State<AppRouter> {
           pageBuilder: (context, state) {
             final projectId = state.pathParameters['id']!;
             final tab = int.tryParse(state.uri.queryParameters['tab'] ?? '0') ?? 0;
+            final teamTab = int.tryParse(state.uri.queryParameters['teamTab'] ?? '0') ?? 0;
             return _buildCupertinoTransition(
-              ProjectLayout(projectId: projectId, initialTab: tab),
+              ProjectLayout(projectId: projectId, initialTab: tab, teamTab: teamTab),
               state.pageKey,
             );
           },
