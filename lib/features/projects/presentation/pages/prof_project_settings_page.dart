@@ -10,6 +10,7 @@ import 'dart:async';
 import 'package:mobile/features/teams/presentation/widgets/dashed_border_painter.dart';
 import 'package:mobile/core/di/di.dart';
 import 'package:mobile/core/network/auth_interceptor_client.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ProfProjectSettingsPage extends StatefulWidget {
   final String projectId;
@@ -65,7 +66,12 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
           setState(() {
             _searchResults = results.where((r) {
               final inCollabs = _collaborators.any((c) => c['id'] == r['id']);
-              final inPending = _pendingInvitations.any((c) => c['id'] == r['id']);
+              final inPending = _pendingInvitations.any((c) => 
+                c['id'] == r['id'] || 
+                (c['email'] != null && r['email'] != null && c['email'] == r['email']) ||
+                (c['username'] != null && r['username'] != null && c['username'] == r['username']) ||
+                (c['email'] != null && c['email'].isNotEmpty && c['email'] == r['username'])
+              );
               return !inCollabs && !inPending;
             }).toList();
             _isSearching = false;
@@ -139,7 +145,7 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
     }
   }
 
-  Future<void> _inviteCollaborator(String email) async {
+  Future<void> _inviteCollaborator(String email, {String? targetUserId}) async {
     try {
       final url = Uri.parse(
         '${ApiConfig.apiGatewayUrl}${ApiEndpoints.projectCollaborators(widget.projectId)}',
@@ -160,6 +166,14 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
           const SnackBar(content: Text('Invitación enviada exitosamente')),
         );
         _loadCollaborators(forceRefresh: true);
+        setState(() {
+          _searchResults.removeWhere((prof) {
+            if (targetUserId != null && prof['id'] == targetUserId) return true;
+            if (email.isNotEmpty && prof['email'] == email) return true;
+            if (email.isNotEmpty && prof['username'] == email) return true;
+            return false;
+          });
+        });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -390,7 +404,7 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
                             radius: 40,
                             backgroundColor: colorScheme.primaryContainer,
                             backgroundImage: prof['profile_picture'] != null
-                                ? NetworkImage(prof['profile_picture'])
+                                ? CachedNetworkImageProvider(prof['profile_picture'])
                                 : null,
                             child: prof['profile_picture'] == null
                                 ? Text(
@@ -447,7 +461,7 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
                                   width: double.infinity,
                                   child: FilledButton(
                                     onPressed: () {
-                                      _inviteCollaborator(email);
+                                      _inviteCollaborator(email, targetUserId: prof['id']);
                                     },
                                     style: FilledButton.styleFrom(
                                       backgroundColor: Colors.blue.shade600,
@@ -676,7 +690,7 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
             leading: CircleAvatar(
               backgroundColor: colorScheme.primaryContainer,
               backgroundImage: c['profile_picture'] != null
-                  ? NetworkImage(c['profile_picture'])
+                  ? CachedNetworkImageProvider(c['profile_picture'])
                   : null,
               child: c['profile_picture'] == null
                   ? Text(
@@ -719,7 +733,7 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
               leading: CircleAvatar(
                 backgroundColor: colorScheme.surfaceContainerHighest,
                 backgroundImage: p['profile_picture'] != null
-                    ? NetworkImage(p['profile_picture'])
+                    ? CachedNetworkImageProvider(p['profile_picture'])
                     : null,
                 child: p['profile_picture'] == null
                     ? Text(
