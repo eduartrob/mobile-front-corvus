@@ -9,7 +9,7 @@ import '../provider/teams_provider.dart';
 import '../widgets/equipo_tab.dart';
 import '../widgets/solicitudes_tab.dart';
 import '../widgets/sugerencias_tab.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:mobile/l10n/app_localizations.dart';
 
 class TeamsPage extends StatefulWidget {
   final int initialTabIndex;
