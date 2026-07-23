@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../provider/teams_provider.dart';
 import 'package:mobile/features/teams/data/models/solicitud_model.dart';
 import 'package:mobile/l10n/app_localizations.dart';
+import 'package:mobile/features/teams/presentation/widgets/team_members_list.dart';
 
 class SolicitudesTab extends StatelessWidget {
   const SolicitudesTab({super.key});
@@ -199,193 +200,85 @@ class _SolicitudCard extends StatelessWidget {
     final isReceiverInTeam = myTeamCount > 1;
     final inviteText = isReceiverInTeam ? l10n.wantsToJoinGroup : l10n.invitedToGroup;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.015),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                CircleAvatar(
-                  backgroundImage: NetworkImage(student.avatarUrl),
-                  radius: 26,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (solicitud.state == SolicitudState.recibida)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 2),
-                          child: Text(
-                            inviteText,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: colorScheme.primary,
-                            ),
-                          ),
-                        ),
-                      Text(
-                        student.name,
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.onSurface,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        student.username,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (student.isVerified)
-                  Icon(
-                    Icons.verified,
-                    color: colorScheme.primary,
-                    size: 20,
-                  ),
-              ],
-            ),
-            if (student.bio.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Text(
-                student.bio,
+    return InvitationCard(
+      name: student.name,
+      username: student.username,
+      bio: student.bio,
+      tags: student.tags,
+      avatarUrl: student.avatarUrl,
+      isVerified: student.isVerified,
+      headerWidget: solicitud.state == SolicitudState.recibida
+          ? Padding(
+              padding: const EdgeInsets.only(bottom: 2),
+              child: Text(
+                inviteText,
                 style: TextStyle(
-                  fontSize: 14,
-                  color: colorScheme.onSurface.withValues(alpha: 0.8),
-                  height: 1.4,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.primary,
                 ),
               ),
-            ],
-            if (student.tags.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: student.tags.map((tag) {
-                  final isSpecial = tag == 'UI/UX';
-                  return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: isSpecial
-                          ? const Color(0xFFE0E7FF)
-                          : const Color(0xFFF3F4F6),
-                      borderRadius: BorderRadius.circular(8),
+            )
+          : null,
+      customActionWidget: solicitud.state == SolicitudState.recibida
+          ? Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: onReject,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.red.shade400,
+                      side: BorderSide(color: Colors.red.shade200),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                     child: Text(
-                      tag,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isSpecial
-                            ? const Color(0xFF4338CA)
-                            : const Color(0xFF374151),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ],
-            if (solicitud.state == SolicitudState.recibida) ...[
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: onReject,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.red.shade400,
-                        side: BorderSide(color: Colors.red.shade200),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                      child: Text(
-                        l10n.delete,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      l10n.delete,
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: onAccept,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colorScheme.primary,
-                        foregroundColor: colorScheme.onPrimary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        elevation: 0,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: onAccept,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: colorScheme.primary,
+                      foregroundColor: colorScheme.onPrimary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Text(
-                        l10n.accept,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      l10n.accept,
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     ),
                   ),
-                ],
-              ),
-            ] else if (solicitud.state == SolicitudState.enviada) ...[
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: onReject,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.red.shade400,
-                        side: BorderSide(color: Colors.red.shade200),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                      child: Text(
-                        l10n.cancel,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                ),
+              ],
+            )
+          : SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: onReject,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.red.shade400,
+                  side: BorderSide(color: Colors.red.shade200),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                ],
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                child: Text(
+                  l10n.cancel,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                ),
               ),
-            ],
-          ],
-        ),
-      ),
+            ),
     );
   }
 }

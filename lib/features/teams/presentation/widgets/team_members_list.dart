@@ -144,6 +144,8 @@ class InvitationCard extends StatelessWidget {
   final VoidCallback? onSendRequest;
   final bool targetHasTeam;
   final bool iHaveTeam;
+  final Widget? customActionWidget;
+  final Widget? headerWidget;
 
   const InvitationCard({
     super.key,
@@ -156,14 +158,18 @@ class InvitationCard extends StatelessWidget {
     this.onSendRequest,
     this.targetHasTeam = false,
     this.iHaveTeam = false,
+    this.customActionWidget,
+    this.headerWidget,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    Widget actionBtn = const SizedBox.shrink();
-    if (!(targetHasTeam && iHaveTeam)) {
+    
+    Widget actionBtn = customActionWidget ?? const SizedBox.shrink();
+    if (customActionWidget == null) {
+      if (!(targetHasTeam && iHaveTeam)) {
       actionBtn = SizedBox(
         width: double.infinity,
         child: FilledButton(
@@ -197,6 +203,7 @@ class InvitationCard extends StatelessWidget {
           ),
         ),
       );
+     }
     }
 
     String displayBio = bio;
@@ -240,6 +247,7 @@ class InvitationCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (headerWidget != null) headerWidget!,
                     Row(
                       children: [
                         Expanded(
@@ -272,9 +280,29 @@ class InvitationCard extends StatelessWidget {
                         color: colorScheme.onSurfaceVariant,
                       ),
                     ),
-                    if (!(targetHasTeam && iHaveTeam)) ...[
+                    if (customActionWidget != null) ...[
                       const SizedBox(height: 12),
                       actionBtn,
+                    ] else if (!(targetHasTeam && iHaveTeam)) ...[
+                      const SizedBox(height: 12),
+                      actionBtn,
+                    ] else ...[
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          'Ya tiene equipo',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
                     ]
                   ],
                 ),
