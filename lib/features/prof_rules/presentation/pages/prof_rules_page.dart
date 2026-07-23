@@ -382,12 +382,7 @@ class _ExclusionRulesTab extends StatelessWidget {
                             final scheme = Theme.of(context).colorScheme;
                             final user = context.read<AuthProvider>().currentUser;
                             provider.toggleExclusionRule(clusterName);
-                            await provider.saveConfig(
-                              projectId: projectId,
-                              authorName: user?.name,
-                              authorPhotoUrl: user?.photoUrl,
-                              authorId: user?.id,
-                            );
+                            // Auto-save removed to prevent duplicate push notifications
                             
                             messenger.hideCurrentSnackBar();
                             messenger.showSnackBar(

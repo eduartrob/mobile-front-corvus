@@ -95,8 +95,13 @@ class EquipoTab extends StatelessWidget {
         final missingCount = maxMembers - displayTeam.members.length;
         final isAdmin = displayTeam.members.isNotEmpty && displayTeam.members[0].id == currentUserId;
 
-        return SingleChildScrollView(
-          child: Column(
+        return RefreshIndicator(
+          onRefresh: () async {
+            await teamsProvider.fetchMyTeam(projectId: projectId);
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
@@ -379,6 +384,7 @@ class EquipoTab extends StatelessWidget {
           ),
         ),
       ],
+      ),
     ),
   );
       },

@@ -34,10 +34,10 @@ class _StudentJoinProjectPageState extends State<StudentJoinProjectPage> {
 
   void _onCodeChanged() {
     final text = _codeController.text;
-    if (text.length > 8 || text.contains(RegExp(r'[^a-zA-Z0-9-]'))) {
+    if (text.isNotEmpty && (text.length != 7 || text.contains(RegExp(r'[^a-zA-Z0-9-]')))) {
       if (_validationError == null) {
         setState(() {
-          _validationError = 'Los códigos de clase constan de 5-8 caracteres formados por letras y números, y sin espacios ni símbolos.';
+          _validationError = 'El código debe tener exactamente 7 caracteres (Ej. ABC-123).';
         });
       }
     } else {
@@ -51,10 +51,10 @@ class _StudentJoinProjectPageState extends State<StudentJoinProjectPage> {
 
   void _joinProject() async {
     final code = _codeController.text.trim();
-    if (code.isEmpty) {
+    if (code.isEmpty || _validationError != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Ingresa un código válido'),
+          content: Text(_validationError ?? 'Ingresa un código válido'),
           backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );

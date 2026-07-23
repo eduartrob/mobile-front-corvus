@@ -60,7 +60,7 @@ import 'package:mobile/features/notifications/presentation/provider/notification
 import 'package:mobile/features/profile/presentation/provider/profile_provider.dart';
 import 'package:mobile/features/profile/presentation/provider/activity_history_provider.dart';
 import 'package:mobile/features/profile/data/repositories/saved_projects_repository.dart';
-import 'package:mobile/features/profile/presentation/providers/saved_projects_provider.dart';
+import 'package:mobile/features/profile/presentation/provider/saved_projects_provider.dart';
 import 'package:mobile/features/prof_reviews/presentation/provider/prof_reviews_provider.dart';
 import 'package:mobile/features/prof_history/presentation/provider/prof_history_provider.dart';
 import 'package:mobile/features/student_directory/presentation/provider/clustering_provider.dart';
@@ -91,15 +91,16 @@ void setupDependencies() {
     onMitMDetected: () {
       final context = rootNavigatorKey.currentContext;
       if (context == null) return;
+      final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(
-            'Alerta de Seguridad: Conexión insegura detectada. Por tu seguridad, la operación fue bloqueada.',
-            style: TextStyle(fontWeight: FontWeight.bold),
+            l10n?.securityAlert ?? 'Alerta de Seguridad: Conexión insegura detectada. Por tu seguridad, la operación fue bloqueada.',
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           backgroundColor: Colors.redAccent,
           behavior: SnackBarBehavior.floating,
-          duration: Duration(seconds: 8),
+          duration: const Duration(seconds: 8),
         ),
       );
     },

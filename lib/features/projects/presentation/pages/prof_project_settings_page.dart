@@ -61,6 +61,7 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
         final results = await _professorApi.searchProfessors(
           query: query,
           token: token,
+          projectId: widget.projectId,
         );
         if (mounted) {
           setState(() {

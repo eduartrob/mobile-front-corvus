@@ -739,23 +739,24 @@ class _ProjectPageBody extends StatelessWidget {
 
         if (provider.state == ProjectState.preValidated) ...[
 
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: ElevatedButton.icon(
-              onPressed: () {
-                final teamId = context.read<TeamsProvider>().myTeam?.id ?? '';
-                provider.submitForReview(userId, teamId, l10n);
-              },
-              icon: const Icon(Icons.analytics, size: 18),
-              label: Text(l10n.sendForReview, style: const TextStyle(fontWeight: FontWeight.bold)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: colorScheme.primary,
-                foregroundColor: colorScheme.onPrimary,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          if (isLeader)
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  final teamId = context.read<TeamsProvider>().myTeam?.id ?? '';
+                  provider.submitForReview(userId, teamId, l10n);
+                },
+                icon: const Icon(Icons.analytics, size: 18),
+                label: Text(l10n.sendForReview, style: const TextStyle(fontWeight: FontWeight.bold)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
               ),
             ),
-          ),
         ],
 
         if (provider.state == ProjectState.detailedAnalysis) ...[
@@ -799,7 +800,7 @@ class _ProjectPageBody extends StatelessWidget {
           ] else ...[
             const SizedBox(height: 12),
             _buildDefenseButton(context, provider, auth.isProActive),
-            if (isLeader) ...[
+            if (isLeader && (auth.isProActive || provider.hasPassedDefense)) ...[
               const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
@@ -940,21 +941,43 @@ class _ProjectPageBody extends StatelessWidget {
       ],
       if (provider.state == ProjectState.detailedAnalysis || provider.state == ProjectState.preValidated) ...[
         const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          height: 50,
-          child: OutlinedButton(
-            onPressed: () => provider.reset(userId),
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(color: colorScheme.primary),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        if (isLeader)
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: OutlinedButton(
+              onPressed: () => provider.reset(userId),
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(color: colorScheme.primary),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: Text(
+                l10n.uploadAnotherProposal,
+                style: TextStyle(color: colorScheme.primary),
+              ),
             ),
-            child: Text(
-              l10n.uploadAnotherProposal,
-              style: TextStyle(color: colorScheme.primary),
+          )
+        else
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.info_outline, color: colorScheme.primary),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'El líder del equipo es el único autorizado para enviar la propuesta a revisión o cargar una nueva.',
+                    style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13, height: 1.4),
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
       ],
     ],
   ),
@@ -1030,12 +1053,6 @@ class _ProjectRequirementsWidget extends StatelessWidget {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: colorScheme.secondaryContainer.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.secondary.withValues(alpha: 0.3)),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

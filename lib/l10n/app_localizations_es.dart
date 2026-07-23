@@ -421,8 +421,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get uploadedToday => 'Subido hoy';
 
   @override
-  String get serverErrorContactSupport =>
-      'Ocurrió un inconveniente temporal en el servidor. Por favor reintenta en un momento o contacta a soporte: digitalengineers01+soporte@gmail.com';
+  String serverErrorContactSupport(String supportEmail) {
+    return 'Ocurrió un inconveniente temporal en el servidor. Por favor reintenta en un momento o contacta a soporte: $supportEmail';
+  }
 
   @override
   String get loginErrorNotAllowedEmail =>
@@ -876,4 +877,93 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get unexpectedError =>
       'Ocurrió un error inesperado. Por favor reintenta en un momento.';
+
+  @override
+  String get forbiddenAction => 'No tienes permiso para realizar esta acción.';
+
+  @override
+  String get resourceNotFound => 'El recurso solicitado no fue encontrado.';
+
+  @override
+  String get tooManyRequests =>
+      'Demasiadas solicitudes. Espera un momento e intenta de nuevo.';
+
+  @override
+  String get securityAlert =>
+      'Alerta de Seguridad: Se detectó una conexión insegura. Por tu seguridad, la operación fue bloqueada.';
+
+  @override
+  String get securityConnectionError =>
+      'Error de seguridad en la conexión. Contacta a soporte si persiste.';
+
+  @override
+  String get aiGeneratingAnalysis =>
+      'La IA está generando el análisis detallado. Vuelve en un momento.';
+
+  @override
+  String get errorLoadingDetails =>
+      'Error al cargar los detalles. Intenta de nuevo.';
+
+  @override
+  String studentsPressedHere(String count) {
+    return '+ $count Estudiantes han presionado aquí';
+  }
+
+  @override
+  String get recommended => 'Recomendado';
+
+  @override
+  String trendingViews(String count) {
+    return 'Trending · $count vistas';
+  }
+
+  @override
+  String get supportEmail => 'digitalengineers01+soporte@gmail.com';
+
+  @override
+  String get pleaseEnterFullName => 'Por favor, ingresa tu nombre completo';
+
+  @override
+  String get pleaseSelectAtLeastOneCareer =>
+      'Por favor, selecciona al menos una carrera';
+
+  @override
+  String get accountAlreadyExists =>
+      'Esta cuenta ya existe. Por favor retrocede e inicia sesión.';
+
+  @override
+  String validationError(String message) {
+    return 'Error de validación: $message';
+  }
+
+  @override
+  String get serverErrorRegistering => 'Error del servidor al registrar';
+
+  @override
+  String get autoLoginError => 'Error al iniciar sesión automáticamente';
+
+  @override
+  String get noTokenReceived => 'Error: No se recibió token en el login';
+
+  @override
+  String get yourData => 'Tus Datos';
+
+  @override
+  String get teacherProfileSubtitle =>
+      'Comencemos a personalizar tu perfil docente en Corvus.';
+
+  @override
+  String get universityValidated => 'Universidad Validada';
+
+  @override
+  String get fullName => 'Nombre completo';
+
+  @override
+  String get fullNameHint => 'Ej. Juan Pérez García';
+
+  @override
+  String get careersYouTeach => 'Carreras que impartes';
+
+  @override
+  String get finishRegistration => 'Finalizar Registro';
 }

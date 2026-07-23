@@ -24,28 +24,7 @@ class SolicitudesTab extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-              child: Row(
-                children: [
-                  _buildFilterChip(
-                    context,
-                    label: l10n.received,
-                    filter: SolicitudFilter.recibidas,
-                    currentFilter: provider.selectedFilter,
-                    onTap: (filter) => provider.selectFilter(filter),
-                  ),
-                  const SizedBox(width: 10),
-                  _buildFilterChip(
-                    context,
-                    label: l10n.sent,
-                    filter: SolicitudFilter.enviadas,
-                    currentFilter: provider.selectedFilter,
-                    onTap: (filter) => provider.selectFilter(filter),
-                  ),
-                ],
-              ),
-            ),
+            // The filter chips were moved to teams_page.dart AppBar
             Expanded(
               child: filteredList.isEmpty
                   ? RefreshIndicator(
@@ -131,47 +110,6 @@ class SolicitudesTab extends StatelessWidget {
           ],
         );
       },
-    );
-  }
-
-  Widget _buildFilterChip(
-    BuildContext context, {
-    required String label,
-    required SolicitudFilter filter,
-    required SolicitudFilter currentFilter,
-    required ValueChanged<SolicitudFilter> onTap,
-  }) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final isSelected = currentFilter == filter;
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => onTap(filter),
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? colorScheme.primary.withValues(alpha: 0.12)
-                : colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: isSelected
-                  ? colorScheme.primary.withValues(alpha: 0.3)
-                  : colorScheme.outlineVariant.withValues(alpha: 0.3),
-            ),
-          ),
-          child: Text(
-            label,
-            style: TextStyle(
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
-              fontSize: 14,
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

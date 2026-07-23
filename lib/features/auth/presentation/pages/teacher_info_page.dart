@@ -15,6 +15,7 @@ import 'package:mobile/features/auth/presentation/widgets/career_autocomplete_fi
 import 'package:mobile/core/services/security_service.dart';
 import 'package:mobile/core/error/error_handler.dart';
 import 'package:mobile/core/error/app_exception.dart';
+import 'package:mobile/l10n/app_localizations.dart';
 
 class TeacherInfoPage extends StatefulWidget {
   const TeacherInfoPage({super.key});
@@ -82,16 +83,17 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
   }
 
   Future<void> _submitProfile() async {
+    final l10n = AppLocalizations.of(context)!;
     if (_nameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, ingresa tu nombre completo')),
+        SnackBar(content: Text(l10n.pleaseEnterFullName)),
       );
       return;
     }
 
     if (_selectedCareers.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, selecciona al menos una carrera')),
+        SnackBar(content: Text(l10n.pleaseSelectAtLeastOneCareer)),
       );
       return;
     }
@@ -124,20 +126,20 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
         if (registerResponse.statusCode == 400) {
           final errData = json.decode(registerResponse.body);
           if (errData['error'] == 'User already exists') {
-            throw Exception('Esta cuenta ya existe. Por favor retrocede e inicia sesión.');
+            throw Exception(l10n.accountAlreadyExists);
           } else {
             final errorVal = errData['error'];
             if (errorVal is List) {
               final msgs = errorVal.map((e) => e['message']).join(', ');
-              throw Exception('Error de validación: $msgs');
+              throw Exception(l10n.validationError(msgs));
             } else if (errorVal != null) {
-              throw Exception('Error de validación: $errorVal');
+              throw Exception(l10n.validationError(errorVal.toString()));
             } else {
-              throw Exception('Error de validación: ${registerResponse.body}');
+              throw Exception(l10n.validationError(registerResponse.body));
             }
           }
         } else {
-          throw Exception('Error del servidor al registrar');
+          throw Exception(l10n.serverErrorRegistering);
         }
       }
 
@@ -152,7 +154,7 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
       );
 
       if (loginResponse.statusCode != 200) {
-        throw Exception('Error al iniciar sesión automáticamente');
+        throw Exception(l10n.autoLoginError);
       }
 
       final loginData = json.decode(loginResponse.body);
@@ -165,7 +167,7 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
           await storage.write(key: 'auth_role', value: loginData['user']['role']);
         }
       } else {
-        throw Exception('Error: No se recibió token en el login');
+        throw Exception(l10n.noTokenReceived);
       }
 
       // 3. Completar perfil con universidad y carrera
@@ -211,6 +213,7 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final colors = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -223,7 +226,7 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Tus Datos',
+            l10n.yourData,
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -246,7 +249,7 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Comencemos a personalizar tu perfil docente en Corvus.',
+            l10n.teacherProfileSubtitle,
             style: TextStyle(
               fontSize: 14,
               color: colors.onSurfaceVariant,
@@ -273,7 +276,7 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Universidad Validada',
+                                  l10n.universityValidated,
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: colors.primary,
@@ -299,8 +302,8 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
                   ),
                 
                 InputCompleted(
-                  label: "Nombre completo",
-                  hint: "Ej. Juan Pérez García",
+                  label: l10n.fullName,
+                  hint: l10n.fullNameHint,
                   icon: Icons.person,
                   controller: _nameController,
                   iconColor: Colors.blueAccent,
@@ -310,7 +313,7 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    "Carreras que impartes",
+                    l10n.careersYouTeach,
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
@@ -361,7 +364,7 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
 
                 const SizedBox(height: 32),
                 CorvusButton(
-                  text: _isLoading ? "Guardando..." : "Finalizar Registro",
+                  text: _isLoading ? l10n.saving : l10n.finishRegistration,
                   onPressed: _isLoading ? () {} : _submitProfile,
                 ),
               ],

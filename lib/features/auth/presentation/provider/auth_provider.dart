@@ -194,9 +194,14 @@ class AuthProvider extends ChangeNotifier {
       } catch (_) {}
 
       _status = AuthStatus.authenticated;
+      fetchProSubscriptionStatus(email: user.email).catchError((_) {});
+      notifyListeners();
+    } on AppException catch (e) {
+      _errorMessage = e.userFacingMessage();
+      _status = AuthStatus.error;
       notifyListeners();
     } catch (e, st) {
-      String errorStr = e.toString();
+      final errorStr = e.toString();
       if (errorStr.contains('USER_NOT_REGISTERED|')) {
         _errorMessage = errorStr.replaceAll('Exception: ', '');
       } else if (errorStr.contains('403') || errorStr.toLowerCase().contains('upchiapas') || errorStr.toLowerCase().contains('domain') || errorStr.toLowerCase().contains('permitido')) {
@@ -204,7 +209,7 @@ class AuthProvider extends ChangeNotifier {
       } else if (errorStr.toLowerCase().contains('canceled') || errorStr.toLowerCase().contains('cancelado')) {
         _errorMessage = 'AUTH_CANCELED';
       } else {
-        _errorMessage = errorStr.replaceAll('Exception: ', '');
+        _errorMessage = mapErrorToMessage(e, stackTrace: st);
       }
       
       _status = AuthStatus.error;
@@ -355,12 +360,13 @@ class AuthProvider extends ChangeNotifier {
     if (email == null || email.isEmpty) {
       throw Exception('No se encontró el email del usuario');
     }
-    final token = await _storage.read(key: 'auth_token');
+    final userId = _currentUser?.id ?? await _storage.read(key: 'auth_id');
     final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/pagos/crear');
     final body = jsonEncode({
       'alumno_email': email,
+      'user_id': userId,
       'concepto': 'Plan Pro mensual',
-      'monto': 50.00,
+      'monto': 10.00,
       'metodo': metodo,
     });
     final response = await sl<AuthInterceptorClient>().post(
@@ -378,7 +384,7 @@ class AuthProvider extends ChangeNotifier {
       }
       return result;
     }
-    throw Exception('Error al crear pago: ' + response.statusCode.toString());
+    throw mapHttpError(response.statusCode, response.body);
   }
 
   Future<Map<String, dynamic>> checkPaymentStatus(String paymentId) async {
@@ -389,7 +395,7 @@ class AuthProvider extends ChangeNotifier {
     if (response.statusCode == 200) {
       return jsonDecode(response.body) as Map<String, dynamic>;
     }
-    throw Exception('Error al consultar estado de pago: ' + response.statusCode.toString());
+    throw mapHttpError(response.statusCode, response.body);
   }
 
   void clearError() {
@@ -421,7 +427,7 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     } catch (e, st) {
-      _errorMessage = 'Error al validar el código';
+      _errorMessage = mapErrorToMessage(e, stackTrace: st);
       notifyListeners();
       return false;
     }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:mobile/features/my_project/presentation/provider/my_project_provider.dart';
 import 'package:mobile/features/my_project/presentation/pages/pdf_viewer_page.dart';
 
@@ -131,6 +132,13 @@ void showDocumentViewerDialog(BuildContext context, MyProjectProvider provider) 
       quickAnalysis?['structure'] ??
       detailedAnalysis?['ollama_analysis']?['sections'];
 
+  final String? documentUrl = quickAnalysis?['file_url'] ??
+      quickAnalysis?['document_url'] ??
+      quickAnalysis?['url'] ??
+      detailedAnalysis?['file_url'] ??
+      detailedAnalysis?['document_url'] ??
+      detailedAnalysis?['url'];
+
   showDialog(
     context: context,
     useSafeArea: true,
@@ -207,10 +215,10 @@ void showDocumentViewerDialog(BuildContext context, MyProjectProvider provider) 
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.article_outlined, size: 18, color: colorScheme.primary),
+                            Icon(Icons.analytics_outlined, size: 18, color: colorScheme.primary),
                             const SizedBox(width: 8),
                             Text(
-                              'VISTA PREVIA DE PROPUESTA',
+                              'RESUMEN DE PROPUESTA',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -309,7 +317,7 @@ void showDocumentViewerDialog(BuildContext context, MyProjectProvider provider) 
                                   ),
                                   const SizedBox(height: 6),
                                   Text(
-                                    'El documento PDF ha sido procesado exitosamente.\nPuedes revisar la propuesta completa y su análisis a continuación.',
+                                    'El documento ha sido guardado exitosamente.\nSi el archivo no está disponible localmente, no podrás abrirlo aquí.',
                                     style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant, height: 1.4),
                                     textAlign: TextAlign.center,
                                   ),
@@ -329,32 +337,51 @@ void showDocumentViewerDialog(BuildContext context, MyProjectProvider provider) 
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed: () {
-                          Navigator.pop(ctx);
-                          openDocumentFile(context, provider);
-                        },
-                        icon: const Icon(Icons.open_in_new, size: 18),
-                        label: const Text('Abrir en lector de archivos del sistema'),
-                        style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    if (documentUrl != null && documentUrl.isNotEmpty) ...[
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.icon(
+                          onPressed: () async {
+                            final uri = Uri.parse(documentUrl);
+                            if (await canLaunchUrl(uri)) {
+                              await launchUrl(uri, mode: LaunchMode.externalApplication);
+                            } else {
+                              if (ctx.mounted) {
+                                ScaffoldMessenger.of(ctx).showSnackBar(
+                                  const SnackBar(content: Text('No se pudo abrir el enlace')),
+                                );
+                              }
+                            }
+                          },
+                          icon: const Icon(Icons.cloud_download_outlined, size: 18),
+                          label: const Text('Descargar / Ver PDF Original'),
+                          style: FilledButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
+                      const SizedBox(height: 8),
+                    ],
                     SizedBox(
                       width: double.infinity,
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pop(ctx),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                        child: const Text('Cerrar'),
-                      ),
+                      child: (documentUrl != null && documentUrl.isNotEmpty) 
+                        ? OutlinedButton(
+                            onPressed: () => Navigator.pop(ctx),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            child: const Text('Cerrar'),
+                          )
+                        : FilledButton(
+                            onPressed: () => Navigator.pop(ctx),
+                            style: FilledButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            child: const Text('Cerrar'),
+                          ),
                     ),
                   ],
                 ),

@@ -52,9 +52,11 @@ class ServerException extends AppException {
         return l10n?.sessionExpired ??
             'Tu sesión ha expirado. Por favor, inicia sesión de nuevo.';
       case 403:
-        return 'No tienes permiso para realizar esta acción.';
+        return l10n?.forbiddenAction ??
+            'No tienes permiso para realizar esta acción.';
       case 404:
-        return 'El recurso solicitado no fue encontrado.';
+        return l10n?.resourceNotFound ??
+            'El recurso solicitado no fue encontrado.';
       case 409:
         return technicalDetail ?? 'Ya existe un conflicto con esta operación.';
       case 413:
@@ -63,14 +65,15 @@ class ServerException extends AppException {
       case 422:
         return technicalDetail ?? 'Los datos enviados no son válidos.';
       case 429:
-        return 'Demasiadas solicitudes. Espera un momento e intenta de nuevo.';
+        return l10n?.tooManyRequests ??
+            'Demasiadas solicitudes. Espera un momento e intenta de nuevo.';
       case 500:
       case 502:
       case 503:
-        return l10n?.serverErrorContactSupport ??
+        return l10n?.serverErrorContactSupport(l10n?.supportEmail ?? '') ??
             'Ocurrió un inconveniente en el servidor. Por favor reintenta.';
       default:
-        return l10n?.serverErrorContactSupport ??
+        return l10n?.serverErrorContactSupport(l10n?.supportEmail ?? '') ??
             'Ocurrió un error inesperado. Por favor reintenta.';
     }
   }
@@ -82,7 +85,7 @@ class ParseException extends AppException {
 
   @override
   String userFacingMessage([AppLocalizations? l10n]) =>
-      l10n?.serverErrorContactSupport ??
+      l10n?.serverErrorContactSupport(l10n?.supportEmail ?? '') ??
       'Error al procesar la respuesta del servidor. Por favor reintenta.';
 }
 
@@ -111,6 +114,7 @@ class SecurityException extends AppException {
 
   @override
   String userFacingMessage([AppLocalizations? l10n]) =>
+      l10n?.securityAlert ??
       'Alerta de Seguridad: Se detectó una conexión insegura. '
       'Por tu seguridad, la operación fue bloqueada.';
 }

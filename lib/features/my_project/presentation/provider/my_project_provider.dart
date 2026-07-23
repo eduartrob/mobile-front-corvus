@@ -260,7 +260,11 @@ class MyProjectProvider extends ChangeNotifier {
       final draft = await _repository.checkDraft(teamId);
       if (draft.isNotEmpty && draft['status'] != 'not_found') {
         _quickAnalysis = draft;
-        _fileName = draft['filename'] ?? 'borrador_guardado.pdf';
+        String rawName = draft['original_file_name'] ?? draft['filename'] ?? 'borrador_guardado.pdf';
+        if (rawName.startsWith('draft_') && rawName.contains('-')) {
+          rawName = 'Propuesta_Guardada.pdf';
+        }
+        _fileName = rawName;
         _fileSize = 'Local';
 
         final prefs = await SharedPreferences.getInstance();

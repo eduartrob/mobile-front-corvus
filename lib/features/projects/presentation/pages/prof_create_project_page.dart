@@ -46,11 +46,22 @@ class _ProfCreateProjectPageState extends State<ProfCreateProjectPage> {
     final token = context.read<AuthProvider>().currentUser?.token;
     if (token == null) return;
 
+    final teamSize = int.tryParse(_teamSizeController.text);
+    if (teamSize == null || teamSize < 1 || teamSize > 5) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('El equipo debe tener entre 1 y 5 integrantes'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+      return;
+    }
+
     final provider = context.read<ProjectProvider>();
     final success = await provider.createProject(
       name: name,
       description: _descController.text.trim(),
-      teamSize: int.tryParse(_teamSizeController.text) ?? 4,
+      teamSize: teamSize,
       token: token,
       themeColor: '#${_selectedColor.value.toRadixString(16).substring(2).toUpperCase()}',
       themePattern: _selectedPattern,

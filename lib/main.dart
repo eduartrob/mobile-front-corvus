@@ -25,7 +25,7 @@ import 'package:mobile/firebase_options.dart';
 import 'package:mobile/core/theme/theme_provider.dart';
 import 'package:mobile/core/services/firebase_messaging_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mobile/features/profile/presentation/providers/saved_projects_provider.dart';
+import 'package:mobile/features/profile/presentation/provider/saved_projects_provider.dart';
 import 'package:mobile/features/prof_reviews/presentation/provider/prof_reviews_provider.dart';
 import 'package:mobile/features/prof_dash/presentation/provider/prof_dash_provider.dart';
 import 'package:mobile/features/prof_history/presentation/provider/prof_history_provider.dart';

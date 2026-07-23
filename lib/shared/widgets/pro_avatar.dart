@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 /// Un Avatar reutilizable en toda la app que muestra de forma elegante el
 /// anillo/borde dorado/naranja glowing de la Membresía PRO cuando `isPro` es true.
@@ -48,7 +49,7 @@ class ProAvatar extends StatelessWidget {
         radius: innerRadius,
         backgroundColor: Colors.grey.shade300,
         backgroundImage: (photoUrl != null && photoUrl!.isNotEmpty)
-            ? NetworkImage(photoUrl!)
+            ? CachedNetworkImageProvider(photoUrl!)
             : null,
         child: (photoUrl == null || photoUrl!.isEmpty)
             ? Text(

@@ -5,7 +5,7 @@ import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/features/inspiration/presentation/widgets/sugerencias_card.dart';
 import 'package:mobile/features/inspiration/presentation/widgets/blue_ocean_header.dart';
 import 'package:provider/provider.dart';
-import 'package:mobile/features/profile/presentation/providers/saved_projects_provider.dart';
+import 'package:mobile/features/profile/presentation/provider/saved_projects_provider.dart';
 
 class BlueOceanDetailPage extends StatelessWidget {
   final ProjectEntity project;

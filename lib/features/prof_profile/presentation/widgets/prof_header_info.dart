@@ -7,6 +7,7 @@ import 'package:mobile/features/profile/presentation/provider/profile_provider.d
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ProfHeaderInfo extends StatefulWidget {
   final UserEntity? user;
@@ -34,7 +35,7 @@ class _ProfHeaderInfoState extends State<ProfHeaderInfo> {
           CircleAvatar(
             radius: 48,
             backgroundImage: (currentUser?.photoUrl != null && currentUser!.photoUrl!.isNotEmpty)
-                ? NetworkImage(currentUser.photoUrl!)
+                ? CachedNetworkImageProvider(currentUser.photoUrl!)
                 : null,
             child: (currentUser?.photoUrl == null || currentUser!.photoUrl!.isEmpty)
                 ? const Icon(Icons.person, size: 48)
