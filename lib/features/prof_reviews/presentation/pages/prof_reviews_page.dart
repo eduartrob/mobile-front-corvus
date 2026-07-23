@@ -30,16 +30,6 @@ class _ProfReviewsPageState extends State<ProfReviewsPage> {
     });
   }
 
-  @override
-  void didUpdateWidget(covariant ProfReviewsPage oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Called when the IndexedStack switches back to this tab (widget key stays the same
-    // but the parent rebuilds). Re-fetch silently so the list is always up-to-date.
-    if (_initialFetchDone && mounted) {
-      context.read<ProfReviewsProvider>().fetchReviews(projectId: widget.projectId);
-    }
-  }
-
   String _getTranslatedStatus(String status, AppLocalizations l10n) {
     switch (status) {
       case 'PENDING': return l10n.statusPending;
@@ -115,7 +105,7 @@ class _ProfReviewsPageState extends State<ProfReviewsPage> {
               ),
             )
           : RefreshIndicator(
-              onRefresh: () => provider.fetchReviews(),
+              onRefresh: () => provider.fetchReviews(projectId: widget.projectId),
               child: reviews.isEmpty
                   ? Center(
                       child: Text(
