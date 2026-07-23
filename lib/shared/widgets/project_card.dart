@@ -28,12 +28,13 @@ class ProjectCard extends StatelessWidget {
 
   Future<void> _handleTap(BuildContext context) async {
     if (project.analysisStatus == 'pending') {
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('La IA está generando el análisis detallado. Vuelve en un momento.'),
+        SnackBar(
+          content: Text(l10n.aiGeneratingAnalysis),
           behavior: SnackBarBehavior.floating,
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
         ),
       );
       return;
@@ -83,8 +84,9 @@ class ProjectCard extends StatelessWidget {
         ),
       );
     } else {
+      final l10n = AppLocalizations.of(context)!;
       scaffoldMessenger.showSnackBar(
-        const SnackBar(content: Text('Error al cargar los detalles. Intenta de nuevo.')),
+        SnackBar(content: Text(l10n.errorLoadingDetails)),
       );
     }
   }
@@ -213,7 +215,7 @@ class ProjectCard extends StatelessWidget {
                           ),
                         Expanded(
                           child: Text(
-                            '+ ${project.viewCount} Estudiantes han presionado aqui',
+                            l10n.studentsPressedHere(project.viewCount.toString()),
                             style: TextStyle(
                               color: colorScheme.onSurface,
                               fontSize: 14,
@@ -258,6 +260,7 @@ class ProjectSuggestionMiniCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final title = suggestion['titulo']?.toString() ?? '';
     final isRecommended = suggestion['tipo']?.toString() == 'Recomendado';
@@ -297,7 +300,7 @@ class ProjectSuggestionMiniCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    'Recomendado',
+                    l10n.recommended,
                     style: TextStyle(
                       fontSize: 10,
                       color: colorScheme.primary,
@@ -349,6 +352,7 @@ class ProjectTrendingBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.8, end: 1.0),
@@ -375,7 +379,7 @@ class ProjectTrendingBadge extends StatelessWidget {
             Text('🔥', style: TextStyle(fontSize: 13, color: colorScheme.primary)),
             const SizedBox(width: 4),
             Text(
-              'Trending · $viewCount vistas',
+              l10n.trendingViews(viewCount.toString()),
               style: TextStyle(
                 color: colorScheme.onPrimaryContainer,
                 fontSize: 11,

@@ -9,6 +9,7 @@ import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'dart:convert';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ProfEditProfilePage extends StatefulWidget {
   const ProfEditProfilePage({super.key});
@@ -201,7 +202,7 @@ class _ProfEditProfilePageState extends State<ProfEditProfilePage> {
                     radius: 80,
                     backgroundColor: colorScheme.surfaceContainerHighest,
                     backgroundImage: (currentUser?.photoUrl != null && currentUser!.photoUrl!.isNotEmpty)
-                        ? NetworkImage(currentUser.photoUrl!)
+                        ? CachedNetworkImageProvider(currentUser.photoUrl!)
                         : null,
                     child: (currentUser?.photoUrl == null || currentUser!.photoUrl!.isEmpty)
                         ? Icon(Icons.person, size: 70, color: colorScheme.onSurfaceVariant)

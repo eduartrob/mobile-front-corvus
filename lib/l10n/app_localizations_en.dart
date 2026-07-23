@@ -415,8 +415,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get uploadedToday => 'Uploaded today';
 
   @override
-  String get serverErrorContactSupport =>
-      'A temporary server error occurred. Please try again in a moment or contact support at digitalengineers01+soporte@gmail.com';
+  String serverErrorContactSupport(String supportEmail) {
+    return 'A temporary server error occurred. Please try again in a moment or contact support at $supportEmail';
+  }
 
   @override
   String get loginErrorNotAllowedEmail =>
@@ -864,4 +865,93 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get unexpectedError =>
       'An unexpected error occurred. Please try again in a moment.';
+
+  @override
+  String get forbiddenAction =>
+      'You do not have permission to perform this action.';
+
+  @override
+  String get resourceNotFound => 'The requested resource was not found.';
+
+  @override
+  String get tooManyRequests =>
+      'Too many requests. Wait a moment and try again.';
+
+  @override
+  String get securityAlert =>
+      'Security Alert: An insecure connection was detected. For your safety, the operation was blocked.';
+
+  @override
+  String get securityConnectionError =>
+      'Security connection error. Contact support if it persists.';
+
+  @override
+  String get aiGeneratingAnalysis =>
+      'The AI is generating the detailed analysis. Come back in a moment.';
+
+  @override
+  String get errorLoadingDetails => 'Error loading details. Try again.';
+
+  @override
+  String studentsPressedHere(String count) {
+    return '+ $count Students have pressed here';
+  }
+
+  @override
+  String get recommended => 'Recommended';
+
+  @override
+  String trendingViews(String count) {
+    return 'Trending · $count views';
+  }
+
+  @override
+  String get supportEmail => 'digitalengineers01+soporte@gmail.com';
+
+  @override
+  String get pleaseEnterFullName => 'Please enter your full name';
+
+  @override
+  String get pleaseSelectAtLeastOneCareer =>
+      'Please select at least one career';
+
+  @override
+  String get accountAlreadyExists =>
+      'This account already exists. Please go back and log in.';
+
+  @override
+  String validationError(String message) {
+    return 'Validation error: $message';
+  }
+
+  @override
+  String get serverErrorRegistering => 'Server error while registering';
+
+  @override
+  String get autoLoginError => 'Error during automatic login';
+
+  @override
+  String get noTokenReceived => 'Error: No token received on login';
+
+  @override
+  String get yourData => 'Your Data';
+
+  @override
+  String get teacherProfileSubtitle =>
+      'Let\'s start personalizing your teacher profile in Corvus.';
+
+  @override
+  String get universityValidated => 'University Validated';
+
+  @override
+  String get fullName => 'Full name';
+
+  @override
+  String get fullNameHint => 'Ex: John Smith';
+
+  @override
+  String get careersYouTeach => 'Careers you teach';
+
+  @override
+  String get finishRegistration => 'Finish Registration';
 }

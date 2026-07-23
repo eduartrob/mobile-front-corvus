@@ -7,6 +7,7 @@ import 'package:mobile/features/teams/data/models/team_model.dart';
 import 'package:mobile/features/student_directory/domain/entities/student.dart';
 import 'package:mobile/features/student_directory/presentation/widgets/student_card.dart';
 import 'package:mobile/shared/widgets/corvus_skeleton.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ProfDirectoryPage extends StatelessWidget {
   final String projectId;
@@ -218,7 +219,7 @@ class _ProfDirectoryPageViewState extends State<_ProfDirectoryPageView> with Sin
                       return Chip(
                         avatar: CircleAvatar(
                           backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
-                          backgroundImage: hasAvatar ? NetworkImage(member.avatarUrl!) : null,
+                          backgroundImage: hasAvatar ? CachedNetworkImageProvider(member.avatarUrl!) : null,
                           child: !hasAvatar ? Text(
                             (member.name ?? '?').isNotEmpty ? (member.name ?? '?')[0].toUpperCase() : '?',
                             style: TextStyle(color: colorScheme.primary, fontSize: 12, fontWeight: FontWeight.bold),
@@ -267,7 +268,7 @@ class _ProfDirectoryPageViewState extends State<_ProfDirectoryPageView> with Sin
           child: ListTile(
             leading: CircleAvatar(
               backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-              backgroundImage: hasAvatar ? NetworkImage(student.avatarUrl!) : null,
+              backgroundImage: hasAvatar ? CachedNetworkImageProvider(student.avatarUrl!) : null,
               child: !hasAvatar ? Text(
                 (student.name ?? student.username ?? '?').isNotEmpty ? (student.name ?? student.username ?? '?')[0].toUpperCase() : '?',
                 style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold),

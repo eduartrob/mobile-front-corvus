@@ -142,6 +142,7 @@ class TeamsProvider extends ChangeNotifier {
     try {
       await _repository.leaveTeam();
       _myTeam = null;
+      fetchSuggestions(projectId: _activeProjectId);
     } catch (e, st) {
       _errorMessage = mapErrorToMessage(e, stackTrace: st);
       rethrow;
@@ -170,6 +171,7 @@ class TeamsProvider extends ChangeNotifier {
           project: _myTeam!.project,
         );
       }
+      fetchSuggestions(projectId: _activeProjectId);
     } catch (e, st) {
       _errorMessage = mapErrorToMessage(e, stackTrace: st);
       rethrow;

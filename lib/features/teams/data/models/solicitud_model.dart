@@ -41,7 +41,11 @@ class Solicitud {
         name: json['studentName'] ?? json['nombre'] ?? 'Estudiante',
         username: json['studentUsername'] ?? json['usuario'] ?? '@estudiante',
         bio: json['bio'] ?? json['biografia'] ?? '',
-        tags: json['tags'] != null ? List<String>.from(json['tags']) : [],
+        tags: json['tags'] != null 
+            ? List<String>.from(json['tags']) 
+            : json['habilidades'] != null 
+                ? List<String>.from(json['habilidades'])
+                : [],
         avatarUrl: json['avatarUrl'] ?? json['foto'] ?? '',
       );
     }

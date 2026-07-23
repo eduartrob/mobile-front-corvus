@@ -77,13 +77,24 @@ Future<void> handleFCMMessage(RemoteMessage message) async {
     if (expectedRoute != null && currentRoute != null) {
       final expectedBase = expectedRoute.split('?').first;
       final currentBase = currentRoute.split('?').first;
-      if (currentBase.startsWith(expectedBase)) skipHeadsUp = true;
+      
+      if (currentBase.startsWith(expectedBase)) {
+        skipHeadsUp = true;
+      } else {
+        // Extra check for project IDs
+        final expProjectMatch = RegExp(r'/(?:project|prof-project)/([^/]+)').firstMatch(expectedBase);
+        final curProjectMatch = RegExp(r'/(?:project|prof-project)/([^/]+)').firstMatch(currentBase);
+        if (expProjectMatch != null && curProjectMatch != null && expProjectMatch.group(1) == curProjectMatch.group(1)) {
+          skipHeadsUp = true;
+        }
+      }
     }
 
     if (message.notification != null) {
       // Guardar en SQLite con el estado isRead dinámico
+      final String notificationId = data['notificationId'] ?? 'temp_${DateTime.now().millisecondsSinceEpoch}';
       await NotificationsLocalDataSource.insertNotification({
-        'id': 'temp_${DateTime.now().millisecondsSinceEpoch}',
+        'id': notificationId,
         'title': message.notification!.title ?? 'Nueva Notificacion',
         'body': message.notification!.body ?? '',
         'type': notifType,

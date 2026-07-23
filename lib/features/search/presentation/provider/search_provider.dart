@@ -72,7 +72,7 @@ class SearchProvider extends ChangeNotifier {
         result = await _smartSearchUseCase(query);
       } catch (apiError) {
         // Guardamos el error pero intentamos ver si es una consulta predefinida
-        _error = apiError.toString().replaceAll('Exception: ', '');
+        _error = mapErrorToMessage(apiError);
       }
 
       final lowerQuery = query.toLowerCase().trim();
@@ -117,7 +117,7 @@ class SearchProvider extends ChangeNotifier {
       // Only save to history if search succeeds (doesn't throw)
       await _addSearchToHistory(query);
     } catch (e, st) {
-      print("SEARCH ERROR: $e"); 
+      debugPrint("SEARCH ERROR: $e"); 
       _error = mapErrorToMessage(e, stackTrace: st);
     } finally {
       _isLoading = false;
