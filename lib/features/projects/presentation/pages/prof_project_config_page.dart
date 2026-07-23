@@ -6,6 +6,7 @@ import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/projects/presentation/widgets/theme_picker.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:flutter/services.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ProfProjectConfigPage extends StatefulWidget {
   final String projectId;
@@ -357,7 +358,7 @@ class _ProfProjectConfigPageState extends State<ProfProjectConfigPage> {
                           child: ListTile(
                             leading: CircleAvatar(
                               backgroundColor: colorScheme.secondaryContainer,
-                              backgroundImage: s['profile_picture'] != null ? NetworkImage(s['profile_picture']) : null,
+                              backgroundImage: s['profile_picture'] != null ? CachedNetworkImageProvider(s['profile_picture']) : null,
                               child: s['profile_picture'] == null
                                   ? Text(name.substring(0, 1).toUpperCase(), style: TextStyle(color: colorScheme.onSecondaryContainer))
                                   : null,

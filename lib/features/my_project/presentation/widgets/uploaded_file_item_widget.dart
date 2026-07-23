@@ -19,6 +19,12 @@ class UploadedFileItemWidget extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
+    final auth = context.read<AuthProvider>();
+    final teamsProvider = context.read<TeamsProvider>();
+    final userId = auth.currentUser?.id ?? '';
+    final myTeam = teamsProvider.myTeam;
+    final isLeader = myTeam != null && myTeam.members.isNotEmpty && (myTeam.members[0].id == userId || myTeam.members[0].email == auth.currentUser?.email);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
@@ -79,12 +85,10 @@ class UploadedFileItemWidget extends StatelessWidget {
               ],
             ),
           ),
-          if (provider.state == ProjectState.preValidated)
+          if (provider.state == ProjectState.preValidated && isLeader)
             IconButton(
               onPressed: () {
-                final userId = context.read<AuthProvider>().currentUser?.id ?? '';
-                final teamId = context.read<TeamsProvider>().myTeam?.id ?? '';
-                provider.cancelAnalysis(userId, teamId);
+                provider.cancelAnalysis(userId, myTeam.id);
               },
               icon: Icon(Icons.cancel, color: colorScheme.onSurfaceVariant),
               hoverColor: colorScheme.errorContainer,

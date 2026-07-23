@@ -217,7 +217,16 @@ class _ArchivedProjectsPageState extends State<ArchivedProjectsPage> {
                             if (_isSelectionMode) {
                               _toggleSelection(project['id']);
                             } else {
-                              if (context.mounted) context.push('/project/${project['id']}?tab=0');
+                              if (context.mounted) {
+                                final authProvider = context.read<AuthProvider>();
+                                final roleStr = authProvider.role?.toUpperCase() ?? '';
+                                final isProf = roleStr == 'PROFESOR' || roleStr == 'DOCENTE';
+                                if (isProf) {
+                                  context.push('/prof-project/${project['id']}');
+                                } else {
+                                  context.push('/project/${project['id']}?tab=0');
+                                }
+                              }
                             }
                           },
                           child: Stack(

@@ -7,9 +7,13 @@ class ProfessorApi {
   Future<List<dynamic>> searchProfessors({
     required String query,
     required String token,
+    String? projectId,
   }) async {
+    final url = projectId != null
+        ? '${ApiConfig.apiGatewayUrl}${ApiEndpoints.professorsSearch}?q=$query&projectId=$projectId'
+        : '${ApiConfig.apiGatewayUrl}${ApiEndpoints.professorsSearch}?q=$query';
     final response = await http.get(
-      Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.professorsSearch}?q=$query'),
+      Uri.parse(url),
       headers: {
         ...ApiConfig.defaultHeaders,
         'Authorization': 'Bearer $token',

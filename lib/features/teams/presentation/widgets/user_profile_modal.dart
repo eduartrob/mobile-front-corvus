@@ -2,6 +2,7 @@
 import 'package:provider/provider.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/shared/widgets/pro_avatar.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 Future<void> showUserProfileModal({
   required BuildContext context,
@@ -70,7 +71,7 @@ class _UserProfileModal extends StatelessWidget {
                     decoration: const BoxDecoration(
                       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                       image: DecorationImage(
-                        image: NetworkImage(coverPhotoUrl),
+                        image: CachedNetworkImageProvider(coverPhotoUrl),
                         fit: BoxFit.cover,
                       ),
                     ),

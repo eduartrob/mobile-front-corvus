@@ -875,8 +875,8 @@ abstract class AppLocalizations {
   /// No description provided for @serverErrorContactSupport.
   ///
   /// In es, this message translates to:
-  /// **'Ocurrió un inconveniente temporal en el servidor. Por favor reintenta en un momento o contacta a soporte: digitalengineers01+soporte@gmail.com'**
-  String get serverErrorContactSupport;
+  /// **'Ocurrió un inconveniente temporal en el servidor. Por favor reintenta en un momento o contacta a soporte: {supportEmail}'**
+  String serverErrorContactSupport(String supportEmail);
 
   /// No description provided for @loginErrorNotAllowedEmail.
   ///
@@ -1663,6 +1663,156 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Ocurrió un error inesperado. Por favor reintenta en un momento.'**
   String get unexpectedError;
+
+  /// No description provided for @forbiddenAction.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes permiso para realizar esta acción.'**
+  String get forbiddenAction;
+
+  /// No description provided for @resourceNotFound.
+  ///
+  /// In es, this message translates to:
+  /// **'El recurso solicitado no fue encontrado.'**
+  String get resourceNotFound;
+
+  /// No description provided for @tooManyRequests.
+  ///
+  /// In es, this message translates to:
+  /// **'Demasiadas solicitudes. Espera un momento e intenta de nuevo.'**
+  String get tooManyRequests;
+
+  /// No description provided for @securityAlert.
+  ///
+  /// In es, this message translates to:
+  /// **'Alerta de Seguridad: Se detectó una conexión insegura. Por tu seguridad, la operación fue bloqueada.'**
+  String get securityAlert;
+
+  /// No description provided for @securityConnectionError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error de seguridad en la conexión. Contacta a soporte si persiste.'**
+  String get securityConnectionError;
+
+  /// No description provided for @aiGeneratingAnalysis.
+  ///
+  /// In es, this message translates to:
+  /// **'La IA está generando el análisis detallado. Vuelve en un momento.'**
+  String get aiGeneratingAnalysis;
+
+  /// No description provided for @errorLoadingDetails.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar los detalles. Intenta de nuevo.'**
+  String get errorLoadingDetails;
+
+  /// No description provided for @studentsPressedHere.
+  ///
+  /// In es, this message translates to:
+  /// **'+ {count} Estudiantes han presionado aquí'**
+  String studentsPressedHere(String count);
+
+  /// No description provided for @recommended.
+  ///
+  /// In es, this message translates to:
+  /// **'Recomendado'**
+  String get recommended;
+
+  /// No description provided for @trendingViews.
+  ///
+  /// In es, this message translates to:
+  /// **'Trending · {count} vistas'**
+  String trendingViews(String count);
+
+  /// No description provided for @supportEmail.
+  ///
+  /// In es, this message translates to:
+  /// **'digitalengineers01+soporte@gmail.com'**
+  String get supportEmail;
+
+  /// No description provided for @pleaseEnterFullName.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, ingresa tu nombre completo'**
+  String get pleaseEnterFullName;
+
+  /// No description provided for @pleaseSelectAtLeastOneCareer.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, selecciona al menos una carrera'**
+  String get pleaseSelectAtLeastOneCareer;
+
+  /// No description provided for @accountAlreadyExists.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta cuenta ya existe. Por favor retrocede e inicia sesión.'**
+  String get accountAlreadyExists;
+
+  /// No description provided for @validationError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error de validación: {message}'**
+  String validationError(String message);
+
+  /// No description provided for @serverErrorRegistering.
+  ///
+  /// In es, this message translates to:
+  /// **'Error del servidor al registrar'**
+  String get serverErrorRegistering;
+
+  /// No description provided for @autoLoginError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al iniciar sesión automáticamente'**
+  String get autoLoginError;
+
+  /// No description provided for @noTokenReceived.
+  ///
+  /// In es, this message translates to:
+  /// **'Error: No se recibió token en el login'**
+  String get noTokenReceived;
+
+  /// No description provided for @yourData.
+  ///
+  /// In es, this message translates to:
+  /// **'Tus Datos'**
+  String get yourData;
+
+  /// No description provided for @teacherProfileSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Comencemos a personalizar tu perfil docente en Corvus.'**
+  String get teacherProfileSubtitle;
+
+  /// No description provided for @universityValidated.
+  ///
+  /// In es, this message translates to:
+  /// **'Universidad Validada'**
+  String get universityValidated;
+
+  /// No description provided for @fullName.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre completo'**
+  String get fullName;
+
+  /// No description provided for @fullNameHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej. Juan Pérez García'**
+  String get fullNameHint;
+
+  /// No description provided for @careersYouTeach.
+  ///
+  /// In es, this message translates to:
+  /// **'Carreras que impartes'**
+  String get careersYouTeach;
+
+  /// No description provided for @finishRegistration.
+  ///
+  /// In es, this message translates to:
+  /// **'Finalizar Registro'**
+  String get finishRegistration;
 }
 
 class _AppLocalizationsDelegate

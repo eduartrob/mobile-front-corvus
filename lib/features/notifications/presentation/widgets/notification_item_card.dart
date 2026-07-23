@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../domain/entities/app_notification.dart';
 import '../provider/notifications_provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class NotificationItemCard extends StatefulWidget {
   final AppNotification notification;
@@ -141,7 +142,7 @@ class _NotificationItemCardState extends State<NotificationItemCard> with Single
     if (notification.authorPhotoUrl != null && notification.authorPhotoUrl!.isNotEmpty) {
       leadingWidget = CircleAvatar(
         radius: 21,
-        backgroundImage: NetworkImage(notification.authorPhotoUrl!),
+        backgroundImage: CachedNetworkImageProvider(notification.authorPhotoUrl!),
       );
     } else {
       leadingWidget = Container(
@@ -228,18 +229,6 @@ class _NotificationItemCardState extends State<NotificationItemCard> with Single
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (notification.authorName != null && notification.authorName!.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 2),
-                            child: Text(
-                              notification.authorName!,
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                color: colorScheme.primary,
-                              ),
-                            ),
-                          ),
                         if (title.isNotEmpty)
                           Text(
                             title,

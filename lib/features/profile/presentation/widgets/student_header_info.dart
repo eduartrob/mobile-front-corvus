@@ -450,6 +450,7 @@ class _ProPromoBannerWidgetState extends State<ProPromoBannerWidget> with Ticker
   late final AnimationController _swapController;
   Timer? _timer;
   int _currentIndex = 0;
+  bool _readyToShow = false; // Prevents flickering while checking pro status
 
   final List<Map<String, dynamic>> _promoCards = [
     {
@@ -475,6 +476,11 @@ class _ProPromoBannerWidgetState extends State<ProPromoBannerWidget> with Ticker
   @override
   void initState() {
     super.initState();
+    
+    Future.delayed(const Duration(milliseconds: 600), () {
+      if (mounted) setState(() { _readyToShow = true; });
+    });
+
     _shimmerController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 3),
@@ -511,7 +517,7 @@ class _ProPromoBannerWidgetState extends State<ProPromoBannerWidget> with Ticker
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
-        if (authProvider.isProActive) return const SizedBox.shrink();
+        if (authProvider.isProActive || !_readyToShow) return const SizedBox.shrink();
 
         final nextIndex = (_currentIndex + 1) % _promoCards.length;
 

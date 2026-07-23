@@ -129,7 +129,15 @@
   "uploadZoneTitle": "Arrastra tu propuesta PDF aquí",
   "uploadZoneSubtitle": "Tamaño máximo: 10MB. Formatos: PDF.",
   "uploadedToday": "Subido hoy",
-  "serverErrorContactSupport": "Ocurrió un inconveniente temporal en el servidor. Por favor reintenta en un momento o contacta a soporte: digitalengineers01+soporte@gmail.com",
+  "serverErrorContactSupport": "Ocurrió un inconveniente temporal en el servidor. Por favor reintenta en un momento o contacta a soporte: {supportEmail}",
+  "@serverErrorContactSupport": {
+    "placeholders": {
+      "supportEmail": {
+        "type": "String",
+        "example": "digitalengineers01+soporte@gmail.com"
+      }
+    }
+  },
   "loginErrorNotAllowedEmail": "Fallo al iniciar sesión: El correo no está permitido. Solo se aceptan correos institucionales de la universidad.",
   "invalidDocumentTitle": "Documento no válido",
   "invalidDocumentDesc": "El archivo que subiste no parece ser una propuesta de proyecto integrador. Asegúrate de subir tu propuesta con secciones como Objetivo, Metodología y Tecnologías.",
@@ -381,5 +389,45 @@
   "fileTooLarge": "El archivo excede el tamaño máximo permitido.",
   "unsupportedFileType": "Tipo de archivo no soportado.",
   "requestTimeout": "La petición tardó demasiado. Verifica tu conexión e inténtalo de nuevo.",
-  "unexpectedError": "Ocurrió un error inesperado. Por favor reintenta en un momento."
+  "unexpectedError": "Ocurrió un error inesperado. Por favor reintenta en un momento.",
+  "forbiddenAction": "No tienes permiso para realizar esta acción.",
+  "resourceNotFound": "El recurso solicitado no fue encontrado.",
+  "tooManyRequests": "Demasiadas solicitudes. Espera un momento e intenta de nuevo.",
+  "securityAlert": "Alerta de Seguridad: Se detectó una conexión insegura. Por tu seguridad, la operación fue bloqueada.",
+  "securityConnectionError": "Error de seguridad en la conexión. Contacta a soporte si persiste.",
+  "aiGeneratingAnalysis": "La IA está generando el análisis detallado. Vuelve en un momento.",
+  "errorLoadingDetails": "Error al cargar los detalles. Intenta de nuevo.",
+  "studentsPressedHere": "+ {count} Estudiantes han presionado aquí",
+  "@studentsPressedHere": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "recommended": "Recomendado",
+  "trendingViews": "Trending · {count} vistas",
+  "@trendingViews": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "supportEmail": "digitalengineers01+soporte@gmail.com",
+  "pleaseEnterFullName": "Por favor, ingresa tu nombre completo",
+  "pleaseSelectAtLeastOneCareer": "Por favor, selecciona al menos una carrera",
+  "accountAlreadyExists": "Esta cuenta ya existe. Por favor retrocede e inicia sesión.",
+  "validationError": "Error de validación: {message}",
+  "@validationError": {
+    "placeholders": {
+      "message": { "type": "String" }
+    }
+  },
+  "serverErrorRegistering": "Error del servidor al registrar",
+  "autoLoginError": "Error al iniciar sesión automáticamente",
+  "noTokenReceived": "Error: No se recibió token en el login",
+  "yourData": "Tus Datos",
+  "teacherProfileSubtitle": "Comencemos a personalizar tu perfil docente en Corvus.",
+  "universityValidated": "Universidad Validada",
+  "fullName": "Nombre completo",
+  "fullNameHint": "Ej. Juan Pérez García",
+  "careersYouTeach": "Carreras que impartes",
+  "finishRegistration": "Finalizar Registro"
 }

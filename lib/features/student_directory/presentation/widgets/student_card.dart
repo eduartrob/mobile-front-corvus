@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
 import '../../domain/entities/student.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class StudentCard extends StatelessWidget {
   final Student student;
@@ -35,7 +36,7 @@ class StudentCard extends StatelessWidget {
             Row(
               children: [
                 CircleAvatar(
-                  backgroundImage: NetworkImage(student.avatarUrl),
+                  backgroundImage: CachedNetworkImageProvider(student.avatarUrl),
                   radius: 24,
                 ),
                 const SizedBox(width: 12),

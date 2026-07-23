@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:mobile/features/profile/presentation/providers/saved_projects_provider.dart';
+import 'package:mobile/features/profile/presentation/provider/saved_projects_provider.dart';
 import 'package:mobile/shared/widgets/project_card.dart';
 
 class SavedProjectsPage extends StatelessWidget {

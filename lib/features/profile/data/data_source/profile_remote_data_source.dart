@@ -4,11 +4,26 @@ import 'package:mobile/core/network/api_config.dart';
 import 'package:mobile/core/error/app_exception.dart';
 import 'package:mobile/core/error/error_handler.dart';
 import 'package:mobile/features/profile/data/models/profile_completo_model.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ProfileRemoteDataSource {
   final http.Client client;
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   ProfileRemoteDataSource({required this.client});
+
+  Future<ProfileCompletoModel?> getCachedProfile() async {
+    final cachedStr = await _storage.read(key: 'cached_profile_complete');
+    if (cachedStr != null) {
+      try {
+        final body = json.decode(cachedStr);
+        return ProfileCompletoModel.fromJson(body);
+      } catch (_) {
+        return null;
+      }
+    }
+    return null;
+  }
 
   Future<ProfileCompletoModel> getPerfilCompleto({bool forceRefresh = false}) async {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}/auth/profile/complete${forceRefresh ? "?force_refresh=true" : ""}');
@@ -19,7 +34,13 @@ class ProfileRemoteDataSource {
       if (response.statusCode == 200) {
         final bodyText = utf8.decode(response.bodyBytes);
         final body = json.decode(bodyText);
-        return ProfileCompletoModel.fromJson(body);
+        final model = ProfileCompletoModel.fromJson(body);
+        
+        if (!model.isProcessing) {
+          await _storage.write(key: 'cached_profile_complete', value: bodyText);
+        }
+        
+        return model;
       } else {
         final bodyText = utf8.decode(response.bodyBytes);
         final errorJson = json.decode(bodyText);

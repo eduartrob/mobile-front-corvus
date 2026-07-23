@@ -129,7 +129,15 @@
   "uploadZoneTitle": "Drag your PDF proposal here",
   "uploadZoneSubtitle": "Maximum size: 10MB. Formats: PDF.",
   "uploadedToday": "Uploaded today",
-  "serverErrorContactSupport": "A temporary server error occurred. Please try again in a moment or contact support at digitalengineers01+soporte@gmail.com",
+  "serverErrorContactSupport": "A temporary server error occurred. Please try again in a moment or contact support at {supportEmail}",
+  "@serverErrorContactSupport": {
+    "placeholders": {
+      "supportEmail": {
+        "type": "String",
+        "example": "digitalengineers01+soporte@gmail.com"
+      }
+    }
+  },
   "loginErrorNotAllowedEmail": "Login failed: Email not allowed. Only university institutional emails are accepted.",
   "invalidDocumentTitle": "Invalid Document",
   "invalidDocumentDesc": "The file you uploaded does not appear to be an integrative project proposal. Make sure to upload your proposal with sections like Objective, Methodology, and Technologies.",
@@ -381,5 +389,45 @@
   "fileTooLarge": "The file exceeds the maximum allowed size.",
   "unsupportedFileType": "Unsupported file type.",
   "requestTimeout": "The request took too long. Check your connection and try again.",
-  "unexpectedError": "An unexpected error occurred. Please try again in a moment."
+  "unexpectedError": "An unexpected error occurred. Please try again in a moment.",
+  "forbiddenAction": "You do not have permission to perform this action.",
+  "resourceNotFound": "The requested resource was not found.",
+  "tooManyRequests": "Too many requests. Wait a moment and try again.",
+  "securityAlert": "Security Alert: An insecure connection was detected. For your safety, the operation was blocked.",
+  "securityConnectionError": "Security connection error. Contact support if it persists.",
+  "aiGeneratingAnalysis": "The AI is generating the detailed analysis. Come back in a moment.",
+  "errorLoadingDetails": "Error loading details. Try again.",
+  "studentsPressedHere": "+ {count} Students have pressed here",
+  "@studentsPressedHere": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "recommended": "Recommended",
+  "trendingViews": "Trending · {count} views",
+  "@trendingViews": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "supportEmail": "digitalengineers01+soporte@gmail.com",
+  "pleaseEnterFullName": "Please enter your full name",
+  "pleaseSelectAtLeastOneCareer": "Please select at least one career",
+  "accountAlreadyExists": "This account already exists. Please go back and log in.",
+  "validationError": "Validation error: {message}",
+  "@validationError": {
+    "placeholders": {
+      "message": { "type": "String" }
+    }
+  },
+  "serverErrorRegistering": "Server error while registering",
+  "autoLoginError": "Error during automatic login",
+  "noTokenReceived": "Error: No token received on login",
+  "yourData": "Your Data",
+  "teacherProfileSubtitle": "Let's start personalizing your teacher profile in Corvus.",
+  "universityValidated": "University Validated",
+  "fullName": "Full name",
+  "fullNameHint": "Ex: John Smith",
+  "careersYouTeach": "Careers you teach",
+  "finishRegistration": "Finish Registration"
 }

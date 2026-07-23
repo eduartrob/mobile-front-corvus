@@ -227,13 +227,10 @@ class _StudentSkillsPageState extends State<StudentSkillsPage> {
       } else {
         throw Exception('Error al guardar tu perfil: ${response.body}');
       }
-    } catch (e) {
+    } catch (e, st) {
       debugPrint("Error saving profile: $e");
       if (mounted) {
-        String errorMessage = e.toString();
-        if (errorMessage.startsWith('Exception: ')) {
-          errorMessage = errorMessage.substring(11);
-        }
+        final errorMessage = mapErrorToMessage(e, stackTrace: st);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(errorMessage)),
         );

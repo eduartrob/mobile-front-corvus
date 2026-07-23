@@ -43,11 +43,12 @@ String mapErrorToMessage(
   }
 
   if (error is HandshakeException) {
-    return 'Error de seguridad en la conexión. Contacta a soporte si persiste.';
+    return l10n?.securityConnectionError ??
+        'Error de seguridad en la conexión. Contacta a soporte si persiste.';
   }
 
   if (error is FormatException) {
-    return l10n?.serverErrorContactSupport ??
+    return l10n?.serverErrorContactSupport(l10n?.supportEmail ?? '') ??
         'Error al procesar la respuesta del servidor. Por favor reintenta.';
   }
 
@@ -69,7 +70,7 @@ String mapErrorToMessage(
       cleaned.startsWith('<'); // HTML crudo (ej. página de error del servidor)
 
   if (isTechnical) {
-    return l10n?.serverErrorContactSupport ??
+    return l10n?.serverErrorContactSupport(l10n?.supportEmail ?? '') ??
         'Ocurrió un inconveniente temporal. Por favor reintenta en un momento.';
   }
 
@@ -77,7 +78,7 @@ String mapErrorToMessage(
   // lo devolvemos tal cual — es lo que el backend quería mostrar.
   return cleaned.isNotEmpty
       ? cleaned
-      : (l10n?.serverErrorContactSupport ??
+      : (l10n?.serverErrorContactSupport(l10n?.supportEmail ?? '') ??
           'Ocurrió un error inesperado. Por favor reintenta.');
 }
 
