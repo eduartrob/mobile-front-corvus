@@ -223,8 +223,8 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
               _buildFeatureRow(
                 context,
                 icon: Icons.record_voice_over_rounded,
-                title: 'Simulador de defensa oral y escrito ilimitado',
-                subtitle: 'Requiere Plan Pro para evaluación oral y escrita sin límite.',
+                title: 'Simulador por Voz Gemini Live',
+                subtitle: 'Requiere Plan Pro para evaluación oral y escrita en tiempo real sin límite.',
                 isIncluded: false,
               ),
               _buildFeatureRow(
@@ -232,6 +232,13 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
                 icon: Icons.workspace_premium_rounded,
                 title: 'Acceso completo a todos los proyectos inexplorados',
                 subtitle: 'Requiere Plan Pro para explorar el repositorio completo.',
+                isIncluded: false,
+              ),
+              _buildFeatureRow(
+                context,
+                icon: Icons.shield_rounded,
+                title: 'Insignia VIP Dorada',
+                subtitle: 'Requiere Plan Pro para destacar y acceder a matchmaking exclusivo.',
                 isIncluded: false,
               ),
             ],

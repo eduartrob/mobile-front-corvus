@@ -1,5 +1,18 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+
+## [2.7.0] - 2026-07-23
+### Added
+- **Plan Pro Mejorado**: Se actualizó el precio del Plan Pro a \$50.00 MXN y se documentaron explícitamente sus beneficios avanzados: Insignia VIP Dorada para matchmaking exclusivo y el Simulador de Defensa por Voz Gemini Live.
+- **Sincronización de Husos Horarios (Zona Horaria)**: Se agregó soporte completo para sincronizar la hora de las citas (defensa de proyecto) entre la zona horaria del profesor y la de los alumnos. El backend ahora retorna la fecha en formato estándar ISO-8601 en UTC y el frontend móvil la convierte y renderiza en la zona horaria local del dispositivo.
+
+### Changed
+- **Lógica de Tarjetas de Solicitud de Cita**: Al aceptar o rechazar una solicitud de cita para revisión por parte del profesor, la UI ahora cambia dinámicamente mostrando una alerta visual y bloqueando la tarjeta antigua de "Cita", superponiendo el estado de "Aprobado" o "Rechazado" de forma permanente sin necesidad de recargar.
+
+### Fixed
+- **Ciclo de Vida de Pestañas (IndexedStack)**: Se solucionó el error donde la pestaña de *Revisiones* en la vista del profesor no refrescaba sus datos (quedándose con 1 solo proyecto o cargando infinitamente) debido al comportamiento de `IndexedStack`. Ahora `fetchReviews` se llama silenciosamente al cambiar de pestaña.
+- **Filtro de Usuarios Eliminados**: Se optimizó la vista de *Colaboradores* y el buscador de *Invitar* en el panel del profesor. Ahora, si un profesor elimina su cuenta, es filtrado automáticamente y ya no aparece en las listas como "Usuario Eliminado" ni permite ser invitado.
+- **Notificación Engañosa de Límite de Invitaciones**: Se aclaró el comportamiento del error `400 Bad Request` en la vista de *Sugerencias* de alumnos. Este error aparece al intentar enviar una invitación duplicada (a alguien que ya fue invitado y sigue pendiente) debido a clics repetidos, protegiendo al sistema contra spam.
 ## [1.2.7] - 2026-06-29
 ### Changed
 - **Arquitectura y Rendimiento**: Se modularizó toda la capa de presentación (Perfiles, Equipos, Análisis de Proyecto y Océano Azul) dividiendo clases pesadas en componentes atómicos. Esto optimiza el consumo de batería y la velocidad de renderizado de la app.
