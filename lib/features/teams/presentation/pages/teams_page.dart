@@ -9,6 +9,7 @@ import '../provider/teams_provider.dart';
 import '../widgets/equipo_tab.dart';
 import '../widgets/solicitudes_tab.dart';
 import '../widgets/sugerencias_tab.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TeamsPage extends StatefulWidget {
   final int initialTabIndex;
@@ -144,6 +145,78 @@ class _TeamsPageState extends State<TeamsPage> with SingleTickerProviderStateMix
     );
   }
 
+  PreferredSizeWidget _buildSolicitudesTopBar(BuildContext context, TeamsProvider provider) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(80.0),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+          child: Row(
+            children: [
+              _buildFilterChip(
+                context,
+                label: l10n.received,
+                filter: SolicitudFilter.recibidas,
+                currentFilter: provider.selectedFilter,
+                onTap: (filter) => provider.selectFilter(filter),
+              ),
+              const SizedBox(width: 10),
+              _buildFilterChip(
+                context,
+                label: l10n.sent,
+                filter: SolicitudFilter.enviadas,
+                currentFilter: provider.selectedFilter,
+                onTap: (filter) => provider.selectFilter(filter),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilterChip(
+    BuildContext context, {
+    required String label,
+    required SolicitudFilter filter,
+    required SolicitudFilter currentFilter,
+    required ValueChanged<SolicitudFilter> onTap,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isSelected = currentFilter == filter;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => onTap(filter),
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? colorScheme.primary.withValues(alpha: 0.12)
+                : colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isSelected
+                  ? colorScheme.primary.withValues(alpha: 0.3)
+                  : colorScheme.outlineVariant.withValues(alpha: 0.3),
+            ),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -155,70 +228,7 @@ class _TeamsPageState extends State<TeamsPage> with SingleTickerProviderStateMix
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: _tabController.index == 0 
           ? const CorvusTopBar() 
-          : PreferredSize(
-              preferredSize: const Size.fromHeight(80.0),
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: SizedBox(
-                          height: 52,
-                          child: TextField(
-                            controller: _searchController,
-                            onChanged: (val) => _onSearchChanged(val, provider),
-                            style: TextStyle(color: colorScheme.onSurface, fontSize: 16),
-                            decoration: InputDecoration(
-                              hintText: 'Buscar compañero...',
-                              hintStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.5)),
-                              prefixIcon: Icon(Icons.search, color: colorScheme.onSurface.withOpacity(0.7)),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 0),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(26),
-                                borderSide: BorderSide.none,
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(26),
-                                borderSide: BorderSide.none,
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(26),
-                                borderSide: BorderSide(
-                                  color: colorScheme.primary.withOpacity(0.5),
-                                  width: 1,
-                                ),
-                              ),
-                              filled: true,
-                              fillColor: colorScheme.primaryContainer.withOpacity(0.5),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      InkWell(
-                        onTap: () => _showFilterSheet(context, provider),
-                        borderRadius: BorderRadius.circular(26),
-                        child: Container(
-                          width: 52,
-                          height: 52,
-                          decoration: BoxDecoration(
-                            color: _selectedSkill.isNotEmpty || _showAllStudents
-                                ? colorScheme.primaryContainer 
-                                : colorScheme.primaryContainer.withOpacity(0.5),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.filter_list,
-                            color: _selectedSkill.isNotEmpty ? colorScheme.onPrimaryContainer : colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+          : _buildSolicitudesTopBar(context, provider),
       body: Column(
         children: [
           // TabBar container
