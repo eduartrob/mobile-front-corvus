@@ -169,13 +169,13 @@ class _ProfProjectConfigPageState extends State<ProfProjectConfigPage> {
     );
   }
 
-  void _showDeleteDialog() {
+  void _showArchiveDialog() {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Eliminar Proyecto'),
-          content: const Text('¿Estás seguro de que deseas eliminar este proyecto? Esta acción no se puede deshacer.'),
+          title: const Text('Archivar Proyecto'),
+          content: const Text('¿Estás seguro de que deseas archivar este proyecto? Dejará de aparecer en tu lista de proyectos activos y en la de los alumnos.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -193,12 +193,12 @@ class _ProfProjectConfigPageState extends State<ProfProjectConfigPage> {
                     if (success) {
                       Navigator.pop(context); // Go back to previous screen
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Proyecto eliminado exitosamente')),
+                        const SnackBar(content: Text('Proyecto archivado exitosamente')),
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text(provider.error ?? 'Error al eliminar'),
+                          content: Text(provider.error ?? 'Error al archivar'),
                           backgroundColor: Theme.of(context).colorScheme.error,
                         ),
                       );
@@ -374,10 +374,10 @@ class _ProfProjectConfigPageState extends State<ProfProjectConfigPage> {
                   // Delete Project Button
                   Center(
                     child: OutlinedButton.icon(
-                      onPressed: _showDeleteDialog,
-                      icon: Icon(Icons.delete_forever, color: colorScheme.error),
+                      onPressed: _showArchiveDialog,
+                      icon: Icon(Icons.archive, color: colorScheme.error),
                       label: Text(
-                        'Eliminar Proyecto',
+                        'Archivar Proyecto',
                         style: TextStyle(color: colorScheme.error),
                       ),
                       style: OutlinedButton.styleFrom(
