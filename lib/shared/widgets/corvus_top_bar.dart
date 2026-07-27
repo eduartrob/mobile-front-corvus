@@ -49,6 +49,8 @@ class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
         // Notifications Bell
         Consumer<NotificationsProvider>(
           builder: (context, notificationsProvider, child) {
+            final theme = Theme.of(context);
+            final colors = theme.colorScheme;
             final unreadCount = notificationsProvider.unreadCount;
             return Stack(
               clipBehavior: Clip.none,
@@ -57,7 +59,7 @@ class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
                 IconButton(
                   icon: Icon(
                     Icons.notifications_none,
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                    color: colors.onSurface.withValues(alpha: 0.7),
                   ),
                   onPressed: () {
                     context.push('/notifications');
@@ -69,14 +71,14 @@ class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
                     top: 8,
                     child: Container(
                       padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
+                      decoration: BoxDecoration(
+                        color: colors.error,
                         shape: BoxShape.circle,
                       ),
                       child: Text(
                         unreadCount.toString(),
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: colors.onError,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                         ),

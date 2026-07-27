@@ -21,6 +21,8 @@ class ProAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final double borderWidth = isPro ? 3.0 : 0.0;
     final double innerRadius = isPro ? (radius - 2.5) : radius;
 
@@ -29,8 +31,11 @@ class ProAvatar extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: isPro
-            ? const LinearGradient(
-                colors: [Color(0xFFFFD700), Color(0xFFFFA500), Color(0xFFFF8C00)],
+            ? LinearGradient(
+                colors: [
+                  colorScheme.tertiary,
+                  colorScheme.primary,
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               )
@@ -38,7 +43,7 @@ class ProAvatar extends StatelessWidget {
         boxShadow: isPro
             ? [
                 BoxShadow(
-                  color: const Color(0xFFFFA500).withValues(alpha: 0.45),
+                  color: colorScheme.tertiary.withValues(alpha: 0.45),
                   blurRadius: 8,
                   spreadRadius: 1.5,
                 )
@@ -47,17 +52,17 @@ class ProAvatar extends StatelessWidget {
       ),
       child: CircleAvatar(
         radius: innerRadius,
-        backgroundColor: Colors.grey.shade300,
+        backgroundColor: colorScheme.surfaceContainerHighest,
         backgroundImage: (photoUrl != null && photoUrl!.isNotEmpty)
             ? CachedNetworkImageProvider(photoUrl!)
             : null,
         child: (photoUrl == null || photoUrl!.isEmpty)
             ? Text(
                 fallbackInitial.isNotEmpty ? fallbackInitial[0].toUpperCase() : 'U',
-                style: TextStyle(
+                style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   fontSize: innerRadius * 0.9,
-                  color: Colors.black87,
+                  color: colorScheme.onSurfaceVariant,
                 ),
               )
             : null,

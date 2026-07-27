@@ -18,12 +18,13 @@ class SocialAuthButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = theme.brightness == Brightness.dark;
 
     return Material(
-      color: isDark ? colors.surfaceContainer : Colors.white,
+      color: isDark ? colors.surfaceContainer : colors.surface,
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         onTap: isLoading ? null : onTap,
@@ -61,7 +62,7 @@ class SocialAuthButton extends StatelessWidget {
               const SizedBox(width: 12),
               Text(
                 label ?? (isLoading ? l10n.signingIn : l10n.continueWithGoogle),
-                style: TextStyle(
+                style: theme.textTheme.bodyMedium?.copyWith(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                   color: colors.onSurface,

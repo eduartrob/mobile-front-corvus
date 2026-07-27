@@ -187,7 +187,7 @@ class _CustomNavItemState extends State<CustomNavItem> with TickerProviderStateM
                 const SizedBox(height: 4),
                 Text(
                   widget.item.label,
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: color,
                     fontSize: 12,
                     fontWeight: widget.isSelected ? FontWeight.w600 : FontWeight.normal,

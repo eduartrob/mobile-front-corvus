@@ -12,15 +12,16 @@ class CorvusButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return Material(
       color: colorScheme.primary,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onPressed,
         borderRadius: BorderRadius.circular(12),
-        splashColor: Colors.white.withValues(alpha: 0.2),
-        highlightColor: Colors.black.withValues(alpha: 0.1),
+        splashColor: colorScheme.onPrimary.withValues(alpha: 0.2),
+        highlightColor: colorScheme.shadow.withValues(alpha: 0.1),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
           child: Row(
@@ -28,16 +29,16 @@ class CorvusButton extends StatelessWidget {
             children: [
               Text(
                 text,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: colorScheme.onPrimary,
                   fontWeight: FontWeight.w600,
+                  fontSize: 18,
                 ),
               ),
               const SizedBox(width: 8),
-              const Icon(
+              Icon(
                 Icons.arrow_forward,
-                color: Colors.white,
+                color: colorScheme.onPrimary,
               ),
             ],
           ),
