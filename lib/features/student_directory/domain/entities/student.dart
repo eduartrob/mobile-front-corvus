@@ -35,4 +35,17 @@ class Student {
       hasTeam: json['hasTeam'] ?? false,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'username': username,
+      'bio': bio,
+      'tags': tags,
+      'avatarUrl': avatarUrl,
+      'isVerified': isVerified,
+      'hasTeam': hasTeam,
+    };
+  }
 }

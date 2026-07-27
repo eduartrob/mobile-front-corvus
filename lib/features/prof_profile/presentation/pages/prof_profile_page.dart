@@ -232,9 +232,11 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                       ),
                     );
                     
-                    context.read<ProjectProvider>().clear();
-                    context.read<ProfileProvider>().clear();
                     await context.read<AuthProvider>().logout();
+                    if (context.mounted) {
+                      context.read<ProjectProvider>().clear();
+                      context.read<ProfileProvider>().clear();
+                    }
                     
                     if (context.mounted) {
                       Navigator.of(context).pop();

@@ -326,9 +326,12 @@ class _ProjectLoadingSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+    return SingleChildScrollView(
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: AppDimens.screenMargin),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
         // Innovation card skeleton
         Container(
           width: double.infinity,
@@ -389,8 +392,9 @@ class _ProjectLoadingSkeleton extends StatelessWidget {
           ),
         ],
       ],
-    );
-  }
+    ),
+  );
+}
 }
 // -# 
 class _ProjectPageBody extends StatelessWidget {

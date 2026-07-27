@@ -5,24 +5,12 @@ import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/inspiration/domain/entities/project_entity.dart';
 import 'package:mobile/features/inspiration/presentation/provider/inspiration_provider.dart';
 import 'package:mobile/features/inspiration/presentation/pages/blue_ocean_detail_page.dart';
+import 'package:mobile/core/theme/app_gradients.dart';
 
 /// Tarjeta reutilizable para mostrar proyectos de inspiración/inexplorados.
 /// Usada en Inspiration y SavedProjects.
 class ProjectCard extends StatelessWidget {
   final ProjectEntity project;
-
-  static const List<List<Color>> pastelGradients = [
-    [Color(0xFFB5F2CA), Color(0xFFFBF1B7)],
-    [Color(0xFFB5E0F2), Color(0xFFC7B5F2)],
-    [Color(0xFFF2B5C7), Color(0xFFF2D0B5)],
-    [Color(0xFFB5F2E3), Color(0xFFB5CFF2)],
-    [Color(0xFFF2CCB5), Color(0xFFFBF4B7)],
-    [Color(0xFFD4B5F2), Color(0xFFF2B5DE)],
-    [Color(0xFFFBF4B7), Color(0xFFB5F2C1)],
-    [Color(0xFFF2B5B5), Color(0xFFF2CEB5)],
-    [Color(0xFFB5D4F2), Color(0xFFD0B5F2)],
-    [Color(0xFFCEF2B5), Color(0xFFB5E9F2)],
-  ];
 
   const ProjectCard({super.key, required this.project});
 
@@ -119,8 +107,8 @@ class ProjectCard extends StatelessWidget {
         : ((analysis['sugerencias_es'] as List<dynamic>?) ?? (analysis['sugerencias'] as List<dynamic>?) ?? []);
 
     // Seleccionamos un gradiente basado en el ID del proyecto para que sea consistente
-    final int colorIndex = project.id.hashCode.abs() % pastelGradients.length;
-    final gradientColors = pastelGradients[colorIndex];
+    final int colorIndex = project.id.hashCode.abs() % AppGradients.pastelGradients.length;
+    final gradientColors = AppGradients.pastelGradients[colorIndex];
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8, top: 8),

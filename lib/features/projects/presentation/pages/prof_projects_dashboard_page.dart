@@ -381,21 +381,22 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
       child: Material(
         color: bgColor,
         borderRadius: BorderRadius.circular(16),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          splashColor: Colors.black.withValues(alpha: 0.12),
-          highlightColor: Colors.black.withValues(alpha: 0.04),
-          onLongPress: () {
-            _toggleSelection(project['id']);
-          },
-          onTap: () {
-            if (_isSelectionMode) {
+        child: RepaintBoundary(
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            splashColor: Colors.black.withValues(alpha: 0.12),
+            highlightColor: Colors.black.withValues(alpha: 0.04),
+            onLongPress: () {
               _toggleSelection(project['id']);
-            } else {
-              if (context.mounted) context.push('/prof-project/${project['id']}?tab=0');
-            }
-          },
-          child: Stack(
+            },
+            onTap: () {
+              if (_isSelectionMode) {
+                _toggleSelection(project['id']);
+              } else {
+                if (context.mounted) context.push('/prof-project/${project['id']}?tab=0');
+              }
+            },
+            child: Stack(
             children: [
               if (patternName != null)
                 Positioned.fill(
@@ -490,6 +491,7 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
         ],
       ),
     ),
+  ),
   ),
 );
   }
