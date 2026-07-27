@@ -77,9 +77,10 @@ class SolicitudesTab extends StatelessWidget {
                                   ),
                                 );
                               }).catchError((error) {
+                                final msg = context.read<TeamsProvider>().errorMessage ?? error.toString();
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('${l10n.notifErrorTitle}: $error'),
+                                    content: Text(msg),
                                     behavior: SnackBarBehavior.floating,
                                   ),
                                 );
@@ -94,9 +95,10 @@ class SolicitudesTab extends StatelessWidget {
                                   ),
                                 );
                               }).catchError((error) {
+                                final msg = context.read<TeamsProvider>().errorMessage ?? error.toString();
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('${l10n.notifErrorTitle}: $error'),
+                                    content: Text(msg),
                                     behavior: SnackBarBehavior.floating,
                                   ),
                                 );

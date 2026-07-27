@@ -78,6 +78,7 @@ class ApiEndpoints {
   static String integratorAnalysisStatus(String teamId) => '/clustering/integrator/analysis-status/$teamId';
   static String integratorAnalysisResult(String teamId) => '/clustering/integrator/analysis-result/$teamId';
   static String integratorCancelAnalysis(String teamId) => '/clustering/integrator/cancel-analysis/$teamId';
+  static String mobileProjectSummary(String teamId) => '/mobile/project-summary/$teamId';
 
   // Clustering / Groups
   static const String clusteringGroupsLogin = '/clustering/groups/login';

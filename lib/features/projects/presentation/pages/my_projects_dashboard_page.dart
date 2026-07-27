@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
+import 'package:mobile/features/my_project/presentation/provider/my_project_provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/shared/widgets/corvus_button.dart';
@@ -37,24 +39,27 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
     });
   }
 
-  void _archiveSelectedProjects() async {
+  void _archiveSelectedProjects() {
     final token = context.read<AuthProvider>().currentUser?.token;
     if (token == null || _selectedProjects.isEmpty) return;
 
-    final success = await context.read<ProjectProvider>().archiveProjects(
-      projectIds: _selectedProjects.toList(),
-      token: token,
-    );
+    final projectIdsToArchive = _selectedProjects.toList();
 
-    if (success && mounted) {
-      setState(() {
-        _selectedProjects.clear();
-        _isSelectionMode = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Proyectos archivados exitosamente')),
-      );
-    }
+    setState(() {
+      _selectedProjects.clear();
+      _isSelectionMode = false;
+    });
+
+    context.read<ProjectProvider>().archiveProjects(
+      projectIds: projectIdsToArchive,
+      token: token,
+    ).then((success) {
+      if (success && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Proyectos archivados exitosamente')),
+        );
+      }
+    });
   }
 
   @override
@@ -64,7 +69,9 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final token = context.read<AuthProvider>().currentUser?.token;
       if (token != null) {
-        context.read<ProjectProvider>().loadMyProjects(token);
+        context.read<ProjectProvider>().loadMyProjects(token).then((_) {
+          _warmUpProjectsCache();
+        });
         
         _pollTimer = Timer.periodic(const Duration(seconds: 10), (_) {
           if (mounted) {
@@ -74,6 +81,34 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
             }
           }
         });
+      }
+    });
+  }
+
+  void _warmUpProjectsCache() {
+    if (!mounted) return;
+    final projects = context.read<ProjectProvider>().myProjects;
+    final teamsProvider = context.read<TeamsProvider>();
+    final myProjectProvider = context.read<MyProjectProvider>();
+    final userId = context.read<AuthProvider>().currentUser?.id;
+
+    if (userId == null || projects.isEmpty) return;
+
+    // Esperar 0.5 segundos para que la animación inicial termine y empezar precarga temprana
+    Future.delayed(const Duration(milliseconds: 500), () async {
+      if (!mounted) return;
+      for (final p in projects) {
+        final pid = p['id']?.toString();
+        if (pid != null) {
+          teamsProvider.silentWarmUp(pid).then((_) {
+            if (!mounted) return;
+            final team = teamsProvider.getTeamForProject(pid);
+            final teamId = team?.id;
+            if (teamId != null) {
+              myProjectProvider.silentWarmUp(userId, teamId, pid);
+            }
+          });
+        }
       }
     });
   }

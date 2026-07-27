@@ -17,11 +17,16 @@ class ProfReviewsPage extends StatefulWidget {
 }
 
 class _ProfReviewsPageState extends State<ProfReviewsPage> {
+  bool _initialFetchDone = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ProfReviewsProvider>().fetchReviews(projectId: widget.projectId);
+      if (mounted) {
+        context.read<ProfReviewsProvider>().fetchReviews(projectId: widget.projectId);
+        _initialFetchDone = true;
+      }
     });
   }
 
@@ -100,7 +105,7 @@ class _ProfReviewsPageState extends State<ProfReviewsPage> {
               ),
             )
           : RefreshIndicator(
-              onRefresh: () => provider.fetchReviews(),
+              onRefresh: () => provider.fetchReviews(projectId: widget.projectId),
               child: reviews.isEmpty
                   ? Center(
                       child: Text(

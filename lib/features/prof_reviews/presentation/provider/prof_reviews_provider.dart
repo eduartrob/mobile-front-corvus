@@ -36,6 +36,8 @@ class ProfReviewsProvider extends ChangeNotifier {
   }
 
   Future<void> fetchReviews({String? projectId}) async {
+    if (_isLoading && projectId == _lastProjectId) return;
+
     if (projectId != null && projectId != _lastProjectId) {
       _reviews = [];
       _lastProjectId = projectId;
