@@ -180,20 +180,25 @@ class _ProfRulesPageViewState extends State<_ProfRulesPageView> {
                     return AnimatedBuilder(
                       animation: tabController,
                       builder: (context, child) {
-                        if (tabController.index != 1) return const SizedBox.shrink();
+                        final bool showAddSection = tabController.index == 1;
+                        final bool showSave = fabProvider.isModified;
+                        
+                        if (!showAddSection && !showSave) return const SizedBox.shrink();
+
                         return Column(
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            FloatingActionButton.small(
-                              heroTag: 'addSectionFAB',
-                              backgroundColor: colorScheme.primaryContainer,
-                              foregroundColor: colorScheme.onPrimaryContainer,
-                              onPressed: fabProvider.isLoading ? null : () => _showAddSectionDialog(context, fabProvider),
-                              child: const Icon(Icons.add),
-                            ),
-                            if (fabProvider.isModified) ...[
-                              const SizedBox(height: 12),
+                            if (showAddSection)
+                              FloatingActionButton.small(
+                                heroTag: 'addSectionFAB',
+                                backgroundColor: colorScheme.primaryContainer,
+                                foregroundColor: colorScheme.onPrimaryContainer,
+                                onPressed: fabProvider.isLoading ? null : () => _showAddSectionDialog(context, fabProvider),
+                                child: const Icon(Icons.add),
+                              ),
+                            if (showSave) ...[
+                              if (showAddSection) const SizedBox(height: 12),
                               FloatingActionButton.extended(
                                 heroTag: 'saveRulesFAB',
                                 backgroundColor: colorScheme.primary,

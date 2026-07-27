@@ -393,7 +393,7 @@ class _ProPlanPageState extends State<ProPlanPage> with WidgetsBindingObserver {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      '\$10.00',
+                      '\$50.00',
                       style: TextStyle(
                         fontSize: 46,
                         fontWeight: FontWeight.w900,
@@ -425,8 +425,8 @@ class _ProPlanPageState extends State<ProPlanPage> with WidgetsBindingObserver {
                 _buildFeatureItem(
                   context,
                   icon: Icons.record_voice_over_rounded,
-                  title: 'Simulador de defensa oral y escrito ilimitado',
-                  subtitle: 'Evaluación oral y escrita sin restricciones.',
+                  title: 'Simulador por Voz Gemini Live',
+                  subtitle: 'Evaluación oral y escrita en tiempo real sin restricciones.',
                   badgeText: 'VOZ HD',
                 ),
                 _buildFeatureItem(
@@ -435,6 +435,13 @@ class _ProPlanPageState extends State<ProPlanPage> with WidgetsBindingObserver {
                   title: 'Acceso completo a todos los proyectos inexplorados',
                   subtitle: 'Explora el repositorio completo de proyectos pasados sin límite.',
                   badgeText: 'PRO',
+                ),
+                _buildFeatureItem(
+                  context,
+                  icon: Icons.shield_rounded,
+                  title: 'Insignia VIP Dorada',
+                  subtitle: 'Destaca entre los proyectos de tu facultad y accede a matchmaking exclusivo.',
+                  badgeText: 'VIP',
                 ),
               ],
             ),

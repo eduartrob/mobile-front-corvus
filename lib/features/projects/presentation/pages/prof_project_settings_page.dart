@@ -66,6 +66,10 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
         if (mounted) {
           setState(() {
             _searchResults = results.where((r) {
+              final email = r['email']?.toString().toLowerCase() ?? '';
+              final fullName = r['full_name']?.toString().toLowerCase() ?? '';
+              if (email.startsWith('deleted_') || fullName.contains('eliminado')) return false;
+
               final inCollabs = _collaborators.any((c) => c['id'] == r['id']);
               final inPending = _pendingInvitations.any((c) => 
                 c['id'] == r['id'] || 
@@ -125,8 +129,17 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
         final data = json.decode(utf8.decode(response.bodyBytes));
         if (mounted) {
           setState(() {
-            _collaborators = data['collaborators'] ?? [];
-            _pendingInvitations = data['pending'] ?? [];
+            final rawCollaborators = (data['collaborators'] as List<dynamic>?) ?? [];
+            final rawPending = (data['pending'] as List<dynamic>?) ?? [];
+
+            bool isNotDeleted(dynamic u) {
+              final email = u['email']?.toString().toLowerCase() ?? '';
+              final fullName = u['full_name']?.toString().toLowerCase() ?? '';
+              return !email.startsWith('deleted_') && !fullName.contains('eliminado');
+            }
+
+            _collaborators = rawCollaborators.where(isNotDeleted).toList();
+            _pendingInvitations = rawPending.where(isNotDeleted).toList();
             _collaboratorsCache[widget.projectId] = _collaborators;
             _pendingCache[widget.projectId] = _pendingInvitations;
             _isLoading = false;

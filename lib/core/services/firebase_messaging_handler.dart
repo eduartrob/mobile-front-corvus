@@ -68,7 +68,7 @@ Future<void> handleFCMMessage(RemoteMessage message) async {
     String? expectedRoute = deepLink;
     if (expectedRoute == null) {
       if (notifType == 'CLASSROOM_UPDATE' || notifType == 'PROJECT_UPDATE') expectedRoute = '/my-project';
-      else if (notifType.startsWith('team_') || notifType.startsWith('TEAM_')) expectedRoute = '/teams';
+      else if (notifType.startsWith('team_') || notifType.startsWith('TEAM_')) expectedRoute = '/project';
       else if (notifType == 'PROPOSAL_ACTION' || notifType == 'review_updated') expectedRoute = '/project';
       else if (notifType == 'SECURITY_DEVICE' || notifType == 'SUBSCRIPTION_CHANGE') expectedRoute = '/profile';
     }

@@ -62,7 +62,13 @@ class AppUpdatePage extends StatelessWidget {
                   const SizedBox(height: 16),
                   _buildVersionItem(
                     context, 
-                    'v2.5.4 (Actual)', 
+                    'v2.7.0 (Actual)', 
+                    'Resolución de notificaciones duplicadas con auto-limpieza, corrección del buscador en equipos y navegación inteligente al tocar alertas.',
+                  ),
+                  const Divider(),
+                  _buildVersionItem(
+                    context, 
+                    'v2.5.4', 
                     'Implementacion de doble verificacion en acciones de docentes, rediseño de tarjetas de edicion, busqueda de docentes y mejoras en alertas de salida.',
                   ),
                   const Divider(),

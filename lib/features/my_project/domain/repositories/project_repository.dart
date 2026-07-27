@@ -24,6 +24,9 @@ abstract class ProjectRepository {
   /// Verifica si hay un borrador guardado.
   Future<Map<String, dynamic>> checkDraft(String teamId);
 
+  /// Obtiene un resumen consolidado (BFF) con configuración, estatus, resultado y borrador en 1 sola llamada.
+  Future<Map<String, dynamic>> getProjectSummary(String teamId, {String? projectId});
+
   /// Pre-valida una propuesta (sube archivo).
   Future<Map<String, dynamic>> preValidateProposal(
     String filePath,

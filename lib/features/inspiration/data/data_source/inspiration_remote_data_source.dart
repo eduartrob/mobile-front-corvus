@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/api_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobile/features/inspiration/data/models/project_model.dart';
 
 class InspirationRemoteDataSource {
@@ -49,6 +50,12 @@ class InspirationRemoteDataSource {
 
     try {
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
+      const storage = FlutterSecureStorage();
+      final token = await storage.read(key: 'auth_token');
+      if (token != null) {
+        headers['Authorization'] = 'Bearer $token';
+      }
+      
       final response = await client.get(url, headers: headers);
 
       if (response.statusCode == 200) {

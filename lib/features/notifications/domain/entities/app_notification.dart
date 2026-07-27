@@ -5,6 +5,7 @@ class AppNotification {
   final String message;
   final String? notifTitle;
   final String? deepLink;
+  final String? rawType;
   final DateTime timestamp;
   final NotificationType type;
   final bool isRead;
@@ -16,6 +17,7 @@ class AppNotification {
     required this.message,
     this.notifTitle,
     this.deepLink,
+    this.rawType,
     required this.timestamp,
     required this.type,
     this.isRead = false,
@@ -28,6 +30,7 @@ class AppNotification {
     String? message,
     String? notifTitle,
     String? deepLink,
+    String? rawType,
     DateTime? timestamp,
     NotificationType? type,
     bool? isRead,
@@ -39,6 +42,7 @@ class AppNotification {
       message: message ?? this.message,
       notifTitle: notifTitle ?? this.notifTitle,
       deepLink: deepLink ?? this.deepLink,
+      rawType: rawType ?? this.rawType,
       timestamp: timestamp ?? this.timestamp,
       type: type ?? this.type,
       isRead: isRead ?? this.isRead,
