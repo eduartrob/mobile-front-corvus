@@ -11,7 +11,6 @@ import 'package:mobile/features/my_project/data/datasources/cloudinary_service.d
 import 'package:mobile/core/services/notification_service.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/core/error/error_handler.dart';
-import 'package:mobile/core/error/app_exception.dart';
 
 enum ProjectState {
   initial,
@@ -22,6 +21,33 @@ enum ProjectState {
   error
 }
 
+class ProjectStateData {
+  ProjectState state = ProjectState.initial;
+  File? selectedFile;
+  String? fileName;
+  String? fileSize;
+  Map<String, dynamic>? quickAnalysis;
+  Map<String, dynamic>? detailedAnalysis;
+  bool hasPassedDefense = false;
+  List<Map<String, String>> defenseChatHistory = [];
+  String? activeSessionId;
+  List<Map<String, dynamic>> activeChatMessages = [];
+  int activeMessageCount = 0;
+  List<Map<String, dynamic>> activeVoiceMessages = [];
+  Map<String, dynamic>? lastVoiceVerdictReport;
+  String? errorMessage;
+  String? documentTypeError;
+  int serverPhase = 5;
+  String serverPhaseMessage = '';
+  List<String> allowedExtensions = ['pdf', 'md', 'txt'];
+  List<String> exclusionRules = [];
+  List<Map<String, dynamic>> projectSections = [];
+  int maxTeamMembers = 3;
+  bool initialized = false;
+  bool hasLoadedOnce = false; // true after first successful fetch from server
+  Timer? statusTimer;
+}
+
 class MyProjectProvider extends ChangeNotifier {
   final ProjectRepository _repository;
   final NotificationService _notificationService;
@@ -30,31 +56,37 @@ class MyProjectProvider extends ChangeNotifier {
       : _repository = repository,
         _notificationService = NotificationService();
 
-  // ── State ──────────────────────────────────────────────────────────────
-  ProjectState _state = ProjectState.initial;
-  ProjectState get state => _state;
+  // ── State (Entity-based Cache) ─────────────────────────────────────────
+  final Map<String, ProjectStateData> _projectCache = {};
+  String? _currentProjectId;
 
-  File? _selectedFile;
-  File? get selectedFile => _selectedFile;
+  ProjectStateData get _current {
+    if (_currentProjectId == null) return ProjectStateData();
+    return _projectCache[_currentProjectId!] ??= ProjectStateData();
+  }
 
-  String? _fileName;
-  String? get fileName => _fileName;
-
-  String? _fileSize;
-  String? get fileSize => _fileSize;
-
-  Map<String, dynamic>? _quickAnalysis;
-  Map<String, dynamic>? _detailedAnalysis;
-  bool _hasPassedDefense = false;
-  List<Map<String, String>> _defenseChatHistory = [];
-
-  String? _activeSessionId;
-  List<Map<String, dynamic>> _activeChatMessages = [];
-  int _activeMessageCount = 0;
-
-  Map<String, dynamic>? get quickAnalysis => _quickAnalysis;
-  Map<String, dynamic>? get detailedAnalysis => _detailedAnalysis;
-  bool get hasPassedDefense => _hasPassedDefense;
+  ProjectState get state => _current.state;
+  File? get selectedFile => _current.selectedFile;
+  String? get fileName => _current.fileName;
+  String? get fileSize => _current.fileSize;
+  Map<String, dynamic>? get quickAnalysis => _current.quickAnalysis;
+  Map<String, dynamic>? get detailedAnalysis => _current.detailedAnalysis;
+  bool get hasPassedDefense => _current.hasPassedDefense;
+  String? get activeSessionId => _current.activeSessionId;
+  List<Map<String, dynamic>> get activeChatMessages => _current.activeChatMessages;
+  int get activeMessageCount => _current.activeMessageCount;
+  List<Map<String, dynamic>> get activeVoiceMessages => _current.activeVoiceMessages;
+  Map<String, dynamic>? get lastVoiceVerdictReport => _current.lastVoiceVerdictReport;
+  String? get errorMessage => _current.errorMessage;
+  String? get documentTypeError => _current.documentTypeError;
+  int get serverPhase => _current.serverPhase;
+  String get serverPhaseMessage => _current.serverPhaseMessage;
+  List<String> get allowedExtensions => _current.allowedExtensions;
+  String get allowedExtensionsString => _current.allowedExtensions.join(', ');
+  List<String> get exclusionRules => _current.exclusionRules;
+  List<Map<String, dynamic>> get projectSections => _current.projectSections;
+  int get maxTeamMembers => _current.maxTeamMembers;
+  bool get hasLoadedOnce => _current.hasLoadedOnce;
 
   String? _universityId;
   String? _careerId;
@@ -65,91 +97,71 @@ class MyProjectProvider extends ChangeNotifier {
   }
 
   void setDefensePassed(List<Map<String, String>> history) {
-    _hasPassedDefense = true;
-    _defenseChatHistory = history;
-    _activeSessionId = null;
-    _activeChatMessages = [];
-    _activeMessageCount = 0;
+    _current.hasPassedDefense = true;
+    _current.defenseChatHistory = history;
+    _current.activeSessionId = null;
+    _current.activeChatMessages = [];
+    _current.activeMessageCount = 0;
     notifyListeners();
   }
 
-  String? get activeSessionId => _activeSessionId;
-  List<Map<String, dynamic>> get activeChatMessages => _activeChatMessages;
-  int get activeMessageCount => _activeMessageCount;
-
   void saveActiveSession(
       String sessionId, List<Map<String, dynamic>> messages, int messageCount) {
-    _activeSessionId = sessionId;
-    _activeChatMessages = messages;
-    _activeMessageCount = messageCount;
+    _current.activeSessionId = sessionId;
+    _current.activeChatMessages = messages;
+    _current.activeMessageCount = messageCount;
   }
 
   // ── Voice Defense Persistent Session ─────────────────────────────────
-  List<Map<String, dynamic>> _activeVoiceMessages = [];
-  Map<String, dynamic>? _lastVoiceVerdictReport;
-
-  List<Map<String, dynamic>> get activeVoiceMessages => _activeVoiceMessages;
-  Map<String, dynamic>? get lastVoiceVerdictReport => _lastVoiceVerdictReport;
 
   void saveActiveVoiceSession(List<Map<String, dynamic>> messages, {Map<String, dynamic>? verdictReport}) {
-    _activeVoiceMessages = messages;
+    _current.activeVoiceMessages = messages;
     if (verdictReport != null) {
-      _lastVoiceVerdictReport = verdictReport;
+      _current.lastVoiceVerdictReport = verdictReport;
     }
     _saveVoiceSessionToPrefs();
   }
 
   Future<void> _saveVoiceSessionToPrefs() async {
     try {
+      if (_currentProjectId == null) return;
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('active_voice_messages', jsonEncode(_activeVoiceMessages));
-      if (_lastVoiceVerdictReport != null) {
-        await prefs.setString('last_voice_verdict', jsonEncode(_lastVoiceVerdictReport));
+      await prefs.setString('active_voice_messages_$_currentProjectId', jsonEncode(_current.activeVoiceMessages));
+      if (_current.lastVoiceVerdictReport != null) {
+        await prefs.setString('last_voice_verdict_$_currentProjectId', jsonEncode(_current.lastVoiceVerdictReport));
       }
     } catch (_) {}
   }
 
   Future<void> loadVoiceSessionFromPrefs() async {
     try {
+      if (_currentProjectId == null) return;
       final prefs = await SharedPreferences.getInstance();
-      final msgsStr = prefs.getString('active_voice_messages');
+      final msgsStr = prefs.getString('active_voice_messages_$_currentProjectId');
       if (msgsStr != null) {
         final List list = jsonDecode(msgsStr);
-        _activeVoiceMessages = list.cast<Map<String, dynamic>>();
+        _current.activeVoiceMessages = list.cast<Map<String, dynamic>>();
       }
-      final verdictStr = prefs.getString('last_voice_verdict');
+      final verdictStr = prefs.getString('last_voice_verdict_$_currentProjectId');
       if (verdictStr != null) {
-        _lastVoiceVerdictReport = jsonDecode(verdictStr);
+        _current.lastVoiceVerdictReport = jsonDecode(verdictStr);
       }
       notifyListeners();
     } catch (_) {}
   }
 
   void clearActiveVoiceSession() async {
-    _activeVoiceMessages = [];
-    _lastVoiceVerdictReport = null;
+    _current.activeVoiceMessages = [];
+    _current.lastVoiceVerdictReport = null;
     try {
+      if (_currentProjectId == null) return;
       final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('active_voice_messages');
-      await prefs.remove('last_voice_verdict');
+      await prefs.remove('active_voice_messages_$_currentProjectId');
+      await prefs.remove('last_voice_verdict_$_currentProjectId');
     } catch (_) {}
     notifyListeners();
   }
 
-  String? _errorMessage;
-  String? get errorMessage => _errorMessage;
-
-  String? _documentTypeError;
-  String? get documentTypeError => _documentTypeError;
-
-  int _serverPhase = 5;
-  int get serverPhase => _serverPhase;
-
-  String _serverPhaseMessage = '';
-  String get serverPhaseMessage => _serverPhaseMessage;
-
-  Timer? _statusTimer;
-  bool _initialized = false;
   bool _isScreenVisible = false;
   bool get isScreenVisible => _isScreenVisible;
 
@@ -157,90 +169,196 @@ class MyProjectProvider extends ChangeNotifier {
     _isScreenVisible = value;
   }
 
-  String? _projectId;
-  String? get projectId => _projectId;
-
-  // ── Config from server ─────────────────────────────────────────────────
-  List<String> _allowedExtensions = ['pdf', 'md', 'txt'];
-  List<String> get allowedExtensions => _allowedExtensions;
-  String get allowedExtensionsString => _allowedExtensions.join(', ');
-
-  List<String> _exclusionRules = [];
-  List<String> get exclusionRules => _exclusionRules;
-
-  List<Map<String, dynamic>> _projectSections = [];
-  List<Map<String, dynamic>> get projectSections => _projectSections;
-
-  int _maxTeamMembers = 3;
-  int get maxTeamMembers => _maxTeamMembers;
+  String? get projectId => _currentProjectId;
 
   // ── Public API ─────────────────────────────────────────────────────────
 
   Future<void> refreshConfig() async {
-    final config = await _repository.fetchConfig(projectId: _projectId);
+    final config = await _repository.fetchConfig(projectId: _currentProjectId);
     _applyConfig(config);
     notifyListeners();
   }
 
   Future<void> init(String userId, String teamId,
       {String? projectId, bool forceRefresh = false}) async {
-    if (_projectId != projectId) {
-      _initialized = false;
-      _state = ProjectState.initial;
-      _quickAnalysis = null;
-      _detailedAnalysis = null;
-      _hasPassedDefense = false;
-      _defenseChatHistory = [];
-      _activeSessionId = null;
-      _activeChatMessages = [];
-      _activeMessageCount = 0;
-      _fileName = null;
-      _fileSize = null;
-      _selectedFile = null;
-      _projectSections = [];
-      _exclusionRules = [];
-      _allowedExtensions = ['pdf', 'md', 'txt'];
-      notifyListeners();
+    final bool switchedContext = _currentProjectId != projectId;
+    
+    if (projectId != null) {
+      _currentProjectId = projectId;
     }
 
-    if (_initialized && !forceRefresh) return;
-    _initialized = true;
-    _projectId = projectId;
+    if (switchedContext) {
+      notifyListeners();
+      // Si ya estaba inicializado el cache para este proyecto, hacemos silent fetch.
+      // Retornamos de inmediato si no hay un forceRefresh explícito.
+      if (_current.initialized && !forceRefresh) {
+        // Hacemos fetch silencioso del status
+        _silentFetchUpdates(userId, teamId, projectId);
+        return;
+      }
+    }
 
+    if (_current.initialized && !forceRefresh) return;
+    _current.initialized = true;
+    await _loadFromBffOrFallback(_current, userId, teamId, projectId);
+  }
+
+  Future<void> silentWarmUp(String userId, String teamId, String pid) async {
+    final data = _projectCache.putIfAbsent(pid, () => ProjectStateData());
+    if (data.hasLoadedOnce || data.initialized) return;
+    data.initialized = true;
+    await _loadFromBffOrFallback(data, userId, teamId, pid, isSilent: true);
+  }
+
+  Future<void> _loadFromBffOrFallback(ProjectStateData data, String userId, String teamId, String? projectId, {bool isSilent = false}) async {
     try {
-      final config = await _repository.fetchConfig(projectId: projectId);
-      _applyConfig(config);
+      final results = await Future.wait([
+        _repository.getProjectSummary(teamId, projectId: projectId).catchError((_) => <String, dynamic>{}),
+        _repository.getLocalAnalysis(userId).catchError((_) => null),
+      ]);
 
-      final localAnalysis = await _repository.getLocalAnalysis(userId);
+      final summary = results[0] as Map<String, dynamic>;
+      final localAnalysis = results[1] as Map<String, dynamic>?;
+
+      // 1. Aplicar Configuración desde BFF
+      if (summary['config'] != null) {
+        final configData = summary['config'] as Map;
+        final configEntity = ProjectAnalysisEntity(
+          allowedExtensions: (configData['allowed_extensions'] as List?)
+                  ?.map((e) => e.toString().replaceAll('.', '').trim().toLowerCase())
+                  .where((e) => e.isNotEmpty)
+                  .toList() ?? const ['pdf', 'md', 'txt'],
+          exclusionRules: (configData['exclusion_rules'] as List?)?.map((e) => e.toString()).toList() ?? const [],
+          projectSections: (configData['project_sections'] as List?)?.map((e) => Map<String, dynamic>.from(e as Map)).toList() ?? const [],
+          maxTeamMembers: int.tryParse(configData['max_team_members']?.toString() ?? '') ?? 3,
+        );
+        if (data == _current) {
+          _applyConfig(configEntity);
+        } else {
+          data.allowedExtensions = configEntity.allowedExtensions;
+          data.exclusionRules = configEntity.exclusionRules;
+          data.projectSections = configEntity.projectSections;
+          data.maxTeamMembers = configEntity.maxTeamMembers;
+        }
+      } else {
+        _repository.fetchConfig(projectId: projectId).then((c) {
+          if (data == _current) _applyConfig(c);
+          else {
+            data.allowedExtensions = c.allowedExtensions;
+            data.exclusionRules = c.exclusionRules;
+            data.projectSections = c.projectSections;
+            data.maxTeamMembers = c.maxTeamMembers;
+          }
+        }).catchError((_) {});
+      }
+
+      // 2. Si ya hay análisis local guardado, usarlo inmediatamente (0 ms)
       if (localAnalysis != null) {
-        _detailedAnalysis = localAnalysis;
-        _fileName = localAnalysis['original_file_name'] ??
-            'documento_analizado.pdf';
-        _fileSize = localAnalysis['original_file_size'] ?? 'Local';
-        _documentTypeError = null;
-        _errorMessage = null;
-        _state = ProjectState.detailedAnalysis;
-        notifyListeners();
+        data.detailedAnalysis = localAnalysis;
+        data.fileName = localAnalysis['original_file_name'] ?? 'documento_analizado.pdf';
+        data.fileSize = localAnalysis['original_file_size'] ?? 'Local';
+        data.documentTypeError = null;
+        data.errorMessage = null;
+        data.state = ProjectState.detailedAnalysis;
+        data.hasLoadedOnce = true;
+        if (data == _current && !isSilent) notifyListeners();
         return;
       }
 
-      final status = await _repository.getAnalysisStatus(teamId);
+      // 3. Revisar status y resultado desde el BFF
+      final status = summary['analysisStatus'] as Map<String, dynamic>? ?? <String, dynamic>{'phase': 0};
       final phase = (status['phase'] as num?)?.toInt() ?? 0;
 
       if (phase >= 1 && phase < 5) {
-        _state = ProjectState.uploading;
-        _serverPhase = phase;
-        _serverPhaseMessage = status['message'] ?? '';
-        _startPolling(userId, teamId, null);
-        notifyListeners();
+        data.state = ProjectState.uploading;
+        data.serverPhase = phase;
+        data.serverPhaseMessage = status['message'] ?? '';
+        if (data == _current) _startPolling(userId, teamId, null);
+        data.hasLoadedOnce = true;
+        if (data == _current && !isSilent) notifyListeners();
         return;
       } else if (phase >= 5 && phase <= 8) {
-        _state = ProjectState.analyzing;
-        _serverPhase = phase;
-        _serverPhaseMessage = status['message'] ?? '';
-        _startPolling(userId, teamId, null);
-        notifyListeners();
+        data.state = ProjectState.analyzing;
+        data.serverPhase = phase;
+        data.serverPhaseMessage = status['message'] ?? '';
+        if (data == _current) _startPolling(userId, teamId, null);
+        data.hasLoadedOnce = true;
+        if (data == _current && !isSilent) notifyListeners();
         return;
+      } else if (phase == 9) {
+        final result = summary['analysisResult'] as Map<String, dynamic>? ?? await _repository.getAnalysisResult(teamId).catchError((_) => <String, dynamic>{});
+        if (result.isNotEmpty && result['status'] != 'pending' && result['status'] != 'error') {
+          if (result.containsKey('general_feedback') ||
+              result.containsKey('innovation_index') ||
+              result.containsKey('semantic_collision_risk')) {
+            if (data == _current) {
+              await _applyAnalysisResult(userId, teamId, result, null);
+            } else {
+              if (data.fileName != null) result['original_file_name'] = data.fileName;
+              if (data.fileSize != null) result['original_file_size'] = data.fileSize;
+              data.detailedAnalysis = result;
+              data.documentTypeError = null;
+              data.errorMessage = null;
+              data.state = ProjectState.detailedAnalysis;
+              await _repository.saveLocalAnalysis(userId, result).catchError((_) {});
+            }
+          } else {
+            data.quickAnalysis = result;
+            data.state = ProjectState.preValidated;
+            if (data == _current && !isSilent) notifyListeners();
+          }
+          data.hasLoadedOnce = true;
+          return;
+        }
+      }
+
+      // 4. Revisar borrador desde el BFF
+      final draft = summary['draftProposal'] as Map<String, dynamic>? ?? await _repository.checkDraft(teamId).catchError((_) => <String, dynamic>{});
+      if (draft.isNotEmpty && draft['status'] != 'not_found') {
+        data.quickAnalysis = draft;
+        String rawName = draft['original_file_name'] ?? draft['filename'] ?? 'borrador_guardado.pdf';
+        if (rawName.startsWith('draft_') && rawName.contains('-')) {
+          rawName = 'Propuesta_Guardada.pdf';
+        }
+        data.fileName = rawName;
+        data.fileSize = 'Local';
+
+        final prefs = await SharedPreferences.getInstance();
+        final savedPath = prefs.getString('draft_file_path_$userId');
+        if (savedPath != null) {
+          final savedFile = File(savedPath);
+          if (await savedFile.exists()) {
+            data.selectedFile = savedFile;
+          }
+        }
+        data.state = ProjectState.preValidated;
+      } else {
+        data.state = ProjectState.error;
+      }
+      data.hasLoadedOnce = true;
+      if (data == _current && !isSilent) notifyListeners();
+    } catch (e) {
+      data.state = ProjectState.error;
+      data.hasLoadedOnce = true;
+      if (data == _current && !isSilent) notifyListeners();
+    }
+  }
+
+  Future<void> _silentFetchUpdates(String userId, String teamId, String? projectId) async {
+    try {
+      final status = await _repository.getAnalysisStatus(teamId);
+      final phase = (status['phase'] as num?)?.toInt() ?? 0;
+      
+      if (phase >= 1 && phase < 5) {
+        _current.state = ProjectState.uploading;
+        _current.serverPhase = phase;
+        _current.serverPhaseMessage = status['message'] ?? '';
+        _startPolling(userId, teamId, null);
+      } else if (phase >= 5 && phase <= 8) {
+        _current.state = ProjectState.analyzing;
+        _current.serverPhase = phase;
+        _current.serverPhaseMessage = status['message'] ?? '';
+        _startPolling(userId, teamId, null);
       } else if (phase == 9) {
         final result = await _repository.getAnalysisResult(teamId);
         if (result['status'] != 'pending' && result['status'] != 'error') {
@@ -249,43 +367,14 @@ class MyProjectProvider extends ChangeNotifier {
               result.containsKey('semantic_collision_risk')) {
             await _applyAnalysisResult(userId, teamId, result, null);
           } else {
-            _quickAnalysis = result;
-            _state = ProjectState.preValidated;
-            notifyListeners();
-          }
-          return;
-        }
-      }
-
-      final draft = await _repository.checkDraft(teamId);
-      if (draft.isNotEmpty && draft['status'] != 'not_found') {
-        _quickAnalysis = draft;
-        String rawName = draft['original_file_name'] ?? draft['filename'] ?? 'borrador_guardado.pdf';
-        if (rawName.startsWith('draft_') && rawName.contains('-')) {
-          rawName = 'Propuesta_Guardada.pdf';
-        }
-        _fileName = rawName;
-        _fileSize = 'Local';
-
-        final prefs = await SharedPreferences.getInstance();
-        final savedPath = prefs.getString('draft_file_path_$userId');
-        if (savedPath != null) {
-          final savedFile = File(savedPath);
-          if (await savedFile.exists()) {
-            _selectedFile = savedFile;
+            _current.quickAnalysis = result;
+            _current.state = ProjectState.preValidated;
           }
         }
-
-        _state = ProjectState.preValidated;
-        notifyListeners();
-      } else {
-        _state = ProjectState.error;
-        notifyListeners();
       }
-    } catch (e, st) {
-      debugPrint("Error inicializando MyProjectProvider: $e");
-      _state = ProjectState.error;
       notifyListeners();
+    } catch (_) {
+      // Ignorar errores en silent fetch
     }
   }
 
@@ -295,35 +384,35 @@ class MyProjectProvider extends ChangeNotifier {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions:
-            _allowedExtensions.isNotEmpty ? _allowedExtensions : ['pdf'],
+            _current.allowedExtensions.isNotEmpty ? _current.allowedExtensions : ['pdf'],
       );
 
       if (result != null && result.files.single.path != null) {
-        _errorMessage = null;
-        _documentTypeError = null;
-        _serverPhaseMessage = '';
-        _serverPhase = 0;
-        _quickAnalysis = null;
+        _current.errorMessage = null;
+        _current.documentTypeError = null;
+        _current.serverPhaseMessage = '';
+        _current.serverPhase = 0;
+        _current.quickAnalysis = null;
         final file = File(result.files.single.path!);
         final bytes = await file.length();
 
         if (bytes > 10 * 1024 * 1024) {
-          _errorMessage =
+          _current.errorMessage =
               'El archivo supera el tamaño máximo permitido de 10 MB.';
-          _state = ProjectState.error;
+          _current.state = ProjectState.error;
           notifyListeners();
           return;
         }
 
-        _selectedFile = file;
-        _fileName = result.files.single.name;
+        _current.selectedFile = file;
+        _current.fileName = result.files.single.name;
 
         // Save to permanent storage to survive cache clears
         try {
           final directory = await getApplicationDocumentsDirectory();
           final permanentPath = '${directory.path}/draft_${teamId}.pdf';
           final permanentFile = await file.copy(permanentPath);
-          _selectedFile = permanentFile;
+          _current.selectedFile = permanentFile;
           
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('draft_file_path_$userId', permanentFile.path);
@@ -334,16 +423,16 @@ class MyProjectProvider extends ChangeNotifier {
           await prefs.setString('draft_file_path_$teamId', file.path);
         }
 
-        _fileSize = '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-        _state = ProjectState.uploading;
+        _current.fileSize = '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+        _current.state = ProjectState.uploading;
         notifyListeners();
 
         await _preValidate(userId, teamId, userName, l10n);
       }
     } catch (e, st) {
-      _errorMessage =
+      _current.errorMessage =
           'Error seleccionando archivo: ${e.toString().replaceAll('Exception: ', '')}';
-      _state = ProjectState.error;
+      _current.state = ProjectState.error;
       notifyListeners();
     }
   }
@@ -351,26 +440,26 @@ class MyProjectProvider extends ChangeNotifier {
   Future<void> _preValidate(String userId, String teamId, String userName,
       AppLocalizations l10n) async {
     try {
-      if (_selectedFile == null) return;
+      if (_current.selectedFile == null) return;
 
       final response = await _repository.preValidateProposal(
-        _selectedFile!.path,
+        _current.selectedFile!.path,
         teamId,
         userId,
         userName,
         universityId: _universityId,
         careerId: _careerId,
-        projectId: _projectId,
+        projectId: _currentProjectId,
       );
 
       if (response['status'] == 'pending') {
-        _serverPhase = 1;
-        _serverPhaseMessage = response['message'] ?? '';
+        _current.serverPhase = 1;
+        _current.serverPhaseMessage = response['message'] ?? '';
         _startPolling(userId, teamId, l10n);
         notifyListeners();
       } else {
-        _quickAnalysis = response;
-        _state = ProjectState.preValidated;
+        _current.quickAnalysis = response;
+        _current.state = ProjectState.preValidated;
         if (!_isScreenVisible) {
           await _notificationService.showResultNotification(
               l10n.notifPreValidReadyTitle, l10n.notifPreValidReadyBody);
@@ -390,30 +479,30 @@ class MyProjectProvider extends ChangeNotifier {
         }
       } catch (_) {}
 
-      _documentTypeError = errorStr;
+      _current.documentTypeError = errorStr;
       if (!_isScreenVisible) {
         await _notificationService.showResultNotification(
             l10n.notifErrorTitle, errorStr);
       }
 
-      _state = ProjectState.error;
+      _current.state = ProjectState.error;
       notifyListeners();
     }
   }
 
   void clearError() {
-    _errorMessage = null;
-    if (_state == ProjectState.error) {
-      _state = ProjectState.initial;
+    _current.errorMessage = null;
+    if (_current.state == ProjectState.error) {
+      _current.state = ProjectState.initial;
     }
     notifyListeners();
   }
 
   Future<void> submitForReview(
       String userId, String teamId, AppLocalizations l10n) async {
-    _state = ProjectState.analyzing;
-    _serverPhase = 5;
-    _serverPhaseMessage = '';
+    _current.state = ProjectState.analyzing;
+    _current.serverPhase = 5;
+    _current.serverPhaseMessage = '';
     notifyListeners();
 
     try {
@@ -427,13 +516,13 @@ class MyProjectProvider extends ChangeNotifier {
 
       await _repository.analyzeDraftDetailed(teamId);
     } catch (e, st) {
-      _statusTimer?.cancel();
+      _current.statusTimer?.cancel();
       _notificationService.cancelAnalysisNotification();
       final cleanMsg = e.toString().replaceAll('Exception: ', '');
       await _notificationService.showResultNotification(
           l10n.notifAnalysisErrorTitle, cleanMsg);
-      _errorMessage = cleanMsg;
-      _state = ProjectState.preValidated;
+      _current.errorMessage = cleanMsg;
+      _current.state = ProjectState.preValidated;
       notifyListeners();
       return;
     }
@@ -442,29 +531,29 @@ class MyProjectProvider extends ChangeNotifier {
   }
 
   void _startPolling(String userId, String teamId, AppLocalizations? l10n) {
-    _statusTimer?.cancel();
-    _statusTimer = Timer.periodic(const Duration(seconds: 15), (_) async {
-      if (_state != ProjectState.analyzing &&
-          _state != ProjectState.uploading) {
-        _statusTimer?.cancel();
+    _current.statusTimer?.cancel();
+    _current.statusTimer = Timer.periodic(const Duration(seconds: 15), (_) async {
+      if (_current.state != ProjectState.analyzing &&
+          _current.state != ProjectState.uploading) {
+        _current.statusTimer?.cancel();
         return;
       }
 
       final status = await _repository.getAnalysisStatus(teamId);
 
-      if (_state != ProjectState.analyzing &&
-          _state != ProjectState.uploading) return;
+      if (_current.state != ProjectState.analyzing &&
+          _current.state != ProjectState.uploading) return;
 
       final phase = (status['phase'] as num?)?.toInt() ?? 5;
-      _serverPhase = phase;
-      _serverPhaseMessage = status['message'] ?? '';
+      _current.serverPhase = phase;
+      _current.serverPhaseMessage = status['message'] ?? '';
 
       if (phase == 0) {
         final draft = await _repository.checkDraft(teamId);
         if (draft.isNotEmpty && draft['status'] != 'not_found') {
-          _quickAnalysis = draft;
-          _state = ProjectState.preValidated;
-          _statusTimer?.cancel();
+          _current.quickAnalysis = draft;
+          _current.state = ProjectState.preValidated;
+          _current.statusTimer?.cancel();
           _notificationService.cancelAnalysisNotification();
           notifyListeners();
           return;
@@ -478,33 +567,33 @@ class MyProjectProvider extends ChangeNotifier {
       notifyListeners();
 
       if (phase == 9) {
-        _statusTimer?.cancel();
+        _current.statusTimer?.cancel();
         final result = await _repository.getAnalysisResult(teamId);
-        if (_state != ProjectState.analyzing &&
-            _state != ProjectState.uploading) return;
+        if (_current.state != ProjectState.analyzing &&
+            _current.state != ProjectState.uploading) return;
 
         if (result['status'] == 'pending') {
           await Future.delayed(const Duration(seconds: 2));
-          if (_state != ProjectState.analyzing &&
-              _state != ProjectState.uploading) return;
+          if (_current.state != ProjectState.analyzing &&
+              _current.state != ProjectState.uploading) return;
           final retryResult = await _repository.getAnalysisResult(teamId);
 
-          if (_state == ProjectState.analyzing) {
+          if (_current.state == ProjectState.analyzing) {
             if (retryResult['status'] != 'pending') {
               _applyAnalysisResult(userId, teamId, retryResult, l10n);
             }
           } else {
             if (retryResult['status'] != 'pending') {
-              _quickAnalysis = retryResult;
-            } else if (_quickAnalysis == null ||
-                _quickAnalysis!.isEmpty ||
-                _quickAnalysis?['status'] == 'pending') {
+              _current.quickAnalysis = retryResult;
+            } else if (_current.quickAnalysis == null ||
+                _current.quickAnalysis!.isEmpty ||
+                _current.quickAnalysis?['status'] == 'pending') {
               final draft = await _repository.checkDraft(teamId);
               if (draft.isNotEmpty && draft['status'] != 'not_found') {
-                _quickAnalysis = draft;
+                _current.quickAnalysis = draft;
               }
             }
-            _state = ProjectState.preValidated;
+            _current.state = ProjectState.preValidated;
             _notificationService.cancelAnalysisNotification();
             if (!_isScreenVisible) {
               _notificationService.showResultNotification(
@@ -515,11 +604,11 @@ class MyProjectProvider extends ChangeNotifier {
             notifyListeners();
           }
         } else {
-          if (_state == ProjectState.analyzing) {
+          if (_current.state == ProjectState.analyzing) {
             _applyAnalysisResult(userId, teamId, result, l10n);
           } else {
-            _quickAnalysis = result;
-            _state = ProjectState.preValidated;
+            _current.quickAnalysis = result;
+            _current.state = ProjectState.preValidated;
             _notificationService.cancelAnalysisNotification();
             if (!_isScreenVisible) {
               _notificationService.showResultNotification(
@@ -533,7 +622,7 @@ class MyProjectProvider extends ChangeNotifier {
       }
 
       if (phase == -1) {
-        _statusTimer?.cancel();
+        _current.statusTimer?.cancel();
         _notificationService.cancelAnalysisNotification();
         final errMsg = status['message'] ??
             l10n?.notifAnalysisFailedBody ?? 'Error en el servidor';
@@ -543,42 +632,42 @@ class MyProjectProvider extends ChangeNotifier {
               l10n?.notifAnalysisFailedTitle ?? 'Error', errMsg);
         }
 
-        if (_state == ProjectState.uploading) {
-          _documentTypeError =
+        if (_current.state == ProjectState.uploading) {
+          _current.documentTypeError =
               errMsg.replaceAll('Error en el análisis: ', '');
         } else {
-          _errorMessage = errMsg.replaceAll('Error en el análisis: ', '');
+          _current.errorMessage = errMsg.replaceAll('Error en el análisis: ', '');
         }
-        _state = ProjectState.error;
+        _current.state = ProjectState.error;
         notifyListeners();
       }
     });
   }
 
   void _updateProgressNotification(AppLocalizations? l10n) {
-    if (_serverPhase == 6) {
+    if (_current.serverPhase == 6) {
       _notificationService.showAnalysisProgressNotification(
         title: l10n?.notifAnalysisProgressTitle ?? 'Análisis en curso',
         message: l10n?.notifAnalysisProgressBody ?? 'Procesando...',
         phase: 'Buscando áreas de mejora...',
       );
-    } else if (_serverPhase == 7) {
+    } else if (_current.serverPhase == 7) {
       _notificationService.showAnalysisProgressNotification(
         title: l10n?.notifAnalysisProgressTitle ?? 'Análisis en curso',
         message: l10n?.notifAnalysisProgressBody ?? 'Procesando...',
         phase: 'Generando recomendaciones...',
       );
-    } else if (_serverPhase == 8) {
+    } else if (_current.serverPhase == 8) {
       _notificationService.showAnalysisProgressNotification(
         title: l10n?.notifAnalysisProgressTitle ?? 'Análisis en curso',
         message: l10n?.notifAnalysisProgressBody ?? 'Procesando...',
         phase: 'Finalizando reporte...',
       );
-    } else if (_serverPhase >= 1 && _serverPhase <= 4) {
+    } else if (_current.serverPhase >= 1 && _current.serverPhase <= 4) {
       _notificationService.showAnalysisProgressNotification(
         title: l10n?.notifUploadTitle ?? 'Pre-validación en curso',
         message: 'Validando documento',
-        phase: _serverPhaseMessage,
+        phase: _current.serverPhaseMessage,
       );
     }
   }
@@ -592,36 +681,37 @@ class MyProjectProvider extends ChangeNotifier {
           l10n?.notifAnalysisFailedBody ?? 'Error desconocido';
       await _notificationService.showResultNotification(
           l10n?.notifAnalysisFailedTitle ?? 'Error', msg);
-      _errorMessage = msg;
-      _state = ProjectState.preValidated;
+      _current.errorMessage = msg;
+      _current.state = ProjectState.preValidated;
       notifyListeners();
       return;
     }
 
-    if (_fileName != null) result['original_file_name'] = _fileName;
-    if (_fileSize != null) result['original_file_size'] = _fileSize;
+    if (_current.fileName != null) result['original_file_name'] = _current.fileName;
+    if (_current.fileSize != null) result['original_file_size'] = _current.fileSize;
 
-    _detailedAnalysis = result;
-    _documentTypeError = null;
-    _errorMessage = null;
-    _state = ProjectState.detailedAnalysis;
-    await _repository.saveLocalAnalysis(userId, result);
-    await _notificationService.showAnalysisCompleteNotification(
+    _current.detailedAnalysis = result;
+    _current.documentTypeError = null;
+    _current.errorMessage = null;
+    _current.state = ProjectState.detailedAnalysis;
+    notifyListeners();
+
+    _repository.saveLocalAnalysis(userId, result).catchError((_) {});
+    _notificationService.showAnalysisCompleteNotification(
       title: l10n?.notifAnalysisCompleteTitle ?? 'Análisis Completado',
       message: l10n?.notifAnalysisCompleteBody ??
           'Tu propuesta ha sido validada por la IA',
-    );
-    notifyListeners();
+    ).catchError((_) {});
   }
 
   Future<void> cancelAnalysis(String userId, String teamId) async {
-    _statusTimer?.cancel();
-    _state = ProjectState.error;
-    _selectedFile = null;
-    _fileName = null;
-    _fileSize = null;
-    _quickAnalysis = null;
-    _detailedAnalysis = null;
+    _current.statusTimer?.cancel();
+    _current.state = ProjectState.error;
+    _current.selectedFile = null;
+    _current.fileName = null;
+    _current.fileSize = null;
+    _current.quickAnalysis = null;
+    _current.detailedAnalysis = null;
     notifyListeners();
 
     try {
@@ -636,16 +726,16 @@ class MyProjectProvider extends ChangeNotifier {
   }
 
   void reset(String userId) {
-    _statusTimer?.cancel();
-    _selectedFile = null;
-    _fileName = null;
-    _fileSize = null;
-    _quickAnalysis = null;
-    _detailedAnalysis = null;
-    _hasPassedDefense = false;
-    _defenseChatHistory = [];
-    _errorMessage = null;
-    _documentTypeError = null;
+    _current.statusTimer?.cancel();
+    _current.selectedFile = null;
+    _current.fileName = null;
+    _current.fileSize = null;
+    _current.quickAnalysis = null;
+    _current.detailedAnalysis = null;
+    _current.hasPassedDefense = false;
+    _current.defenseChatHistory = [];
+    _current.errorMessage = null;
+    _current.documentTypeError = null;
     _repository.clearLocalAnalysis(userId);
 
     try {
@@ -654,7 +744,7 @@ class MyProjectProvider extends ChangeNotifier {
       });
     } catch (_) {}
 
-    _state = ProjectState.error;
+    _current.state = ProjectState.error;
     notifyListeners();
   }
 
@@ -666,8 +756,8 @@ class MyProjectProvider extends ChangeNotifier {
     required String careerName,
     required String professorName,
   }) async {
-    if (_detailedAnalysis == null) {
-      _errorMessage = 'No hay análisis disponible para enviar.';
+    if (_current.detailedAnalysis == null) {
+      _current.errorMessage = 'No hay análisis disponible para enviar.';
       notifyListeners();
       return false;
     }
@@ -675,7 +765,7 @@ class MyProjectProvider extends ChangeNotifier {
     try {
       String? uploadedFileUrl;
 
-      if (_selectedFile != null && await _selectedFile!.exists()) {
+      if (_current.selectedFile != null && await _current.selectedFile!.exists()) {
         await _notificationService.showIndeterminateProgressNotification(
           title: 'Subiendo documento...',
           message: 'Guardando el documento en la nube de forma segura',
@@ -689,7 +779,7 @@ class MyProjectProvider extends ChangeNotifier {
 
         try {
           uploadedFileUrl = await CloudinaryService.uploadFile(
-            _selectedFile!.path,
+            _current.selectedFile!.path,
             folder: folderPath,
           );
         } catch (_) {}
@@ -703,9 +793,9 @@ class MyProjectProvider extends ChangeNotifier {
           if (savedPath != null) {
             final savedFile = File(savedPath);
             if (await savedFile.exists()) {
-              _selectedFile = savedFile;
+              _current.selectedFile = savedFile;
               uploadedFileUrl = await CloudinaryService.uploadFile(
-                _selectedFile!.path,
+                _current.selectedFile!.path,
                 folder: 'Corvus/general',
               );
             }
@@ -715,9 +805,9 @@ class MyProjectProvider extends ChangeNotifier {
 
       // Fallback 2: Retrieve URL from existing detailed analysis or assign valid default Cloudinary/S3 reference
       if (uploadedFileUrl == null || uploadedFileUrl.isEmpty) {
-        uploadedFileUrl = _detailedAnalysis?['file_url'] ??
-            _detailedAnalysis?['document_url'] ??
-            _detailedAnalysis?['url'] ??
+        uploadedFileUrl = _current.detailedAnalysis?['file_url'] ??
+            _current.detailedAnalysis?['document_url'] ??
+            _current.detailedAnalysis?['url'] ??
             'https://res.cloudinary.com/corvus/raw/upload/v1/proposals/${teamId}_propuesta.pdf';
       }
 
@@ -726,11 +816,11 @@ class MyProjectProvider extends ChangeNotifier {
           'name': teamName,
           'members': memberNames,
         },
-        'file_name': _fileName ?? 'propuesta.pdf',
+        'file_name': _current.fileName ?? 'propuesta.pdf',
         if (uploadedFileUrl != null) 'file_url': uploadedFileUrl,
-        'file_size': _fileSize,
-        'ai_analysis': _detailedAnalysis,
-        if (_hasPassedDefense) 'defense_chat_history': _defenseChatHistory,
+        'file_size': _current.fileSize,
+        'ai_analysis': _current.detailedAnalysis,
+        if (_current.hasPassedDefense) 'defense_chat_history': _current.defenseChatHistory,
       };
 
       await _repository.sendFinalReview(teamId, enrichedProposalData);
@@ -740,10 +830,10 @@ class MyProjectProvider extends ChangeNotifier {
       );
       return true;
     } catch (e, st) {
-      _errorMessage = mapErrorToMessage(e, stackTrace: st);
+      _current.errorMessage = mapErrorToMessage(e, stackTrace: st);
       await _notificationService.showResultNotification(
         'Error al enviar',
-        _errorMessage ?? 'Hubo un error al enviar la revisión final.',
+        _current.errorMessage ?? 'Hubo un error al enviar la revisión final.',
       );
       notifyListeners();
       return false;
@@ -753,15 +843,15 @@ class MyProjectProvider extends ChangeNotifier {
   // ── Helpers ────────────────────────────────────────────────────────────
 
   void _applyConfig(ProjectAnalysisEntity config) {
-    _allowedExtensions = config.allowedExtensions;
-    _exclusionRules = config.exclusionRules;
-    _projectSections = config.projectSections;
-    _maxTeamMembers = config.maxTeamMembers;
+    _current.allowedExtensions = config.allowedExtensions;
+    _current.exclusionRules = config.exclusionRules;
+    _current.projectSections = config.projectSections;
+    _current.maxTeamMembers = config.maxTeamMembers;
   }
 
   @override
   void dispose() {
-    _statusTimer?.cancel();
+    _current.statusTimer?.cancel();
     super.dispose();
   }
 }

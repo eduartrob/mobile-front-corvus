@@ -70,7 +70,10 @@ class _ProjectLayoutState extends State<ProjectLayout> {
               projectId: widget.projectId,
               initialTabIndex: widget.teamTab,
             ),
-            MyProjectPage(key: ValueKey('myproject_${widget.projectId}')),
+            MyProjectPage(
+              key: ValueKey('myproject_${widget.projectId}'),
+              projectId: widget.projectId,
+            ),
             // const TeamChatPage(), // Oculto temporalmente
           ],
         ),

@@ -100,17 +100,31 @@ class ProjectProvider extends ChangeNotifier {
     required List<String> projectIds,
     required String token,
   }) async {
-    _setLoading(true);
+    // 1. ACTUALIZACIÓN OPTIMISTA INSTANTÁNEA (0 ms):
+    final toArchive = _myProjects.where((p) => projectIds.contains(p['id'])).toList();
+    _myProjects.removeWhere((p) => projectIds.contains(p['id']));
+    for (var p in toArchive) {
+      var copy = Map<String, dynamic>.from(p);
+      copy['is_archived'] = true;
+      if (!_archivedProjects.any((existing) => existing['id'] == copy['id'])) {
+        _archivedProjects.insert(0, copy);
+      }
+    }
+    notifyListeners(); // La UI cambia instantáneamente (0 segundos, igual que WhatsApp)
+
+    // 2. SINCRONIZACIÓN EN SEGUNDO PLANO SIN BLOQUEAR NI MOSTRAR SPINNER:
     try {
       await _repository.archiveProjects(projectIds: projectIds, token: token);
-      // Remove from active projects list locally
-      _myProjects.removeWhere((p) => projectIds.contains(p['id']));
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('cached_projects', json.encode(_myProjects));
       return true;
     } catch (e, st) {
+      // Rollback en caso de pérdida total de conectividad
+      _myProjects.addAll(toArchive);
+      _archivedProjects.removeWhere((p) => projectIds.contains(p['id']));
       _error = mapErrorToMessage(e, stackTrace: st);
+      notifyListeners();
       return false;
-    } finally {
-      _setLoading(false);
     }
   }
 
@@ -118,19 +132,33 @@ class ProjectProvider extends ChangeNotifier {
     required List<String> projectIds,
     required String token,
   }) async {
-    _setLoading(true);
+    // 1. ACTUALIZACIÓN OPTIMISTA INSTANTÁNEA (0 ms):
+    final toRestore = _archivedProjects.where((p) => projectIds.contains(p['id'])).toList();
+    _archivedProjects.removeWhere((p) => projectIds.contains(p['id']));
+    for (var p in toRestore) {
+      var copy = Map<String, dynamic>.from(p);
+      copy['is_archived'] = false;
+      if (!_myProjects.any((existing) => existing['id'] == copy['id'])) {
+        _myProjects.insert(0, copy);
+      }
+    }
+    notifyListeners(); // La UI cambia al segundo cero
+
+    // 2. SINCRONIZACIÓN SILENCIOSA EN SEGUNDO PLANO:
     try {
       await _repository.unarchiveProjects(projectIds: projectIds, token: token);
-      // Remove from archived projects list locally
-      _archivedProjects.removeWhere((p) => projectIds.contains(p['id']));
-      // Force a reload of the active projects so they appear there
-      await loadMyProjects(token, quiet: true);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('cached_projects', json.encode(_myProjects));
+      // Sincronizar con el servidor en silencio sin bloquear al usuario
+      loadMyProjects(token, quiet: true);
       return true;
     } catch (e, st) {
+      // Rollback si falla la red
+      _archivedProjects.addAll(toRestore);
+      _myProjects.removeWhere((p) => projectIds.contains(p['id']));
       _error = mapErrorToMessage(e, stackTrace: st);
+      notifyListeners();
       return false;
-    } finally {
-      _setLoading(false);
     }
   }
 

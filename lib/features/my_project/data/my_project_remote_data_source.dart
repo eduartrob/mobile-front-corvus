@@ -130,6 +130,23 @@ class MyProjectRemoteDataSource {
     return {'status': 'pending'};
   }
 
+  Future<Map<String, dynamic>> getProjectSummary(String teamId, {String? projectId}) async {
+    final uri = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.mobileProjectSummary(teamId)}')
+        .replace(queryParameters: projectId != null ? {'projectId': projectId} : null);
+
+    try {
+      final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
+      final response = await client.get(uri, headers: headers).timeout(const Duration(seconds: 10));
+      if (response.statusCode == 200) {
+        final body = json.decode(utf8.decode(response.bodyBytes));
+        if (body['status'] == 'success' && body['data'] != null) {
+          return Map<String, dynamic>.from(body['data']);
+        }
+      }
+    } catch (_) {}
+    return {};
+  }
+
   Future<void> cancelAnalysis(String teamId) async {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.integratorCancelAnalysis(teamId)}');
 

@@ -29,24 +29,27 @@ class _ArchivedProjectsPageState extends State<ArchivedProjectsPage> {
     });
   }
 
-  void _unarchiveSelectedProjects() async {
+  void _unarchiveSelectedProjects() {
     final token = context.read<AuthProvider>().currentUser?.token;
-    if (token == null) return;
+    if (token == null || _selectedProjectIds.isEmpty) return;
 
-    final success = await context.read<ProjectProvider>().unarchiveProjects(
-      projectIds: _selectedProjectIds.toList(),
+    final projectIdsToRestore = _selectedProjectIds.toList();
+
+    setState(() {
+      _selectedProjectIds.clear();
+      _isSelectionMode = false;
+    });
+
+    context.read<ProjectProvider>().unarchiveProjects(
+      projectIds: projectIdsToRestore,
       token: token,
-    );
-
-    if (success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Proyectos restaurados exitosamente')),
-      );
-      setState(() {
-        _selectedProjectIds.clear();
-        _isSelectionMode = false;
-      });
-    }
+    ).then((success) {
+      if (success && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Proyectos restaurados exitosamente')),
+        );
+      }
+    });
   }
   @override
   void initState() {

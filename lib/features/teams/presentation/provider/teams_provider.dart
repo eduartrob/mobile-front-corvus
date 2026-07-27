@@ -4,11 +4,23 @@ import 'package:mobile/features/teams/data/models/team_model.dart';
 import 'package:mobile/features/teams/data/models/solicitud_model.dart';
 import 'package:mobile/features/teams/domain/repositories/teams_repository.dart';
 import 'package:mobile/core/error/error_handler.dart';
-import 'package:mobile/core/error/app_exception.dart';
 
 enum SolicitudFilter {
   recibidas,
   enviadas,
+}
+
+class TeamProjectData {
+  TeamModel? myTeam;
+  Map<String, dynamic>? finalReviewStatus;
+  List<Student> suggestions = [];
+  List<Solicitud> requests = [];
+  bool isLoading = false;       // sugerencias / solicitudes / acciones generales
+  bool isLoadingTeam = false;   // SOLO carga del equipo principal
+  String? errorMessage;
+  SolicitudFilter selectedFilter = SolicitudFilter.recibidas;
+  int maxTeamMembers = 4;
+  bool hasLoadedOnce = false;
 }
 
 class TeamsProvider extends ChangeNotifier {
@@ -17,244 +29,309 @@ class TeamsProvider extends ChangeNotifier {
   TeamsProvider({required TeamsRepository repository})
       : _repository = repository;
 
-  TeamModel? _myTeam;
-  Map<String, dynamic>? _finalReviewStatus;
-  List<Student> _suggestions = [];
-  List<Solicitud> _requests = [];
-  bool _isLoading = false;
-  String? _errorMessage;
-  SolicitudFilter _selectedFilter = SolicitudFilter.recibidas;
+  final Map<String, TeamProjectData> _teamCache = {};
   String? _activeProjectId; // project_id activo para todas las operaciones
 
-  TeamModel? get myTeam => _myTeam;
-  Map<String, dynamic>? get finalReviewStatus => _finalReviewStatus;
-  List<Student> get suggestions => _suggestions;
-  List<Solicitud> get requests => _requests;
-  bool get isLoading => _isLoading;
-  String? get errorMessage => _errorMessage;
-  SolicitudFilter get selectedFilter => _selectedFilter;
+  TeamProjectData get _current {
+    if (_activeProjectId == null) return TeamProjectData();
+    return _teamCache[_activeProjectId!] ??= TeamProjectData();
+  }
+
+  TeamModel? get myTeam => _current.myTeam;
+  Map<String, dynamic>? get finalReviewStatus => _current.finalReviewStatus;
+  List<Student> get suggestions => _current.suggestions;
+  List<Solicitud> get requests => _current.requests;
+  bool get isLoading => _current.isLoading;
+  bool get isLoadingTeam => _current.isLoadingTeam;
+  String? get errorMessage => _current.errorMessage;
+  SolicitudFilter get selectedFilter => _current.selectedFilter;
   String? get activeProjectId => _activeProjectId;
+  bool get hasLoadedOnce => _current.hasLoadedOnce;
 
   List<Solicitud> get filteredSolicitudes {
-    final targetState = _selectedFilter == SolicitudFilter.recibidas
+    final targetState = _current.selectedFilter == SolicitudFilter.recibidas
         ? SolicitudState.recibida
         : SolicitudState.enviada;
-    return _requests.where((s) => s.state == targetState).toList();
+    return _current.requests.where((s) => s.state == targetState).toList();
   }
 
   void clear() {
-    _myTeam = null;
-    _finalReviewStatus = null;
-    _suggestions = [];
-    _requests = [];
+    _current.myTeam = null;
+    _current.finalReviewStatus = null;
+    _current.suggestions = [];
+    _current.requests = [];
     _activeProjectId = null;
-    _isLoading = false;
-    _errorMessage = null;
-    _selectedFilter = SolicitudFilter.recibidas;
+    _current.isLoading = false;
+    _current.errorMessage = null;
+    _current.selectedFilter = SolicitudFilter.recibidas;
     notifyListeners();
   }
 
   void selectFilter(SolicitudFilter filter) {
-    if (_selectedFilter != filter) {
-      _selectedFilter = filter;
+    if (_current.selectedFilter != filter) {
+      _current.selectedFilter = filter;
       notifyListeners();
       fetchRequests();
     }
   }
 
-  int _maxTeamMembers = 4;
-  int get maxTeamMembers => _myTeam?.maxMembers ?? _maxTeamMembers;
+  int get maxTeamMembers => _current.myTeam?.maxMembers ?? _current.maxTeamMembers;
 
-  Future<void> fetchMyTeam({String? projectId}) async {
-    _isLoading = true;
-    _errorMessage = null;
-    _myTeam = null;
-    _finalReviewStatus = null;
-    // Use microtask to avoid calling notifyListeners during Flutter build phase
-    Future.microtask(() => notifyListeners());
+  Future<void> fetchMyTeam({String? projectId, bool forceRefresh = false}) async {
+    final bool switchedContext = _activeProjectId != projectId;
+
+    if (projectId != null) {
+      _activeProjectId = projectId;
+    }
+
+    // If we already have real data for this project and it's not a forced refresh,
+    // show cached data immediately and skip the loading spinner.
+    if (_current.hasLoadedOnce && !forceRefresh) {
+      if (switchedContext) notifyListeners();
+      return;
+    }
+
+    // Only show loading spinner on first load for this project
+    if (!_current.hasLoadedOnce) {
+      _current.isLoadingTeam = true;
+      if (switchedContext) {
+        notifyListeners();
+      } else {
+        Future.microtask(() => notifyListeners());
+      }
+    }
+
+    _current.errorMessage = null;
 
     try {
-      _myTeam = await _repository.getMyTeam(projectId: projectId);
-      String? resolvedProjectId = projectId;
+      // Lanzar fetchConfig en paralelo con getMyTeam si ya tenemos projectId
+      Future<Map<String, dynamic>> configFuture = projectId != null
+          ? _repository.fetchConfig(projectId: projectId).catchError((_) => <String, dynamic>{})
+          : Future.value(<String, dynamic>{});
 
-      if (_myTeam != null) {
-        _finalReviewStatus =
-            await _repository.getFinalReviewStatus(_myTeam!.id);
-        // Prefer the explicit project_id passed; fallback to what's in the team object
-        resolvedProjectId ??= _myTeam!.project?['id']?.toString() ??
-            _myTeam!.project?['id_proyecto']?.toString();
-      } else {
-        _finalReviewStatus = null;
-        if (resolvedProjectId == null) {
+      final fetchedTeam = await _repository.getMyTeam(projectId: projectId);
+      _current.myTeam = fetchedTeam;
+      if (fetchedTeam != null) {
+        notifyListeners();
+      }
+
+      // Use resolvedProjectId only if no explicit projectId was given
+      // This keeps the cache key consistent with what was passed in
+      String? resolvedProjectId = projectId;
+      if (resolvedProjectId == null) {
+        if (_current.myTeam != null) {
+          resolvedProjectId = _current.myTeam!.project?['id']?.toString() ??
+              _current.myTeam!.project?['id_proyecto']?.toString();
+        } else {
           final projectData = await _repository.fetchProjectId();
           resolvedProjectId = projectData?['projectId']?.toString();
         }
-      }
-
-      // Store active project ID for use in other operations
-      if (resolvedProjectId != null) {
-        _activeProjectId = resolvedProjectId;
-      }
-
-      // Fetch config to get maxTeamMembers using projectId
-      if (resolvedProjectId != null) {
-        final config = await _repository.fetchConfig(projectId: resolvedProjectId);
-        if (config['max_team_members'] != null) {
-          _maxTeamMembers =
-              int.tryParse(config['max_team_members'].toString()) ?? 4;
+        // Only update _activeProjectId when we didn't have one to begin with
+        if (resolvedProjectId != null) {
+          _activeProjectId = resolvedProjectId;
+          configFuture = _repository.fetchConfig(projectId: resolvedProjectId).catchError((_) => <String, dynamic>{});
         }
       }
+
+      Future<Map<String, dynamic>?> reviewStatusFuture = _current.myTeam != null
+          ? _repository.getFinalReviewStatus(_current.myTeam!.id).catchError((_) => null)
+          : Future.value(null);
+
+      final results = await Future.wait([reviewStatusFuture, configFuture]);
+      _current.finalReviewStatus = results[0];
+      final config = results[1] as Map<String, dynamic>;
+
+      if (config.isNotEmpty && config['max_team_members'] != null) {
+        _current.maxTeamMembers =
+            int.tryParse(config['max_team_members'].toString()) ?? 4;
+      }
+
+      _current.hasLoadedOnce = true;
     } catch (e, st) {
-      _errorMessage = mapErrorToMessage(e, stackTrace: st);
+      _current.errorMessage = mapErrorToMessage(e, stackTrace: st);
     } finally {
-      _isLoading = false;
+      _current.isLoadingTeam = false;
       notifyListeners();
+    }
+  }
+
+  TeamModel? getTeamForProject(String pid) => _teamCache[pid]?.myTeam;
+
+  Future<void> silentWarmUp(String pid) async {
+    final data = _teamCache.putIfAbsent(pid, () => TeamProjectData());
+    if (data.hasLoadedOnce || data.isLoadingTeam) return;
+
+    data.isLoadingTeam = true;
+    try {
+      final fetchedTeam = await _repository.getMyTeam(projectId: pid);
+      data.myTeam = fetchedTeam;
+
+      Future<Map<String, dynamic>?> reviewStatusFuture = fetchedTeam != null
+          ? _repository.getFinalReviewStatus(fetchedTeam.id).catchError((_) => null)
+          : Future.value(null);
+
+      Future<Map<String, dynamic>> configFuture = _repository
+          .fetchConfig(projectId: pid)
+          .catchError((_) => <String, dynamic>{});
+
+      final results = await Future.wait([reviewStatusFuture, configFuture]);
+      data.finalReviewStatus = results[0] as Map<String, dynamic>?;
+      final config = results[1] as Map<String, dynamic>;
+
+      if (config.isNotEmpty && config['max_team_members'] != null) {
+        data.maxTeamMembers = int.tryParse(config['max_team_members'].toString()) ?? 4;
+      }
+      data.hasLoadedOnce = true;
+    } catch (_) {
+      // Ignore in silent warmup
+    } finally {
+      data.isLoadingTeam = false;
     }
   }
 
   Future<void> updateTeamDetails(
       String name, String description, List<SocialLinkModel> socialLinks) async {
-    _isLoading = true;
-    _errorMessage = null;
+    _current.isLoading = true;
+    _current.errorMessage = null;
     notifyListeners();
 
     try {
-      _myTeam = await _repository.updateTeam(
+      _current.myTeam = await _repository.updateTeam(
         name,
         description,
         socialLinks,
         projectId: _activeProjectId, // pasar siempre el projectId activo
       );
     } catch (e, st) {
-      _errorMessage = mapErrorToMessage(e, stackTrace: st);
+      _current.errorMessage = mapErrorToMessage(e, stackTrace: st);
       rethrow;
     } finally {
-      _isLoading = false;
+      _current.isLoading = false;
       notifyListeners();
     }
   }
 
   Future<void> leaveTeam() async {
-    _isLoading = true;
-    _errorMessage = null;
+    _current.isLoading = true;
+    _current.errorMessage = null;
     notifyListeners();
 
     try {
       await _repository.leaveTeam();
-      _myTeam = null;
+      _current.myTeam = null;
       fetchSuggestions(projectId: _activeProjectId);
     } catch (e, st) {
-      _errorMessage = mapErrorToMessage(e, stackTrace: st);
+      _current.errorMessage = mapErrorToMessage(e, stackTrace: st);
       rethrow;
     } finally {
-      _isLoading = false;
+      _current.isLoading = false;
       notifyListeners();
     }
   }
 
   Future<void> removeMember(String memberId) async {
-    _isLoading = true;
-    _errorMessage = null;
+    _current.isLoading = true;
+    _current.errorMessage = null;
     notifyListeners();
 
     try {
       await _repository.removeMember(memberId);
-      if (_myTeam != null) {
+      if (_current.myTeam != null) {
         final updatedMembers =
-            _myTeam!.members.where((m) => m.id != memberId).toList();
-        _myTeam = TeamModel(
-          id: _myTeam!.id,
-          name: _myTeam!.name,
-          description: _myTeam!.description,
+            _current.myTeam!.members.where((m) => m.id != memberId).toList();
+        _current.myTeam = TeamModel(
+          id: _current.myTeam!.id,
+          name: _current.myTeam!.name,
+          description: _current.myTeam!.description,
           members: updatedMembers,
-          socialLinks: _myTeam!.socialLinks,
-          project: _myTeam!.project,
+          socialLinks: _current.myTeam!.socialLinks,
+          project: _current.myTeam!.project,
         );
       }
       fetchSuggestions(projectId: _activeProjectId);
     } catch (e, st) {
-      _errorMessage = mapErrorToMessage(e, stackTrace: st);
+      _current.errorMessage = mapErrorToMessage(e, stackTrace: st);
       rethrow;
     } finally {
-      _isLoading = false;
+      _current.isLoading = false;
       notifyListeners();
     }
   }
 
   Future<void> fetchSuggestions(
       {String? skill, String? search, bool showAll = false, String? projectId}) async {
-    _isLoading = true;
-    _errorMessage = null;
+    _current.isLoading = true;
+    _current.errorMessage = null;
     notifyListeners();
 
     try {
       final results = await _repository.getSuggestions(
           skill: skill, search: search, showAll: showAll, projectId: projectId);
-      _suggestions = results.where((s) => s.id != null).toList();
+      _current.suggestions = results.where((s) => s.id != null).toList();
     } catch (e, st) {
-      _errorMessage = mapErrorToMessage(e, stackTrace: st);
+      _current.errorMessage = mapErrorToMessage(e, stackTrace: st);
     } finally {
-      _isLoading = false;
+      _current.isLoading = false;
       notifyListeners();
     }
   }
 
   Future<void> fetchRequests({String? projectId}) async {
-    _isLoading = true;
-    _errorMessage = null;
+    _current.isLoading = true;
+    _current.errorMessage = null;
     notifyListeners();
 
     try {
-      final filterStr = _selectedFilter == SolicitudFilter.recibidas
+      final filterStr = _current.selectedFilter == SolicitudFilter.recibidas
           ? 'recibidas'
           : 'enviadas';
-      _requests = await _repository.getRequests(filterStr, projectId: projectId);
+      _current.requests = await _repository.getRequests(filterStr, projectId: projectId);
     } catch (e, st) {
-      _errorMessage = mapErrorToMessage(e, stackTrace: st);
+      _current.errorMessage = mapErrorToMessage(e, stackTrace: st);
     } finally {
-      _isLoading = false;
+      _current.isLoading = false;
       notifyListeners();
     }
   }
 
   Future<void> sendInvitation(String studentId) async {
-    _isLoading = true;
-    _errorMessage = null;
+    _current.isLoading = true;
+    _current.errorMessage = null;
     notifyListeners();
 
     try {
       await _repository.sendInvitation(studentId, projectId: _activeProjectId);
-      _suggestions.removeWhere((student) => student.id == studentId);
+      _current.suggestions.removeWhere((student) => student.id == studentId);
       fetchRequests(projectId: _activeProjectId);
     } catch (e, st) {
-      _errorMessage = mapErrorToMessage(e, stackTrace: st);
+      _current.errorMessage = mapErrorToMessage(e, stackTrace: st);
       rethrow;
     } finally {
-      _isLoading = false;
+      _current.isLoading = false;
       notifyListeners();
     }
   }
 
   Future<void> cancelRequest(String requestId) async {
-    _isLoading = true;
-    _errorMessage = null;
+    _current.isLoading = true;
+    _current.errorMessage = null;
     notifyListeners();
 
     try {
       await _repository.cancelRequest(requestId);
-      _requests.removeWhere((r) => r.id == requestId);
+      _current.requests.removeWhere((r) => r.id == requestId);
     } catch (e, st) {
-      _errorMessage = mapErrorToMessage(e, stackTrace: st);
+      _current.errorMessage = mapErrorToMessage(e, stackTrace: st);
       rethrow;
     } finally {
-      _isLoading = false;
+      _current.isLoading = false;
       notifyListeners();
     }
   }
 
   Future<void> acceptRequest(String requestId) async {
-    _isLoading = true;
-    _errorMessage = null;
+    _current.isLoading = true;
+    _current.errorMessage = null;
     notifyListeners();
 
     try {
@@ -263,10 +340,10 @@ class TeamsProvider extends ChangeNotifier {
       await fetchMyTeam(projectId: _activeProjectId);
       fetchRequests(projectId: _activeProjectId);
     } catch (e, st) {
-      _errorMessage = mapErrorToMessage(e, stackTrace: st);
+      _current.errorMessage = mapErrorToMessage(e, stackTrace: st);
       rethrow;
     } finally {
-      _isLoading = false;
+      _current.isLoading = false;
       notifyListeners();
     }
   }

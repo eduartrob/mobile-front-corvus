@@ -63,7 +63,9 @@ class EquipoTab extends StatelessWidget {
 
     return Consumer<TeamsProvider>(
       builder: (context, teamsProvider, child) {
-        if (teamsProvider.isLoading) {
+        // Show spinner ONLY when team itself is loading (not suggestions/requests)
+        // and only on first-ever load for this project
+        if (teamsProvider.isLoadingTeam || !teamsProvider.hasLoadedOnce) {
           return const Center(
             child: Padding(
               padding: EdgeInsets.all(32.0),

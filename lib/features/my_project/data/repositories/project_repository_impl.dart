@@ -74,6 +74,10 @@ class ProjectRepositoryImpl implements ProjectRepository {
       _remoteDataSource.checkDraft(teamId);
 
   @override
+  Future<Map<String, dynamic>> getProjectSummary(String teamId, {String? projectId}) =>
+      _remoteDataSource.getProjectSummary(teamId, projectId: projectId);
+
+  @override
   Future<Map<String, dynamic>> preValidateProposal(
     String filePath,
     String teamId,

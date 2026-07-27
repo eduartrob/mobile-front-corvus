@@ -26,23 +26,25 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 
 class MyProjectPage extends StatelessWidget {
-  const MyProjectPage({super.key});
+  final String? projectId;
+  const MyProjectPage({super.key, this.projectId});
 
   @override
   Widget build(BuildContext context) {
-    return const _MyProjectPageContent();
+    return _MyProjectPageContent(projectId: projectId);
   }
 }
 
 class _MyProjectPageContent extends StatefulWidget {
-  const _MyProjectPageContent();
+  final String? projectId;
+  const _MyProjectPageContent({this.projectId});
 
   @override
   State<_MyProjectPageContent> createState() => _MyProjectPageContentState();
 }
 
 class _MyProjectPageContentState extends State<_MyProjectPageContent> with WidgetsBindingObserver {
-  bool _initCalled = false;
+  String? _currentProjectId;
 
   @override
   void initState() {
@@ -60,22 +62,26 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
   }
 
   void _tryInit() {
-    if (_initCalled) return;
-
     final provider = context.read<MyProjectProvider>();
     final authProvider = context.read<AuthProvider>();
     final teamsProvider = context.read<TeamsProvider>();
 
     final userId = authProvider.currentUser?.id;
-    final myTeam = teamsProvider.myTeam;
+    final String? projectId = widget.projectId ?? teamsProvider.activeProjectId ??
+        teamsProvider.myTeam?.project?['id']?.toString() ??
+        teamsProvider.myTeam?.project?['id_proyecto']?.toString();
+
+    if (userId == null || projectId == null) return;
+
+    final myTeam = teamsProvider.getTeamForProject(projectId) ?? teamsProvider.myTeam;
     final teamId = myTeam?.id;
 
-    if (userId == null || teamId == null) return; // Not ready yet
+    if (teamId == null) return; // Not ready yet
 
-    _initCalled = true;
-
-    String? projectId = myTeam?.project?['id']?.toString()
-        ?? myTeam?.project?['id_proyecto']?.toString();
+    // Si ya inicializamos este proyecto en particular, no lo volvemos a hacer
+    if (_currentProjectId == projectId && projectId != null) return;
+    
+    _currentProjectId = projectId;
 
     final universityId = authProvider.currentUser?.universityId;
     final careerId = authProvider.currentUser?.careerId;
@@ -178,10 +184,11 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
               }
 
               final teamsProvider = context.watch<TeamsProvider>();
-              final currentTeamId = teamsProvider.myTeam?.id;
-              final activeProjectId = teamsProvider.activeProjectId ??
+              final String? activeProjectId = widget.projectId ?? teamsProvider.activeProjectId ??
                   teamsProvider.myTeam?.project?['id']?.toString() ??
                   teamsProvider.myTeam?.project?['id_proyecto']?.toString();
+              final currentTeam = (activeProjectId != null ? teamsProvider.getTeamForProject(activeProjectId) : null) ?? teamsProvider.myTeam;
+              final currentTeamId = currentTeam?.id;
 
               final myProjectProvider = context.read<MyProjectProvider>();
               // Si acabamos de cargar el equipo pero el provider sigue initial, o si cambió el proyecto, iniciarlo
@@ -219,6 +226,12 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
                     ),
                   ),
                 );
+              }
+
+              // Show skeleton ONLY if this specific project's data has never been loaded
+              final myProjectProviderForCheck = context.watch<MyProjectProvider>();
+              if (!myProjectProviderForCheck.hasLoadedOnce && currentTeamId != null) {
+                return const _ProjectLoadingSkeleton();
               }
 
               return SingleChildScrollView(

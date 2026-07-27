@@ -39,24 +39,27 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
     });
   }
 
-  void _archiveSelectedProjects() async {
+  void _archiveSelectedProjects() {
     final token = context.read<AuthProvider>().currentUser?.token;
     if (token == null || _selectedProjects.isEmpty) return;
 
-    final success = await context.read<ProjectProvider>().archiveProjects(
-      projectIds: _selectedProjects.toList(),
-      token: token,
-    );
+    final projectIdsToArchive = _selectedProjects.toList();
 
-    if (success && mounted) {
-      setState(() {
-        _selectedProjects.clear();
-        _isSelectionMode = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Proyectos archivados exitosamente')),
-      );
-    }
+    setState(() {
+      _selectedProjects.clear();
+      _isSelectionMode = false;
+    });
+
+    context.read<ProjectProvider>().archiveProjects(
+      projectIds: projectIdsToArchive,
+      token: token,
+    ).then((success) {
+      if (success && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Proyectos archivados exitosamente')),
+        );
+      }
+    });
   }
 
   @override
