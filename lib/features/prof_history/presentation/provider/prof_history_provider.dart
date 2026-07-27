@@ -1,49 +1,47 @@
 import 'package:mobile/core/network/api_endpoints.dart';
 import 'dart:convert';
-import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/api_config.dart';
 import 'package:mobile/features/prof_history/data/models/activity_log_model.dart';
 import 'package:mobile/core/error/error_handler.dart';
-import 'package:mobile/core/error/app_exception.dart';
+import 'package:mobile/core/network/auth_interceptor_client.dart';
+import 'package:mobile/core/di/di.dart';
 
-class ProfHistoryProvider extends ChangeNotifier {
-  final http.Client client;
+// Definición manual tradicional del NotifierProvider de Riverpod
+final profHistoryProvider = NotifierProvider<ProfHistoryNotifier, AsyncValue<List<ActivityLogModel>>>(() {
+  return ProfHistoryNotifier();
+});
 
-  ProfHistoryProvider({required this.client});
+class ProfHistoryNotifier extends Notifier<AsyncValue<List<ActivityLogModel>>> {
+  late final http.Client _client;
 
-  List<ActivityLogModel> _history = [];
-  List<ActivityLogModel> get history => _history;
-
-  bool _isLoading = false;
-  bool get isLoading => _isLoading;
-
-  String? _errorMessage;
-  String? get errorMessage => _errorMessage;
+  @override
+  AsyncValue<List<ActivityLogModel>> build() {
+    _client = sl<AuthInterceptorClient>();
+    return const AsyncValue.loading();
+  }
 
   Future<void> fetchHistory() async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
+    state = const AsyncValue.loading();
 
     try {
       final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.professorsHistory}');
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
 
-      final response = await client.get(url, headers: headers).timeout(const Duration(seconds: 15));
+      final response = await _client.get(url, headers: headers).timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 200) {
         final data = json.decode(utf8.decode(response.bodyBytes));
         final List<dynamic> logs = data['history'] ?? [];
-        _history = logs.map((json) => ActivityLogModel.fromJson(json)).toList();
+        final historyList = logs.map((json) => ActivityLogModel.fromJson(json)).toList();
+        state = AsyncValue.data(historyList);
       } else {
         throw Exception('Failed to load history: ${response.statusCode}');
       }
     } catch (e, st) {
-      _errorMessage = mapErrorToMessage(e, stackTrace: st);
-    } finally {
-      _isLoading = false;
-      notifyListeners();
+      final errorMessage = mapErrorToMessage(e, stackTrace: st);
+      state = AsyncValue.error(errorMessage, st);
     }
   }
 }

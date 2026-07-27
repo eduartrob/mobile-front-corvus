@@ -153,12 +153,12 @@ class _AuthHeader extends StatelessWidget {
         const SizedBox(height: 16),
         Text(
           'Corvus',
-          style: TextStyle(
-            fontSize: 34,
-            fontWeight: FontWeight.w800,
-            color: colors.onSurface,
-            letterSpacing: -1.2,
-          ),
+          style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                fontSize: 34,
+                fontWeight: FontWeight.w800,
+                color: colors.onSurface,
+                letterSpacing: -1.2,
+              ),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 6),
@@ -196,12 +196,13 @@ class _AuthCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return RepaintBoundary(
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(28),
         decoration: BoxDecoration(
-          color: isDark ? colors.surfaceContainerLow : Colors.white,
+          color: isDark ? colors.surfaceContainerLow : colors.surface,
           borderRadius: BorderRadius.circular(28),
           border: Border.all(
             color: colors.outlineVariant.withValues(alpha: 0.4),
@@ -221,7 +222,7 @@ class _AuthCard extends StatelessWidget {
           children: [
             Text(
               title,
-              style: TextStyle(
+              style: theme.textTheme.headlineMedium?.copyWith(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: colors.onSurface,
@@ -235,7 +236,7 @@ class _AuthCard extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 subtitle!,
-                style: TextStyle(
+                style: theme.textTheme.bodyMedium?.copyWith(
                   fontSize: 14,
                   color: colors.onSurfaceVariant,
                   height: 1.4,

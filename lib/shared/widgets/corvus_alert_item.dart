@@ -22,10 +22,10 @@ class CorvusAlertItem extends StatelessWidget {
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(
-              fontSize: 14,
-              height: 1.4,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  height: 1.4,
+                  fontSize: 14,
+                ),
           ),
         ),
       ],

@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:mobile/core/network/api_config.dart';
 import 'package:mobile/core/network/auth_interceptor_client.dart';
 import 'package:mobile/features/prof_reviews/data/models/final_review_model.dart';
-import 'package:mobile/features/prof_reviews/data/prof_reviews_remote_data_source.dart';
+import 'package:mobile/features/prof_reviews/data/data_source/prof_reviews_remote_data_source.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/core/error/error_handler.dart';
 import 'package:mobile/core/error/app_exception.dart';

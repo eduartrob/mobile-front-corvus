@@ -53,8 +53,9 @@ class _AuthCardState extends State<AuthCard>
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
 
     final padding = widget.padding;
     final title = widget.title;
@@ -70,45 +71,45 @@ class _AuthCardState extends State<AuthCard>
             width: double.infinity,
             padding: padding,
             decoration: BoxDecoration(
-          color: isDark ? colors.surfaceContainerLow : Colors.white,
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(
-            color: colors.outlineVariant.withValues(alpha: 0.4),
-            width: 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: colors.shadow.withValues(alpha: isDark ? 0.15 : 0.06),
-              blurRadius: 32,
-              spreadRadius: -4,
-              offset: const Offset(0, 12),
+              color: isDark ? colors.surfaceContainerLow : colors.surface,
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(
+                color: colors.outlineVariant.withValues(alpha: 0.4),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: colors.shadow.withValues(alpha: isDark ? 0.15 : 0.06),
+                  blurRadius: 32,
+                  spreadRadius: -4,
+                  offset: const Offset(0, 12),
+                ),
+              ],
             ),
-          ],
-        ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
                   title,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: colors.onSurface,
-              ),
-              textAlign: TextAlign.center,
-            ),
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: colors.onSurface,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
                 if (subtitle != null) ...[
                   const SizedBox(height: 8),
                   Text(
                     subtitle,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: colors.onSurfaceVariant,
-                  height: 1.4,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontSize: 14,
+                      color: colors.onSurfaceVariant,
+                      height: 1.4,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
                 const SizedBox(height: 28),
                 ...children,
               ],

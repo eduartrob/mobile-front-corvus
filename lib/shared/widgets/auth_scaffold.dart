@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -121,13 +120,13 @@ class AuthScaffold extends StatelessWidget {
                 children: [
                   Text(
                     'Corvus',
-                    style: GoogleFonts.inter(
-                      fontSize: 34,
-                      fontWeight: FontWeight.w500,
-                      color: colors.onSurface,
-                      letterSpacing: -0.5,
-                      height: 1.1,
-                    ),
+                    style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                          fontSize: 34,
+                          fontWeight: FontWeight.w500,
+                          color: colors.onSurface,
+                          letterSpacing: -0.5,
+                          height: 1.1,
+                        ),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -155,7 +154,7 @@ class AuthScaffold extends StatelessWidget {
                                     decoration: BoxDecoration(
                                       color: isDark
                                           ? colors.surfaceContainerLow
-                                          : Colors.white,
+                                          : colors.surface,
                                       borderRadius: const BorderRadius.only(
                                         topLeft: Radius.circular(32),
                                         topRight: Radius.circular(32),
@@ -183,7 +182,7 @@ class AuthScaffold extends StatelessWidget {
                                             shape: BoxShape.circle,
                                             color: isDark
                                                 ? colors.surfaceContainerHighest
-                                                : Colors.white,
+                                                : colors.surface,
                                             border: Border.all(
                                               color: colors.outlineVariant.withValues(alpha: 0.3),
                                               width: 1.5,
@@ -364,11 +363,11 @@ class AuthDivider extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Text(
             label,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: colors.onSurfaceVariant,
-            ),
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: colors.onSurfaceVariant,
+                ),
           ),
         ),
         Expanded(
@@ -408,10 +407,10 @@ class AuthFooter extends StatelessWidget {
             children: [
               Text(
                 primaryText!,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: colors.onSurfaceVariant,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontSize: 14,
+                      color: colors.onSurfaceVariant,
+                    ),
                 textAlign: TextAlign.center,
               ),
               TextButton(
@@ -423,11 +422,11 @@ class AuthFooter extends StatelessWidget {
                 ),
                 child: Text(
                   actionText!,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: colors.primary,
-                  ),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: colors.primary,
+                      ),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -486,12 +485,12 @@ class _FooterLink extends StatelessWidget {
       borderRadius: BorderRadius.circular(4),
       child: Text(
         label,
-        style: TextStyle(
-          fontSize: 12,
-          color: colors.onSurfaceVariant,
-          decoration: TextDecoration.underline,
-          decorationColor: colors.outline,
-        ),
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              fontSize: 12,
+              color: colors.onSurfaceVariant,
+              decoration: TextDecoration.underline,
+              decorationColor: colors.outline,
+            ),
       ),
     );
   }

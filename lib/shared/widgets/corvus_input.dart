@@ -48,8 +48,9 @@ class _InputState extends State<Input> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
 
     final bool hasError = widget.errorText != null && widget.errorText!.isNotEmpty;
 
@@ -58,14 +59,14 @@ class _InputState extends State<Input> {
       children: [
         Container(
           decoration: BoxDecoration(
-            color: isDark ? colors.surfaceContainer : Colors.white,
+            color: isDark ? colors.surfaceContainer : colors.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: hasError
                   ? colors.error
                   : _focusNode.hasFocus 
                       ? colors.primary 
-                      : (isDark ? colors.outlineVariant.withValues(alpha: 0.3) : const Color(0xFFE2E8F0)),
+                      : (isDark ? colors.outlineVariant.withValues(alpha: 0.3) : colors.outlineVariant),
               width: _focusNode.hasFocus || hasError ? 1.5 : 1.0,
             ),
           ),
@@ -75,11 +76,11 @@ class _InputState extends State<Input> {
             obscureText: _isObscure,
             keyboardType: widget.keyboardType,
             inputFormatters: widget.inputFormatters,
-            style: TextStyle(color: colors.onSurface),
+            style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurface),
             decoration: InputDecoration(
               prefixIcon: Icon(widget.icon, color: widget.iconColor ?? colors.primary, size: 20),
               hintText: widget.hint,
-              hintStyle: TextStyle(color: colors.onSurfaceVariant.withValues(alpha: 0.6)),
+              hintStyle: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurfaceVariant.withValues(alpha: 0.6)),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(vertical: 14),
               suffixIcon: widget.obscure 
@@ -104,7 +105,7 @@ class _InputState extends State<Input> {
             padding: const EdgeInsets.only(top: 4, left: 12),
             child: Text(
               widget.errorText!,
-              style: TextStyle(color: colors.error, fontSize: 12),
+              style: theme.textTheme.bodySmall?.copyWith(color: colors.error, fontSize: 12),
             ),
           ),
       ],

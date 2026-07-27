@@ -62,7 +62,6 @@ import 'package:mobile/features/profile/presentation/provider/activity_history_p
 import 'package:mobile/features/profile/data/repositories/saved_projects_repository.dart';
 import 'package:mobile/features/profile/presentation/provider/saved_projects_provider.dart';
 import 'package:mobile/features/prof_reviews/presentation/provider/prof_reviews_provider.dart';
-import 'package:mobile/features/prof_history/presentation/provider/prof_history_provider.dart';
 import 'package:mobile/features/student_directory/presentation/provider/clustering_provider.dart';
 import 'package:mobile/core/theme/theme_provider.dart';
 
@@ -203,7 +202,6 @@ void setupDependencies() {
   sl.registerFactory(() => NotificationsProvider());
   sl.registerFactory(() => ProfileProvider());
   sl.registerFactory(() => ProfReviewsProvider());
-  sl.registerFactory(() => ProfHistoryProvider(client: sl<AuthInterceptorClient>()));
   sl.registerFactory(() => ActivityHistoryProvider(client: sl<AuthInterceptorClient>()));
   sl.registerFactory(() => ClusteringProvider());
   sl.registerFactory(() => RegistrationProvider());

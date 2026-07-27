@@ -18,7 +18,8 @@ class CorvusMetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -40,7 +41,7 @@ class CorvusMetricCard extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: TextStyle(
+                style: theme.textTheme.labelSmall?.copyWith(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.2,
@@ -56,7 +57,7 @@ class CorvusMetricCard extends StatelessWidget {
             ? const CorvusSkeleton(height: 28, width: 80)
             : Text(
                 value,
-                style: TextStyle(
+                style: theme.textTheme.headlineMedium?.copyWith(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: colorScheme.primary,

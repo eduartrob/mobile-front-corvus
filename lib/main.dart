@@ -8,6 +8,7 @@ import 'package:mobile/core/services/notification_navigation_service.dart';
 
 import 'package:mobile/core/di/di.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' show ProviderScope;
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mobile/features/prof_profile/presentation/provider/linked_folders_provider.dart';
 import 'package:mobile/features/inspiration/presentation/provider/inspiration_provider.dart';
@@ -28,7 +29,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile/features/profile/presentation/provider/saved_projects_provider.dart';
 import 'package:mobile/features/prof_reviews/presentation/provider/prof_reviews_provider.dart';
 import 'package:mobile/features/prof_dash/presentation/provider/prof_dash_provider.dart';
-import 'package:mobile/features/prof_history/presentation/provider/prof_history_provider.dart';
 import 'package:mobile/features/profile/presentation/provider/activity_history_provider.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
 
@@ -82,29 +82,30 @@ void main() async {
   ]);
 
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider.value(value: authProvider),
-        ChangeNotifierProvider(create: (_) => sl<LinkedFoldersProvider>()),
-        ChangeNotifierProvider(create: (_) => sl<MyProjectProvider>()),
-        ChangeNotifierProvider.value(value: themeProvider),
-        ChangeNotifierProvider(create: (_) => sl<InspirationProvider>()),
-        ChangeNotifierProvider(create: (_) => sl<ProfRulesProvider>()),
-        ChangeNotifierProvider(create: (_) => sl<TeamsProvider>()),
-        ChangeNotifierProvider(create: (_) => sl<ClusteringProvider>()),
-        ChangeNotifierProvider(create: (_) => sl<NotificationsProvider>()),
-        ChangeNotifierProvider(create: (_) => sl<ProfileProvider>()),
-        ChangeNotifierProvider(create: (_) => sl<RegistrationProvider>()),
-        ChangeNotifierProvider(create: (_) => sl<SavedProjectsProvider>()),
-        ChangeNotifierProvider(create: (_) => sl<ProfReviewsProvider>()),
-        ChangeNotifierProvider(create: (_) => sl<ProfHistoryProvider>()),
-        ChangeNotifierProvider(create: (_) => sl<ActivityHistoryProvider>()),
-        ChangeNotifierProvider(create: (_) => sl<ProfDashboardProvider>()),
-        ChangeNotifierProvider(create: (_) => sl<ProjectProvider>()),
-      ],
-      child: AppBootstrap(
-        authProvider: authProvider,
-        child: const MyApp(),
+    ProviderScope(
+      child: MultiProvider(
+        providers: [
+          ChangeNotifierProvider.value(value: authProvider),
+          ChangeNotifierProvider(create: (_) => sl<LinkedFoldersProvider>()),
+          ChangeNotifierProvider(create: (_) => sl<MyProjectProvider>()),
+          ChangeNotifierProvider.value(value: themeProvider),
+          ChangeNotifierProvider(create: (_) => sl<InspirationProvider>()),
+          ChangeNotifierProvider(create: (_) => sl<ProfRulesProvider>()),
+          ChangeNotifierProvider(create: (_) => sl<TeamsProvider>()),
+          ChangeNotifierProvider(create: (_) => sl<ClusteringProvider>()),
+          ChangeNotifierProvider(create: (_) => sl<NotificationsProvider>()),
+          ChangeNotifierProvider(create: (_) => sl<ProfileProvider>()),
+          ChangeNotifierProvider(create: (_) => sl<RegistrationProvider>()),
+          ChangeNotifierProvider(create: (_) => sl<SavedProjectsProvider>()),
+          ChangeNotifierProvider(create: (_) => sl<ProfReviewsProvider>()),
+          ChangeNotifierProvider(create: (_) => sl<ActivityHistoryProvider>()),
+          ChangeNotifierProvider(create: (_) => sl<ProfDashboardProvider>()),
+          ChangeNotifierProvider(create: (_) => sl<ProjectProvider>()),
+        ],
+        child: AppBootstrap(
+          authProvider: authProvider,
+          child: const MyApp(),
+        ),
       ),
     ),
   );

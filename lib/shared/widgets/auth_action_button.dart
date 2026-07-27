@@ -16,7 +16,8 @@ class AuthActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
 
     return Material(
       color: onPressed == null || isLoading
@@ -26,8 +27,8 @@ class AuthActionButton extends StatelessWidget {
       child: InkWell(
         onTap: isLoading ? null : onPressed,
         borderRadius: BorderRadius.circular(14),
-        splashColor: Colors.white.withValues(alpha: 0.2),
-        highlightColor: Colors.black.withValues(alpha: 0.1),
+        splashColor: colors.onPrimary.withValues(alpha: 0.2),
+        highlightColor: colors.shadow.withValues(alpha: 0.1),
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
@@ -46,7 +47,7 @@ class AuthActionButton extends StatelessWidget {
               else ...[
                 Text(
                   text,
-                  style: TextStyle(
+                  style: theme.textTheme.labelLarge?.copyWith(
                     color: colors.onPrimary,
                     fontSize: 16,
                     fontWeight: FontWeight.w700,

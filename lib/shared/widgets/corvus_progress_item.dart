@@ -12,22 +12,31 @@ class CorvusProgressItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: const TextStyle(fontSize: 14)),
-            Text('$percentage%', style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+              label,
+              style: theme.textTheme.bodyMedium?.copyWith(fontSize: 14),
+            ),
+            Text(
+              '$percentage%',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 8),
         LinearProgressIndicator(
           value: percentage / 100,
           backgroundColor: colorScheme.outlineVariant.withValues(alpha: 0.3),
-          color: Colors.amber,
+          color: colorScheme.tertiary,
           borderRadius: BorderRadius.circular(4),
           minHeight: 8,
         ),
