@@ -121,14 +121,16 @@ class _ProfDashPageState extends State<ProfDashPage> {
                               Positioned.fill(
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(16),
-                                  child: SvgPicture.asset(
-                                    'assets/patterns/$patternName.svg',
-                                    fit: BoxFit.none,
-                                    colorFilter: ColorFilter.mode(
-                                      ThemeData.estimateBrightnessForColor(bgColor) == Brightness.dark
-                                          ? Colors.white.withValues(alpha: 0.2)
-                                          : Colors.grey.shade700.withValues(alpha: 0.2),
-                                      BlendMode.srcATop,
+                                  child: RepaintBoundary(
+                                    child: SvgPicture.asset(
+                                      'assets/patterns/$patternName.svg',
+                                      fit: BoxFit.none,
+                                      colorFilter: ColorFilter.mode(
+                                        ThemeData.estimateBrightnessForColor(bgColor) == Brightness.dark
+                                            ? Colors.white.withValues(alpha: 0.2)
+                                            : Colors.grey.shade700.withValues(alpha: 0.2),
+                                        BlendMode.srcATop,
+                                      ),
                                     ),
                                   ),
                                 ),

@@ -203,7 +203,12 @@ class _NotificationItemCardState extends State<NotificationItemCard> with Single
                 }
 
                 if (notification.deepLink != null && notification.deepLink!.isNotEmpty) {
-                  context.go(notification.deepLink!);
+                  if (notification.deepLink!.startsWith('corvus_internal_project:')) {
+                    final pId = notification.deepLink!.split(':')[1];
+                    NotificationNavigationService.handleByType(context, notification.rawType!, {'projectId': pId});
+                  } else {
+                    context.go(notification.deepLink!);
+                  }
                 } else {
                   // Fallback a navegación por tipo
                   NotificationNavigationService.handleByType(context, notification.rawType!, {});

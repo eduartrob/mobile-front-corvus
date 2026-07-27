@@ -52,8 +52,8 @@ class ProfDashboardProvider extends ChangeNotifier {
 
       // 2. Carga optimista desde SharedPreferences (Caché persistente)
       try {
-        // Pequeño retraso para evitar tirones (jank) durante la animación de transición de página
-        await Future.delayed(const Duration(milliseconds: 150));
+        // Pequeño retraso de 350ms para asegurar que la animación de la página terminó antes de bloquear el hilo
+        await Future.delayed(const Duration(milliseconds: 350));
         
         final prefs = await SharedPreferences.getInstance();
         final cachedData = prefs.getString('prof_dashboard_$pId');
