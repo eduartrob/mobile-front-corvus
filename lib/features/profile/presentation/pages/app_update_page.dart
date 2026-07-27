@@ -62,7 +62,13 @@ class AppUpdatePage extends StatelessWidget {
                   const SizedBox(height: 16),
                   _buildVersionItem(
                     context, 
-                    'v2.7.0 (Actual)', 
+                    'v2.7.2 (Actual)', 
+                    'Optimización de rendimiento (caché local) en el Dashboard de profesores y fix visual para desplazamiento ultra-fluido en la lista de proyectos.',
+                  ),
+                  const Divider(),
+                  _buildVersionItem(
+                    context, 
+                    'v2.7.0', 
                     'Resolución de notificaciones duplicadas con auto-limpieza, corrección del buscador en equipos y navegación inteligente al tocar alertas.',
                   ),
                   const Divider(),
