@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile/features/student_directory/domain/entities/student.dart';
 import 'package:mobile/features/teams/data/models/team_model.dart';
 import 'package:mobile/features/teams/data/models/solicitud_model.dart';
@@ -21,6 +23,24 @@ class TeamProjectData {
   SolicitudFilter selectedFilter = SolicitudFilter.recibidas;
   int maxTeamMembers = 4;
   bool hasLoadedOnce = false;
+
+  Map<String, dynamic> toJson() {
+    return {
+      if (myTeam != null) 'myTeam': myTeam!.toJson(),
+      'finalReviewStatus': finalReviewStatus,
+      'maxTeamMembers': maxTeamMembers,
+    };
+  }
+
+  void fromJson(Map<String, dynamic> json) {
+    if (json['myTeam'] != null) {
+      myTeam = TeamModel.fromJson(json['myTeam']);
+    }
+    finalReviewStatus = json['finalReviewStatus'];
+    if (json['maxTeamMembers'] != null) {
+      maxTeamMembers = json['maxTeamMembers'];
+    }
+  }
 }
 
 class TeamsProvider extends ChangeNotifier {
@@ -82,6 +102,14 @@ class TeamsProvider extends ChangeNotifier {
 
     if (projectId != null) {
       _activeProjectId = projectId;
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final cached = prefs.getString('teams_details_$projectId');
+        if (cached != null) {
+          _current.fromJson(json.decode(cached));
+          _current.hasLoadedOnce = true;
+        }
+      } catch (_) {}
     }
 
     // If we already have real data for this project and it's not a forced refresh,
@@ -147,6 +175,12 @@ class TeamsProvider extends ChangeNotifier {
       }
 
       _current.hasLoadedOnce = true;
+      if (resolvedProjectId != null) {
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('teams_details_$resolvedProjectId', json.encode(_current.toJson()));
+        } catch (_) {}
+      }
     } catch (e, st) {
       _current.errorMessage = mapErrorToMessage(e, stackTrace: st);
     } finally {
@@ -159,6 +193,17 @@ class TeamsProvider extends ChangeNotifier {
 
   Future<void> silentWarmUp(String pid) async {
     final data = _teamCache.putIfAbsent(pid, () => TeamProjectData());
+    if (!data.hasLoadedOnce) {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final cached = prefs.getString('teams_details_$pid');
+        if (cached != null) {
+          data.fromJson(json.decode(cached));
+          data.hasLoadedOnce = true;
+        }
+      } catch (_) {}
+    }
+    
     if (data.hasLoadedOnce || data.isLoadingTeam) return;
 
     data.isLoadingTeam = true;
@@ -182,6 +227,10 @@ class TeamsProvider extends ChangeNotifier {
         data.maxTeamMembers = int.tryParse(config['max_team_members'].toString()) ?? 4;
       }
       data.hasLoadedOnce = true;
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('teams_details_$pid', json.encode(data.toJson()));
+      } catch (_) {}
     } catch (_) {
       // Ignore in silent warmup
     } finally {

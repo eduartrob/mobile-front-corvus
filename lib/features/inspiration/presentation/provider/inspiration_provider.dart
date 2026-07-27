@@ -44,16 +44,17 @@ class InspirationProvider extends ChangeNotifier {
 
   Future<void> _init() async {
     await checkWelcomeStatus();
-    // Siempre forzar recarga del servidor al iniciar:
-    // el TTL del cache en InspirationRemoteDataSource controla si realmente
-    // hace la petición de red o usa el cache local (≤ 30 min).
-    await loadProjects(forceRefresh: true);
+    // Permitir que use el cache local primero para una carga instantánea (Offline-first)
+    await loadProjects(forceRefresh: false);
   }
 
   String? _userId;
 
   void setUserId(String? userId) {
-    _userId = userId;
+    if (_userId != userId) {
+      _userId = userId;
+      checkWelcomeStatus();
+    }
   }
 
   String get _welcomeKey => _userId != null ? 'user_${_userId}_has_seen_welcome_inspiration' : 'has_seen_welcome_inspiration';

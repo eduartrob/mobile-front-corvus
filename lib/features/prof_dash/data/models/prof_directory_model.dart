@@ -22,4 +22,11 @@ class ProfDirectoryModel {
           [],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'teams': teams.map((e) => e.toJson()).toList(),
+      'studentsWithoutTeam': studentsWithoutTeam.map((e) => e.toJson()).toList(),
+    };
+  }
 }

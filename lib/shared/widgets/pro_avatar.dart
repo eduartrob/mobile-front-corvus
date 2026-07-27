@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-
-/// Un Avatar reutilizable en toda la app que muestra de forma elegante el
+import 'package:mobile/core/theme/app_gradients.dart';
+import 'package:mobile/core/theme/app_colors.dart';
 /// anillo/borde dorado/naranja glowing de la Membresía PRO cuando `isPro` es true.
 class ProAvatar extends StatelessWidget {
   final String? photoUrl;
@@ -30,7 +30,7 @@ class ProAvatar extends StatelessWidget {
         shape: BoxShape.circle,
         gradient: isPro
             ? const LinearGradient(
-                colors: [Color(0xFFFFD700), Color(0xFFFFA500), Color(0xFFFF8C00)],
+                colors: AppGradients.proGradient,
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               )
@@ -38,9 +38,9 @@ class ProAvatar extends StatelessWidget {
         boxShadow: isPro
             ? [
                 BoxShadow(
-                  color: const Color(0xFFFFA500).withValues(alpha: 0.45),
-                  blurRadius: 8,
-                  spreadRadius: 1.5,
+                  color: AppColors.proBadgeOrange.withValues(alpha: 0.45),
+                  blurRadius: 12,
+                  spreadRadius: 2,
                 )
               ]
             : null,

@@ -10,7 +10,7 @@ class InspirationRemoteDataSource {
   final http.Client client;
   static const String _cacheKey = 'cached_blue_oceans';
   static const String _cacheTimestampKey = 'cached_blue_oceans_timestamp';
-  static const int _cacheTtlMinutes = 1; // Invalidar cache cada 1 minuto para mantener datos actualizados
+  static const int _cacheTtlMinutes = 60; // Mostrar cache hasta por 60 min para offline-first
 
   bool reachedProLimit = false;
   int proLockedCount = 0;
