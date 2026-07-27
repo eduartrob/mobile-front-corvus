@@ -61,8 +61,11 @@ Future<void> handleFCMMessage(RemoteMessage message) async {
     // Si estamos en /notifications suprimir siempre
     if (NotificationsPage.isOpen) skipHeadsUp = true;
 
-    // Suprimir config updates para profesores si era de esa forma (legacy)
-    if (notifType == 'CONFIG_UPDATED' && role == 'PROFESOR') skipHeadsUp = true;
+    // Suprimir notificaciones si el autor es el usuario actual
+    final currentUserId = await storage.read(key: 'auth_id');
+    if (data['authorId'] != null && data['authorId'] == currentUserId) {
+      skipHeadsUp = true;
+    }
 
     // Intentar inferir la ruta destino si no viene deepLink
     String? expectedRoute = deepLink;

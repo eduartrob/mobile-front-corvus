@@ -16,6 +16,14 @@ class ProfDashboardAlert {
       text: json['text'] ?? '',
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'icon': icon,
+      'color': color,
+      'text': text,
+    };
+  }
 }
 
 class ProfDashboardMetrics {
@@ -32,6 +40,13 @@ class ProfDashboardMetrics {
       studentsWithTeam: json['students_with_team'] ?? 0,
       studentsWithoutTeam: json['students_without_team'] ?? 0,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'students_with_team': studentsWithTeam,
+      'students_without_team': studentsWithoutTeam,
+    };
   }
 }
 
@@ -55,5 +70,14 @@ class ProfDashboardModel {
       metrics: ProfDashboardMetrics.fromJson(json['metrics'] ?? {}),
       alerts: (json['alerts'] as List?)?.map((e) => ProfDashboardAlert.fromJson(e)).toList() ?? [],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'total_teams': totalTeams,
+      'ready_proposals': readyProposals,
+      'metrics': metrics.toJson(),
+      'alerts': alerts.map((e) => e.toJson()).toList(),
+    };
   }
 }

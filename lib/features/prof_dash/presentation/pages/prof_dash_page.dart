@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/l10n/app_localizations.dart';
+import 'package:mobile/core/theme/app_colors.dart';
 import 'package:mobile/shared/widgets/corvus_metric_card.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -98,20 +99,11 @@ class _ProfDashPageState extends State<ProfDashPage> {
                     );
                     if (project == null) return const SizedBox.shrink();
                     
-                    final pastelColors = const [
-                      Color(0xFF5C88DA),
-                      Color(0xFF9A73C9),
-                      Color(0xFF56A98A),
-                      Color(0xFFD98A53),
-                      Color(0xFFD67389),
-                    ];
-                    
                     Color bgColor;
                     if (project['theme_color'] != null) {
-                      final colorStr = project['theme_color'].toString().replaceAll('#', '0xFF');
-                      bgColor = Color(int.parse(colorStr));
+                      bgColor = Color(int.parse(project['theme_color'].toString().replaceFirst('#', '0xFF')));
                     } else {
-                      bgColor = pastelColors[project['id'].hashCode.abs() % pastelColors.length];
+                      bgColor = AppColors.dashboardPastels[project['id'].hashCode.abs() % AppColors.dashboardPastels.length];
                     }
                     
                     final String? patternName = project['theme_pattern'];

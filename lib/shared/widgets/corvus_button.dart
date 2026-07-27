@@ -19,8 +19,8 @@ class CorvusButton extends StatelessWidget {
       child: InkWell(
         onTap: onPressed,
         borderRadius: BorderRadius.circular(12),
-        splashColor: Colors.white.withValues(alpha: 0.2),
-        highlightColor: Colors.black.withValues(alpha: 0.1),
+        splashColor: colorScheme.onPrimary.withValues(alpha: 0.2),
+        highlightColor: colorScheme.shadow.withValues(alpha: 0.1),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
           child: Row(
@@ -28,16 +28,16 @@ class CorvusButton extends StatelessWidget {
             children: [
               Text(
                 text,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: colorScheme.onPrimary,
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               const SizedBox(width: 8),
-              const Icon(
+              Icon(
                 Icons.arrow_forward,
-                color: Colors.white,
+                color: colorScheme.onPrimary,
               ),
             ],
           ),

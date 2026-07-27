@@ -44,11 +44,12 @@ class NotificationNavigationService {
     switch (notifType) {
       case 'CLASSROOM_UPDATE':
       case 'PROJECT_UPDATE':
+      case 'CONFIG_UPDATED':
         final projectId = _resolveProjectId(context, data);
-        if (projectId != null) {
+        if (projectId != null && projectId.isNotEmpty) {
           context.push('/project/$projectId');
         } else {
-          context.push('/my-project');
+          _safePushNotifications(context, highlightLatest: true);
         }
         break;
 
@@ -59,20 +60,20 @@ class NotificationNavigationService {
       case 'team_rejected':
       case 'team_updated':
         final projectId = _resolveProjectId(context, data);
-        if (projectId != null) {
+        if (projectId != null && projectId.isNotEmpty) {
           context.push('/project/$projectId?tab=0&teamTab=1');
         } else {
-          context.push('/notifications?highlightLatest=true');
+          _safePushNotifications(context, highlightLatest: true);
         }
         break;
 
       case 'PROPOSAL_ACTION':
       case 'review_updated':
         final projectId = _resolveProjectId(context, data);
-        if (projectId != null) {
+        if (projectId != null && projectId.isNotEmpty) {
           context.push('/project/$projectId?tab=1'); // Tab 1 is Propuesta
         } else {
-          context.push('/notifications?highlightLatest=true');
+          _safePushNotifications(context, highlightLatest: true);
         }
         break;
 
@@ -89,7 +90,15 @@ class NotificationNavigationService {
         break;
 
       default:
-        context.push('/notifications?highlightLatest=true');
+        _safePushNotifications(context, highlightLatest: true);
+    }
+  }
+
+  static void _safePushNotifications(BuildContext context, {bool highlightLatest = false}) {
+    // Only push if we are NOT already on the notifications page
+    final location = GoRouterState.of(context).matchedLocation;
+    if (location != '/notifications') {
+      context.push('/notifications?highlightLatest=$highlightLatest');
     }
   }
 

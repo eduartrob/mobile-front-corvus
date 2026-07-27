@@ -46,6 +46,42 @@ class ProjectStateData {
   bool initialized = false;
   bool hasLoadedOnce = false; // true after first successful fetch from server
   Timer? statusTimer;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'state': state.toString(),
+      'fileName': fileName,
+      'fileSize': fileSize,
+      'quickAnalysis': quickAnalysis,
+      'detailedAnalysis': detailedAnalysis,
+      'allowedExtensions': allowedExtensions,
+      'exclusionRules': exclusionRules,
+      'projectSections': projectSections,
+      'maxTeamMembers': maxTeamMembers,
+    };
+  }
+
+  void fromJson(Map<String, dynamic> json) {
+    if (json['state'] != null) {
+      state = ProjectState.values.firstWhere((e) => e.toString() == json['state'], orElse: () => ProjectState.initial);
+    }
+    fileName = json['fileName'];
+    fileSize = json['fileSize'];
+    quickAnalysis = json['quickAnalysis'];
+    detailedAnalysis = json['detailedAnalysis'];
+    if (json['allowedExtensions'] != null) {
+      allowedExtensions = List<String>.from(json['allowedExtensions']);
+    }
+    if (json['exclusionRules'] != null) {
+      exclusionRules = List<String>.from(json['exclusionRules']);
+    }
+    if (json['projectSections'] != null) {
+      projectSections = List<Map<String, dynamic>>.from(json['projectSections'].map((e) => Map<String, dynamic>.from(e)));
+    }
+    if (json['maxTeamMembers'] != null) {
+      maxTeamMembers = json['maxTeamMembers'];
+    }
+  }
 }
 
 class MyProjectProvider extends ChangeNotifier {
@@ -212,6 +248,18 @@ class MyProjectProvider extends ChangeNotifier {
 
   Future<void> _loadFromBffOrFallback(ProjectStateData data, String userId, String teamId, String? projectId, {bool isSilent = false}) async {
     try {
+      if (projectId != null) {
+        final prefs = await SharedPreferences.getInstance();
+        final cachedStr = prefs.getString('my_project_details_$projectId');
+        if (cachedStr != null) {
+          try {
+            data.fromJson(json.decode(cachedStr));
+            data.hasLoadedOnce = true;
+            if (data == _current && !isSilent) notifyListeners();
+          } catch (_) {}
+        }
+      }
+
       final results = await Future.wait([
         _repository.getProjectSummary(teamId, projectId: projectId).catchError((_) => <String, dynamic>{}),
         _repository.getLocalAnalysis(userId).catchError((_) => null),
@@ -341,6 +389,13 @@ class MyProjectProvider extends ChangeNotifier {
       data.state = ProjectState.error;
       data.hasLoadedOnce = true;
       if (data == _current && !isSilent) notifyListeners();
+    } finally {
+      if (projectId != null) {
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('my_project_details_$projectId', json.encode(data.toJson()));
+        } catch (_) {}
+      }
     }
   }
 

@@ -2,6 +2,7 @@ import 'package:mobile/core/network/api_endpoints.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile/core/network/api_config.dart';
 import 'package:mobile/features/prof_dash/data/models/prof_directory_model.dart';
 import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
@@ -10,6 +11,9 @@ class ProfDirectoryProvider extends ChangeNotifier {
   final AuthProvider authProvider;
   final http.Client client;
   final String projectId;
+
+  // Caché estático en RAM para sobrevivir a la recreación del Provider al cambiar de página
+  static final Map<String, ProfDirectoryModel> _cache = {};
 
   ProfDirectoryModel? _directoryData;
   bool _isLoading = false;
@@ -29,8 +33,34 @@ class ProfDirectoryProvider extends ChangeNotifier {
 
     _isLoading = true;
     _errorMessage = null;
-    notifyListeners();
 
+    // 1. Carga optimista desde memoria RAM
+    if (_cache.containsKey(projectId)) {
+      _directoryData = _cache[projectId];
+      _isLoading = false;
+      notifyListeners();
+    } else {
+      notifyListeners();
+    }
+
+    // 2. Carga optimista desde SharedPreferences
+    try {
+      // Pequeño retraso para evitar jank en la animación de transición
+      await Future.delayed(const Duration(milliseconds: 150));
+      
+      final prefs = await SharedPreferences.getInstance();
+      final cachedStr = prefs.getString('prof_directory_$projectId');
+      if (cachedStr != null) {
+        final decoded = json.decode(cachedStr);
+        final model = ProfDirectoryModel.fromJson(decoded);
+        _cache[projectId] = model;
+        _directoryData = model;
+        _isLoading = false;
+        notifyListeners();
+      }
+    } catch (_) {}
+
+    // 3. Petición silenciosa al servidor (Background Fetch)
     try {
       final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.teamsProfDirectory}?project_id=$projectId');
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
@@ -44,12 +74,26 @@ class ProfDirectoryProvider extends ChangeNotifier {
 
       if (response.statusCode == 200) {
         final decodedData = json.decode(utf8.decode(response.bodyBytes));
-        _directoryData = ProfDirectoryModel.fromJson(decodedData);
+        final newData = ProfDirectoryModel.fromJson(decodedData);
+        
+        _cache[projectId] = newData;
+        _directoryData = newData;
+        _errorMessage = null;
+
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('prof_directory_$projectId', json.encode(newData.toJson()));
+        } catch (_) {}
+
       } else {
-        _errorMessage = 'Error al cargar el directorio (Código ${response.statusCode})';
+        if (_directoryData == null) {
+          _errorMessage = 'Error al cargar el directorio (Código ${response.statusCode})';
+        }
       }
     } catch (e) {
-      _errorMessage = 'Error de conexión: $e';
+      if (_directoryData == null) {
+        _errorMessage = 'Error de conexión: $e';
+      }
     } finally {
       _isLoading = false;
       notifyListeners();

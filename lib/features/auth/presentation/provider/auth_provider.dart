@@ -186,6 +186,8 @@ class AuthProvider extends ChangeNotifier {
       }
 
       await NotificationService().requestPermission();
+      
+      FirebaseMessaging.instance.subscribeToTopic('config_updates');
 
       try {
         // Trigger profile parsing in background silently
@@ -241,6 +243,8 @@ class AuthProvider extends ChangeNotifier {
       }
 
       await NotificationService().requestPermission();
+      
+      FirebaseMessaging.instance.subscribeToTopic('config_updates');
 
       try {
         final clusteringDs = ClusteringRemoteDataSource(client: sl<AuthInterceptorClient>());
@@ -303,6 +307,7 @@ class AuthProvider extends ChangeNotifier {
       if (_currentUser != null) {
         await FirebaseMessaging.instance.unsubscribeFromTopic('user_${_currentUser!.id}').timeout(const Duration(seconds: 3));
       }
+      await FirebaseMessaging.instance.unsubscribeFromTopic('config_updates').timeout(const Duration(seconds: 3));
     } catch (e, st) {
       // FCM deregister failed silently
     }

@@ -111,13 +111,8 @@ class _AppBootstrapState extends State<AppBootstrap> {
     // Namespacear SharedPreferences por usuario
     context.read<InspirationProvider>().setUserId(uid);
 
-    // Suscribir a FCM topics según el rol
-    final role = widget.authProvider.currentUser?.role;
-    if (role == 'student') {
-      FirebaseMessaging.instance.subscribeToTopic('config_updates');
-    } else {
-      FirebaseMessaging.instance.unsubscribeFromTopic('config_updates');
-    }
+    // Suscribir a FCM topics globalmente (ahora todos escuchan config_updates)
+    FirebaseMessaging.instance.subscribeToTopic('config_updates');
   }
 
   @override
