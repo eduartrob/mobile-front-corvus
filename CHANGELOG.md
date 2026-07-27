@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.7.2] - 2026-07-27
+### Changed
+- **Optimización de Rendimiento en Vistas de Profesor (Caché Optimista)**: Se implementó un sistema de persistencia local mediante `SharedPreferences` para el Dashboard de profesores y el Directorio de estudiantes. Los datos ahora cargan instantáneamente en memoria mientras se sincronizan en segundo plano de manera invisible, eliminando los molestos tiempos de carga continuos.
+- **Fix de Animaciones y Tirones**: Se agregó el widget `RepaintBoundary` para optimizar la reconstrucción visual de fondos vectoriales (SVGs) de las tarjetas en la lista de proyectos del profesor. Se solucionaron saltos de cuadros en la animación de las rutas retrasando milimétricamente la recarga inicial.
+
 ## [2.7.0] - 2026-07-23
 ### Added
 - **Plan Pro Mejorado**: Se actualizó el precio del Plan Pro a \$50.00 MXN y se documentaron explícitamente sus beneficios avanzados: Insignia VIP Dorada para matchmaking exclusivo y el Simulador de Defensa por Voz Gemini Live.
