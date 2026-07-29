@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/features/inspiration/domain/entities/project_entity.dart';
+import 'package:mobile/shared/domain/entities/project_entity.dart';
 import 'package:mobile/features/inspiration/presentation/widgets/glass_container.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/features/inspiration/presentation/widgets/sugerencias_card.dart';

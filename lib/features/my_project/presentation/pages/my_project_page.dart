@@ -4,16 +4,16 @@ import 'package:mobile/shared/widgets/corvus_skeleton.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/features/my_project/presentation/provider/my_project_provider.dart';
-import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/core/providers/auth_provider.dart';
 import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
 import 'package:mobile/features/profile/presentation/provider/profile_provider.dart';
-import 'package:mobile/features/my_project/presentation/widgets/innovation_card.dart';
+import 'package:mobile/shared/widgets/innovation_card.dart';
 import 'package:mobile/features/my_project/presentation/pages/project_defense_chat_page.dart';
 import 'package:mobile/features/my_project/presentation/pages/voice_defense_page.dart';
 import 'package:mobile/features/my_project/presentation/widgets/upload_zone_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/uploaded_file_item_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/fast_rag_analysis_widget.dart';
-import 'package:mobile/features/my_project/presentation/widgets/detailed_analysis_widget.dart';
+import 'package:mobile/shared/widgets/detailed_analysis_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/animated_loading_text_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/invalid_document_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/document_preview_banner_widget.dart';
@@ -511,7 +511,10 @@ class _ProjectPageBody extends StatelessWidget {
     final isUnderReview = finalReviewStatus != null && finalReviewStatus['status'] != 'REJECTED';
     final auth = context.read<AuthProvider>();
     final isLeader = teamsProvider.myTeam != null && teamsProvider.myTeam!.members.isNotEmpty && 
-                    (teamsProvider.myTeam!.members[0].id == userId || teamsProvider.myTeam!.members[0].email == auth.currentUser?.email);
+                    teamsProvider.myTeam!.members.any((m) => 
+                      (m.id == userId || m.email == auth.currentUser?.email) && 
+                      (m.role == 'LEADER' || teamsProvider.myTeam!.members.indexOf(m) == 0)
+                    );
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 500),

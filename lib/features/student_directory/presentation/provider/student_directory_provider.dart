@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/features/teams/data/data_source/teams_remote_data_source.dart';
-import '../../domain/entities/student.dart';
+import 'package:mobile/features/student_directory/data/data_source/student_directory_remote_data_source.dart';
+import 'package:mobile/shared/domain/entities/student.dart';
 import 'package:mobile/core/error/error_handler.dart';
 import 'package:mobile/core/error/app_exception.dart';
 
@@ -11,12 +11,12 @@ class StudentDirectoryProvider extends ChangeNotifier {
   String get searchQuery => _searchQuery;
   String get selectedSkill => _selectedSkill;
 
-  final TeamsRemoteDataSource _remoteDataSource;
+  final StudentDirectoryRemoteDataSource _remoteDataSource;
   List<Student> _allStudents = [];
   bool _isLoading = false;
   String _error = '';
 
-  StudentDirectoryProvider({required TeamsRemoteDataSource remoteDataSource}) 
+  StudentDirectoryProvider({required StudentDirectoryRemoteDataSource remoteDataSource}) 
     : _remoteDataSource = remoteDataSource {
     _fetchStudents();
   }

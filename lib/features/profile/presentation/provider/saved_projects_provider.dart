@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/features/inspiration/domain/entities/project_entity.dart';
+import 'package:mobile/shared/domain/entities/project_entity.dart';
 import 'package:mobile/features/profile/data/repositories/saved_projects_repository.dart';
 
 class SavedProjectsProvider extends ChangeNotifier {

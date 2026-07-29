@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:mobile/features/profile/data/data_source/profile_remote_data_source.dart';
-import 'package:mobile/features/profile/data/models/profile_completo_model.dart';
+import 'package:mobile/shared/data/models/profile_completo_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/auth_interceptor_client.dart';
 import 'package:mobile/core/services/secure_storage_service.dart';

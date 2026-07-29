@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/api_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:mobile/features/inspiration/data/models/project_model.dart';
+import 'package:mobile/shared/data/models/project_model.dart';
 
 class InspirationRemoteDataSource {
   final http.Client client;

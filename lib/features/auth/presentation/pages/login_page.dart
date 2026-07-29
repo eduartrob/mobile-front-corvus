@@ -2,7 +2,7 @@ import 'dart:math' show Random;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/core/services/security_service.dart';
-import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/core/providers/auth_provider.dart';
 import 'package:mobile/features/auth/presentation/provider/registration_provider.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/shared/widgets/auth_action_button.dart';

@@ -1,4 +1,4 @@
-import 'package:mobile/features/student_directory/domain/entities/student.dart';
+import 'package:mobile/shared/domain/entities/student.dart';
 
 class SocialLinkModel {
   final String platform;

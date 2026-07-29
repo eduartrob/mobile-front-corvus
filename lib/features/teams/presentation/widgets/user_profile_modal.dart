@@ -1,6 +1,6 @@
 /*  */import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/core/providers/auth_provider.dart';
 import 'package:mobile/shared/widgets/pro_avatar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 

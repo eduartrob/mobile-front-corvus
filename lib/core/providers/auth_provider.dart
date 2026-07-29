@@ -2,7 +2,7 @@ import 'package:mobile/core/network/api_endpoints.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:mobile/core/services/secure_storage_service.dart';
-import 'package:mobile/features/auth/domain/entities/user_entity.dart';
+import 'package:mobile/core/domain/entities/user_entity.dart';
 import 'package:mobile/features/auth/domain/use_cases/sign_in_with_google_usecase.dart';
 import 'package:mobile/features/auth/domain/use_cases/request_drive_scope_usecase.dart';
 import 'package:mobile/features/auth/domain/use_cases/get_drive_access_token_usecase.dart';

@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:mobile/core/router/appRouter.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
 import 'package:mobile/core/di/di.dart';
-import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/core/providers/auth_provider.dart';
 import 'package:mobile/core/services/secure_storage_service.dart';
 
 /// Servicio dedicado para manejar la navegación al tocar una notificación.

@@ -4,7 +4,7 @@ import 'package:mobile/core/theme/theme_provider.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/core/constants/app_version.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/core/providers/auth_provider.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});

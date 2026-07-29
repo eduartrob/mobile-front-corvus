@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../provider/teams_provider.dart';
-import 'package:mobile/features/teams/data/models/solicitud_model.dart';
+import 'package:mobile/shared/data/models/solicitud_model.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/features/teams/presentation/widgets/team_members_list.dart';
 

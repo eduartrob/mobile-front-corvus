@@ -8,7 +8,7 @@ import 'package:mobile/shared/widgets/corvus_button.dart';
 import 'package:mobile/shared/widgets/corvus_label.dart';
 import 'package:mobile/core/network/api_config.dart';
 import '../widgets/university_autocomplete_field.dart';
-import '../widgets/career_autocomplete_field.dart';
+import 'package:mobile/shared/widgets/career_autocomplete_field.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/features/auth/presentation/provider/registration_provider.dart';
 import 'package:provider/provider.dart';

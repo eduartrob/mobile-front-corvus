@@ -1,4 +1,4 @@
-import 'package:mobile/features/auth/domain/entities/user_entity.dart';
+import 'package:mobile/core/domain/entities/user_entity.dart';
 import 'package:mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:mobile/features/auth/data/data_source/auth_remote_data_source.dart';
 

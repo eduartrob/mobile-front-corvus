@@ -1,4 +1,4 @@
-import 'package:mobile/features/inspiration/domain/entities/project_entity.dart';
+import 'package:mobile/shared/domain/entities/project_entity.dart';
 
 class ProjectModel extends ProjectEntity {
   ProjectModel({

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/profile/presentation/provider/activity_history_provider.dart';
-import 'package:mobile/features/prof_history/data/models/activity_log_model.dart';
+import 'package:mobile/shared/data/models/activity_log_model.dart';
 import 'package:intl/intl.dart';
 import '../widgets/activity_item_widget.dart';
 

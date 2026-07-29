@@ -5,7 +5,7 @@ import 'package:mobile/features/profile/presentation/provider/profile_provider.d
 import 'package:mobile/features/profile/presentation/pages/edit_field_page.dart';
 import 'package:mobile/features/profile/presentation/pages/edit_skills_page.dart';
 import 'package:mobile/features/profile/presentation/pages/edit_email_page.dart';
-import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/core/providers/auth_provider.dart';
 import 'package:mobile/shared/widgets/pro_avatar.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/core/providers/auth_provider.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
 import 'package:mobile/features/profile/presentation/provider/profile_provider.dart';
 import 'package:mobile/core/theme/theme_provider.dart';
@@ -9,12 +9,9 @@ import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/core/theme/app_dimens.dart';
 import 'package:mobile/core/constants/app_version.dart';
 import '../widgets/prof_header_info.dart';
-import 'package:mobile/features/profile/presentation/pages/settings_page.dart' as mobile;
-import 'package:mobile/features/profile/presentation/pages/app_update_page.dart' as mobile;
 import 'package:mobile/features/prof_profile/presentation/pages/prof_drive_sync_page.dart';
 import 'package:mobile/features/prof_profile/presentation/pages/prof_load_projects_page.dart';
 import 'package:mobile/features/prof_profile/presentation/pages/prof_edit_profile_page.dart' as mobile;
-import 'package:mobile/features/prof_history/presentation/pages/prof_history_page.dart';
 
 class ProfProfilePage extends StatefulWidget {
   const ProfProfilePage({super.key});
@@ -143,10 +140,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                 title: const Text('Historial de Decisiones', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
                 subtitle: const Text('Registros de actividad y permisos'),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const ProfHistoryPage()),
-                  );
+                  context.push('/prof-history');
                 },
               ),
               
@@ -158,10 +152,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                 title: const Text('Apariencia', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
                 subtitle: const Text('Estilo de la aplicación, tema oscuro o claro'),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const mobile.SettingsPage()),
-                  );
+                  context.push('/settings');
                 },
               ),
               
@@ -171,10 +162,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                 leading: Icon(Icons.system_update, color: colorScheme.onSurfaceVariant, size: 28),
                 title: const Text('Actualización de la aplicación', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const mobile.AppUpdatePage()),
-                  );
+                  context.push('/app-update');
                 },
               ),
               

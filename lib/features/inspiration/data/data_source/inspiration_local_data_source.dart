@@ -1,4 +1,4 @@
-import 'package:mobile/features/inspiration/data/models/project_model.dart';
+import 'package:mobile/shared/data/models/project_model.dart';
 
 class InspirationLocalDataSource {
   Future<List<ProjectModel>> getUnexploredProjects() async {
