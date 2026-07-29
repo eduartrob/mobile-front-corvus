@@ -450,7 +450,7 @@ class _ProPromoBannerWidgetState extends State<ProPromoBannerWidget> with Ticker
   late final AnimationController _swapController;
   Timer? _timer;
   int _currentIndex = 0;
-  bool _readyToShow = false; // Prevents flickering while checking pro status
+  bool _readyToShow = true; // Status is already cached in memory, no need to delay
 
   final List<Map<String, dynamic>> _promoCards = [
     {
@@ -476,10 +476,6 @@ class _ProPromoBannerWidgetState extends State<ProPromoBannerWidget> with Ticker
   @override
   void initState() {
     super.initState();
-    
-    Future.delayed(const Duration(milliseconds: 600), () {
-      if (mounted) setState(() { _readyToShow = true; });
-    });
 
     _shimmerController = AnimationController(
       vsync: this,
@@ -617,11 +613,10 @@ class _ProPromoBannerWidgetState extends State<ProPromoBannerWidget> with Ticker
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
             child: Row(
               children: [
-                Lottie.asset(
-                  'assets/animations/Premium Gold.json',
-                  width: 44,
-                  height: 44,
-                  fit: BoxFit.contain,
+                const Icon(
+                  Icons.workspace_premium,
+                  color: Colors.amber,
+                  size: 44,
                 ),
                 const SizedBox(width: 12),
                 Expanded(

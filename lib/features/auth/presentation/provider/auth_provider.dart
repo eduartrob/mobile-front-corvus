@@ -59,11 +59,13 @@ class AuthProvider extends ChangeNotifier {
   UserEntity? _currentUser;
   String? _cachedRole;
   String? _errorMessage;
+  bool _isLoggingOut = false;
 
   AuthStatus get status => _status;
   UserEntity? get currentUser => _currentUser;
   String? get role => _currentUser?.role ?? _cachedRole;
   String? get errorMessage => _errorMessage;
+  bool get isLoggingOut => _isLoggingOut;
 
   bool _isProActive = false;
   String? _proPlan;
@@ -288,6 +290,7 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> logout() async {
+    _isLoggingOut = true;
     _status = AuthStatus.loading;
     notifyListeners();
 
@@ -330,6 +333,7 @@ class AuthProvider extends ChangeNotifier {
     _proPlan = null;
     _proExpiresAt = null;
     _status = AuthStatus.unauthenticated;
+    _isLoggingOut = false;
     notifyListeners();
   }
 
@@ -360,6 +364,50 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> downgradeToFree() async {
+    final email = _currentUser?.email ?? await _storage.read(key: 'auth_email');
+    if (email == null || email.isEmpty) return;
+    try {
+      final token = await _storage.read(key: 'auth_token');
+      final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/pagos/suscripcion/cancelar/' + Uri.encodeComponent(email));
+      final response = await sl<AuthInterceptorClient>().post(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      ).timeout(const Duration(seconds: 10));
+      
+      if (response.statusCode == 200) {
+        _isProActive = false;
+        _proPlan = null;
+        _proExpiresAt = null;
+        await _storage.write(key: 'auth_pro_active', value: 'false');
+      }
+    } catch (_) {
+      // Ignorar error de red si falla la degradación
+    }
+    notifyListeners();
+  }
+
+  Future<double?> fetchPlanPrice(String concepto) async {
+    try {
+      final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/pagos/planes');
+      final response = await sl<AuthInterceptorClient>().get(uri)
+          .timeout(const Duration(seconds: 10));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final planes = data['planes'] as List<dynamic>;
+        final plan = planes.firstWhere(
+          (p) => p['concepto'] == concepto,
+          orElse: () => null,
+        );
+        return plan != null ? (plan['monto'] as num).toDouble() : null;
+      }
+    } catch (_) {}
+    return null;
+  }
+
   Future<PaymentCreationResult> createPayment({required String metodo}) async {
     final email = _currentUser?.email ?? await _storage.read(key: 'auth_email');
     if (email == null || email.isEmpty) {
@@ -367,11 +415,13 @@ class AuthProvider extends ChangeNotifier {
     }
     final userId = _currentUser?.id ?? await _storage.read(key: 'auth_id');
     final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/pagos/crear');
+    // El backend define el precio oficial; el monto que enviemos es ignorado.
+    // Solo se envía el concepto para que el backend identifique el plan.
     final body = jsonEncode({
       'alumno_email': email,
       'user_id': userId,
       'concepto': 'Plan Pro mensual',
-      'monto': 10.00,
+      'monto': 0,           // ignorado por el backend; precio real = PLANES_PRECIOS en Python
       'metodo': metodo,
     });
     final response = await sl<AuthInterceptorClient>().post(

@@ -218,6 +218,14 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
                       text: l10n.joinClass,
                       onPressed: () => context.push('/join-project'),
                     ),
+                    const SizedBox(height: 24),
+                    TextButton.icon(
+                      icon: const Icon(Icons.archive_outlined),
+                      label: const Text('Mostrar proyectos archivados'),
+                      onPressed: () {
+                        context.push('/archived-projects');
+                      },
+                    ),
                   ],
                 ),
               ),

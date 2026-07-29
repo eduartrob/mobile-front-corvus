@@ -178,8 +178,10 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
+    final authProvider = context.watch<AuthProvider>();
+    final isLoading = authProvider.isLoggingOut;
 
-    return AuthScaffold(
+    final scaffold = AuthScaffold(
       role: _currentRole,
       bottomAlign: true,
       onLogoTap: () => context.push('/welcome'),
@@ -312,6 +314,19 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ],
       ),
+    );
+    
+    return Stack(
+      children: [
+        scaffold,
+        if (isLoading)
+          Container(
+            color: Colors.black54,
+            child: const Center(
+              child: CircularProgressIndicator(),
+            ),
+          ),
+      ],
     );
   }
 }

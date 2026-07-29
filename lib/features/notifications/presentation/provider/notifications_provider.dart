@@ -72,6 +72,8 @@ class NotificationsProvider extends ChangeNotifier {
       final storage = SecureStorageService();
       final role = await storage.read(key: 'auth_role');
 
+      final myName = await storage.read(key: 'auth_name');
+
       var parsedNotifications = data
           .map((n) => AppNotification(
                 id: n['id'].toString(),
@@ -87,6 +89,16 @@ class NotificationsProvider extends ChangeNotifier {
                 authorName: n['authorName'],
                 authorPhotoUrl: n['authorPhotoUrl'],
               ))
+          .where((n) {
+            // No mostrar notificaciones si el autor es el propio usuario
+            if (n.authorName != null && myName != null && n.authorName == myName) {
+              // Limpiar de forma silenciosa del servidor local para no ocupar espacio
+              NotificationsLocalDataSource.deleteNotification(n.id).catchError((_) {});
+              _remoteDataSource.deleteNotification(n.id).catchError((_) {});
+              return false;
+            }
+            return true;
+          })
           .toList();
 
       final deduplicated = <AppNotification>[];

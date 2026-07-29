@@ -261,24 +261,18 @@ class _ProfilePageState extends State<ProfilePage> {
                     if (confirm != true) return;
                     if (!context.mounted) return;
 
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (context) => const Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
+                    final authProvider = context.read<AuthProvider>();
+                    final projectProvider = context.read<ProjectProvider>();
+                    final profileProvider = context.read<ProfileProvider>();
                     
-                    await context.read<AuthProvider>().logout();
-                    if (context.mounted) {
-                      context.read<ProjectProvider>().clear();
-                      context.read<ProfileProvider>().clear();
-                    }
+                    // Navigate to login immediately
+                    context.go('/');
                     
-                    if (context.mounted) {
-                      Navigator.of(context).pop();
-                      context.go('/');
-                    }
+                    // Run logout logic while login screen handles the loading state
+                    authProvider.logout().then((_) {
+                      projectProvider.clear();
+                      profileProvider.clear();
+                    });
                   },
                   icon: const Icon(Icons.logout, color: Colors.red),
                   label: const Text('Cerrar sesión', style: TextStyle(color: Colors.red)),

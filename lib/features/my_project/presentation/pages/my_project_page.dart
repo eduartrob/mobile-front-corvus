@@ -963,7 +963,10 @@ class _ProjectPageBody extends StatelessWidget {
             width: double.infinity,
             height: 50,
             child: OutlinedButton(
-              onPressed: () => provider.reset(userId),
+              onPressed: () {
+                final teamId = context.read<TeamsProvider>().myTeam?.id ?? '';
+                provider.cancelAnalysis(userId, teamId);
+              },
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: colorScheme.primary),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
