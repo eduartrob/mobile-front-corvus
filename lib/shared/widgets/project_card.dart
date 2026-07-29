@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/l10n/app_localizations.dart';
-import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
-import 'package:mobile/features/inspiration/domain/entities/project_entity.dart';
+import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/domain/entities/project_entity.dart';
 import 'package:mobile/features/inspiration/presentation/provider/inspiration_provider.dart';
 import 'package:mobile/features/inspiration/presentation/pages/blue_ocean_detail_page.dart';
 import 'package:mobile/core/theme/app_gradients.dart';

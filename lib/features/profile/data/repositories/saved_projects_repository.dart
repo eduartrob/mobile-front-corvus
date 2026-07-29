@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mobile/features/inspiration/domain/entities/project_entity.dart';
-import 'package:mobile/features/inspiration/data/models/project_model.dart';
+import 'package:mobile/shared/domain/entities/project_entity.dart';
+import 'package:mobile/shared/data/models/project_model.dart';
 
 class SavedProjectsRepository {
   static const String _savedProjectsKey = 'saved_projects_v1';

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/api_config.dart';
-import 'package:mobile/features/prof_history/data/models/activity_log_model.dart';
+import 'package:mobile/shared/data/models/activity_log_model.dart';
 import 'package:mobile/core/error/error_handler.dart';
 import 'package:mobile/core/error/app_exception.dart';
 

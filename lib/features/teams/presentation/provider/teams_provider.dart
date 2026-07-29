@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mobile/features/student_directory/domain/entities/student.dart';
-import 'package:mobile/features/teams/data/models/team_model.dart';
-import 'package:mobile/features/teams/data/models/solicitud_model.dart';
+import 'package:mobile/shared/domain/entities/student.dart';
+import 'package:mobile/shared/data/models/team_model.dart';
+import 'package:mobile/shared/data/models/solicitud_model.dart';
 import 'package:mobile/features/teams/domain/repositories/teams_repository.dart';
 import 'package:mobile/core/error/error_handler.dart';
 

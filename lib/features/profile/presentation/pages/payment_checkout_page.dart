@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/core/providers/auth_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/shared/pages/in_app_browser_page.dart';
 import 'package:confetti/confetti.dart';

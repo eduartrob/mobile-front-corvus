@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:mobile/shared/widgets/corvus_skeleton.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/l10n/app_localizations.dart';
-import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/core/providers/auth_provider.dart';
 import 'package:mobile/features/notifications/presentation/provider/notifications_provider.dart';
 import 'package:mobile/features/inspiration/presentation/provider/inspiration_provider.dart';
 import 'package:mobile/core/theme/app_dimens.dart';
@@ -11,7 +11,7 @@ import 'package:mobile/shared/widgets/project_card.dart';
 import 'package:mobile/features/inspiration/presentation/widgets/floating_ai_input.dart';
 import 'package:mobile/shared/widgets/pro_avatar.dart';
 import 'package:lottie/lottie.dart';
-import 'package:mobile/features/profile/presentation/pages/my_subscription_page.dart';
+
 
 class InspirationPage extends StatefulWidget {
   const InspirationPage({super.key});
@@ -186,10 +186,7 @@ class _InspirationPageState extends State<InspirationPage> {
                           padding: const EdgeInsets.symmetric(horizontal: AppDimens.screenMargin, vertical: 16.0),
                           child: InkWell(
                             onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const MySubscriptionPage()),
-                              );
+                              context.push('/my-subscription');
                             },
                             borderRadius: BorderRadius.circular(16),
                             child: Container(

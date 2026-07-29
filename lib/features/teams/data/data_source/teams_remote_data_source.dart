@@ -4,9 +4,9 @@ import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/api_config.dart';
 import 'package:mobile/core/error/app_exception.dart';
 import 'package:mobile/core/error/error_handler.dart';
-import 'package:mobile/features/teams/data/models/team_model.dart';
-import 'package:mobile/features/teams/data/models/solicitud_model.dart';
-import 'package:mobile/features/student_directory/domain/entities/student.dart';
+import 'package:mobile/shared/data/models/team_model.dart';
+import 'package:mobile/shared/data/models/solicitud_model.dart';
+import 'package:mobile/shared/domain/entities/student.dart';
 
 class TeamsRemoteDataSource {
   final http.Client client;
@@ -157,32 +157,7 @@ class TeamsRemoteDataSource {
     return [];
   }
 
-  // GET /clustering/teams/students
-  Future<List<Student>> getStudentDirectory({String? skill}) async {
-    var uriString = '${ApiConfig.apiGatewayUrl}${ApiEndpoints.teamsStudents}';
-    if (skill != null && skill.isNotEmpty && skill.toLowerCase() != 'all skills') {
-      uriString += '?skill=${Uri.encodeComponent(skill)}';
-    }
-    
-    final url = Uri.parse(uriString);
 
-    try {
-      final response = await client.get(
-        url, 
-        headers: ApiConfig.defaultHeaders
-      ).timeout(ApiConfig.connectionTimeout);
-
-      if (response.statusCode == 200) {
-        final List body = json.decode(utf8.decode(response.bodyBytes));
-        return body.map((item) => Student.fromJson(item)).toList();
-      } else {
-        _handleError(response);
-      }
-    } catch (e, st) {
-      throw NetworkException(e.toString());
-    }
-    return [];
-  }
 
   // 📩 GET /teams/requests?filter=enviadas|aceptadas
   Future<List<Solicitud>> getRequests(String filter, {String? projectId}) async {

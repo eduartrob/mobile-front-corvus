@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/core/providers/auth_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/profile/presentation/pages/payment_checkout_page.dart';
 
