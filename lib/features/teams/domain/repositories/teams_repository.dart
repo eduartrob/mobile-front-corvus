@@ -1,6 +1,6 @@
-import 'package:mobile/features/teams/data/models/team_model.dart';
-import 'package:mobile/features/teams/data/models/solicitud_model.dart';
-import 'package:mobile/features/student_directory/domain/entities/student.dart';
+import 'package:mobile/shared/data/models/team_model.dart';
+import 'package:mobile/shared/data/models/solicitud_model.dart';
+import 'package:mobile/shared/domain/entities/student.dart';
 
 /// Contrato de dominio para operaciones de equipos.
 abstract class TeamsRepository {

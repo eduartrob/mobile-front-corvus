@@ -1,7 +1,7 @@
-import 'package:mobile/features/student_directory/domain/entities/student.dart';
-import 'package:mobile/features/teams/data/models/solicitud_model.dart';
+import 'package:mobile/shared/domain/entities/student.dart';
+import 'package:mobile/shared/data/models/solicitud_model.dart';
 
-export 'package:mobile/features/teams/data/models/solicitud_model.dart';
+export 'package:mobile/shared/data/models/solicitud_model.dart';
 
 final List<Solicitud> mockSolicitudes = [
   Solicitud(

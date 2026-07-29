@@ -16,7 +16,7 @@ import 'package:mobile/features/auth/domain/use_cases/get_drive_access_token_use
 import 'package:mobile/features/auth/domain/use_cases/request_classroom_scopes_usecase.dart';
 import 'package:mobile/features/auth/domain/use_cases/sign_out_from_google_usecase.dart';
 import 'package:mobile/features/auth/domain/use_cases/login_with_email_usecase.dart';
-import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/core/providers/auth_provider.dart';
 import 'package:mobile/features/auth/presentation/provider/registration_provider.dart';
 
 import 'package:mobile/features/prof_profile/data/data_source/sync_remote_data_source.dart';

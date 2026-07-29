@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
-import 'package:mobile/features/teams/data/models/team_model.dart';
+import 'package:mobile/shared/data/models/team_model.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 
 class ManageTeamPage extends StatefulWidget {

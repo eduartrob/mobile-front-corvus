@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/prof_profile/presentation/provider/linked_folders_provider.dart';
-import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/core/providers/auth_provider.dart';
 
 class ProfLoadProjectsPage extends StatelessWidget {
   const ProfLoadProjectsPage({super.key});

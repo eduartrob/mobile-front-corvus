@@ -5,7 +5,7 @@ import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/features/prof_reviews/presentation/provider/prof_reviews_provider.dart';
 import 'package:mobile/features/prof_reviews/data/models/final_review_model.dart';
 import 'package:intl/intl.dart';
-import 'package:mobile/features/my_project/presentation/widgets/detailed_analysis_widget.dart';
+import 'package:mobile/shared/widgets/detailed_analysis_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ProfReviewDetailPage extends StatefulWidget {

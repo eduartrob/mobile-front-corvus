@@ -10,7 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile/features/prof_dash/presentation/provider/prof_dash_provider.dart';
 import 'package:mobile/features/prof_dash/presentation/pages/prof_directory_page.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
-import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/core/providers/auth_provider.dart';
 import 'package:mobile/shared/widgets/corvus_skeleton.dart';
 
 class ProfDashPage extends StatefulWidget {

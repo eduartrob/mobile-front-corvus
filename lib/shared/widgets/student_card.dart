@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
-import '../../domain/entities/student.dart';
+import 'package:mobile/shared/domain/entities/student.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class StudentCard extends StatelessWidget {

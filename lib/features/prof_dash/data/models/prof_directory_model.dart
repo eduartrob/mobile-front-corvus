@@ -1,5 +1,5 @@
-import 'package:mobile/features/teams/data/models/team_model.dart';
-import 'package:mobile/features/student_directory/domain/entities/student.dart';
+import 'package:mobile/shared/data/models/team_model.dart';
+import 'package:mobile/shared/domain/entities/student.dart';
 
 class ProfDirectoryModel {
   final List<TeamModel> teams;

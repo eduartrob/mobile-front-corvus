@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/profile/presentation/provider/profile_provider.dart';
-import 'package:mobile/features/profile/presentation/pages/edit_field_page.dart';
-import 'package:mobile/features/profile/presentation/pages/edit_email_page.dart';
 import 'package:mobile/features/prof_profile/presentation/pages/prof_edit_careers_page.dart';
-import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/core/providers/auth_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'dart:convert';
@@ -235,19 +233,14 @@ class _ProfEditProfilePageState extends State<ProfEditProfilePage> {
               ),
               trailing: const Icon(Icons.edit, size: 20),
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => EditFieldPage(
-                      title: 'Nombre',
-                      label: 'Tu nombre completo',
-                      initialValue: profile?.alumno ?? '',
-                      description: 'Este es el nombre que verán los demás usuarios de Corvus en tu perfil.',
-                      keyboardType: TextInputType.name,
-                      onSave: (val) => _updateField('name', val),
-                    ),
-                  ),
-                );
+                context.push('/edit-field', extra: {
+                      'title': 'Nombre',
+                      'label': 'Tu nombre completo',
+                      'initialValue': profile?.alumno ?? '',
+                      'description': 'Este es el nombre que verán los demás usuarios de Corvus en tu perfil.',
+                      'keyboardType': TextInputType.name,
+                      'onSave': (val) => _updateField('name', val),
+                    });
               },
             ),
             const Divider(indent: 72, endIndent: 16),
@@ -292,10 +285,7 @@ class _ProfEditProfilePageState extends State<ProfEditProfilePage> {
                 ],
               ),
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const EditEmailPage()),
-                );
+                context.push('/edit-email');
               },
             ),
             const Divider(indent: 72, endIndent: 16),

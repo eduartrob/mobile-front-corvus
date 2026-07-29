@@ -62,7 +62,13 @@ class AppUpdatePage extends StatelessWidget {
                   const SizedBox(height: 16),
                   _buildVersionItem(
                     context, 
-                    'v2.8.0 (Actual)', 
+                    'v2.8.1 (Actual)', 
+                    'Corrección de bug en la detección del rol de líder al recargar la sesión en la pestaña de Propuesta.',
+                  ),
+                  const Divider(),
+                  _buildVersionItem(
+                    context, 
+                    'v2.8.0', 
                     'Implementación del nuevo flujo de suscripciones PRO, checkout dedicado para métodos de pago y cancelación de planes en tiempo real. Optimización de animaciones y rendimiento de perfil.',
                   ),
                   const Divider(),

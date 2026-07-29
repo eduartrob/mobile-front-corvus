@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
-import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/core/providers/auth_provider.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/shared/widgets/corvus_skeleton.dart';
 import 'package:mobile/shared/widgets/corvus_button.dart';

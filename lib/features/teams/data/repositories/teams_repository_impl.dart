@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'package:mobile/core/network/api_config.dart';
 import 'package:mobile/core/network/api_endpoints.dart';
 import 'package:mobile/features/teams/data/data_source/teams_remote_data_source.dart';
-import 'package:mobile/features/teams/data/models/team_model.dart';
-import 'package:mobile/features/teams/data/models/solicitud_model.dart';
-import 'package:mobile/features/student_directory/domain/entities/student.dart';
+import 'package:mobile/shared/data/models/team_model.dart';
+import 'package:mobile/shared/data/models/solicitud_model.dart';
+import 'package:mobile/shared/domain/entities/student.dart';
 import 'package:mobile/features/teams/domain/repositories/teams_repository.dart';
 
 class TeamsRepositoryImpl implements TeamsRepository {

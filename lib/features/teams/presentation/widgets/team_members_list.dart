@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/core/providers/auth_provider.dart';
 import 'package:mobile/shared/widgets/pro_avatar.dart';
 import 'package:mobile/features/teams/presentation/widgets/user_profile_modal.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/teams/presentation/widgets/team_member_card.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/features/teams/data/models/team_model.dart';
+import 'package:mobile/shared/data/models/team_model.dart';
 import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
 
 class TeamMembersList extends StatelessWidget {

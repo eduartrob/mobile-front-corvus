@@ -5,7 +5,7 @@ import 'package:mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/core/providers/auth_provider.dart';
 import 'package:mobile/features/auth/presentation/pages/login_page.dart';
 import 'package:mobile/features/auth/presentation/pages/register_page.dart';
 import 'package:mobile/features/auth/presentation/pages/student_university_page.dart';
@@ -49,6 +49,12 @@ import 'package:mobile/features/projects/presentation/pages/prof_project_config_
 import 'package:mobile/features/student_directory/presentation/pages/student_directory_page.dart';
 import 'package:mobile/features/notifications/presentation/pages/notifications_page.dart';
 import 'package:mobile/features/auth/presentation/pages/security_alert_page.dart';
+
+import 'package:mobile/features/profile/presentation/pages/my_subscription_page.dart' as mobile1;
+import 'package:mobile/features/profile/presentation/pages/settings_page.dart' as mobile2;
+import 'package:mobile/features/profile/presentation/pages/app_update_page.dart' as mobile3;
+import 'package:mobile/features/profile/presentation/pages/edit_field_page.dart' as mobile4;
+import 'package:mobile/features/profile/presentation/pages/edit_email_page.dart' as mobile5;
 
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -300,6 +306,43 @@ class _AppRouterState extends State<AppRouter> {
         GoRoute(
           path: '/manage-team',
           pageBuilder: (context, state) => _buildCupertinoTransition(const ManageTeamPage(), state.pageKey),
+        ),
+        GoRoute(
+          path: '/my-subscription',
+          pageBuilder: (context, state) => _buildCupertinoTransition(const mobile1.MySubscriptionPage(), state.pageKey),
+        ),
+        GoRoute(
+          path: '/settings',
+          pageBuilder: (context, state) => _buildCupertinoTransition(const mobile2.SettingsPage(), state.pageKey),
+        ),
+        GoRoute(
+          path: '/app-update',
+          pageBuilder: (context, state) => _buildCupertinoTransition(const mobile3.AppUpdatePage(), state.pageKey),
+        ),
+        GoRoute(
+          path: '/edit-field',
+          pageBuilder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>;
+            return _buildCupertinoTransition(
+              mobile4.EditFieldPage(
+                title: extra['title'],
+                label: extra['label'] ?? '',
+                initialValue: extra['initialValue'],
+                description: extra['description'],
+                keyboardType: extra['keyboardType'],
+                onSave: extra['onSave'],
+              ), 
+              state.pageKey
+            );
+          },
+        ),
+        GoRoute(
+          path: '/edit-email',
+          pageBuilder: (context, state) => _buildCupertinoTransition(const mobile5.EditEmailPage(), state.pageKey),
+        ),
+        GoRoute(
+          path: '/prof-history',
+          pageBuilder: (context, state) => _buildCupertinoTransition(const ProfHistoryPage(), state.pageKey),
         ),
       ],
     );

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/shared/widgets/corvus_top_bar.dart';
 import 'package:mobile/features/prof_dash/presentation/provider/prof_directory_provider.dart';
-import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
-import 'package:mobile/features/teams/data/models/team_model.dart';
-import 'package:mobile/features/student_directory/domain/entities/student.dart';
-import 'package:mobile/features/student_directory/presentation/widgets/student_card.dart';
+import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/data/models/team_model.dart';
+import 'package:mobile/shared/domain/entities/student.dart';
+import 'package:mobile/shared/widgets/student_card.dart';
 import 'package:mobile/shared/widgets/corvus_skeleton.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
