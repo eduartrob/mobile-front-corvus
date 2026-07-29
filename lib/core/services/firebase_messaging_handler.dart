@@ -96,12 +96,17 @@ Future<void> handleFCMMessage(RemoteMessage message) async {
     if (message.notification != null) {
       // Guardar en SQLite con el estado isRead dinámico
       final String notificationId = data['notificationId'] ?? 'temp_${DateTime.now().millisecondsSinceEpoch}';
+      String? finalDeepLink = deepLink;
+      if (finalDeepLink == null && data['projectId'] != null && data['projectId'].toString().isNotEmpty) {
+        finalDeepLink = 'corvus_internal_project:${data["projectId"]}';
+      }
+
       await NotificationsLocalDataSource.insertNotification({
         'id': notificationId,
         'title': message.notification!.title ?? 'Nueva Notificacion',
         'body': message.notification!.body ?? '',
         'type': notifType,
-        'deepLink': deepLink,
+        'deepLink': finalDeepLink,
         'timestamp': DateTime.now().toIso8601String(),
         'isRead': skipHeadsUp ? 1 : 0,
         'authorName': data['authorName'],

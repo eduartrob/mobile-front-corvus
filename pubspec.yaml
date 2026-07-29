@@ -1,6 +1,6 @@
 name: mobile
 description: "Corvus mobile application."
-version: 2.7.2+23
+version: 2.8.0+26
 
 environment:
   sdk: ^3.11.0

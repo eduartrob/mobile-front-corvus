@@ -270,6 +270,14 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
                             icon: const Icon(Icons.qr_code_scanner),
                             label: const Text('Unirse a un Proyecto'),
                           ),
+                          const SizedBox(height: 16),
+                          TextButton.icon(
+                            icon: const Icon(Icons.archive_outlined),
+                            label: const Text('Mostrar proyectos archivados'),
+                            onPressed: () {
+                              context.push('/archived-projects');
+                            },
+                          ),
                         ],
                       ),
                     ),

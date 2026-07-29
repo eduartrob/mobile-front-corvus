@@ -10,13 +10,13 @@ class SecurityService {
     // Para reactivar, descomentar el bloque de abajo.
     if (kIsWeb) return;
 
-    if (Platform.isAndroid) {
-      try {
-        await _channel.invokeMethod('preventScreenshots', {'prevent': prevent});
-      } catch (e) {
-        debugPrint("Error configuring screen protection: '${e.toString()}'.");
-      }
-    }
+    // if (Platform.isAndroid) {
+    //   try {
+    //     await _channel.invokeMethod('preventScreenshots', {'prevent': prevent});
+    //   } catch (e) {
+    //     debugPrint("Error configuring screen protection: '${e.toString()}'.");
+    //   }
+    // }
   }
 
   Future<bool> isUsbDebuggingEnabled() async {

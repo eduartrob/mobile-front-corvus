@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/core/router/appRouter.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
+import 'package:mobile/core/di/di.dart';
+import 'package:mobile/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mobile/core/services/secure_storage_service.dart';
 
 /// Servicio dedicado para manejar la navegación al tocar una notificación.
 /// Centraliza toda la lógica de routing por tipo de notificación y deepLink.
@@ -14,7 +17,7 @@ class NotificationNavigationService {
 
   /// Maneja el tap en una notificación cuando la app está en
   /// background o terminada.
-  static void handle(RemoteMessage message) {
+  static Future<void> handle(RemoteMessage message) async {
     final context = rootNavigatorKey.currentContext;
     if (context == null) return;
 
@@ -33,21 +36,28 @@ class NotificationNavigationService {
     }
 
     // 2. Fallback por tipo de notificación
-    handleByType(context, notifType, data);
+    await handleByType(context, notifType, data);
   }
 
-  static void handleByType(
+  static Future<void> handleByType(
     BuildContext context,
     String notifType,
     Map<String, dynamic> data,
-  ) {
+  ) async {
     switch (notifType) {
       case 'CLASSROOM_UPDATE':
       case 'PROJECT_UPDATE':
       case 'CONFIG_UPDATED':
         final projectId = _resolveProjectId(context, data);
         if (projectId != null && projectId.isNotEmpty) {
-          context.push('/project/$projectId');
+          // Check role to route correctly using secure storage
+          final storage = SecureStorageService();
+          final role = await storage.read(key: 'auth_role');
+          if (role == 'PROFESOR' || role == 'DOCENTE') {
+            context.push('/prof-project/$projectId');
+          } else {
+            context.push('/project/$projectId');
+          }
         } else {
           _safePushNotifications(context, highlightLatest: true);
         }
