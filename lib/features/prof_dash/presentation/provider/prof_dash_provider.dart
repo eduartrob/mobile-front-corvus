@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 import 'package:mobile/features/prof_dash/domain/entities/dashboard_entity.dart';
 import 'package:mobile/features/prof_dash/domain/repositories/dashboard_repository.dart';
 

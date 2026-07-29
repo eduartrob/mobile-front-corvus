@@ -62,7 +62,13 @@ class AppUpdatePage extends StatelessWidget {
                   const SizedBox(height: 16),
                   _buildVersionItem(
                     context, 
-                    'v2.8.1 (Actual)', 
+                    'v2.9.0 (Actual)', 
+                    'Refactor arquitectónico completo a Clean Architecture Feature-First. Estandarización de comentarios e integración de DevicePreview.',
+                  ),
+                  const Divider(),
+                  _buildVersionItem(
+                    context, 
+                    'v2.8.1', 
                     'Corrección de bug en la detección del rol de líder al recargar la sesión en la pestaña de Propuesta.',
                   ),
                   const Divider(),

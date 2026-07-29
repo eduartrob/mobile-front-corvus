@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/core/network/api_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 import '../provider/my_project_provider.dart';
 
 class ProjectDefenseChatPage extends StatefulWidget {

@@ -7,7 +7,7 @@ import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:mobile/core/router/appRouter.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/core/di/di.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 import 'package:mobile/core/services/secure_storage_service.dart';
 import 'package:http_certificate_pinning/http_certificate_pinning.dart';
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mobile/shared/widgets/corvus_input.dart';
-import 'package:mobile/shared/widgets/corvus_label.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_input.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_label.dart';
 
 class InputCompleted extends StatelessWidget {
   final String label;

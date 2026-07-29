@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:mobile/shared/widgets/corvus_skeleton.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_skeleton.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/l10n/app_localizations.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 import 'package:mobile/features/notifications/presentation/provider/notifications_provider.dart';
 import 'package:mobile/features/inspiration/presentation/provider/inspiration_provider.dart';
 import 'package:mobile/core/theme/app_dimens.dart';
-import 'package:mobile/shared/widgets/project_card.dart';
+import 'package:mobile/shared/presentation/widgets/project_card.dart';
 import 'package:mobile/features/inspiration/presentation/widgets/floating_ai_input.dart';
-import 'package:mobile/shared/widgets/pro_avatar.dart';
+import 'package:mobile/shared/presentation/widgets/pro_avatar.dart';
 import 'package:lottie/lottie.dart';
 
 

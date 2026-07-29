@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile/core/network/api_config.dart';
 import 'package:mobile/features/prof_dash/data/models/prof_directory_model.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 
 class ProfDirectoryProvider extends ChangeNotifier {
   final AuthProvider authProvider;

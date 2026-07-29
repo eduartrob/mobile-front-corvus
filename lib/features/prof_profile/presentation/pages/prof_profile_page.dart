@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
 import 'package:mobile/features/profile/presentation/provider/profile_provider.dart';
 import 'package:mobile/core/theme/theme_provider.dart';

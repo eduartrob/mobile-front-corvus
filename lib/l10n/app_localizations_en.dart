@@ -1,10 +1,10 @@
-// ignore unused import
+// ignore: unused_import
 import 'package:intl/intl.dart' as intl;
 import 'app_localizations.dart';
 
-// ignore for file type lint
+// ignore_for_file: type=lint
 
-/// the translations for english en 
+/// The translations for English (`en`).
 class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 

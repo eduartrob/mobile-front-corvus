@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:mobile/shared/widgets/corvus_skeleton.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_skeleton.dart';
 
 class CorvusMetricCard extends StatelessWidget {
   final String label;

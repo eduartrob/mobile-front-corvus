@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:mobile/core/domain/entities/user_entity.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/domain/entities/user_entity.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 import 'package:mobile/features/profile/presentation/pages/edit_profile_page.dart' as mobile;
 import 'package:mobile/features/profile/presentation/pages/pro_plan_page.dart';
 import 'package:provider/provider.dart';
@@ -10,7 +10,7 @@ import 'package:mobile/features/profile/presentation/provider/profile_provider.d
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:mobile/shared/widgets/pro_avatar.dart';
+import 'package:mobile/shared/presentation/widgets/pro_avatar.dart';
 
 class StudentHeaderInfo extends StatefulWidget {
   final UserEntity? user;

@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import '../provider/notifications_provider.dart';
 import '../widgets/notification_item_card.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 
 class NotificationsPage extends StatefulWidget {
   static bool isOpen = false;

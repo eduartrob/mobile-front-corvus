@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/core/theme/app_dimens.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
 import 'package:mobile/features/my_project/presentation/provider/my_project_provider.dart';
 import 'package:mobile/shared/data/models/team_model.dart';

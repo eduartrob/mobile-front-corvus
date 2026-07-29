@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/profile/presentation/provider/profile_provider.dart';
-import 'package:mobile/shared/widgets/career_autocomplete_field.dart';
+import 'package:mobile/shared/presentation/widgets/career_autocomplete_field.dart';
 
 class ProfEditCareersPage extends StatefulWidget {
   final List<String> initialCareers;

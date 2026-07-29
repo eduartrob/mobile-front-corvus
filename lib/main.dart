@@ -10,7 +10,7 @@ import 'package:mobile/core/services/notification_navigation_service.dart';
 
 import 'package:mobile/core/di/di.dart';
 import 'package:provider/provider.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 import 'package:mobile/features/prof_profile/presentation/provider/linked_folders_provider.dart';
 import 'package:mobile/features/inspiration/presentation/provider/inspiration_provider.dart';
 import 'package:mobile/features/my_project/presentation/provider/my_project_provider.dart';

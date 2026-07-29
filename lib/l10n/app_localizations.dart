@@ -8,59 +8,59 @@ import 'package:intl/intl.dart' as intl;
 import 'app_localizations_en.dart';
 import 'app_localizations_es.dart';
 
-// ignore for file type lint
+// ignore_for_file: type=lint
 
-/// callers can lookup localized strings with an instance of applocalizations
-/// returned by applocalizations of context 
+/// Callers can lookup localized strings with an instance of AppLocalizations
+/// returned by `AppLocalizations.of(context)`.
 ///
-/// applications need to include applocalizations delegate in their app s
-/// localizationdelegates list and the locales they support in the app s
-/// supportedlocales list for example 
+/// Applications need to include `AppLocalizations.delegate()` in their app's
+/// `localizationDelegates` list, and the locales they support in the app's
+/// `supportedLocales` list. For example:
 ///
-/// dart
-/// import l10n app localizations dart 
+/// ```dart
+/// import 'l10n/app_localizations.dart';
 ///
-/// return materialapp 
-/// localizationsdelegates applocalizations localizationsdelegates 
-/// supportedlocales applocalizations supportedlocales 
-/// home myapplicationhome 
-/// 
-/// 
+/// return MaterialApp(
+///   localizationsDelegates: AppLocalizations.localizationsDelegates,
+///   supportedLocales: AppLocalizations.supportedLocales,
+///   home: MyApplicationHome(),
+/// );
+/// ```
 ///
-/// update pubspec yaml
+/// ## Update pubspec.yaml
 ///
-/// please make sure to update your pubspec yaml to include the following
-/// packages 
+/// Please make sure to update your pubspec.yaml to include the following
+/// packages:
 ///
-/// yaml
-/// dependencies 
-/// internationalization support 
-/// flutter localizations 
-/// sdk flutter
-/// intl any use the pinned version from flutter localizations
+/// ```yaml
+/// dependencies:
+///   # Internationalization support.
+///   flutter_localizations:
+///     sdk: flutter
+///   intl: any # Use the pinned version from flutter_localizations
 ///
-/// rest of dependencies
-/// 
+///   # Rest of dependencies
+/// ```
 ///
-/// ios applications
+/// ## iOS Applications
 ///
-/// ios applications define key application metadata including supported
-/// locales in an info plist file that is built into the application bundle 
-/// to configure the locales supported by your app you ll need to edit this
-/// file 
+/// iOS applications define key application metadata, including supported
+/// locales, in an Info.plist file that is built into the application bundle.
+/// To configure the locales supported by your app, you’ll need to edit this
+/// file.
 ///
-/// first open your project s ios runner xcworkspace xcode workspace file 
-/// then in the project navigator open the info plist file under the runner
-/// project s runner folder 
+/// First, open your project’s ios/Runner.xcworkspace Xcode workspace file.
+/// Then, in the Project Navigator, open the Info.plist file under the Runner
+/// project’s Runner folder.
 ///
-/// next select the information property list item select add item from the
-/// editor menu then select localizations from the pop up menu 
+/// Next, select the Information Property List item, select Add Item from the
+/// Editor menu, then select Localizations from the pop-up menu.
 ///
-/// select and expand the newly created localizations item then for each
-/// locale your application supports add a new item and select the locale
-/// you wish to add from the pop up menu in the value field this list should
-/// be consistent with the languages listed in the applocalizations supportedlocales
-/// property 
+/// Select and expand the newly-created Localizations item then, for each
+/// locale your application supports, add a new item and select the locale
+/// you wish to add from the pop-up menu in the Value field. This list should
+/// be consistent with the languages listed in the AppLocalizations.supportedLocales
+/// property.
 abstract class AppLocalizations {
   AppLocalizations(String locale)
     : localeName = intl.Intl.canonicalizedLocale(locale.toString());
@@ -74,16 +74,16 @@ abstract class AppLocalizations {
   static const LocalizationsDelegate<AppLocalizations> delegate =
       _AppLocalizationsDelegate();
 
-  /// a list of this localizations delegate along with the default localizations
-  /// delegates 
+  /// A list of this localizations delegate along with the default localizations
+  /// delegates.
   ///
-  /// returns a list of localizations delegates containing this delegate along with
-  /// globalmateriallocalizations delegate globalcupertinolocalizations delegate 
-  /// and globalwidgetslocalizations delegate 
+  /// Returns a list of localizations delegates containing this delegate along with
+  /// GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate,
+  /// and GlobalWidgetsLocalizations.delegate.
   ///
-  /// additional delegates can be added by appending to this list in
-  /// materialapp this list does not have to be used at all if a custom list
-  /// of delegates is preferred or required 
+  /// Additional delegates can be added by appending to this list in
+  /// MaterialApp. This list does not have to be used at all if a custom list
+  /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
         delegate,
@@ -92,1726 +92,1726 @@ abstract class AppLocalizations {
         GlobalWidgetsLocalizations.delegate,
       ];
 
-  /// a list of this localizations delegate s supported locales 
+  /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
     Locale('es'),
   ];
 
-  /// no description provided for welcomeback 
+  /// No description provided for @welcomeBack.
   ///
-  /// in es this message translates to 
-  /// bienvenido de nuevo 
+  /// In es, this message translates to:
+  /// **'Bienvenido de nuevo'**
   String get welcomeBack;
 
-  /// no description provided for loginsubtitle 
+  /// No description provided for @loginSubtitle.
   ///
-  /// in es this message translates to 
-  /// inicia sesión con tu cuenta universitaria para acceder 
+  /// In es, this message translates to:
+  /// **'Inicia sesión con tu cuenta universitaria para acceder.'**
   String get loginSubtitle;
 
-  /// no description provided for continuewithgoogle 
+  /// No description provided for @continueWithGoogle.
   ///
-  /// in es this message translates to 
-  /// continuar con google 
+  /// In es, this message translates to:
+  /// **'Continuar con Google'**
   String get continueWithGoogle;
 
-  /// no description provided for signingin 
+  /// No description provided for @signingIn.
   ///
-  /// in es this message translates to 
-  /// iniciando sesión 
+  /// In es, this message translates to:
+  /// **'Iniciando sesión...'**
   String get signingIn;
 
-  /// no description provided for login 
+  /// No description provided for @login.
   ///
-  /// in es this message translates to 
-  /// iniciar sesión 
+  /// In es, this message translates to:
+  /// **'Iniciar sesión'**
   String get login;
 
-  /// no description provided for register 
+  /// No description provided for @register.
   ///
-  /// in es this message translates to 
-  /// registrarse 
+  /// In es, this message translates to:
+  /// **'Registrarse'**
   String get register;
 
-  /// no description provided for email 
+  /// No description provided for @email.
   ///
-  /// in es this message translates to 
-  /// correo electrónico 
+  /// In es, this message translates to:
+  /// **'Correo electrónico'**
   String get email;
 
-  /// no description provided for password 
+  /// No description provided for @password.
   ///
-  /// in es this message translates to 
-  /// contraseña 
+  /// In es, this message translates to:
+  /// **'Contraseña'**
   String get password;
 
-  /// no description provided for confirmpassword 
+  /// No description provided for @confirmPassword.
   ///
-  /// in es this message translates to 
-  /// confirmar contraseña 
+  /// In es, this message translates to:
+  /// **'Confirmar contraseña'**
   String get confirmPassword;
 
-  /// no description provided for forgotpassword 
+  /// No description provided for @forgotPassword.
   ///
-  /// in es this message translates to 
-  /// olvidaste tu contraseña 
+  /// In es, this message translates to:
+  /// **'¿Olvidaste tu contraseña?'**
   String get forgotPassword;
 
-  /// no description provided for noaccount 
+  /// No description provided for @noAccount.
   ///
-  /// in es this message translates to 
-  /// no tienes una cuenta 
+  /// In es, this message translates to:
+  /// **'¿No tienes una cuenta?'**
   String get noAccount;
 
-  /// no description provided for haveaccount 
+  /// No description provided for @haveAccount.
   ///
-  /// in es this message translates to 
-  /// ya tienes una cuenta 
+  /// In es, this message translates to:
+  /// **'¿Ya tienes una cuenta?'**
   String get haveAccount;
 
-  /// no description provided for loginwithemail 
+  /// No description provided for @loginWithEmail.
   ///
-  /// in es this message translates to 
-  /// iniciar sesión con correo 
+  /// In es, this message translates to:
+  /// **'Iniciar sesión con correo'**
   String get loginWithEmail;
 
-  /// no description provided for registerwithemail 
+  /// No description provided for @registerWithEmail.
   ///
-  /// in es this message translates to 
-  /// registrarse con correo 
+  /// In es, this message translates to:
+  /// **'Registrarse con correo'**
   String get registerWithEmail;
 
-  /// no description provided for orcontinuewith 
+  /// No description provided for @orContinueWith.
   ///
-  /// in es this message translates to 
-  /// o continuar con 
+  /// In es, this message translates to:
+  /// **'o continuar con'**
   String get orContinueWith;
 
-  /// no description provided for orregisterwith 
+  /// No description provided for @orRegisterWith.
   ///
-  /// in es this message translates to 
-  /// o registrarse con 
+  /// In es, this message translates to:
+  /// **'o registrarse con'**
   String get orRegisterWith;
 
-  /// no description provided for student 
+  /// No description provided for @student.
   ///
-  /// in es this message translates to 
-  /// alumno 
+  /// In es, this message translates to:
+  /// **'Alumno'**
   String get student;
 
-  /// no description provided for teacher 
+  /// No description provided for @teacher.
   ///
-  /// in es this message translates to 
-  /// docente 
+  /// In es, this message translates to:
+  /// **'Docente'**
   String get teacher;
 
-  /// no description provided for selectrole 
+  /// No description provided for @selectRole.
   ///
-  /// in es this message translates to 
-  /// selecciona tu rol 
+  /// In es, this message translates to:
+  /// **'Selecciona tu rol'**
   String get selectRole;
 
-  /// no description provided for roleselectionsubtitle 
+  /// No description provided for @roleSelectionSubtitle.
   ///
-  /// in es this message translates to 
-  /// elige cómo quieres acceder a corvus hoy 
+  /// In es, this message translates to:
+  /// **'Elige cómo quieres acceder a Corvus hoy.'**
   String get roleSelectionSubtitle;
 
-  /// no description provided for loginasstudent 
+  /// No description provided for @loginAsStudent.
   ///
-  /// in es this message translates to 
-  /// iniciar sesión como alumno 
+  /// In es, this message translates to:
+  /// **'Iniciar sesión como Alumno'**
   String get loginAsStudent;
 
-  /// no description provided for loginasteacher 
+  /// No description provided for @loginAsTeacher.
   ///
-  /// in es this message translates to 
-  /// iniciar sesión como docente 
+  /// In es, this message translates to:
+  /// **'Iniciar sesión como Docente'**
   String get loginAsTeacher;
 
-  /// no description provided for registerasstudent 
+  /// No description provided for @registerAsStudent.
   ///
-  /// in es this message translates to 
-  /// registrarse como alumno 
+  /// In es, this message translates to:
+  /// **'Registrarse como Alumno'**
   String get registerAsStudent;
 
-  /// no description provided for registerasteacher 
+  /// No description provided for @registerAsTeacher.
   ///
-  /// in es this message translates to 
-  /// registrarse como docente 
+  /// In es, this message translates to:
+  /// **'Registrarse como Docente'**
   String get registerAsTeacher;
 
-  /// no description provided for welcometo 
+  /// No description provided for @welcomeTo.
   ///
-  /// in es this message translates to 
-  /// bienvenido a 
+  /// In es, this message translates to:
+  /// **'Bienvenido a'**
   String get welcomeTo;
 
-  /// no description provided for universityemailhint 
+  /// No description provided for @universityEmailHint.
   ///
-  /// in es this message translates to 
-  /// se recomienda correo institucional 
+  /// In es, this message translates to:
+  /// **'Se recomienda correo institucional'**
   String get universityEmailHint;
 
-  /// no description provided for swipetochange 
+  /// No description provided for @swipeToChange.
   ///
-  /// in es this message translates to 
-  /// desliza para cambiar de rol 
+  /// In es, this message translates to:
+  /// **'Desliza para cambiar de rol'**
   String get swipeToChange;
 
-  /// no description provided for invalidemail 
+  /// No description provided for @invalidEmail.
   ///
-  /// in es this message translates to 
-  /// por favor ingresa un correo válido 
+  /// In es, this message translates to:
+  /// **'Por favor ingresa un correo válido'**
   String get invalidEmail;
 
-  /// no description provided for invalidpassword 
+  /// No description provided for @invalidPassword.
   ///
-  /// in es this message translates to 
-  /// la contraseña debe tener al menos 6 caracteres 
+  /// In es, this message translates to:
+  /// **'La contraseña debe tener al menos 6 caracteres'**
   String get invalidPassword;
 
-  /// no description provided for passwordmismatch 
+  /// No description provided for @passwordMismatch.
   ///
-  /// in es this message translates to 
-  /// las contraseñas no coinciden 
+  /// In es, this message translates to:
+  /// **'Las contraseñas no coinciden'**
   String get passwordMismatch;
 
-  /// no description provided for requiredfield 
+  /// No description provided for @requiredField.
   ///
-  /// in es this message translates to 
-  /// este campo es obligatorio 
+  /// In es, this message translates to:
+  /// **'Este campo es obligatorio'**
   String get requiredField;
 
-  /// no description provided for termsofuse 
+  /// No description provided for @termsOfUse.
   ///
-  /// in es this message translates to 
-  /// al continuar aceptas nuestros 
+  /// In es, this message translates to:
+  /// **'Al continuar, aceptas nuestros'**
   String get termsOfUse;
 
-  /// no description provided for unknownerror 
+  /// No description provided for @unknownError.
   ///
-  /// in es this message translates to 
-  /// ocurrió un error desconocido 
+  /// In es, this message translates to:
+  /// **'Ocurrió un error desconocido'**
   String get unknownError;
 
-  /// no description provided for exclusiveaccessinfo 
+  /// No description provided for @exclusiveAccessInfo.
   ///
-  /// in es this message translates to 
-  /// acceso exclusivo para alumnos con dominio institucional activo 
+  /// In es, this message translates to:
+  /// **'Acceso exclusivo para alumnos con dominio institucional activo.'**
   String get exclusiveAccessInfo;
 
-  /// no description provided for terms 
+  /// No description provided for @terms.
   ///
-  /// in es this message translates to 
-  /// términos 
+  /// In es, this message translates to:
+  /// **'Términos'**
   String get terms;
 
-  /// no description provided for privacy 
+  /// No description provided for @privacy.
   ///
-  /// in es this message translates to 
-  /// privacidad 
+  /// In es, this message translates to:
+  /// **'Privacidad'**
   String get privacy;
 
-  /// no description provided for help 
+  /// No description provided for @help.
   ///
-  /// in es this message translates to 
-  /// ayuda 
+  /// In es, this message translates to:
+  /// **'Ayuda'**
   String get help;
 
-  /// no description provided for apptitle 
+  /// No description provided for @appTitle.
   ///
-  /// in es this message translates to 
-  /// corvus 
+  /// In es, this message translates to:
+  /// **'Corvus'**
   String get appTitle;
 
-  /// no description provided for and 
+  /// No description provided for @and.
   ///
-  /// in es this message translates to 
-  /// y 
+  /// In es, this message translates to:
+  /// **'y'**
   String get and;
 
-  /// no description provided for privacypolicy 
+  /// No description provided for @privacyPolicy.
   ///
-  /// in es this message translates to 
-  /// política de privacidad 
+  /// In es, this message translates to:
+  /// **'Política de Privacidad'**
   String get privacyPolicy;
 
-  /// no description provided for termsofservice 
+  /// No description provided for @termsOfService.
   ///
-  /// in es this message translates to 
-  /// términos de servicio 
+  /// In es, this message translates to:
+  /// **'Términos de Servicio'**
   String get termsOfService;
 
-  /// no description provided for navinspiration 
+  /// No description provided for @navInspiration.
   ///
-  /// in es this message translates to 
-  /// inspiración 
+  /// In es, this message translates to:
+  /// **'Inspiración'**
   String get navInspiration;
 
-  /// no description provided for navmyproject 
+  /// No description provided for @navMyProject.
   ///
-  /// in es this message translates to 
-  /// mi proyecto 
+  /// In es, this message translates to:
+  /// **'Mi Proyecto'**
   String get navMyProject;
 
-  /// no description provided for navteams 
+  /// No description provided for @navTeams.
   ///
-  /// in es this message translates to 
-  /// equipos 
+  /// In es, this message translates to:
+  /// **'Equipos'**
   String get navTeams;
 
-  /// no description provided for navprofile 
+  /// No description provided for @navProfile.
   ///
-  /// in es this message translates to 
-  /// perfil 
+  /// In es, this message translates to:
+  /// **'Perfil'**
   String get navProfile;
 
-  /// no description provided for navsearch 
+  /// No description provided for @navSearch.
   ///
-  /// in es this message translates to 
-  /// buscar 
+  /// In es, this message translates to:
+  /// **'Buscar'**
   String get navSearch;
 
-  /// no description provided for navprojects 
+  /// No description provided for @navProjects.
   ///
-  /// in es this message translates to 
-  /// proyectos 
+  /// In es, this message translates to:
+  /// **'Proyectos'**
   String get navProjects;
 
-  /// no description provided for welcometocorvus 
+  /// No description provided for @welcomeToCorvus.
   ///
-  /// in es this message translates to 
-  /// bienvenido a corvus 
+  /// In es, this message translates to:
+  /// **'Bienvenido a Corvus'**
   String get welcomeToCorvus;
 
-  /// no description provided for welcomecorvusdesc 
+  /// No description provided for @welcomeCorvusDesc.
   ///
-  /// in es this message translates to 
-  /// corvus analiza y agrupa repositorios académicos para revelar áreas de investigación inexploradas descubre oportunidades únicas para tu próximo gran proyecto 
+  /// In es, this message translates to:
+  /// **'Corvus analiza y agrupa repositorios académicos para revelar áreas de investigación inexploradas. Descubre oportunidades únicas para tu próximo gran proyecto.'**
   String get welcomeCorvusDesc;
 
-  /// no description provided for unexploredprojects 
+  /// No description provided for @unexploredProjects.
   ///
-  /// in es this message translates to 
-  /// proyectos inexplorados 
+  /// In es, this message translates to:
+  /// **'Proyectos Inexplorados'**
   String get unexploredProjects;
 
-  /// no description provided for unexploredprojectsdesc 
+  /// No description provided for @unexploredProjectsDesc.
   ///
-  /// in es this message translates to 
-  /// basado en el análisis de 10 000 tesis recientes 
+  /// In es, this message translates to:
+  /// **'Basado en el análisis de +10,000 tesis recientes.'**
   String get unexploredProjectsDesc;
 
-  /// no description provided for highpotential 
+  /// No description provided for @highPotential.
   ///
-  /// in es this message translates to 
-  /// alto potencial 
+  /// In es, this message translates to:
+  /// **'Alto Potencial'**
   String get highPotential;
 
-  /// no description provided for explore 
+  /// No description provided for @explore.
   ///
-  /// in es this message translates to 
-  /// explorar 
+  /// In es, this message translates to:
+  /// **'Explorar'**
   String get explore;
 
-  /// no description provided for generateideas 
+  /// No description provided for @generateIdeas.
   ///
-  /// in es this message translates to 
-  /// generar ideas 
+  /// In es, this message translates to:
+  /// **'Generar Ideas'**
   String get generateIdeas;
 
-  /// no description provided for lookingforsomethingdifferent 
+  /// No description provided for @lookingForSomethingDifferent.
   ///
-  /// in es this message translates to 
-  /// buscas algo diferente 
+  /// In es, this message translates to:
+  /// **'¿Buscas algo diferente?'**
   String get lookingForSomethingDifferent;
 
-  /// no description provided for lookingforsomethingdifferentdesc 
+  /// No description provided for @lookingForSomethingDifferentDesc.
   ///
-  /// in es this message translates to 
-  /// escribe tus temas de interés y nuestra inteligencia artificial creará propuestas de investigación únicas y a tu medida 
+  /// In es, this message translates to:
+  /// **'Escribe tus temas de interés y nuestra Inteligencia Artificial creará propuestas de investigación únicas y a tu medida.'**
   String get lookingForSomethingDifferentDesc;
 
-  /// no description provided for searchplaceholder 
+  /// No description provided for @searchPlaceholder.
   ///
-  /// in es this message translates to 
-  /// ej energía sociología 
+  /// In es, this message translates to:
+  /// **'Ej: Energía + Sociología...'**
   String get searchPlaceholder;
 
-  /// no description provided for profnavdash 
+  /// No description provided for @profNavDash.
   ///
-  /// in es this message translates to 
-  /// tablero 
+  /// In es, this message translates to:
+  /// **'Tablero'**
   String get profNavDash;
 
-  /// no description provided for profnavreviews 
+  /// No description provided for @profNavReviews.
   ///
-  /// in es this message translates to 
-  /// revisiones 
+  /// In es, this message translates to:
+  /// **'Revisiones'**
   String get profNavReviews;
 
-  /// no description provided for profnavrules 
+  /// No description provided for @profNavRules.
   ///
-  /// in es this message translates to 
-  /// reglas 
+  /// In es, this message translates to:
+  /// **'Reglas'**
   String get profNavRules;
 
-  /// no description provided for profnavhistory 
+  /// No description provided for @profNavHistory.
   ///
-  /// in es this message translates to 
-  /// historial 
+  /// In es, this message translates to:
+  /// **'Historial'**
   String get profNavHistory;
 
-  /// no description provided for featureupcoming 
+  /// No description provided for @featureUpcoming.
   ///
-  /// in es this message translates to 
-  /// función disponible en el próximo release académico 
+  /// In es, this message translates to:
+  /// **'Función disponible en el próximo release académico.'**
   String get featureUpcoming;
 
-  /// no description provided for manage 
+  /// No description provided for @manage.
   ///
-  /// in es this message translates to 
-  /// gestionar 
+  /// In es, this message translates to:
+  /// **'Gestionar'**
   String get manage;
 
-  /// no description provided for generateworkplan 
+  /// No description provided for @generateWorkPlan.
   ///
-  /// in es this message translates to 
-  /// generar plan de trabajo 
+  /// In es, this message translates to:
+  /// **'Generar Plan de Trabajo'**
   String get generateWorkPlan;
 
-  /// no description provided for leaveteam 
+  /// No description provided for @leaveTeam.
   ///
-  /// in es this message translates to 
-  /// salir del equipo 
+  /// In es, this message translates to:
+  /// **'Salir del equipo'**
   String get leaveTeam;
 
-  /// no description provided for teammanagementtitle 
+  /// No description provided for @teamManagementTitle.
   ///
-  /// in es this message translates to 
-  /// gestión de equipo 
+  /// In es, this message translates to:
+  /// **'Gestión de Equipo'**
   String get teamManagementTitle;
 
-  /// no description provided for teammanagementdesc 
+  /// No description provided for @teamManagementDesc.
   ///
-  /// in es this message translates to 
-  /// proyecto final implementación de rag para análisis documental administra los miembros de tu grupo de investigación 
+  /// In es, this message translates to:
+  /// **'Proyecto Final: \"Implementación de RAG para Análisis Documental\". Administra los miembros de tu grupo de investigación.'**
   String get teamManagementDesc;
 
-  /// no description provided for teamfull 
+  /// No description provided for @teamFull.
   ///
-  /// in es this message translates to 
-  /// equipo completo 
+  /// In es, this message translates to:
+  /// **'Equipo Completo'**
   String get teamFull;
 
-  /// no description provided for members 
+  /// No description provided for @members.
   ///
-  /// in es this message translates to 
-  /// integrantes 
+  /// In es, this message translates to:
+  /// **'Integrantes'**
   String get members;
 
-  /// no description provided for pendinginvitations 
+  /// No description provided for @pendingInvitations.
   ///
-  /// in es this message translates to 
-  /// invitaciones pendientes 
+  /// In es, this message translates to:
+  /// **'Invitaciones Pendientes'**
   String get pendingInvitations;
 
-  /// no description provided for twodaysago 
+  /// No description provided for @twoDaysAgo.
   ///
-  /// in es this message translates to 
-  /// hace 2 días 
+  /// In es, this message translates to:
+  /// **'Hace 2 días'**
   String get twoDaysAgo;
 
-  /// no description provided for teamfullinvitenotice 
+  /// No description provided for @teamFullInviteNotice.
   ///
-  /// in es this message translates to 
-  /// el equipo está lleno cancela una invitación para invitar a alguien más 
+  /// In es, this message translates to:
+  /// **'El equipo está lleno. Cancela una invitación para invitar a alguien más.'**
   String get teamFullInviteNotice;
 
-  /// no description provided for aiassistantteamsuggestionspan1 
+  /// No description provided for @aiAssistantTeamSuggestionSpan1.
   ///
-  /// in es this message translates to 
-  /// basado en los perfiles de tu equipo tienen una 
+  /// In es, this message translates to:
+  /// **'Basado en los perfiles de tu equipo, tienen una '**
   String get aiAssistantTeamSuggestionSpan1;
 
-  /// no description provided for aiassistantteamsuggestionspan2 
+  /// No description provided for @aiAssistantTeamSuggestionSpan2.
   ///
-  /// in es this message translates to 
-  /// fuerte cobertura 
+  /// In es, this message translates to:
+  /// **'fuerte cobertura'**
   String get aiAssistantTeamSuggestionSpan2;
 
-  /// no description provided for aiassistantteamsuggestionspan3 
+  /// No description provided for @aiAssistantTeamSuggestionSpan3.
   ///
-  /// in es this message translates to 
-  /// en backend y frontend se sugiere asignar tareas de 
+  /// In es, this message translates to:
+  /// **' en Backend y Frontend. Se sugiere asignar tareas de '**
   String get aiAssistantTeamSuggestionSpan3;
 
-  /// no description provided for aiassistantteamsuggestionspan4 
+  /// No description provided for @aiAssistantTeamSuggestionSpan4.
   ///
-  /// in es this message translates to 
-  /// documentación y pruebas unitarias 
+  /// In es, this message translates to:
+  /// **'documentación y pruebas unitarias'**
   String get aiAssistantTeamSuggestionSpan4;
 
-  /// no description provided for aiassistantteamsuggestionspan5 
+  /// No description provided for @aiAssistantTeamSuggestionSpan5.
   ///
-  /// in es this message translates to 
-  /// equitativamente para el próximo sprint 
+  /// In es, this message translates to:
+  /// **' equitativamente para el próximo sprint.'**
   String get aiAssistantTeamSuggestionSpan5;
 
-  /// no description provided for youleader 
+  /// No description provided for @youLeader.
   ///
-  /// in es this message translates to 
-  /// tú líder 
+  /// In es, this message translates to:
+  /// **'TÚ (LÍDER)'**
   String get youLeader;
 
-  /// no description provided for registerrule 
+  /// No description provided for @registerRule.
   ///
-  /// in es this message translates to 
-  /// registrar regla 
+  /// In es, this message translates to:
+  /// **'Registrar Regla'**
   String get registerRule;
 
-  /// no description provided for viewreports 
+  /// No description provided for @viewReports.
   ///
-  /// in es this message translates to 
-  /// ver todos los reportes 
+  /// In es, this message translates to:
+  /// **'Ver todos los reportes'**
   String get viewReports;
 
-  /// no description provided for citeteam 
+  /// No description provided for @citeTeam.
   ///
-  /// in es this message translates to 
-  /// citar equipo 
+  /// In es, this message translates to:
+  /// **'Citar Equipo'**
   String get citeTeam;
 
-  /// no description provided for approve 
+  /// No description provided for @approve.
   ///
-  /// in es this message translates to 
-  /// aprobar 
+  /// In es, this message translates to:
+  /// **'Aprobar'**
   String get approve;
 
-  /// no description provided for reject 
+  /// No description provided for @reject.
   ///
-  /// in es this message translates to 
-  /// rechazar 
+  /// In es, this message translates to:
+  /// **'Rechazar'**
   String get reject;
 
-  /// no description provided for accept 
+  /// No description provided for @accept.
   ///
-  /// in es this message translates to 
-  /// aceptar 
+  /// In es, this message translates to:
+  /// **'Aceptar'**
   String get accept;
 
-  /// no description provided for delete 
+  /// No description provided for @delete.
   ///
-  /// in es this message translates to 
-  /// eliminar 
+  /// In es, this message translates to:
+  /// **'Eliminar'**
   String get delete;
 
-  /// no description provided for cancel 
+  /// No description provided for @cancel.
   ///
-  /// in es this message translates to 
-  /// cancelar 
+  /// In es, this message translates to:
+  /// **'Cancelar'**
   String get cancel;
 
-  /// no description provided for retry 
+  /// No description provided for @retry.
   ///
-  /// in es this message translates to 
-  /// reintentar 
+  /// In es, this message translates to:
+  /// **'Reintentar'**
   String get retry;
 
-  /// no description provided for savechanges 
+  /// No description provided for @saveChanges.
   ///
-  /// in es this message translates to 
-  /// guardar cambios 
+  /// In es, this message translates to:
+  /// **'Guardar Cambios'**
   String get saveChanges;
 
-  /// no description provided for gpa 
+  /// No description provided for @gpa.
   ///
-  /// in es this message translates to 
-  /// promedio 
+  /// In es, this message translates to:
+  /// **'PROMEDIO'**
   String get gpa;
 
-  /// no description provided for projects 
+  /// No description provided for @projects.
   ///
-  /// in es this message translates to 
-  /// proyectos 
+  /// In es, this message translates to:
+  /// **'PROYECTOS'**
   String get projects;
 
-  /// no description provided for technicalskills 
+  /// No description provided for @technicalSkills.
   ///
-  /// in es this message translates to 
-  /// habilidades técnicas 
+  /// In es, this message translates to:
+  /// **'Habilidades Técnicas'**
   String get technicalSkills;
 
-  /// no description provided for recentactivity 
+  /// No description provided for @recentActivity.
   ///
-  /// in es this message translates to 
-  /// actividad reciente 
+  /// In es, this message translates to:
+  /// **'Actividad Reciente'**
   String get recentActivity;
 
-  /// no description provided for ragengineupdate 
+  /// No description provided for @ragEngineUpdate.
   ///
-  /// in es this message translates to 
-  /// actualización en rag core engine 
+  /// In es, this message translates to:
+  /// **'Actualización en RAG Core Engine'**
   String get ragEngineUpdate;
 
-  /// no description provided for timetwohoursago 
+  /// No description provided for @timeTwoHoursAgo.
   ///
-  /// in es this message translates to 
-  /// hace 2h 
+  /// In es, this message translates to:
+  /// **'Hace 2h'**
   String get timeTwoHoursAgo;
 
-  /// no description provided for readingcompleted 
+  /// No description provided for @readingCompleted.
   ///
-  /// in es this message translates to 
-  /// lectura completada narquitecturas transformer 
+  /// In es, this message translates to:
+  /// **'Lectura Completada:\nArquitecturas Transformer'**
   String get readingCompleted;
 
-  /// no description provided for timeyesterday 
+  /// No description provided for @timeYesterday.
   ///
-  /// in es this message translates to 
-  /// ayer 
+  /// In es, this message translates to:
+  /// **'Ayer'**
   String get timeYesterday;
 
-  /// no description provided for appearance 
+  /// No description provided for @appearance.
   ///
-  /// in es this message translates to 
-  /// apariencia 
+  /// In es, this message translates to:
+  /// **'Apariencia'**
   String get appearance;
 
-  /// no description provided for themesystem 
+  /// No description provided for @themeSystem.
   ///
-  /// in es this message translates to 
-  /// sistema 
+  /// In es, this message translates to:
+  /// **'Sistema'**
   String get themeSystem;
 
-  /// no description provided for themelight 
+  /// No description provided for @themeLight.
   ///
-  /// in es this message translates to 
-  /// claro 
+  /// In es, this message translates to:
+  /// **'Claro'**
   String get themeLight;
 
-  /// no description provided for themedark 
+  /// No description provided for @themeDark.
   ///
-  /// in es this message translates to 
-  /// oscuro 
+  /// In es, this message translates to:
+  /// **'Oscuro'**
   String get themeDark;
 
-  /// no description provided for logout 
+  /// No description provided for @logout.
   ///
-  /// in es this message translates to 
-  /// cerrar sesión 
+  /// In es, this message translates to:
+  /// **'Cerrar Sesión'**
   String get logout;
 
-  /// no description provided for errorcredentialsdrivecorvus 
+  /// No description provided for @errorCredentialsDriveCorvus.
   ///
-  /// in es this message translates to 
-  /// error no se pudo obtener las credenciales necesarias drive o corvus 
+  /// In es, this message translates to:
+  /// **'Error: No se pudo obtener las credenciales necesarias (Drive o Corvus).'**
   String get errorCredentialsDriveCorvus;
 
-  /// no description provided for folderalreadylinked 
+  /// No description provided for @folderAlreadyLinked.
   ///
-  /// in es this message translates to 
-  /// carpeta vinculada ya estaba sincronizada previamente en corvus 
+  /// In es, this message translates to:
+  /// **'Carpeta vinculada (Ya estaba sincronizada previamente en Corvus).'**
   String get folderAlreadyLinked;
 
-  /// no description provided for folderlinkedprocessingstarted 
+  /// No description provided for @folderLinkedProcessingStarted.
   ///
-  /// in es this message translates to 
-  /// carpeta vinculada el procesamiento ha comenzado en segundo plano 
+  /// In es, this message translates to:
+  /// **'¡Carpeta vinculada! El procesamiento ha comenzado en segundo plano.'**
   String get folderLinkedProcessingStarted;
 
-  /// no description provided for removeaccesstitle 
+  /// No description provided for @removeAccessTitle.
   ///
-  /// in es this message translates to 
-  /// quitar acceso 
+  /// In es, this message translates to:
+  /// **'¿Quitar acceso?'**
   String get removeAccessTitle;
 
-  /// no description provided for remove 
+  /// No description provided for @remove.
   ///
-  /// in es this message translates to 
-  /// quitar 
+  /// In es, this message translates to:
+  /// **'Quitar'**
   String get remove;
 
-  /// no description provided for driveaccessrequired 
+  /// No description provided for @driveAccessRequired.
   ///
-  /// in es this message translates to 
-  /// se requiere acceso a drive para sincronizar 
+  /// In es, this message translates to:
+  /// **'Se requiere acceso a Drive para sincronizar.'**
   String get driveAccessRequired;
 
-  /// no description provided for sendforreview 
+  /// No description provided for @sendForReview.
   ///
-  /// in es this message translates to 
-  /// enviar para revisión 
+  /// In es, this message translates to:
+  /// **'Enviar para Revisión'**
   String get sendForReview;
 
-  /// no description provided for browsefiles 
+  /// No description provided for @browseFiles.
   ///
-  /// in es this message translates to 
-  /// explorar archivos 
+  /// In es, this message translates to:
+  /// **'Explorar Archivos'**
   String get browseFiles;
 
-  /// no description provided for understood 
+  /// No description provided for @understood.
   ///
-  /// in es this message translates to 
-  /// entendido 
+  /// In es, this message translates to:
+  /// **'Entendido'**
   String get understood;
 
-  /// no description provided for detailedanalysistitle 
+  /// No description provided for @detailedAnalysisTitle.
   ///
-  /// in es this message translates to 
-  /// análisis detallado 
+  /// In es, this message translates to:
+  /// **'Análisis Detallado'**
   String get detailedAnalysisTitle;
 
-  /// no description provided for prevalidationtitle 
+  /// No description provided for @preValidationTitle.
   ///
-  /// in es this message translates to 
-  /// pre validación de propuesta 
+  /// In es, this message translates to:
+  /// **'Pre-validación de Propuesta'**
   String get preValidationTitle;
 
-  /// no description provided for detailedanalysisdesc 
+  /// No description provided for @detailedAnalysisDesc.
   ///
-  /// in es this message translates to 
-  /// la ia ha evaluado tu documento revisa las métricas clave y las recomendaciones para elevar la calidad de tu proyecto antes de la entrega final 
+  /// In es, this message translates to:
+  /// **'La IA ha evaluado tu documento. Revisa las métricas clave y las recomendaciones para elevar la calidad de tu proyecto antes de la entrega final.'**
   String get detailedAnalysisDesc;
 
-  /// no description provided for prevalidationdesc 
+  /// No description provided for @preValidationDesc.
   ///
-  /// in es this message translates to 
-  /// sube tu documento pdf nuestro motor de ia analizará tu propuesta contra los requerimientos académicos antes de la entrega final 
+  /// In es, this message translates to:
+  /// **'Sube tu documento PDF. Nuestro motor de IA analizará tu propuesta contra los requerimientos académicos antes de la entrega final.'**
   String get preValidationDesc;
 
-  /// no description provided for analyzingstructure 
+  /// No description provided for @analyzingStructure.
   ///
-  /// in es this message translates to 
-  /// analizando estructura 
+  /// In es, this message translates to:
+  /// **'Analizando estructura...'**
   String get analyzingStructure;
 
-  /// no description provided for deletedraft 
+  /// No description provided for @deleteDraft.
   ///
-  /// in es this message translates to 
-  /// eliminar borrador 
+  /// In es, this message translates to:
+  /// **'Eliminar Borrador'**
   String get deleteDraft;
 
-  /// no description provided for uploadanotherproposal 
+  /// No description provided for @uploadAnotherProposal.
   ///
-  /// in es this message translates to 
-  /// cargar otra propuesta 
+  /// In es, this message translates to:
+  /// **'Cargar otra propuesta'**
   String get uploadAnotherProposal;
 
-  /// no description provided for analysisestimatedtime 
+  /// No description provided for @analysisEstimatedTime.
   ///
-  /// in es this message translates to 
-  /// el análisis puede tardar entre 30 y 90 segundos ndependiendo del modelo de ia del servidor 
+  /// In es, this message translates to:
+  /// **'El análisis puede tardar entre 30 y 90 segundos\ndependiendo del modelo de IA del servidor.'**
   String get analysisEstimatedTime;
 
-  /// no description provided for loadingphase1 
+  /// No description provided for @loadingPhase1.
   ///
-  /// in es this message translates to 
-  /// analizando el contenido de tu documento 
+  /// In es, this message translates to:
+  /// **'Analizando el contenido de tu documento...'**
   String get loadingPhase1;
 
-  /// no description provided for loadingphase2 
+  /// No description provided for @loadingPhase2.
   ///
-  /// in es this message translates to 
-  /// limpiando y anonimizando el texto 
+  /// In es, this message translates to:
+  /// **'Limpiando y anonimizando el texto...'**
   String get loadingPhase2;
 
-  /// no description provided for loadingphase3 
+  /// No description provided for @loadingPhase3.
   ///
-  /// in es this message translates to 
-  /// vectorizando el contenido con ia semántica 
+  /// In es, this message translates to:
+  /// **'Vectorizando el contenido con IA semántica...'**
   String get loadingPhase3;
 
-  /// no description provided for loadingphase4 
+  /// No description provided for @loadingPhase4.
   ///
-  /// in es this message translates to 
-  /// buscando proyectos similares en el repositorio histórico 
+  /// In es, this message translates to:
+  /// **'Buscando proyectos similares en el repositorio histórico...'**
   String get loadingPhase4;
 
-  /// no description provided for loadingphase5 
+  /// No description provided for @loadingPhase5.
   ///
-  /// in es this message translates to 
-  /// calculando el riesgo de colisión semántica 
+  /// In es, this message translates to:
+  /// **'Calculando el riesgo de colisión semántica...'**
   String get loadingPhase5;
 
-  /// no description provided for loadingphase6 
+  /// No description provided for @loadingPhase6.
   ///
-  /// in es this message translates to 
-  /// el comité académico está redactando el dictamen 
+  /// In es, this message translates to:
+  /// **'El comité académico está redactando el dictamen...'**
   String get loadingPhase6;
 
-  /// no description provided for loadingphase7 
+  /// No description provided for @loadingPhase7.
   ///
-  /// in es this message translates to 
-  /// generando recomendaciones técnicas personalizadas 
+  /// In es, this message translates to:
+  /// **'Generando recomendaciones técnicas personalizadas...'**
   String get loadingPhase7;
 
-  /// no description provided for loadingphase8 
+  /// No description provided for @loadingPhase8.
   ///
-  /// in es this message translates to 
-  /// afinando el veredicto final casi listo 
+  /// In es, this message translates to:
+  /// **'Afinando el veredicto final, casi listo...'**
   String get loadingPhase8;
 
-  /// no description provided for uploadzonetitle 
+  /// No description provided for @uploadZoneTitle.
   ///
-  /// in es this message translates to 
-  /// arrastra tu propuesta pdf aquí 
+  /// In es, this message translates to:
+  /// **'Arrastra tu propuesta PDF aquí'**
   String get uploadZoneTitle;
 
-  /// no description provided for uploadzonesubtitle 
+  /// No description provided for @uploadZoneSubtitle.
   ///
-  /// in es this message translates to 
-  /// tamaño máximo 10mb formatos pdf 
+  /// In es, this message translates to:
+  /// **'Tamaño máximo: 10MB. Formatos: PDF.'**
   String get uploadZoneSubtitle;
 
-  /// no description provided for uploadedtoday 
+  /// No description provided for @uploadedToday.
   ///
-  /// in es this message translates to 
-  /// subido hoy 
+  /// In es, this message translates to:
+  /// **'Subido hoy'**
   String get uploadedToday;
 
-  /// no description provided for servererrorcontactsupport 
+  /// No description provided for @serverErrorContactSupport.
   ///
-  /// in es this message translates to 
-  /// ocurrió un inconveniente temporal en el servidor por favor reintenta en un momento o contacta a soporte supportemail 
+  /// In es, this message translates to:
+  /// **'Ocurrió un inconveniente temporal en el servidor. Por favor reintenta en un momento o contacta a soporte: {supportEmail}'**
   String serverErrorContactSupport(String supportEmail);
 
-  /// no description provided for loginerrornotallowedemail 
+  /// No description provided for @loginErrorNotAllowedEmail.
   ///
-  /// in es this message translates to 
-  /// fallo al iniciar sesión el correo no está permitido solo se aceptan correos institucionales de la universidad 
+  /// In es, this message translates to:
+  /// **'Fallo al iniciar sesión: El correo no está permitido. Solo se aceptan correos institucionales de la universidad.'**
   String get loginErrorNotAllowedEmail;
 
-  /// no description provided for invaliddocumenttitle 
+  /// No description provided for @invalidDocumentTitle.
   ///
-  /// in es this message translates to 
-  /// documento no válido 
+  /// In es, this message translates to:
+  /// **'Documento no válido'**
   String get invalidDocumentTitle;
 
-  /// no description provided for invaliddocumentdesc 
+  /// No description provided for @invalidDocumentDesc.
   ///
-  /// in es this message translates to 
-  /// el archivo que subiste no parece ser una propuesta de proyecto integrador asegúrate de subir tu propuesta con secciones como objetivo metodología y tecnologías 
+  /// In es, this message translates to:
+  /// **'El archivo que subiste no parece ser una propuesta de proyecto integrador. Asegúrate de subir tu propuesta con secciones como Objetivo, Metodología y Tecnologías.'**
   String get invalidDocumentDesc;
 
-  /// no description provided for invaliddocumentaction 
+  /// No description provided for @invalidDocumentAction.
   ///
-  /// in es this message translates to 
-  /// cargar otro documento 
+  /// In es, this message translates to:
+  /// **'Cargar otro documento'**
   String get invalidDocumentAction;
 
-  /// no description provided for blueoceangenericcategory 
+  /// No description provided for @blueOceanGenericCategory.
   ///
-  /// in es this message translates to 
-  /// innovación académica 
+  /// In es, this message translates to:
+  /// **'INNOVACIÓN ACADÉMICA'**
   String get blueOceanGenericCategory;
 
-  /// no description provided for blueoceangenerictag 
+  /// No description provided for @blueOceanGenericTag.
   ///
-  /// in es this message translates to 
-  /// océano azul real 
+  /// In es, this message translates to:
+  /// **'Océano Azul Real'**
   String get blueOceanGenericTag;
 
-  /// no description provided for blueoceangenericdesc 
+  /// No description provided for @blueOceanGenericDesc.
   ///
-  /// in es this message translates to 
-  /// este proyecto ha sido clasificado como una anomalía semántica de alta varianza indicando un enfoque único e inexplorado respecto a todos los demás trabajos en la base de datos 
+  /// In es, this message translates to:
+  /// **'Este proyecto ha sido clasificado como una anomalía semántica de alta varianza, indicando un enfoque único e inexplorado respecto a todos los demás trabajos en la base de datos.'**
   String get blueOceanGenericDesc;
 
-  /// no description provided for notifuploadtitle 
+  /// No description provided for @notifUploadTitle.
   ///
-  /// in es this message translates to 
-  /// subiendo propuesta 
+  /// In es, this message translates to:
+  /// **'Subiendo propuesta'**
   String get notifUploadTitle;
 
-  /// no description provided for notifuploadbody 
+  /// No description provided for @notifUploadBody.
   ///
-  /// in es this message translates to 
-  /// analizando estructura rag rápida 
+  /// In es, this message translates to:
+  /// **'Analizando estructura RAG rápida...'**
   String get notifUploadBody;
 
-  /// no description provided for notifprevalidreadytitle 
+  /// No description provided for @notifPreValidReadyTitle.
   ///
-  /// in es this message translates to 
-  /// pre validación lista 
+  /// In es, this message translates to:
+  /// **'Pre-validación lista'**
   String get notifPreValidReadyTitle;
 
-  /// no description provided for notifprevalidreadybody 
+  /// No description provided for @notifPreValidReadyBody.
   ///
-  /// in es this message translates to 
-  /// puedes revisar las heurísticas iniciales 
+  /// In es, this message translates to:
+  /// **'Puedes revisar las heurísticas iniciales.'**
   String get notifPreValidReadyBody;
 
-  /// no description provided for notiferrortitle 
+  /// No description provided for @notifErrorTitle.
   ///
-  /// in es this message translates to 
-  /// error 
+  /// In es, this message translates to:
+  /// **'Error'**
   String get notifErrorTitle;
 
-  /// no description provided for notifprevalidfailed 
+  /// No description provided for @notifPreValidFailed.
   ///
-  /// in es this message translates to 
-  /// falló la pre validación 
+  /// In es, this message translates to:
+  /// **'Falló la pre-validación.'**
   String get notifPreValidFailed;
 
-  /// no description provided for notifanalysisstarttitle 
+  /// No description provided for @notifAnalysisStartTitle.
   ///
-  /// in es this message translates to 
-  /// análisis detallado 
+  /// In es, this message translates to:
+  /// **'Análisis Detallado'**
   String get notifAnalysisStartTitle;
 
-  /// no description provided for notifanalysisstartbody 
+  /// No description provided for @notifAnalysisStartBody.
   ///
-  /// in es this message translates to 
-  /// la ia está evaluando rigurosidad y originalidad 
+  /// In es, this message translates to:
+  /// **'La IA está evaluando rigurosidad y originalidad...'**
   String get notifAnalysisStartBody;
 
-  /// no description provided for notifanalysiserrortitle 
+  /// No description provided for @notifAnalysisErrorTitle.
   ///
-  /// in es this message translates to 
-  /// error al iniciar análisis 
+  /// In es, this message translates to:
+  /// **'Error al iniciar análisis'**
   String get notifAnalysisErrorTitle;
 
-  /// no description provided for notifanalysisprogresstitle 
+  /// No description provided for @notifAnalysisProgressTitle.
   ///
-  /// in es this message translates to 
-  /// corvus ia 
+  /// In es, this message translates to:
+  /// **'Corvus IA'**
   String get notifAnalysisProgressTitle;
 
-  /// no description provided for notifanalysisprogressbody 
+  /// No description provided for @notifAnalysisProgressBody.
   ///
-  /// in es this message translates to 
-  /// analizando tu propuesta de proyecto 
+  /// In es, this message translates to:
+  /// **'Analizando tu propuesta de proyecto...'**
   String get notifAnalysisProgressBody;
 
-  /// no description provided for notifanalysiscompletetitle 
+  /// No description provided for @notifAnalysisCompleteTitle.
   ///
-  /// in es this message translates to 
-  /// análisis completado 
+  /// In es, this message translates to:
+  /// **'¡Análisis Completado!'**
   String get notifAnalysisCompleteTitle;
 
-  /// no description provided for notifanalysiscompletebody 
+  /// No description provided for @notifAnalysisCompleteBody.
   ///
-  /// in es this message translates to 
-  /// tu dictamen técnico está listo abre la app para revisarlo 
+  /// In es, this message translates to:
+  /// **'Tu dictamen técnico está listo. Abre la app para revisarlo.'**
   String get notifAnalysisCompleteBody;
 
-  /// no description provided for notifanalysisfailedtitle 
+  /// No description provided for @notifAnalysisFailedTitle.
   ///
-  /// in es this message translates to 
-  /// análisis no completado 
+  /// In es, this message translates to:
+  /// **'Análisis no completado'**
   String get notifAnalysisFailedTitle;
 
-  /// no description provided for notifanalysisfailedbody 
+  /// No description provided for @notifAnalysisFailedBody.
   ///
-  /// in es this message translates to 
-  /// el servidor encontró un error 
+  /// In es, this message translates to:
+  /// **'El servidor encontró un error.'**
   String get notifAnalysisFailedBody;
 
-  /// no description provided for searchplaceholderresult 
+  /// No description provided for @searchPlaceholderResult.
   ///
-  /// in es this message translates to 
-  /// resultados para query n pronto conectado a la ia 
+  /// In es, this message translates to:
+  /// **'Resultados para: {query}\n(Pronto conectado a la IA)'**
   String searchPlaceholderResult(String query);
 
-  /// no description provided for searchfieldlabelhint 
+  /// No description provided for @searchFieldLabelHint.
   ///
-  /// in es this message translates to 
-  /// buscar proyectos o temas 
+  /// In es, this message translates to:
+  /// **'Buscar proyectos o temas...'**
   String get searchFieldLabelHint;
 
-  /// no description provided for searchemptystate 
+  /// No description provided for @searchEmptyState.
   ///
-  /// in es this message translates to 
-  /// escribe un tema de investigación 
+  /// In es, this message translates to:
+  /// **'Escribe un tema de investigación'**
   String get searchEmptyState;
 
-  /// no description provided for searchsuggestion 
+  /// No description provided for @searchSuggestion.
   ///
-  /// in es this message translates to 
-  /// buscar query en todos los repositorios 
+  /// In es, this message translates to:
+  /// **'Buscar \"{query}\" en todos los repositorios'**
   String searchSuggestion(String query);
 
-  /// no description provided for manageteamtitle 
+  /// No description provided for @manageTeamTitle.
   ///
-  /// in es this message translates to 
-  /// gestionar equipo 
+  /// In es, this message translates to:
+  /// **'Gestionar Equipo'**
   String get manageTeamTitle;
 
-  /// no description provided for teamnamelabel 
+  /// No description provided for @teamNameLabel.
   ///
-  /// in es this message translates to 
-  /// nombre del equipo 
+  /// In es, this message translates to:
+  /// **'Nombre del Equipo'**
   String get teamNameLabel;
 
-  /// no description provided for teamnamehint 
+  /// No description provided for @teamNameHint.
   ///
-  /// in es this message translates to 
-  /// escribe el nombre del equipo 
+  /// In es, this message translates to:
+  /// **'Escribe el nombre del equipo'**
   String get teamNameHint;
 
-  /// no description provided for teamnamerequired 
+  /// No description provided for @teamNameRequired.
   ///
-  /// in es this message translates to 
-  /// el nombre del equipo es obligatorio 
+  /// In es, this message translates to:
+  /// **'El nombre del equipo es obligatorio'**
   String get teamNameRequired;
 
-  /// no description provided for teamdescriptionlabel 
+  /// No description provided for @teamDescriptionLabel.
   ///
-  /// in es this message translates to 
-  /// descripción del equipo opcional 
+  /// In es, this message translates to:
+  /// **'Descripción del Equipo (Opcional)'**
   String get teamDescriptionLabel;
 
-  /// no description provided for teamdescriptionhint 
+  /// No description provided for @teamDescriptionHint.
   ///
-  /// in es this message translates to 
-  /// añade una descripción amigable 
+  /// In es, this message translates to:
+  /// **'Añade una descripción amigable...'**
   String get teamDescriptionHint;
 
-  /// no description provided for sociallinkstitle 
+  /// No description provided for @socialLinksTitle.
   ///
-  /// in es this message translates to 
-  /// enlaces a grupos de redes sociales 
+  /// In es, this message translates to:
+  /// **'Enlaces a Grupos de Redes Sociales'**
   String get socialLinksTitle;
 
-  /// no description provided for sociallinksdesc 
+  /// No description provided for @socialLinksDesc.
   ///
-  /// in es this message translates to 
-  /// agrega enlaces para que los integrantes se unan a tus canales oficiales 
+  /// In es, this message translates to:
+  /// **'Agrega enlaces para que los integrantes se unan a tus canales oficiales.'**
   String get socialLinksDesc;
 
-  /// no description provided for socialplatformhint 
+  /// No description provided for @socialPlatformHint.
   ///
-  /// in es this message translates to 
-  /// red ej discord 
+  /// In es, this message translates to:
+  /// **'Red (ej. Discord)'**
   String get socialPlatformHint;
 
-  /// no description provided for sociallinkrequired 
+  /// No description provided for @socialLinkRequired.
   ///
-  /// in es this message translates to 
-  /// por favor ingresa el nombre de la red social y la url 
+  /// In es, this message translates to:
+  /// **'Por favor, ingresa el nombre de la red social y la URL'**
   String get socialLinkRequired;
 
-  /// no description provided for socialurlinvalid 
+  /// No description provided for @socialUrlInvalid.
   ///
-  /// in es this message translates to 
-  /// la url debe comenzar con http o https 
+  /// In es, this message translates to:
+  /// **'La URL debe comenzar con http:// o https://'**
   String get socialUrlInvalid;
 
-  /// no description provided for teamsettingssaved 
+  /// No description provided for @teamSettingsSaved.
   ///
-  /// in es this message translates to 
-  /// configuración del equipo guardada con éxito 
+  /// In es, this message translates to:
+  /// **'Configuración del equipo guardada con éxito'**
   String get teamSettingsSaved;
 
-  /// no description provided for teamsettingserror 
+  /// No description provided for @teamSettingsError.
   ///
-  /// in es this message translates to 
-  /// error al guardar cambios error 
+  /// In es, this message translates to:
+  /// **'Error al guardar cambios: {error}'**
   String teamSettingsError(String error);
 
-  /// no description provided for myteam 
+  /// No description provided for @myTeam.
   ///
-  /// in es this message translates to 
-  /// mi equipo 
+  /// In es, this message translates to:
+  /// **'Mi Equipo'**
   String get myTeam;
 
-  /// no description provided for virtualteamdesc 
+  /// No description provided for @virtualTeamDesc.
   ///
-  /// in es this message translates to 
-  /// crea tu equipo personalizando el nombre en el botón gestionar de la derecha y busca integrantes en la pestaña sugerencias 
+  /// In es, this message translates to:
+  /// **'Crea tu equipo personalizando el nombre en el botón \"Gestionar\" de la derecha y busca integrantes en la pestaña \"Sugerencias\".'**
   String get virtualTeamDesc;
 
-  /// no description provided for studentdefaultname 
+  /// No description provided for @studentDefaultName.
   ///
-  /// in es this message translates to 
-  /// estudiante 
+  /// In es, this message translates to:
+  /// **'Estudiante'**
   String get studentDefaultName;
 
-  /// no description provided for yourteambadge 
+  /// No description provided for @yourTeamBadge.
   ///
-  /// in es this message translates to 
-  /// tu equipo 
+  /// In es, this message translates to:
+  /// **'TU EQUIPO'**
   String get yourTeamBadge;
 
-  /// no description provided for teammemberscount 
+  /// No description provided for @teamMembersCount.
   ///
-  /// in es this message translates to 
-  /// count max miembros 
+  /// In es, this message translates to:
+  /// **'{count} / {max} miembros'**
   String teamMembersCount(String count, String max);
 
-  /// no description provided for missingonemember 
+  /// No description provided for @missingOneMember.
   ///
-  /// in es this message translates to 
-  /// te falta 1 integrante 
+  /// In es, this message translates to:
+  /// **'Te falta 1 integrante'**
   String get missingOneMember;
 
-  /// no description provided for missingmembers 
+  /// No description provided for @missingMembers.
   ///
-  /// in es this message translates to 
-  /// te faltan count integrantes 
+  /// In es, this message translates to:
+  /// **'Te faltan {count} integrantes'**
   String missingMembers(String count);
 
-  /// no description provided for searchmembers 
+  /// No description provided for @searchMembers.
   ///
-  /// in es this message translates to 
-  /// buscar integrantes 
+  /// In es, this message translates to:
+  /// **'Buscar integrantes'**
   String get searchMembers;
 
-  /// no description provided for proposalsent 
+  /// No description provided for @proposalSent.
   ///
-  /// in es this message translates to 
-  /// propuesta enviada 
+  /// In es, this message translates to:
+  /// **'Propuesta Enviada'**
   String get proposalSent;
 
-  /// no description provided for proposalapproved 
+  /// No description provided for @proposalApproved.
   ///
-  /// in es this message translates to 
-  /// propuesta aprobada 
+  /// In es, this message translates to:
+  /// **'Propuesta Aprobada'**
   String get proposalApproved;
 
-  /// no description provided for proposalrejected 
+  /// No description provided for @proposalRejected.
   ///
-  /// in es this message translates to 
-  /// propuesta rechazada 
+  /// In es, this message translates to:
+  /// **'Propuesta Rechazada'**
   String get proposalRejected;
 
-  /// no description provided for summonedforreview 
+  /// No description provided for @summonedForReview.
   ///
-  /// in es this message translates to 
-  /// citados a revisión 
+  /// In es, this message translates to:
+  /// **'Citados a Revisión'**
   String get summonedForReview;
 
-  /// no description provided for proposalstatusunknown 
+  /// No description provided for @proposalStatusUnknown.
   ///
-  /// in es this message translates to 
-  /// estado de propuesta desconocido 
+  /// In es, this message translates to:
+  /// **'Estado de propuesta desconocido'**
   String get proposalStatusUnknown;
 
-  /// no description provided for proposalpendingdesc 
+  /// No description provided for @proposalPendingDesc.
   ///
-  /// in es this message translates to 
-  /// el profesorado revisará pronto tu proyecto 
+  /// In es, this message translates to:
+  /// **'El profesorado revisará pronto tu proyecto.'**
   String get proposalPendingDesc;
 
-  /// no description provided for proposalapproveddesc 
+  /// No description provided for @proposalApprovedDesc.
   ///
-  /// in es this message translates to 
-  /// felicidades pueden continuar con el proyecto 
+  /// In es, this message translates to:
+  /// **'¡Felicidades! Pueden continuar con el proyecto.'**
   String get proposalApprovedDesc;
 
-  /// no description provided for proposalrejecteddesc 
+  /// No description provided for @proposalRejectedDesc.
   ///
-  /// in es this message translates to 
-  /// la propuesta no cumple con los criterios académicos 
+  /// In es, this message translates to:
+  /// **'La propuesta no cumple con los criterios académicos.'**
   String get proposalRejectedDesc;
 
-  /// no description provided for appointmentdate 
+  /// No description provided for @appointmentDate.
   ///
-  /// in es this message translates to 
-  /// fecha date 
+  /// In es, this message translates to:
+  /// **'Fecha: {date}'**
   String appointmentDate(String date);
 
-  /// no description provided for appointmentlocation 
+  /// No description provided for @appointmentLocation.
   ///
-  /// in es this message translates to 
-  /// lugar enlace location 
+  /// In es, this message translates to:
+  /// **'Lugar/Enlace: {location}'**
   String appointmentLocation(String location);
 
-  /// no description provided for searchresults 
+  /// No description provided for @searchResults.
   ///
-  /// in es this message translates to 
-  /// resultados de búsqueda 
+  /// In es, this message translates to:
+  /// **'Resultados de búsqueda'**
   String get searchResults;
 
-  /// no description provided for recommendedforyou 
+  /// No description provided for @recommendedForYou.
   ///
-  /// in es this message translates to 
-  /// recomendados para ti 
+  /// In es, this message translates to:
+  /// **'Recomendados para ti'**
   String get recommendedForYou;
 
-  /// no description provided for errorloadingsuggestions 
+  /// No description provided for @errorLoadingSuggestions.
   ///
-  /// in es this message translates to 
-  /// error al cargar sugerencias n error 
+  /// In es, this message translates to:
+  /// **'Error al cargar sugerencias:\n{error}'**
   String errorLoadingSuggestions(String error);
 
-  /// no description provided for nosuggestionsfound 
+  /// No description provided for @noSuggestionsFound.
   ///
-  /// in es this message translates to 
-  /// no hay sugerencias encontradas 
+  /// In es, this message translates to:
+  /// **'No hay sugerencias encontradas'**
   String get noSuggestionsFound;
 
-  /// no description provided for invitationsent 
+  /// No description provided for @invitationSent.
   ///
-  /// in es this message translates to 
-  /// invitación enviada a name 
+  /// In es, this message translates to:
+  /// **'Invitación enviada a {name}'**
   String invitationSent(String name);
 
-  /// no description provided for errorsendinginvitation 
+  /// No description provided for @errorSendingInvitation.
   ///
-  /// in es this message translates to 
-  /// error al enviar invitación error 
+  /// In es, this message translates to:
+  /// **'Error al enviar invitación: {error}'**
   String errorSendingInvitation(String error);
 
-  /// no description provided for received 
+  /// No description provided for @received.
   ///
-  /// in es this message translates to 
-  /// recibidas 
+  /// In es, this message translates to:
+  /// **'Recibidas'**
   String get received;
 
-  /// no description provided for sent 
+  /// No description provided for @sent.
   ///
-  /// in es this message translates to 
-  /// enviadas 
+  /// In es, this message translates to:
+  /// **'Enviadas'**
   String get sent;
 
-  /// no description provided for norequests 
+  /// No description provided for @noRequests.
   ///
-  /// in es this message translates to 
-  /// no hay solicitudes en esta sección 
+  /// In es, this message translates to:
+  /// **'No hay solicitudes en esta sección'**
   String get noRequests;
 
-  /// no description provided for requestcancelled 
+  /// No description provided for @requestCancelled.
   ///
-  /// in es this message translates to 
-  /// solicitud cancelada rechazada 
+  /// In es, this message translates to:
+  /// **'Solicitud cancelada / rechazada'**
   String get requestCancelled;
 
-  /// no description provided for invitationaccepted 
+  /// No description provided for @invitationAccepted.
   ///
-  /// in es this message translates to 
-  /// invitación aceptada te has unido al equipo 
+  /// In es, this message translates to:
+  /// **'Invitación aceptada. Te has unido al equipo!'**
   String get invitationAccepted;
 
-  /// no description provided for wantstojoingroup 
+  /// No description provided for @wantsToJoinGroup.
   ///
-  /// in es this message translates to 
-  /// quiere unirse a tu grupo 
+  /// In es, this message translates to:
+  /// **'Quiere unirse a tu grupo'**
   String get wantsToJoinGroup;
 
-  /// no description provided for invitedtogroup 
+  /// No description provided for @invitedToGroup.
   ///
-  /// in es this message translates to 
-  /// te invitó a formar parte de su grupo 
+  /// In es, this message translates to:
+  /// **'Te invitó a formar parte de su grupo'**
   String get invitedToGroup;
 
-  /// no description provided for teamsformed 
+  /// No description provided for @teamsFormed.
   ///
-  /// in es this message translates to 
-  /// equipos formados 
+  /// In es, this message translates to:
+  /// **'EQUIPOS FORMADOS'**
   String get teamsFormed;
 
-  /// no description provided for proposalsready 
+  /// No description provided for @proposalsReady.
   ///
-  /// in es this message translates to 
-  /// propuestas listas 
+  /// In es, this message translates to:
+  /// **'PROPUESTAS LISTAS'**
   String get proposalsReady;
 
-  /// no description provided for proposalsreadydetail 
+  /// No description provided for @proposalsReadyDetail.
   ///
-  /// in es this message translates to 
-  /// ready de total equipos 
+  /// In es, this message translates to:
+  /// **'{ready} de {total} equipos'**
   String proposalsReadyDetail(String ready, String total);
 
-  /// no description provided for attentionrequired 
+  /// No description provided for @attentionRequired.
   ///
-  /// in es this message translates to 
-  /// atención requerida 
+  /// In es, this message translates to:
+  /// **'Atención Requerida'**
   String get attentionRequired;
 
-  /// no description provided for alluptodate 
+  /// No description provided for @allUpToDate.
   ///
-  /// in es this message translates to 
-  /// todo al día no hay elementos que requieran atención inmediata 
+  /// In es, this message translates to:
+  /// **'Todo al día. No hay elementos que requieran atención inmediata.'**
   String get allUpToDate;
 
-  /// no description provided for quickmetrics 
+  /// No description provided for @quickMetrics.
   ///
-  /// in es this message translates to 
-  /// métricas rápidas 
+  /// In es, this message translates to:
+  /// **'Métricas Rápidas'**
   String get quickMetrics;
 
-  /// no description provided for studentswithteam 
+  /// No description provided for @studentsWithTeam.
   ///
-  /// in es this message translates to 
-  /// count alumnos con equipo 
+  /// In es, this message translates to:
+  /// **'{count} Alumnos con equipo'**
   String studentsWithTeam(String count);
 
-  /// no description provided for studentswithoutteam 
+  /// No description provided for @studentsWithoutTeam.
   ///
-  /// in es this message translates to 
-  /// count alumnos rezagados sin equipo 
+  /// In es, this message translates to:
+  /// **'{count} Alumnos rezagados (sin equipo)'**
   String studentsWithoutTeam(String count);
 
-  /// no description provided for viewlaggingstudentsdirectory 
+  /// No description provided for @viewLaggingStudentsDirectory.
   ///
-  /// in es this message translates to 
-  /// ver directorio de alumnos rezagados 
+  /// In es, this message translates to:
+  /// **'Ver Directorio de Alumnos Rezagados'**
   String get viewLaggingStudentsDirectory;
 
-  /// no description provided for sessionexpired 
+  /// No description provided for @sessionExpired.
   ///
-  /// in es this message translates to 
-  /// tu sesión ha expirado por favor inicia sesión de nuevo 
+  /// In es, this message translates to:
+  /// **'Tu sesión ha expirado. Por favor, inicia sesión de nuevo.'**
   String get sessionExpired;
 
-  /// no description provided for doubletaptoexit 
+  /// No description provided for @doubleTapToExit.
   ///
-  /// in es this message translates to 
-  /// toca volver de nuevo para salir 
+  /// In es, this message translates to:
+  /// **'Toca \"Volver\" de nuevo para salir'**
   String get doubleTapToExit;
 
-  /// no description provided for chatunderconstruction 
+  /// No description provided for @chatUnderConstruction.
   ///
-  /// in es this message translates to 
-  /// chat grupal con ia en construcción 
+  /// In es, this message translates to:
+  /// **'Chat Grupal con IA (En construcción)'**
   String get chatUnderConstruction;
 
-  /// no description provided for maxskillsselected 
+  /// No description provided for @maxSkillsSelected.
   ///
-  /// in es this message translates to 
-  /// puedes seleccionar un máximo de 10 habilidades 
+  /// In es, this message translates to:
+  /// **'Puedes seleccionar un máximo de 10 habilidades'**
   String get maxSkillsSelected;
 
-  /// no description provided for selectatleastoneskill 
+  /// No description provided for @selectAtLeastOneSkill.
   ///
-  /// in es this message translates to 
-  /// selecciona al menos una habilidad 
+  /// In es, this message translates to:
+  /// **'Selecciona al menos una habilidad'**
   String get selectAtLeastOneSkill;
 
-  /// no description provided for selectyourskills 
+  /// No description provided for @selectYourSkills.
   ///
-  /// in es this message translates to 
-  /// selecciona tus habilidades 
+  /// In es, this message translates to:
+  /// **'Selecciona tus habilidades'**
   String get selectYourSkills;
 
-  /// no description provided for chooseskillssubtitle 
+  /// No description provided for @chooseSkillsSubtitle.
   ///
-  /// in es this message translates to 
-  /// elige hasta 10 habilidades que deseas obtener o mejorar en tu carrera selected max 
+  /// In es, this message translates to:
+  /// **'Elige hasta 10 habilidades que deseas obtener o mejorar en tu carrera. ({selected}/{max})'**
   String chooseSkillsSubtitle(String selected, String max);
 
-  /// no description provided for saving 
+  /// No description provided for @saving.
   ///
-  /// in es this message translates to 
-  /// guardando 
+  /// In es, this message translates to:
+  /// **'Guardando...'**
   String get saving;
 
-  /// no description provided for finish 
+  /// No description provided for @finish.
   ///
-  /// in es this message translates to 
-  /// finalizar 
+  /// In es, this message translates to:
+  /// **'Finalizar'**
   String get finish;
 
-  /// no description provided for completeallrequiredfields 
+  /// No description provided for @completeAllRequiredFields.
   ///
-  /// in es this message translates to 
-  /// por favor completa todos los campos requeridos 
+  /// In es, this message translates to:
+  /// **'Por favor, completa todos los campos requeridos'**
   String get completeAllRequiredFields;
 
-  /// no description provided for selectvaliduniversity 
+  /// No description provided for @selectValidUniversity.
   ///
-  /// in es this message translates to 
-  /// por favor selecciona una universidad válida de la lista 
+  /// In es, this message translates to:
+  /// **'Por favor, selecciona una universidad válida de la lista'**
   String get selectValidUniversity;
 
-  /// no description provided for statuspending 
+  /// No description provided for @statusPending.
   ///
-  /// in es this message translates to 
-  /// pendiente 
+  /// In es, this message translates to:
+  /// **'PENDIENTE'**
   String get statusPending;
 
-  /// no description provided for statusapproved 
+  /// No description provided for @statusApproved.
   ///
-  /// in es this message translates to 
-  /// aprobada 
+  /// In es, this message translates to:
+  /// **'APROBADA'**
   String get statusApproved;
 
-  /// no description provided for statusrejected 
+  /// No description provided for @statusRejected.
   ///
-  /// in es this message translates to 
-  /// rechazada 
+  /// In es, this message translates to:
+  /// **'RECHAZADA'**
   String get statusRejected;
 
-  /// no description provided for statussummoned 
+  /// No description provided for @statusSummoned.
   ///
-  /// in es this message translates to 
-  /// citada 
+  /// In es, this message translates to:
+  /// **'CITADA'**
   String get statusSummoned;
 
-  /// no description provided for noproposalstoreview 
+  /// No description provided for @noProposalsToReview.
   ///
-  /// in es this message translates to 
-  /// no hay propuestas para revisión 
+  /// In es, this message translates to:
+  /// **'No hay propuestas para revisión.'**
   String get noProposalsToReview;
 
-  /// no description provided for teamlabel 
+  /// No description provided for @teamLabel.
   ///
-  /// in es this message translates to 
-  /// equipo name 
+  /// In es, this message translates to:
+  /// **'Equipo: {name}'**
   String teamLabel(String name);
 
-  /// no description provided for memberslabel 
+  /// No description provided for @membersLabel.
   ///
-  /// in es this message translates to 
-  /// integrantes members 
+  /// In es, this message translates to:
+  /// **'Integrantes: {members}'**
   String membersLabel(String members);
 
-  /// no description provided for untitledproposal 
+  /// No description provided for @untitledProposal.
   ///
-  /// in es this message translates to 
-  /// propuesta sin título 
+  /// In es, this message translates to:
+  /// **'Propuesta sin título'**
   String get untitledProposal;
 
-  /// no description provided for projectproposal 
+  /// No description provided for @projectProposal.
   ///
-  /// in es this message translates to 
-  /// propuesta de proyecto 
+  /// In es, this message translates to:
+  /// **'Propuesta de Proyecto'**
   String get projectProposal;
 
-  /// no description provided for unnamedteam 
+  /// No description provided for @unnamedTeam.
   ///
-  /// in es this message translates to 
-  /// equipo sin nombre 
+  /// In es, this message translates to:
+  /// **'Equipo sin nombre'**
   String get unnamedTeam;
 
-  /// no description provided for namerequired 
+  /// No description provided for @nameRequired.
   ///
-  /// in es this message translates to 
-  /// el nombre es requerido 
+  /// In es, this message translates to:
+  /// **'El nombre es requerido'**
   String get nameRequired;
 
-  /// no description provided for errorcreating 
+  /// No description provided for @errorCreating.
   ///
-  /// in es this message translates to 
-  /// error al crear 
+  /// In es, this message translates to:
+  /// **'Error al crear'**
   String get errorCreating;
 
-  /// no description provided for projectcreated 
+  /// No description provided for @projectCreated.
   ///
-  /// in es this message translates to 
-  /// proyecto creado 
+  /// In es, this message translates to:
+  /// **'¡Proyecto Creado! 🎉'**
   String get projectCreated;
 
-  /// no description provided for sharecodemessage 
+  /// No description provided for @shareCodeMessage.
   ///
-  /// in es this message translates to 
-  /// comparte este código de acceso con tus alumnos para que puedan unirse y formar equipos 
+  /// In es, this message translates to:
+  /// **'Comparte este código de acceso con tus alumnos para que puedan unirse y formar equipos:'**
   String get shareCodeMessage;
 
-  /// no description provided for codecopied 
+  /// No description provided for @codeCopied.
   ///
-  /// in es this message translates to 
-  /// código copiado al portapapeles 
+  /// In es, this message translates to:
+  /// **'Código copiado al portapapeles'**
   String get codeCopied;
 
-  /// no description provided for copy 
+  /// No description provided for @copy.
   ///
-  /// in es this message translates to 
-  /// copiar 
+  /// In es, this message translates to:
+  /// **'Copiar'**
   String get copy;
 
-  /// no description provided for newproject 
+  /// No description provided for @newProject.
   ///
-  /// in es this message translates to 
-  /// nuevo proyecto 
+  /// In es, this message translates to:
+  /// **'Nuevo Proyecto'**
   String get newProject;
 
-  /// no description provided for newprojectdesc 
+  /// No description provided for @newProjectDesc.
   ///
-  /// in es this message translates to 
-  /// al crear un proyecto se generará un código para que tus alumnos se unan 
+  /// In es, this message translates to:
+  /// **'Al crear un proyecto, se generará un código para que tus alumnos se unan.'**
   String get newProjectDesc;
 
-  /// no description provided for projectnamelabel 
+  /// No description provided for @projectNameLabel.
   ///
-  /// in es this message translates to 
-  /// nombre del proyecto 
+  /// In es, this message translates to:
+  /// **'Nombre del Proyecto *'**
   String get projectNameLabel;
 
-  /// no description provided for projectnamehint 
+  /// No description provided for @projectNameHint.
   ///
-  /// in es this message translates to 
-  /// ej proyecto final integradora 
+  /// In es, this message translates to:
+  /// **'Ej: Proyecto Final Integradora'**
   String get projectNameHint;
 
-  /// no description provided for descriptionoptional 
+  /// No description provided for @descriptionOptional.
   ///
-  /// in es this message translates to 
-  /// descripción opcional 
+  /// In es, this message translates to:
+  /// **'Descripción (Opcional)'**
   String get descriptionOptional;
 
-  /// no description provided for descriptionhint 
+  /// No description provided for @descriptionHint.
   ///
-  /// in es this message translates to 
-  /// detalles del proyecto 
+  /// In es, this message translates to:
+  /// **'Detalles del proyecto...'**
   String get descriptionHint;
 
-  /// no description provided for maxteamsize 
+  /// No description provided for @maxTeamSize.
   ///
-  /// in es this message translates to 
-  /// tamaño máximo del equipo 
+  /// In es, this message translates to:
+  /// **'Tamaño máximo del equipo'**
   String get maxTeamSize;
 
-  /// no description provided for creating 
+  /// No description provided for @creating.
   ///
-  /// in es this message translates to 
-  /// creando 
+  /// In es, this message translates to:
+  /// **'Creando...'**
   String get creating;
 
-  /// no description provided for createproject 
+  /// No description provided for @createProject.
   ///
-  /// in es this message translates to 
-  /// crear proyecto 
+  /// In es, this message translates to:
+  /// **'Crear Proyecto'**
   String get createProject;
 
-  /// no description provided for join 
+  /// No description provided for @join.
   ///
-  /// in es this message translates to 
-  /// unirse 
+  /// In es, this message translates to:
+  /// **'Unirse'**
   String get join;
 
-  /// no description provided for noclassesyet 
+  /// No description provided for @noClassesYet.
   ///
-  /// in es this message translates to 
-  /// aún no tienes clases 
+  /// In es, this message translates to:
+  /// **'Aún no tienes clases'**
   String get noClassesYet;
 
-  /// no description provided for noclassesdesc 
+  /// No description provided for @noClassesDesc.
   ///
-  /// in es this message translates to 
-  /// únete a una clase ingresando el código que te proporcionó tu profesor para comenzar tu proyecto 
+  /// In es, this message translates to:
+  /// **'Únete a una clase ingresando el código que te proporcionó tu profesor para comenzar tu proyecto.'**
   String get noClassesDesc;
 
-  /// no description provided for joinclass 
+  /// No description provided for @joinClass.
   ///
-  /// in es this message translates to 
-  /// unirse a una clase 
+  /// In es, this message translates to:
+  /// **'Unirse a una Clase'**
   String get joinClass;
 
-  /// no description provided for defaultprojectname 
+  /// No description provided for @defaultProjectName.
   ///
-  /// in es this message translates to 
-  /// proyecto 
+  /// In es, this message translates to:
+  /// **'Proyecto'**
   String get defaultProjectName;
 
-  /// no description provided for noprojectyet 
+  /// No description provided for @noProjectYet.
   ///
-  /// in es this message translates to 
-  /// aún no perteneces a ningún proyecto 
+  /// In es, this message translates to:
+  /// **'Aún no perteneces a ningún proyecto'**
   String get noProjectYet;
 
-  /// no description provided for noprojectdesc 
+  /// No description provided for @noProjectDesc.
   ///
-  /// in es this message translates to 
-  /// para poder formar un equipo y subir tu propuesta primero debes unirte a la clase de tu profesor usando su código de acceso 
+  /// In es, this message translates to:
+  /// **'Para poder formar un equipo y subir tu propuesta, primero debes unirte a la clase de tu profesor usando su Código de Acceso.'**
   String get noProjectDesc;
 
-  /// no description provided for joinproject 
+  /// No description provided for @joinProject.
   ///
-  /// in es this message translates to 
-  /// unirse a un proyecto 
+  /// In es, this message translates to:
+  /// **'Unirse a un Proyecto'**
   String get joinProject;
 
-  /// no description provided for noteam 
+  /// No description provided for @noTeam.
   ///
-  /// in es this message translates to 
-  /// no tienes un equipo 
+  /// In es, this message translates to:
+  /// **'No tienes un equipo'**
   String get noTeam;
 
-  /// no description provided for noteamdesc 
+  /// No description provided for @noTeamDesc.
   ///
-  /// in es this message translates to 
-  /// debes unirte o crear un equipo en la pestaña de equipos para poder enviar una propuesta 
+  /// In es, this message translates to:
+  /// **'Debes unirte o crear un equipo en la pestaña de Equipos para poder enviar una propuesta.'**
   String get noTeamDesc;
 
-  /// no description provided for navprojectslabel 
+  /// No description provided for @navProjectsLabel.
   ///
-  /// in es this message translates to 
-  /// proyectos 
+  /// In es, this message translates to:
+  /// **'Proyectos'**
   String get navProjectsLabel;
 
-  /// no description provided for networkerror 
+  /// No description provided for @networkError.
   ///
-  /// in es this message translates to 
-  /// problema de conexión a internet verifica tu red e inténtalo de nuevo 
+  /// In es, this message translates to:
+  /// **'Problema de conexión a internet. Verifica tu red e inténtalo de nuevo.'**
   String get networkError;
 
-  /// no description provided for filetoolarge 
+  /// No description provided for @fileTooLarge.
   ///
-  /// in es this message translates to 
-  /// el archivo excede el tamaño máximo permitido 
+  /// In es, this message translates to:
+  /// **'El archivo excede el tamaño máximo permitido.'**
   String get fileTooLarge;
 
-  /// no description provided for unsupportedfiletype 
+  /// No description provided for @unsupportedFileType.
   ///
-  /// in es this message translates to 
-  /// tipo de archivo no soportado 
+  /// In es, this message translates to:
+  /// **'Tipo de archivo no soportado.'**
   String get unsupportedFileType;
 
-  /// no description provided for requesttimeout 
+  /// No description provided for @requestTimeout.
   ///
-  /// in es this message translates to 
-  /// la petición tardó demasiado verifica tu conexión e inténtalo de nuevo 
+  /// In es, this message translates to:
+  /// **'La petición tardó demasiado. Verifica tu conexión e inténtalo de nuevo.'**
   String get requestTimeout;
 
-  /// no description provided for unexpectederror 
+  /// No description provided for @unexpectedError.
   ///
-  /// in es this message translates to 
-  /// ocurrió un error inesperado por favor reintenta en un momento 
+  /// In es, this message translates to:
+  /// **'Ocurrió un error inesperado. Por favor reintenta en un momento.'**
   String get unexpectedError;
 
-  /// no description provided for forbiddenaction 
+  /// No description provided for @forbiddenAction.
   ///
-  /// in es this message translates to 
-  /// no tienes permiso para realizar esta acción 
+  /// In es, this message translates to:
+  /// **'No tienes permiso para realizar esta acción.'**
   String get forbiddenAction;
 
-  /// no description provided for resourcenotfound 
+  /// No description provided for @resourceNotFound.
   ///
-  /// in es this message translates to 
-  /// el recurso solicitado no fue encontrado 
+  /// In es, this message translates to:
+  /// **'El recurso solicitado no fue encontrado.'**
   String get resourceNotFound;
 
-  /// no description provided for toomanyrequests 
+  /// No description provided for @tooManyRequests.
   ///
-  /// in es this message translates to 
-  /// demasiadas solicitudes espera un momento e intenta de nuevo 
+  /// In es, this message translates to:
+  /// **'Demasiadas solicitudes. Espera un momento e intenta de nuevo.'**
   String get tooManyRequests;
 
-  /// no description provided for securityalert 
+  /// No description provided for @securityAlert.
   ///
-  /// in es this message translates to 
-  /// alerta de seguridad se detectó una conexión insegura por tu seguridad la operación fue bloqueada 
+  /// In es, this message translates to:
+  /// **'Alerta de Seguridad: Se detectó una conexión insegura. Por tu seguridad, la operación fue bloqueada.'**
   String get securityAlert;
 
-  /// no description provided for securityconnectionerror 
+  /// No description provided for @securityConnectionError.
   ///
-  /// in es this message translates to 
-  /// error de seguridad en la conexión contacta a soporte si persiste 
+  /// In es, this message translates to:
+  /// **'Error de seguridad en la conexión. Contacta a soporte si persiste.'**
   String get securityConnectionError;
 
-  /// no description provided for aigeneratinganalysis 
+  /// No description provided for @aiGeneratingAnalysis.
   ///
-  /// in es this message translates to 
-  /// la ia está generando el análisis detallado vuelve en un momento 
+  /// In es, this message translates to:
+  /// **'La IA está generando el análisis detallado. Vuelve en un momento.'**
   String get aiGeneratingAnalysis;
 
-  /// no description provided for errorloadingdetails 
+  /// No description provided for @errorLoadingDetails.
   ///
-  /// in es this message translates to 
-  /// error al cargar los detalles intenta de nuevo 
+  /// In es, this message translates to:
+  /// **'Error al cargar los detalles. Intenta de nuevo.'**
   String get errorLoadingDetails;
 
-  /// no description provided for studentspressedhere 
+  /// No description provided for @studentsPressedHere.
   ///
-  /// in es this message translates to 
-  /// count estudiantes han presionado aquí 
+  /// In es, this message translates to:
+  /// **'+ {count} Estudiantes han presionado aquí'**
   String studentsPressedHere(String count);
 
-  /// no description provided for recommended 
+  /// No description provided for @recommended.
   ///
-  /// in es this message translates to 
-  /// recomendado 
+  /// In es, this message translates to:
+  /// **'Recomendado'**
   String get recommended;
 
-  /// no description provided for trendingviews 
+  /// No description provided for @trendingViews.
   ///
-  /// in es this message translates to 
-  /// trending count vistas 
+  /// In es, this message translates to:
+  /// **'Trending · {count} vistas'**
   String trendingViews(String count);
 
-  /// no description provided for supportemail 
+  /// No description provided for @supportEmail.
   ///
-  /// in es this message translates to 
-  /// digitalengineers01 soporte gmail com 
+  /// In es, this message translates to:
+  /// **'digitalengineers01+soporte@gmail.com'**
   String get supportEmail;
 
-  /// no description provided for pleaseenterfullname 
+  /// No description provided for @pleaseEnterFullName.
   ///
-  /// in es this message translates to 
-  /// por favor ingresa tu nombre completo 
+  /// In es, this message translates to:
+  /// **'Por favor, ingresa tu nombre completo'**
   String get pleaseEnterFullName;
 
-  /// no description provided for pleaseselectatleastonecareer 
+  /// No description provided for @pleaseSelectAtLeastOneCareer.
   ///
-  /// in es this message translates to 
-  /// por favor selecciona al menos una carrera 
+  /// In es, this message translates to:
+  /// **'Por favor, selecciona al menos una carrera'**
   String get pleaseSelectAtLeastOneCareer;
 
-  /// no description provided for accountalreadyexists 
+  /// No description provided for @accountAlreadyExists.
   ///
-  /// in es this message translates to 
-  /// esta cuenta ya existe por favor retrocede e inicia sesión 
+  /// In es, this message translates to:
+  /// **'Esta cuenta ya existe. Por favor retrocede e inicia sesión.'**
   String get accountAlreadyExists;
 
-  /// no description provided for validationerror 
+  /// No description provided for @validationError.
   ///
-  /// in es this message translates to 
-  /// error de validación message 
+  /// In es, this message translates to:
+  /// **'Error de validación: {message}'**
   String validationError(String message);
 
-  /// no description provided for servererrorregistering 
+  /// No description provided for @serverErrorRegistering.
   ///
-  /// in es this message translates to 
-  /// error del servidor al registrar 
+  /// In es, this message translates to:
+  /// **'Error del servidor al registrar'**
   String get serverErrorRegistering;
 
-  /// no description provided for autologinerror 
+  /// No description provided for @autoLoginError.
   ///
-  /// in es this message translates to 
-  /// error al iniciar sesión automáticamente 
+  /// In es, this message translates to:
+  /// **'Error al iniciar sesión automáticamente'**
   String get autoLoginError;
 
-  /// no description provided for notokenreceived 
+  /// No description provided for @noTokenReceived.
   ///
-  /// in es this message translates to 
-  /// error no se recibió token en el login 
+  /// In es, this message translates to:
+  /// **'Error: No se recibió token en el login'**
   String get noTokenReceived;
 
-  /// no description provided for yourdata 
+  /// No description provided for @yourData.
   ///
-  /// in es this message translates to 
-  /// tus datos 
+  /// In es, this message translates to:
+  /// **'Tus Datos'**
   String get yourData;
 
-  /// no description provided for teacherprofilesubtitle 
+  /// No description provided for @teacherProfileSubtitle.
   ///
-  /// in es this message translates to 
-  /// comencemos a personalizar tu perfil docente en corvus 
+  /// In es, this message translates to:
+  /// **'Comencemos a personalizar tu perfil docente en Corvus.'**
   String get teacherProfileSubtitle;
 
-  /// no description provided for universityvalidated 
+  /// No description provided for @universityValidated.
   ///
-  /// in es this message translates to 
-  /// universidad validada 
+  /// In es, this message translates to:
+  /// **'Universidad Validada'**
   String get universityValidated;
 
-  /// no description provided for fullname 
+  /// No description provided for @fullName.
   ///
-  /// in es this message translates to 
-  /// nombre completo 
+  /// In es, this message translates to:
+  /// **'Nombre completo'**
   String get fullName;
 
-  /// no description provided for fullnamehint 
+  /// No description provided for @fullNameHint.
   ///
-  /// in es this message translates to 
-  /// ej juan pérez garcía 
+  /// In es, this message translates to:
+  /// **'Ej. Juan Pérez García'**
   String get fullNameHint;
 
-  /// no description provided for careersyouteach 
+  /// No description provided for @careersYouTeach.
   ///
-  /// in es this message translates to 
-  /// carreras que impartes 
+  /// In es, this message translates to:
+  /// **'Carreras que impartes'**
   String get careersYouTeach;
 
-  /// no description provided for finishregistration 
+  /// No description provided for @finishRegistration.
   ///
-  /// in es this message translates to 
-  /// finalizar registro 
+  /// In es, this message translates to:
+  /// **'Finalizar Registro'**
   String get finishRegistration;
 }
 
@@ -1833,7 +1833,7 @@ class _AppLocalizationsDelegate
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
-  // lookup logic when only language code is specified 
+  // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
     case 'en':
       return AppLocalizationsEn();

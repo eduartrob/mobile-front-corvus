@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../provider/student_directory_provider.dart';
 import '../widgets/student_search_bar.dart';
 import '../widgets/skill_filter_chips.dart';
-import 'package:mobile/shared/widgets/student_card.dart';
+import 'package:mobile/shared/presentation/widgets/student_card.dart';
 import 'package:mobile/core/network/auth_interceptor_client.dart';
 import 'package:mobile/features/student_directory/data/data_source/student_directory_remote_data_source.dart';
 import 'package:mobile/core/di/di.dart';

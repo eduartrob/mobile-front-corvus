@@ -2,7 +2,7 @@
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/l10n/app_localizations.dart';
-import 'package:mobile/shared/widgets/corvus_bottom_nav_bar.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/inspiration/presentation/provider/inspiration_provider.dart';
 import 'package:mobile/l10n/app_localizations.dart';

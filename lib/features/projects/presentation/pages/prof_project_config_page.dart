@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/shared/widgets/corvus_top_bar.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_top_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 import 'package:mobile/features/projects/presentation/widgets/theme_picker.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:flutter/services.dart';

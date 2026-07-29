@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/shared/widgets/corvus_top_bar.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_top_bar.dart';
 
 class StudentQRScannerPage extends StatefulWidget {
   const StudentQRScannerPage({super.key});

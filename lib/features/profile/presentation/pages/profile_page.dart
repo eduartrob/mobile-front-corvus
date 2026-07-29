@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/features/profile/presentation/pages/edit_profile_page.dart' as mobile;
 import 'package:mobile/features/profile/presentation/pages/settings_page.dart' as mobile;
 import 'package:provider/provider.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
 import 'package:mobile/core/theme/theme_provider.dart';
 import 'package:mobile/l10n/app_localizations.dart';
@@ -16,7 +16,7 @@ import 'package:mobile/features/profile/presentation/pages/activity_history_page
 import 'package:mobile/features/profile/presentation/pages/app_update_page.dart' as mobile;
 import 'package:mobile/features/profile/presentation/pages/pro_plan_page.dart';
 import 'package:mobile/features/profile/presentation/pages/my_subscription_page.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 import 'package:go_router/go_router.dart';
 
 class ProfilePage extends StatefulWidget {

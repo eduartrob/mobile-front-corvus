@@ -1,12 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:mobile/shared/widgets/corvus_top_bar.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_top_bar.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/features/prof_reviews/presentation/provider/prof_reviews_provider.dart';
 import 'package:mobile/features/prof_reviews/presentation/pages/prof_review_detail_page.dart';
 import 'package:intl/intl.dart';
-import 'package:mobile/shared/widgets/corvus_skeleton.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_skeleton.dart';
 
 class ProfReviewsPage extends StatefulWidget {
   final String projectId;

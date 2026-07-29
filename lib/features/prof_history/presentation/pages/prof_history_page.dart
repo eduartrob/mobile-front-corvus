@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:mobile/shared/widgets/corvus_top_bar.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_top_bar.dart';
 import 'package:mobile/features/prof_history/presentation/provider/prof_history_provider.dart';
 import 'package:intl/intl.dart';
 

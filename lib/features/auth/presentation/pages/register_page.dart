@@ -6,11 +6,11 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mobile/core/services/security_service.dart';
 import 'package:mobile/features/auth/presentation/provider/registration_provider.dart';
 import 'package:mobile/l10n/app_localizations.dart';
-import 'package:mobile/shared/widgets/auth_action_button.dart';
-import 'package:mobile/shared/widgets/auth_scaffold.dart';
-import 'package:mobile/shared/widgets/corvus_input_completed.dart';
-import 'package:mobile/shared/widgets/role_selector.dart';
-import 'package:mobile/shared/widgets/social_auth_button.dart';
+import 'package:mobile/shared/presentation/widgets/auth_action_button.dart';
+import 'package:mobile/shared/presentation/widgets/auth_scaffold.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_input_completed.dart';
+import 'package:mobile/shared/presentation/widgets/role_selector.dart';
+import 'package:mobile/shared/presentation/widgets/social_auth_button.dart';
 import 'package:provider/provider.dart';
 
 class RegisterPage extends StatefulWidget {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
-import 'package:mobile/shared/widgets/pro_avatar.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/widgets/pro_avatar.dart';
 
 class TeamMemberCard extends StatelessWidget {
   final String? avatarUrl;

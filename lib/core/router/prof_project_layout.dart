@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:mobile/shared/widgets/corvus_bottom_nav_bar.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_bottom_nav_bar.dart';
 import 'package:mobile/features/prof_dash/presentation/pages/prof_dash_page.dart';
 import 'package:mobile/features/prof_reviews/presentation/pages/prof_reviews_page.dart';
 import 'package:mobile/features/prof_reviews/presentation/provider/prof_reviews_provider.dart';
 import 'package:mobile/features/prof_rules/presentation/pages/prof_rules_page.dart';
-import 'package:mobile/shared/widgets/lazy_indexed_stack.dart';
+import 'package:mobile/shared/presentation/widgets/lazy_indexed_stack.dart';
 import 'package:mobile/features/projects/presentation/pages/prof_project_settings_page.dart';
 
 class ProfProjectLayout extends StatefulWidget {

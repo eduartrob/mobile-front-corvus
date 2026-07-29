@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mobile/l10n/app_localizations.dart';
-import 'package:mobile/shared/widgets/corvus_top_bar.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_top_bar.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:mobile/features/search/presentation/provider/search_provider.dart';

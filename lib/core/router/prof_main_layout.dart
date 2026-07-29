@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/shared/widgets/corvus_bottom_nav_bar.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_bottom_nav_bar.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 
 class ProfMainLayout extends StatefulWidget {

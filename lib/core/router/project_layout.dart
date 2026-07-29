@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/shared/widgets/corvus_bottom_nav_bar.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_bottom_nav_bar.dart';
 import 'package:mobile/features/teams/presentation/pages/teams_page.dart';
 import 'package:mobile/features/my_project/presentation/pages/my_project_page.dart';
 import 'package:mobile/features/my_project/presentation/pages/team_chat_page.dart';

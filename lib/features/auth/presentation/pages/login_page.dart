@@ -2,14 +2,14 @@ import 'dart:math' show Random;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/core/services/security_service.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 import 'package:mobile/features/auth/presentation/provider/registration_provider.dart';
 import 'package:mobile/l10n/app_localizations.dart';
-import 'package:mobile/shared/widgets/auth_action_button.dart';
-import 'package:mobile/shared/widgets/auth_scaffold.dart';
-import 'package:mobile/shared/widgets/corvus_input_completed.dart';
-import 'package:mobile/shared/widgets/role_selector.dart';
-import 'package:mobile/shared/widgets/social_auth_button.dart';
+import 'package:mobile/shared/presentation/widgets/auth_action_button.dart';
+import 'package:mobile/shared/presentation/widgets/auth_scaffold.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_input_completed.dart';
+import 'package:mobile/shared/presentation/widgets/role_selector.dart';
+import 'package:mobile/shared/presentation/widgets/social_auth_button.dart';
 import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
