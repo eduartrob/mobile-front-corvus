@@ -13,7 +13,7 @@ class TeamsRemoteDataSource {
 
   TeamsRemoteDataSource({required this.client});
 
-  // 👥 GET /teams/my-team
+  // get teams my team
   Future<TeamModel?> getMyTeam({String? projectId}) async {
     var url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.teamsMyTeam}');
     if (projectId != null) {
@@ -38,7 +38,7 @@ class TeamsRemoteDataSource {
     return null;
   }
 
-  // 📝 GET /final-reviews/team/<teamId>
+  // get final reviews team teamid 
   Future<Map<String, dynamic>?> getFinalReviewStatus(String teamId) async {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.finalReviewByTeam(teamId)}');
 
@@ -58,7 +58,7 @@ class TeamsRemoteDataSource {
     }
   }
 
-  // 👥 PUT /teams/my-team
+  // put teams my team
   Future<TeamModel> updateTeam(String name, String description, List<SocialLinkModel> socialLinks, {String? projectId}) async {
     var url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.teamsMyTeam}');
     if (projectId != null) {
@@ -88,7 +88,7 @@ class TeamsRemoteDataSource {
     throw Exception('Error desconocido al actualizar equipo');
   }
 
-  // 👥 POST /teams/my-team/leave
+  // post teams my team leave
   Future<void> leaveTeam() async {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.teamsMyTeamLeave}');
 
@@ -102,7 +102,7 @@ class TeamsRemoteDataSource {
     }
   }
 
-  // 👥 DELETE /teams/my-team/members/<memberId>
+  // delete teams my team members memberid 
   Future<void> removeMember(String memberId) async {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.teamMemberById(memberId)}');
 
@@ -116,7 +116,7 @@ class TeamsRemoteDataSource {
     }
   }
 
-  // 🔍 GET /clustering/teams/suggestions
+  // get clustering teams suggestions
   Future<List<Student>> getSuggestions({String? skill, String? search, bool showAll = false, String? projectId}) async {
     var uriString = '${ApiConfig.apiGatewayUrl}${ApiEndpoints.teamsSuggestions}';
     final queryParams = <String>[];
@@ -159,7 +159,7 @@ class TeamsRemoteDataSource {
 
 
 
-  // 📩 GET /teams/requests?filter=enviadas|aceptadas
+  // get teams requests filter enviadas aceptadas
   Future<List<Solicitud>> getRequests(String filter, {String? projectId}) async {
     var url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.teamsRequests}?filter=$filter');
     if (projectId != null) {
@@ -182,7 +182,7 @@ class TeamsRemoteDataSource {
     return [];
   }
 
-  // 📩 POST /teams/requests
+  // post teams requests
   Future<void> sendInvitation(String studentId, {String? projectId}) async {
     var url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.teamsRequests}');
     if (projectId != null) {
@@ -204,7 +204,7 @@ class TeamsRemoteDataSource {
     }
   }
 
-  // 📩 DELETE /teams/requests/<requestId>
+  // delete teams requests requestid 
   Future<void> cancelRequest(String requestId) async {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.teamRequestById(requestId)}');
 
@@ -218,7 +218,7 @@ class TeamsRemoteDataSource {
     }
   }
 
-  // 📩 POST /teams/requests/<requestId>/accept
+  // post teams requests requestid accept
   Future<void> acceptRequest(String requestId, {String? projectId}) async {
     var url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.teamRequestAccept(requestId)}');
     if (projectId != null) {

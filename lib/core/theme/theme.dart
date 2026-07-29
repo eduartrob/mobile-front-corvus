@@ -9,43 +9,43 @@ class MaterialTheme {
   static ColorScheme lightScheme() {
     return const ColorScheme(
       brightness: Brightness.light,
-      // Primary: azul lavanda pastel
+      // primary azul lavanda pastel
       primary: Color(0xFF6B7CE8),
       onPrimary: Color(0xFFFFFFFF),
       primaryContainer: Color(0xFFE3E7FB),
       onPrimaryContainer: Color(0xFF1E2868),
 
-      // Secondary: gris cálido pastel
+      // secondary gris cálido pastel
       secondary: Color(0xFF9CA3B8),
       onSecondary: Color(0xFFFFFFFF),
       secondaryContainer: Color(0xFFEAE7DE),
       onSecondaryContainer: Color(0xFF1A1A1A),
 
-      // Tertiary: durazno pastel (acento cálido)
+      // tertiary durazno pastel acento cálido 
       tertiary: Color(0xFFE89B6C),
       onTertiary: Color(0xFFFFFFFF),
       tertiaryContainer: Color(0xFFFAE0CE),
       onTertiaryContainer: Color(0xFF4A2510),
 
-      // Acento menta pastel
+      // acento menta pastel
       secondaryFixed: Color(0xFF7FC4A8),
       onSecondaryFixed: Color(0xFFFFFFFF),
       secondaryFixedDim: Color(0xFFD1F0E1),
       onSecondaryFixedVariant: Color(0xFF0E3D2A),
 
-      // Acento lavanda pastel
+      // acento lavanda pastel
       tertiaryFixed: Color(0xFFB8A0D9),
       onTertiaryFixed: Color(0xFFFFFFFF),
       tertiaryFixedDim: Color(0xFFEAE0F7),
       onTertiaryFixedVariant: Color(0xFF352570),
 
-      // Error coral pastel (no rojo saturado)
+      // error coral pastel no rojo saturado 
       error: Color(0xFFE57373),
       onError: Color(0xFFFFFFFF),
       errorContainer: Color(0xFFFFE0DE),
       onErrorContainer: Color(0xFF7A1F1F),
 
-      // Fondo blanco neutro
+      // fondo blanco neutro
       surface: Color(0xFFFFFFFF),
       onSurface: Color(0xFF1A1A1A),
       surfaceContainerHighest: Color(0xFFE8E8E8),

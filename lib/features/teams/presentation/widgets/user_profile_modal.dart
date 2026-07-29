@@ -1,4 +1,4 @@
-/*  */import 'package:flutter/material.dart';
+/* */import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/core/providers/auth_provider.dart';
 import 'package:mobile/shared/widgets/pro_avatar.dart';
@@ -14,7 +14,7 @@ Future<void> showUserProfileModal({
 }) {
   return showModalBottomSheet(
     context: context,
-    useRootNavigator: true, // This makes the modal cover the bottom navigation bar
+    useRootNavigator: true, // this makes the modal cover the bottom navigation bar
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
     builder: (context) => _UserProfileModal(
@@ -46,7 +46,7 @@ class _UserProfileModal extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     
-    // Mountain illustration from Unsplash (colorful vector-like style)
+    // mountain illustration from unsplash colorful vector like style 
     const coverPhotoUrl = 'https://images.unsplash.com/photo-1549880338-65ddcdfd017b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80';
 
     return SafeArea(
@@ -58,13 +58,13 @@ class _UserProfileModal extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Cover Photo and Avatar Header
+            // cover photo and avatar header
             SizedBox(
-              height: 150 + 50, // Cover height + space for overlapping avatar/text
+              height: 150 + 50, // cover height space for overlapping avatar text
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  // Cover Photo
+                  // cover photo
                   Container(
                     height: 150,
                     width: double.infinity,
@@ -76,7 +76,7 @@ class _UserProfileModal extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Profile Avatar
+                  // profile avatar
                   Positioned(
                     left: 16,
                     top: 150 - 45,
@@ -93,11 +93,11 @@ class _UserProfileModal extends StatelessWidget {
                       },
                     ),
                   ),
-                  // Name and Mocked Description next to Avatar
+                  // name and mocked description next to avatar
                   Positioned(
-                    left: 16 + 90 + 16, // padding + avatar width + padding
+                    left: 16 + 90 + 16, // padding avatar width padding
                     right: 16,
-                    top: 150 + 8, // Just below the cover photo line
+                    top: 150 + 8, // just below the cover photo line
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -121,14 +121,14 @@ class _UserProfileModal extends StatelessWidget {
                       ],
                     ),
                   ),
-                  // Close Button
+                  // close button
                   Positioned(
                     top: 12,
                     right: 12,
                     child: GestureDetector(
                       onTap: () => Navigator.pop(context),
                       child: Container(
-                        padding: const EdgeInsets.all(6), // Controls the size of the background circle
+                        padding: const EdgeInsets.all(6), // controls the size of the background circle
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.4),
                           shape: BoxShape.circle,
@@ -136,7 +136,7 @@ class _UserProfileModal extends StatelessWidget {
                         child: const Icon(
                           Icons.close, 
                           color: Colors.white,
-                          size: 18, // Smaller icon size
+                          size: 18, // smaller icon size
                         ),
                       ),
                     ),
@@ -176,7 +176,7 @@ class _UserProfileModal extends StatelessWidget {
                       const SizedBox(height: 12),
                       Wrap(
                         spacing: 6,
-                        runSpacing: -4, // Reduced spacing between lines of chips
+                        runSpacing: -4, // reduced spacing between lines of chips
                         children: tags.map((tag) {
                           return Chip(
                             label: Text(tag),
@@ -196,7 +196,7 @@ class _UserProfileModal extends StatelessWidget {
               ),
             ),
             
-            // Action Button pinned to bottom
+            // action button pinned to bottom
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),

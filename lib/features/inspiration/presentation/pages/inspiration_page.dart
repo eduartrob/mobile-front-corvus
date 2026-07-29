@@ -40,8 +40,8 @@ class _InspirationPageState extends State<InspirationPage> {
   }
 
   void _scrollListener() {
-    // El usuario pidió que la tarjeta no desaparezca al deslizar.
-    // Solo se ocultará al picarle al botón de cerrar.
+    // el usuario pidió que la tarjeta no desaparezca al deslizar 
+    // solo se ocultará al picarle al botón de cerrar 
     if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
       context.read<InspirationProvider>().loadMore();
     }
@@ -83,10 +83,10 @@ class _InspirationPageState extends State<InspirationPage> {
                 child: CustomScrollView(
                   controller: _scrollController,
                   slivers: [
-                    // AppBar sliver que se oculta al hacer scroll hacia arriba
+                    // appbar sliver que se oculta al hacer scroll hacia arriba
                     const _SliverTopBar(),
 
-                    // Contenido superior (welcome + header fijo de sección)
+                    // contenido superior welcome header fijo de sección 
                     SliverPadding(
                       padding: const EdgeInsets.symmetric(horizontal: AppDimens.screenMargin),
                       sliver: SliverToBoxAdapter(
@@ -101,13 +101,13 @@ class _InspirationPageState extends State<InspirationPage> {
                       ),
                     ),
 
-                    // Header de sección pinned: queda fijo al scroll
+                    // header de sección pinned queda fijo al scroll
                     SliverPersistentHeader(
                       pinned: true,
                       delegate: _SectionHeaderDelegate(),
                     ),
 
-                    // Lista de proyectos
+                    // lista de proyectos
                     SliverPadding(
                       padding: const EdgeInsets.symmetric(horizontal: AppDimens.screenMargin),
                       sliver: (isLoading && projectCount == 0)
@@ -168,7 +168,7 @@ class _InspirationPageState extends State<InspirationPage> {
                                 ),
                     ),
 
-                    // Indicador de carga (loadMore)
+                    // indicador de carga loadmore 
                     if (isFetchingMore)
                       const SliverToBoxAdapter(
                         child: Padding(
@@ -179,7 +179,7 @@ class _InspirationPageState extends State<InspirationPage> {
                         ),
                       ),
 
-                    // Banner de Límite Pro
+                    // banner de límite pro
                     if (reachedProLimit && !isProUser)
                       SliverToBoxAdapter(
                         child: Padding(
@@ -257,8 +257,8 @@ class _InspirationPageState extends State<InspirationPage> {
   }
 }
 
-/// AppBar como sliver que se oculta al hacer scroll hacia arriba
-/// y vuelve a aparecer al hacer scroll hacia abajo.
+/// appbar como sliver que se oculta al hacer scroll hacia arriba
+/// y vuelve a aparecer al hacer scroll hacia abajo 
 class _SliverTopBar extends StatelessWidget {
   const _SliverTopBar();
 
@@ -378,7 +378,7 @@ class _ProfileAction extends StatelessWidget {
   }
 }
 
-// -# 
+// 
 class _WelcomeCard extends StatelessWidget {
   final VoidCallback onDismiss;
   const _WelcomeCard({required this.onDismiss});
@@ -439,7 +439,7 @@ class _WelcomeCard extends StatelessWidget {
   }
 }
 
-// -# 
+// 
 class _SectionHeaderDelegate extends SliverPersistentHeaderDelegate {
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {

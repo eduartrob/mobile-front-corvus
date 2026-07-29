@@ -100,7 +100,7 @@ class ProjectProvider extends ChangeNotifier {
     required List<String> projectIds,
     required String token,
   }) async {
-    // 1. ACTUALIZACIÓN OPTIMISTA INSTANTÁNEA (0 ms):
+    // 1 actualización optimista instantánea 0 ms 
     final toArchive = _myProjects.where((p) => projectIds.contains(p['id'])).toList();
     _myProjects.removeWhere((p) => projectIds.contains(p['id']));
     for (var p in toArchive) {
@@ -110,16 +110,16 @@ class ProjectProvider extends ChangeNotifier {
         _archivedProjects.insert(0, copy);
       }
     }
-    notifyListeners(); // La UI cambia instantáneamente (0 segundos, igual que WhatsApp)
+    notifyListeners(); // la ui cambia instantáneamente 0 segundos igual que whatsapp 
 
-    // 2. SINCRONIZACIÓN EN SEGUNDO PLANO SIN BLOQUEAR NI MOSTRAR SPINNER:
+    // 2 sincronización en segundo plano sin bloquear ni mostrar spinner 
     try {
       await _repository.archiveProjects(projectIds: projectIds, token: token);
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('cached_projects', json.encode(_myProjects));
       return true;
     } catch (e, st) {
-      // Rollback en caso de pérdida total de conectividad
+      // rollback en caso de pérdida total de conectividad
       _myProjects.addAll(toArchive);
       _archivedProjects.removeWhere((p) => projectIds.contains(p['id']));
       _error = mapErrorToMessage(e, stackTrace: st);
@@ -132,7 +132,7 @@ class ProjectProvider extends ChangeNotifier {
     required List<String> projectIds,
     required String token,
   }) async {
-    // 1. ACTUALIZACIÓN OPTIMISTA INSTANTÁNEA (0 ms):
+    // 1 actualización optimista instantánea 0 ms 
     final toRestore = _archivedProjects.where((p) => projectIds.contains(p['id'])).toList();
     _archivedProjects.removeWhere((p) => projectIds.contains(p['id']));
     for (var p in toRestore) {
@@ -142,18 +142,18 @@ class ProjectProvider extends ChangeNotifier {
         _myProjects.insert(0, copy);
       }
     }
-    notifyListeners(); // La UI cambia al segundo cero
+    notifyListeners(); // la ui cambia al segundo cero
 
-    // 2. SINCRONIZACIÓN SILENCIOSA EN SEGUNDO PLANO:
+    // 2 sincronización silenciosa en segundo plano 
     try {
       await _repository.unarchiveProjects(projectIds: projectIds, token: token);
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('cached_projects', json.encode(_myProjects));
-      // Sincronizar con el servidor en silencio sin bloquear al usuario
+      // sincronizar con el servidor en silencio sin bloquear al usuario
       loadMyProjects(token, quiet: true);
       return true;
     } catch (e, st) {
-      // Rollback si falla la red
+      // rollback si falla la red
       _archivedProjects.addAll(toRestore);
       _myProjects.removeWhere((p) => projectIds.contains(p['id']));
       _error = mapErrorToMessage(e, stackTrace: st);

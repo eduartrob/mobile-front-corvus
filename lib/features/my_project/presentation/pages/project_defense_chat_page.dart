@@ -46,7 +46,7 @@ class _ProjectDefenseChatPageState extends State<ProjectDefenseChatPage> {
 
   void _onTextChanged(String newText) {
     final diff = newText.length - _previousText.length;
-    // Si se pegan más de 15 caracteres de golpe (típico de pegar texto o dictado por voz)
+    // si se pegan más de 15 caracteres de golpe típico de pegar texto o dictado por voz 
     if (diff > 15) {
       _textController.text = _previousText;
       _textController.selection = TextSelection.fromPosition(
@@ -185,7 +185,7 @@ class _ProjectDefenseChatPageState extends State<ProjectDefenseChatPage> {
             _messages.clear();
             _messages.addAll(parsedMsgs);
             _messageCount = newUserCount;
-            // If the last message is from assistant, we are no longer loading
+            // if the last message is from assistant we are no longer loading
             if (_messages.isNotEmpty && _messages.last['role'] == 'assistant') {
               _isLoading = false;
             }
@@ -197,7 +197,7 @@ class _ProjectDefenseChatPageState extends State<ProjectDefenseChatPage> {
         }
       }
     } catch (e) {
-      // Ignoramos errores silenciosos de polling
+      // ignoramos errores silenciosos de polling
     }
   }
 
@@ -256,7 +256,7 @@ class _ProjectDefenseChatPageState extends State<ProjectDefenseChatPage> {
       });
       _showSuccessDialog('¡Felicidades! Has defendido tu propuesta exitosamente.');
     } else if (_messageCount >= _maxMessages) {
-      // Se rindió el límite
+      // se rindió el límite
       setState(() {
         _defensePassed = true;
         _messages.add({
@@ -284,8 +284,8 @@ class _ProjectDefenseChatPageState extends State<ProjectDefenseChatPage> {
         actions: [
           FilledButton(
             onPressed: () {
-              Navigator.pop(ctx); // Close dialog
-              Navigator.pop(context, _messages); // Return to previous page with history
+              Navigator.pop(ctx); // close dialog
+              Navigator.pop(context, _messages); // return to previous page with history
             },
             child: const Text('Continuar a Envío'),
           )

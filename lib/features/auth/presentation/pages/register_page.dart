@@ -77,7 +77,7 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _validateInputs() {
     final l10n = AppLocalizations.of(context)!;
     final email = _emailController.text.trim();
-    // Trim passwords to prevent accidental trailing spaces
+    // trim passwords to prevent accidental trailing spaces
     final password = _passwordController.text.trim();
     final confirmPassword = _confirmPasswordController.text.trim();
 
@@ -117,7 +117,7 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     if (!isValid) {
-      _showSnack(l10n.requiredField); // Or just show the generic snackbar
+      _showSnack(l10n.requiredField); // or just show the generic snackbar
     }
 
     return isValid;

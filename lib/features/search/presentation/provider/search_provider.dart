@@ -71,7 +71,7 @@ class SearchProvider extends ChangeNotifier {
       try {
         result = await _smartSearchUseCase(query);
       } catch (apiError) {
-        // Guardamos el error pero intentamos ver si es una consulta predefinida
+        // guardamos el error pero intentamos ver si es una consulta predefinida
         _error = mapErrorToMessage(apiError);
       }
 
@@ -83,7 +83,7 @@ class SearchProvider extends ChangeNotifier {
           summary: "En la materia de **Algoritmos**, los materiales disponibles cubren los siguientes temas principales:\n\n* **Fundamentos y complejidad:** Análisis básico del rendimiento.\n* **Estructuras de datos:** Organización eficiente de la información.\n* **Ordenamiento y Búsqueda:** Métodos para encontrar y clasificar datos.\n* **Recursión, algoritmos Voraces y Programación dinámica:** Técnicas avanzadas de resolución de problemas.",
           links: result?.links ?? [],
         );
-        _error = null; // Limpiamos el error si fue predefinido
+        _error = null; // limpiamos el error si fue predefinido
       } else if (lowerQuery == 'dime sobre programación para móviles' || lowerQuery == 'dime sobre programación móvil') {
         _currentResult = SmartSearchResult(
           detectedSubject: 'Programación para móviles',
@@ -114,7 +114,7 @@ class SearchProvider extends ChangeNotifier {
         }
       }
       
-      // Only save to history if search succeeds (doesn't throw)
+      // only save to history if search succeeds doesn t throw 
       await _addSearchToHistory(query);
     } catch (e, st) {
       debugPrint("SEARCH ERROR: $e"); 

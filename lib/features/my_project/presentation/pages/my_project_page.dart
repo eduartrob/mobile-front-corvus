@@ -76,9 +76,9 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
     final myTeam = teamsProvider.getTeamForProject(projectId) ?? teamsProvider.myTeam;
     final teamId = myTeam?.id;
 
-    if (teamId == null) return; // Not ready yet
+    if (teamId == null) return; // not ready yet
 
-    // Si ya inicializamos este proyecto en particular, no lo volvemos a hacer
+    // si ya inicializamos este proyecto en particular no lo volvemos a hacer
     if (_currentProjectId == projectId && projectId != null) return;
     
     _currentProjectId = projectId;
@@ -93,7 +93,7 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Re-attempt init in case teamId was not ready during initState
+    // re attempt init in case teamid was not ready during initstate
     _tryInit();
   }
 
@@ -191,7 +191,7 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
               final currentTeamId = currentTeam?.id;
 
               final myProjectProvider = context.read<MyProjectProvider>();
-              // Si acabamos de cargar el equipo pero el provider sigue initial, o si cambió el proyecto, iniciarlo
+              // si acabamos de cargar el equipo pero el provider sigue initial o si cambió el proyecto iniciarlo
               if (currentTeamId != null && (myProjectProvider.state == ProjectState.initial || myProjectProvider.projectId != activeProjectId)) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   myProjectProvider.init(userId, currentTeamId, projectId: activeProjectId);
@@ -228,7 +228,7 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
                 );
               }
 
-              // Show skeleton ONLY if this specific project's data has never been loaded
+              // show skeleton only if this specific project s data has never been loaded
               final myProjectProviderForCheck = context.watch<MyProjectProvider>();
               if (!myProjectProviderForCheck.hasLoadedOnce && currentTeamId != null) {
                 return const _ProjectLoadingSkeleton();
@@ -261,7 +261,7 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
   }
 }
 
-// -# 
+// 
 class _ProjectPageHeader extends StatelessWidget {
   final String userId;
   const _ProjectPageHeader({required this.userId});
@@ -303,7 +303,7 @@ class _ProjectPageHeader extends StatelessWidget {
               textStyle: TextStyle(color: colorScheme.onInverseSurface, fontSize: 14),
               child: IconButton(
                 icon: Icon(Icons.info_outline, color: colorScheme.onSurfaceVariant, size: 20),
-                onPressed: () {}, // Tooltip handles tap
+                onPressed: () {}, // tooltip handles tap
               ),
             ),
           ],
@@ -320,7 +320,7 @@ class _ProjectPageHeader extends StatelessWidget {
   }
 }
 
-// Skeleton shown while MyProjectProvider initializes in background
+// skeleton shown while myprojectprovider initializes in background
 class _ProjectLoadingSkeleton extends StatelessWidget {
   const _ProjectLoadingSkeleton();
 
@@ -332,7 +332,7 @@ class _ProjectLoadingSkeleton extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-        // Innovation card skeleton
+        // innovation card skeleton
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(24),
@@ -351,7 +351,7 @@ class _ProjectLoadingSkeleton extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        // Metrics skeleton
+        // metrics skeleton
         Container(
           padding: const EdgeInsets.symmetric(vertical: 24),
           child: Column(
@@ -368,7 +368,7 @@ class _ProjectLoadingSkeleton extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        // Recommendations skeleton
+        // recommendations skeleton
         const CorvusSkeleton(width: 180, height: 18, borderRadius: BorderRadius.all(Radius.circular(6))),
         const SizedBox(height: 16),
         for (int i = 0; i < 3; i++) ...[
@@ -396,7 +396,7 @@ class _ProjectLoadingSkeleton extends StatelessWidget {
   );
 }
 }
-// -# 
+// 
 class _ProjectPageBody extends StatelessWidget {
   final String userId;
   const _ProjectPageBody({required this.userId});
@@ -567,7 +567,7 @@ class _ProjectPageBody extends StatelessWidget {
             ),
           ),
 
-          // Show skeleton while loading initial state (provider is initializing in background)
+          // show skeleton while loading initial state provider is initializing in background 
           if (provider.state == ProjectState.initial)
             const _ProjectLoadingSkeleton(),
 
@@ -582,7 +582,7 @@ class _ProjectPageBody extends StatelessWidget {
             specificError: provider.documentTypeError!,
           ),
         ]
-        // Show upload zone only after init resolved AND there's an error (no analysis found)
+        // show upload zone only after init resolved and there s an error no analysis found 
         else if (provider.state == ProjectState.error)
           if (isLeader)
             UploadZoneWidget(provider: provider)

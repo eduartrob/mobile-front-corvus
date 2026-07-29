@@ -12,7 +12,7 @@ class ApiConfig {
     'Accept': 'application/json',
   };
 
-  // Cloudinary constants
+  // cloudinary constants
   static String get cloudinaryCloudName => dotenv.env['CLOUDINARY_CLOUD_NAME'] ?? 'zpqp1swt';
   static String get cloudinaryUploadPreset => dotenv.env['CLOUDINARY_UPLOAD_PRESET'] ?? 'corvus_unsigned';
 }

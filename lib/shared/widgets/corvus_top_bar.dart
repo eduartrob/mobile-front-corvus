@@ -46,7 +46,7 @@ class CorvusTopBar extends StatelessWidget implements PreferredSizeWidget {
           : null),
       actions: hideActions ? const [] : [
         if (extraActions != null) ...extraActions!,
-        // Notifications Bell
+        // notifications bell
         Consumer<NotificationsProvider>(
           builder: (context, notificationsProvider, child) {
             final unreadCount = notificationsProvider.unreadCount;

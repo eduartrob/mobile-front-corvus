@@ -12,7 +12,7 @@ class NotificationsProvider extends ChangeNotifier {
   List<AppNotification> _notifications = [];
   bool _isLoading = false;
 
-  // Selection mode
+  // selection mode
   Set<String> _selectedIds = {};
   bool _isSelectionMode = false;
 
@@ -32,11 +32,11 @@ class NotificationsProvider extends ChangeNotifier {
       notifyListeners();
     }
     try {
-      // 1. Try to fetch from remote and sync to local
+      // 1 try to fetch from remote and sync to local
       try {
         final remoteData = await _remoteDataSource.fetchMyNotifications();
         
-        // Preserve local read state before wiping
+        // preserve local read state before wiping
         final currentLocal = await NotificationsLocalDataSource.getNotifications();
         final readStatusMap = <String, bool>{};
         for (var n in currentLocal) {
@@ -67,7 +67,7 @@ class NotificationsProvider extends ChangeNotifier {
         debugPrint('Failed to sync from remote: $e');
       }
 
-      // 2. Load from local DB
+      // 2 load from local db
       final data = await NotificationsLocalDataSource.getNotifications();
       final storage = SecureStorageService();
       final role = await storage.read(key: 'auth_role');
@@ -90,9 +90,9 @@ class NotificationsProvider extends ChangeNotifier {
                 authorPhotoUrl: n['authorPhotoUrl'],
               ))
           .where((n) {
-            // No mostrar notificaciones si el autor es el propio usuario
+            // no mostrar notificaciones si el autor es el propio usuario
             if (n.authorName != null && myName != null && n.authorName == myName) {
-              // Limpiar de forma silenciosa del servidor local para no ocupar espacio
+              // limpiar de forma silenciosa del servidor local para no ocupar espacio
               NotificationsLocalDataSource.deleteNotification(n.id).catchError((_) {});
               _remoteDataSource.deleteNotification(n.id).catchError((_) {});
               return false;
@@ -111,7 +111,7 @@ class NotificationsProvider extends ChangeNotifier {
         if (!isDuplicate) {
           deduplicated.add(n);
         } else {
-          // Self-heal: Delete the duplicate from the server asynchronously
+          // self heal delete the duplicate from the server asynchronously
           _remoteDataSource.deleteNotification(n.id).catchError((_) {});
           NotificationsLocalDataSource.deleteNotification(n.id).catchError((_) {});
         }
@@ -127,20 +127,20 @@ class NotificationsProvider extends ChangeNotifier {
     }
   }
 
-  /// Marca todas las notificaciones como leídas (local + servidor) cuando
-  /// el usuario abre la pantalla de notificaciones.
+  /// marca todas las notificaciones como leídas local servidor cuando
+  /// el usuario abre la pantalla de notificaciones 
   Future<void> markAllAsReadOnOpen() async {
     final unread = _notifications.where((n) => !n.isRead).toList();
     if (unread.isEmpty) return;
 
-    // Actualización optimista en memoria
+    // actualización optimista en memoria
     _notifications = _notifications.map((n) => n.copyWith(isRead: true)).toList();
     notifyListeners();
 
-    // Persistir en local
+    // persistir en local
     await NotificationsLocalDataSource.markAllAsRead();
 
-    // Persistir en servidor (una petición por notificación no leída)
+    // persistir en servidor una petición por notificación no leída 
     for (final n in unread) {
       try {
         await _remoteDataSource.markAsRead(n.id);
@@ -150,7 +150,7 @@ class NotificationsProvider extends ChangeNotifier {
     }
   }
 
-  // ── Selection mode ────────────────────────────────────────────────────────
+  // selection mode 
 
   void enterSelectionMode(String firstId) {
     _isSelectionMode = true;
@@ -177,10 +177,10 @@ class NotificationsProvider extends ChangeNotifier {
   // kept for compatibility
   void clearSelection() => exitSelectionMode();
 
-  // ── Mark as read ──────────────────────────────────────────────────────────
+  // mark as read 
 
   Future<void> markAsRead(String id) async {
-    // Optimistic update
+    // optimistic update
     _notifications = _notifications
         .map((n) => n.id == id ? n.copyWith(isRead: true) : n)
         .toList();
@@ -195,13 +195,13 @@ class NotificationsProvider extends ChangeNotifier {
   }
 
   Future<void> markAllAsRead() async {
-    // Optimistic update
+    // optimistic update
     _notifications = _notifications.map((n) => n.copyWith(isRead: true)).toList();
     notifyListeners();
 
     await NotificationsLocalDataSource.markAllAsRead();
 
-    // Sync each to server
+    // sync each to server
     for (final n in _notifications) {
       try {
         await _remoteDataSource.markAsRead(n.id);
@@ -211,14 +211,14 @@ class NotificationsProvider extends ChangeNotifier {
     }
   }
 
-  // ── Delete ────────────────────────────────────────────────────────────────
+  // delete 
 
   Future<void> deleteSelected() async {
     if (_selectedIds.isEmpty) return;
 
     final idsToDelete = _selectedIds.toList();
 
-    // Optimistic update
+    // optimistic update
     _notifications.removeWhere((n) => idsToDelete.contains(n.id));
     _isSelectionMode = false;
     _selectedIds.clear();
@@ -231,13 +231,13 @@ class NotificationsProvider extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint('Error deleting bulk notifications: $e');
-      // Refresh to restore state if server failed
+      // refresh to restore state if server failed
       await fetchNotifications(silent: true);
     }
   }
 
   Future<void> deleteNotification(String id) async {
-    // Optimistic remove
+    // optimistic remove
     _notifications.removeWhere((n) => n.id == id);
     notifyListeners();
 
@@ -251,7 +251,7 @@ class NotificationsProvider extends ChangeNotifier {
   }
 
   Future<void> clearAll() async {
-    // Optimistic update
+    // optimistic update
     _notifications.clear();
     _isSelectionMode = false;
     _selectedIds.clear();
@@ -274,7 +274,7 @@ class NotificationsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
+  // helpers 
 
   NotificationType _getTypeFromString(String? typeStr) {
     switch (typeStr) {

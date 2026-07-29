@@ -3,8 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile/core/providers/auth_provider.dart';
 import 'package:provider/provider.dart';
 
-/// Pantalla de splash animada que se muestra una vez al iniciar.
-/// La animación dura ~1.6s y luego navega a la pantalla correcta.
+/// pantalla de splash animada que se muestra una vez al iniciar 
+/// la animación dura 1 6s y luego navega a la pantalla correcta 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
 
@@ -16,13 +16,13 @@ class _SplashPageState extends State<SplashPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
-  // Logo: escala de 0.4 → 1.05 → 1.0 (efecto bounce suave)
+  // logo escala de 0 4 1 05 1 0 efecto bounce suave 
   late Animation<double> _logoScale;
-  // Logo: fade-in de 0 → 1
+  // logo fade in de 0 1
   late Animation<double> _logoOpacity;
-  // Nombre "Corvus": fade-in tardío
+  // nombre corvus fade in tardío
   late Animation<double> _textOpacity;
-  // Tagline: fade-in más tardío aún
+  // tagline fade in más tardío aún
   late Animation<double> _taglineOpacity;
 
   @override
@@ -100,7 +100,7 @@ class _SplashPageState extends State<SplashPage>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // ── Logo animado ──────────────────────────────────
+            // logo animado 
             AnimatedBuilder(
               animation: _controller,
               builder: (_, _) => Opacity(
@@ -118,7 +118,7 @@ class _SplashPageState extends State<SplashPage>
 
             const SizedBox(height: 24),
 
-            // ── Nombre "Corvus" ───────────────────────────────
+            // nombre corvus 
             AnimatedBuilder(
               animation: _controller,
               builder: (_, _) => Opacity(
@@ -137,7 +137,7 @@ class _SplashPageState extends State<SplashPage>
 
             const SizedBox(height: 8),
 
-            // ── Tagline ───────────────────────────────────────
+            // tagline 
             AnimatedBuilder(
               animation: _controller,
               builder: (_, _) => Opacity(

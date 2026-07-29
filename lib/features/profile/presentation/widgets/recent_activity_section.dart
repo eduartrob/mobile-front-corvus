@@ -20,7 +20,7 @@ class RecentActivitySection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Removed header
+          // removed header
           const SizedBox(height: 12),
           ActivityItemWidget(
             icon: Icons.update,

@@ -301,7 +301,7 @@ class _TeamsPageState extends State<TeamsPage> with SingleTickerProviderStateMix
               : _buildSugerenciasTopBar(context, provider),
       body: Column(
         children: [
-          // TabBar container
+          // tabbar container
           Container(
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
@@ -334,19 +334,19 @@ class _TeamsPageState extends State<TeamsPage> with SingleTickerProviderStateMix
               ],
             ),
           ),
-          // Tab contents
+          // tab contents
           Expanded(
             child: TabBarView(
               controller: _tabController,
               children: [
-                // Tab 1: Equipo
+                // tab 1 equipo
                 EquipoTab(
                   myAvatarUrl: myAvatarUrl,
                   userName: user?.name,
                   userEmail: user?.email,
                   projectId: widget.projectId,
                   onSearchMembers: () {
-                    _tabController.animateTo(2); // Redirects to tab index 2 (Sugerencias)
+                    _tabController.animateTo(2); // redirects to tab index 2 sugerencias 
                   },
                   onLeaveTeam: () {
                     showDialog(
@@ -431,9 +431,9 @@ class _TeamsPageState extends State<TeamsPage> with SingleTickerProviderStateMix
                     );
                   },
                 ),
-                // Tab 2: Solicitudes
+                // tab 2 solicitudes
                 const SolicitudesTab(),
-                // Tab 3: Sugerencias
+                // tab 3 sugerencias
                 SugerenciasTab(isFiltering: _selectedSkill.isNotEmpty || _searchQuery.isNotEmpty),
               ],
             ),

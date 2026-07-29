@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile/core/services/security_service.dart';
 import 'package:lottie/lottie.dart';
 
-// ─── Data ───────────────────────────────────────────────────────────────────
+// data 
 
 class _OnboardingSlideData {
   final String title;
@@ -19,7 +19,7 @@ class _OnboardingSlideData {
   });
 }
 
-// ─── Page ───────────────────────────────────────────────────────────────────
+// page 
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -35,7 +35,7 @@ class _OnboardingPageState extends State<OnboardingPage>
   
   int _currentPage = 0;
 
-  // Animation state for Circular Reveal
+  // animation state for circular reveal
   bool _isRevealing = false;
   late AnimationController _revealController;
   late Animation<double> _revealAnimation;
@@ -129,7 +129,7 @@ class _OnboardingPageState extends State<OnboardingPage>
         position.dy + size.height / 2,
       );
     } else {
-      // Fallback center if key not found
+      // fallback center if key not found
       final size = MediaQuery.of(context).size;
       _revealCenter = Offset(size.width / 2, size.height - 100);
     }
@@ -140,7 +140,7 @@ class _OnboardingPageState extends State<OnboardingPage>
     });
 
     _revealController.forward(from: 0.0).then((_) {
-      // Instantly update the PageView underneath
+      // instantly update the pageview underneath
       _pageController.jumpToPage(nextPage);
       setState(() {
         _currentPage = nextPage;
@@ -158,7 +158,7 @@ class _OnboardingPageState extends State<OnboardingPage>
       backgroundColor: _getBackgroundColor(_currentPage, colors),
       body: Stack(
         children: [
-          // 1. BASE: PageView for normal swiping
+          // 1 base pageview for normal swiping
           PageView.builder(
             controller: _pageController,
             onPageChanged: (page) {
@@ -172,7 +172,7 @@ class _OnboardingPageState extends State<OnboardingPage>
             },
           ),
 
-          // 2. OVERLAY: Circular Reveal (Only visible when button is pressed)
+          // 2 overlay circular reveal only visible when button is pressed 
           if (_isRevealing)
             AnimatedBuilder(
               animation: _revealAnimation,
@@ -202,12 +202,12 @@ class _OnboardingPageState extends State<OnboardingPage>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final orbColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05);
     
-    // We create a unique key for the button in this slide so we can find its position
+    // we create a unique key for the button in this slide so we can find its position
     final GlobalKey btnKey = GlobalKey();
 
     return Stack(
       children: [
-        // Decorative Orbs
+        // decorative orbs
         Positioned(
           top: -100,
           right: -100,
@@ -227,7 +227,7 @@ class _OnboardingPageState extends State<OnboardingPage>
           ),
         ),
 
-        // Content
+        // content
         SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -254,7 +254,7 @@ class _OnboardingPageState extends State<OnboardingPage>
   ) {
     return Column(
       children: [
-        // Top bar
+        // top bar
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           child: Row(
@@ -276,7 +276,7 @@ class _OnboardingPageState extends State<OnboardingPage>
           ),
         ),
 
-        // Main info
+        // main info
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -285,7 +285,7 @@ class _OnboardingPageState extends State<OnboardingPage>
               children: [
                 const SizedBox(height: 12),
                 
-                // Lottie Animation
+                // lottie animation
                 Expanded(
                   flex: 5,
                   child: Center(
@@ -310,7 +310,7 @@ class _OnboardingPageState extends State<OnboardingPage>
                 
                 const SizedBox(height: 24),
 
-                // Text
+                // text
                 Expanded(
                   flex: 4,
                   child: SingleChildScrollView(
@@ -347,7 +347,7 @@ class _OnboardingPageState extends State<OnboardingPage>
           ),
         ),
 
-        // Bottom Dynamic Controls
+        // bottom dynamic controls
         Padding(
           padding: const EdgeInsets.fromLTRB(32, 12, 32, 24),
           child: _buildDynamicControls(index, fgColor, bgColor, btnKey),
@@ -366,7 +366,7 @@ class _OnboardingPageState extends State<OnboardingPage>
   ) {
     return Column(
       children: [
-        // Compact Top Bar
+        // compact top bar
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
           child: Row(
@@ -393,13 +393,13 @@ class _OnboardingPageState extends State<OnboardingPage>
           ),
         ),
 
-        // Row side-by-side layout for Landscape
+        // row side by side layout for landscape
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
             child: Row(
               children: [
-                // Left: Lottie animation
+                // left lottie animation
                 Expanded(
                   flex: 4,
                   child: Center(
@@ -424,7 +424,7 @@ class _OnboardingPageState extends State<OnboardingPage>
 
                 const SizedBox(width: 20),
 
-                // Right: Title, description, and controls
+                // right title description and controls
                 Expanded(
                   flex: 5,
                   child: Column(
@@ -482,7 +482,7 @@ class _OnboardingPageState extends State<OnboardingPage>
     final wideBtnHeight = isLandscape ? 48.0 : 60.0;
 
     if (index == 0) {
-      // Slide 1: Button Centered
+      // slide 1 button centered
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -499,7 +499,7 @@ class _OnboardingPageState extends State<OnboardingPage>
         ],
       );
     } else if (index == 1) {
-      // Slide 2: Button on the Right
+      // slide 2 button on the right
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -515,7 +515,7 @@ class _OnboardingPageState extends State<OnboardingPage>
         ],
       );
     } else {
-      // Slide 3: Full Width Button
+      // slide 3 full width button
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -555,7 +555,7 @@ class _OnboardingPageState extends State<OnboardingPage>
   }
 }
 
-// ─── Animated Buttons ────────────────────────────────────────────────────────
+// animated buttons 
 
 class _AnimatedBounceButton extends StatefulWidget {
   final VoidCallback onPressed;
@@ -715,7 +715,7 @@ class _AnimatedWideButtonState extends State<_AnimatedWideButton>
   }
 }
 
-// ─── Circular Reveal Clipper ────────────────────────────────────────────────
+// circular reveal clipper 
 
 class _CircularRevealClipper extends CustomClipper<Path> {
   final double fraction;

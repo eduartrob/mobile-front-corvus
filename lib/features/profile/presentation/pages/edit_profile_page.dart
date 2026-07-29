@@ -60,7 +60,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           final authProvider = context.read<AuthProvider>();
           final bytes = await croppedFile.readAsBytes();
           
-          // Determinar el MIME type básico
+          // determinar el mime type básico
           String mimeType = 'image/jpeg';
           if (croppedFile.path.toLowerCase().endsWith('.png')) mimeType = 'image/png';
           if (croppedFile.path.toLowerCase().endsWith('.webp')) mimeType = 'image/webp';
@@ -196,7 +196,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         child: Column(
           children: [
             const SizedBox(height: 20),
-            // Foto de perfil
+            // foto de perfil
             Center(
               child: Stack(
                 children: [
@@ -223,7 +223,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
             const SizedBox(height: 32),
             
-            // Nombre
+            // nombre
             ListTile(
               leading: Icon(Icons.person_outline, color: colorScheme.onSurfaceVariant),
               title: Text('Nombre', style: TextStyle(color: colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.w400)),
@@ -250,7 +250,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
             const Divider(indent: 72, endIndent: 16),
             
-            // Matrícula
+            // matrícula
             ListTile(
               leading: Icon(Icons.badge_outlined, color: colorScheme.onSurfaceVariant),
               title: Text('Matrícula', style: TextStyle(color: colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.w400)),
@@ -276,7 +276,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
             const Divider(indent: 72, endIndent: 16),
             
-            // Cuatrimestre
+            // cuatrimestre
             ListTile(
               leading: Icon(Icons.school_outlined, color: colorScheme.onSurfaceVariant),
               title: Text('Cuatrimestre', style: TextStyle(color: colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.w400)),
@@ -302,7 +302,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
             const Divider(indent: 72, endIndent: 16),
             
-            // Carrera (Not editable)
+            // carrera not editable 
             ListTile(
               leading: Icon(Icons.book_outlined, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
               title: Text('Carrera', style: TextStyle(color: colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.w400)),
@@ -313,7 +313,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
             const Divider(indent: 72, endIndent: 16),
             
-            // Correo electrónico
+            // correo electrónico
             ListTile(
               leading: Icon(Icons.email_outlined, color: colorScheme.onSurfaceVariant),
               title: Text('Correo electrónico', style: TextStyle(color: colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.w400)),
@@ -350,7 +350,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
             const Divider(indent: 72, endIndent: 16),
             
-            // Habilidades
+            // habilidades
             ListTile(
               leading: Icon(Icons.psychology_outlined, color: colorScheme.onSurfaceVariant),
               title: Text('Habilidades', style: TextStyle(color: colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.w400)),
@@ -389,7 +389,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             
             const SizedBox(height: 16),
             
-            // Borrar cuenta
+            // borrar cuenta
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: SizedBox(
@@ -444,7 +444,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                             foregroundColor: Colors.white,
                                           ),
                                           onPressed: () async {
-                                            Navigator.of(context).pop(); // Close dialog
+                                            Navigator.of(context).pop(); // close dialog
                                             showDialog(
                                               context: context,
                                               barrierDismissible: false,
@@ -456,7 +456,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                             final success = await context.read<AuthProvider>().deleteAccount();
                                             
                                             if (context.mounted) {
-                                              Navigator.of(context).pop(); // Close loading
+                                              Navigator.of(context).pop(); // close loading
                                               if (success) {
                                                 context.go('/');
                                               } else {

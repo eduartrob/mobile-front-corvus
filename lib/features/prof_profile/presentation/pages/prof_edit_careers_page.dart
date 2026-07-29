@@ -25,7 +25,7 @@ class _ProfEditCareersPageState extends State<ProfEditCareersPage> {
     final profile = Provider.of<ProfileProvider>(context, listen: false).profile;
     _universityController = TextEditingController(text: profile?.universidad ?? '');
     
-    // Build unique list: main career first, then extra careers (skills)
+    // build unique list main career first then extra careers skills 
     final allCareers = <String>{};
     if (profile?.carrera != null && profile!.carrera!.isNotEmpty) {
       allCareers.add(profile.carrera!);

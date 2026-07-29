@@ -29,7 +29,7 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
   static final Map<String, List<dynamic>> _collaboratorsCache = {};
   static final Map<String, List<dynamic>> _pendingCache = {};
 
-  // Search state
+  // search state
   final ProfessorApi _professorApi = ProfessorApi();
   List<dynamic> _searchResults = [];
   bool _isSearching = false;

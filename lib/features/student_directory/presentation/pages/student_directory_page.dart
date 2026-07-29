@@ -43,7 +43,7 @@ class _StudentDirectoryView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header / Description Section
+            // header description section
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
               child: Column(
@@ -70,7 +70,7 @@ class _StudentDirectoryView extends StatelessWidget {
               ),
             ),
             
-            // Search Bar
+            // search bar
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
               child: StudentSearchBar(),
@@ -78,13 +78,13 @@ class _StudentDirectoryView extends StatelessWidget {
             
             const SizedBox(height: 12),
             
-            // Filter Chips Section
+            // filter chips section
             const Padding(
               padding: EdgeInsets.only(left: 20.0, bottom: 16.0),
               child: SkillFilterChips(),
             ),
             
-            // Student List
+            // student list
             Expanded(
               child: context.watch<StudentDirectoryProvider>().isLoading 
                   ? const Center(child: CircularProgressIndicator())

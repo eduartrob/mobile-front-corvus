@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:device_preview/device_preview.dart';
 
 import 'package:mobile/core/providers/auth_provider.dart';
 import 'package:mobile/features/auth/presentation/pages/login_page.dart';
@@ -108,9 +109,9 @@ class _AppRouterState extends State<AppRouter> {
                             state.matchedLocation == '/login' || 
                             state.matchedLocation.startsWith('/register');
 
-        // During active login (user pressed "Continuar con Google"), stay on login page.
-        // At startup, checkAuthStatus() is awaited before runApp() so initial/loading
-        // should not appear — but if it does, returning null is safe (stays where it is).
+        // during active login user pressed continuar con google stay on login page 
+        // at startup checkauthstatus is awaited before runapp so initial loading
+        // should not appear but if it does returning null is safe stays where it is 
         if (authStatus == AuthStatus.initial || authStatus == AuthStatus.loading) {
           return null;
         }
@@ -140,7 +141,7 @@ class _AppRouterState extends State<AppRouter> {
       routes: [
         GoRoute(
           path: '/',
-          redirect: (context, state) => '/login', // Fallback redirect if someone goes to /
+          redirect: (context, state) => '/login', // fallback redirect if someone goes to 
         ),
         GoRoute(
           path: '/welcome',
@@ -232,9 +233,9 @@ class _AppRouterState extends State<AppRouter> {
           ],
         ),
 
-        // Nivel 2: Proyecto del Alumno
-        // Usamos IndexedStack interno + query param 'tab' en lugar de
-        // StatefulShellRoute para evitar el assertion error con rutas parametrizadas.
+        // nivel 2 proyecto del alumno
+        // usamos indexedstack interno query param tab en lugar de
+        // statefulshellroute para evitar el assertion error con rutas parametrizadas 
         GoRoute(
           path: '/project/:id',
           pageBuilder: (context, state) {
@@ -253,7 +254,7 @@ class _AppRouterState extends State<AppRouter> {
           builder: (context, state) => const ProfProjectsDashboardPage(),
         ),
 
-        // Nivel 2: Proyecto del Profesor
+        // nivel 2 proyecto del profesor
         GoRoute(
           path: '/prof-project/:projectId',
           pageBuilder: (context, state) {
@@ -366,9 +367,13 @@ class _AppRouterState extends State<AppRouter> {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: AppLocalizations.supportedLocales,
+      locale: DevicePreview.locale(context),
       routerConfig: _router,
-      // Evita conflictos de Hero tags duplicados en SnackBars durante transiciones
-      builder: (context, child) => HeroControllerScope.none(child: child!),
+      // evita conflictos de hero tags duplicados en snackbars durante transiciones
+      builder: (context, child) {
+        final devicePreviewChild = DevicePreview.appBuilder(context, child);
+        return HeroControllerScope.none(child: devicePreviewChild);
+      },
     );
   }
 }

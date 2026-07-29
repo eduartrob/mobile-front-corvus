@@ -63,8 +63,8 @@ class EquipoTab extends StatelessWidget {
 
     return Consumer<TeamsProvider>(
       builder: (context, teamsProvider, child) {
-        // Show spinner ONLY when team itself is loading (not suggestions/requests)
-        // and only on first-ever load for this project
+        // show spinner only when team itself is loading not suggestions requests 
+        // and only on first ever load for this project
         if (teamsProvider.isLoadingTeam || !teamsProvider.hasLoadedOnce) {
           return const Center(
             child: Padding(
@@ -393,9 +393,9 @@ class EquipoTab extends StatelessWidget {
     );
   }
 
-  /// Renders one or two status banners.
-  /// When status == SUMMONED and a previous_status is stored in proposal_data,
-  /// shows the appointment card first, then the prior approval/rejection card.
+  /// renders one or two status banners 
+  /// when status summoned and a previous status is stored in proposal data 
+  /// shows the appointment card first then the prior approval rejection card 
   Widget _buildProposalStatusBanners(BuildContext context, Map<String, dynamic> statusData, AppLocalizations l10n) {
     final status = statusData['status'] as String? ?? 'UNKNOWN';
     final proposalData = statusData['proposal_data'] as Map<String, dynamic>? ?? {};

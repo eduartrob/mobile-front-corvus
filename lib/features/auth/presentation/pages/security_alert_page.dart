@@ -40,13 +40,13 @@ class _SecurityAlertPageState extends State<SecurityAlertPage>
   }
 
   Future<void> _handleYesItsMe() async {
-    // Confirmar que eres tú, ir al perfil
+    // confirmar que eres tú ir al perfil
     if (!mounted) return;
     context.go('/profile');
   }
 
   Future<void> _handleNoChangePassword() async {
-    // Cerrar sesión y redirigir al login con flag de cambio de contraseña
+    // cerrar sesión y redirigir al login con flag de cambio de contraseña
     setState(() => _isLoading = true);
     try {
       await context.read<AuthProvider>().logout();
@@ -75,7 +75,7 @@ class _SecurityAlertPageState extends State<SecurityAlertPage>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Shield icon animated
+                  // shield icon animated
                   Container(
                     width: 110,
                     height: 110,
@@ -157,7 +157,7 @@ class _SecurityAlertPageState extends State<SecurityAlertPage>
 
                   SizedBox(height: size.height * 0.06),
 
-                  // Botón principal: Sí, soy yo
+                  // botón principal sí soy yo
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
@@ -184,7 +184,7 @@ class _SecurityAlertPageState extends State<SecurityAlertPage>
 
                   const SizedBox(height: 14),
 
-                  // Botón secundario: No, cambiar contraseña
+                  // botón secundario no cambiar contraseña
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(

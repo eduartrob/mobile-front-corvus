@@ -25,10 +25,10 @@ class SavedProjectsRepository {
   Future<void> saveProject(ProjectEntity project) async {
     final projects = getSavedProjects();
     
-    // Evitar duplicados
+    // evitar duplicados
     if (projects.any((p) => p.id == project.id)) return;
     
-    // Crear el modelo para poder serializarlo
+    // crear el modelo para poder serializarlo
     final model = ProjectModel(
       id: project.id,
       category: project.category,

@@ -31,7 +31,7 @@ class LoggerService {
     final lastModified = await _logFile!.lastModified();
     final difference = DateTime.now().difference(lastModified).inDays;
 
-    // Reiniciar los logs de forma segura en el dia 31 (mayor a 30 dias)
+    // reiniciar los logs de forma segura en el dia 31 mayor a 30 dias 
     if (difference > _maxDaysToKeepLogs) {
       await _logFile!.delete();
       await _writeLog('SYSTEM', 'Ciclo de 30 días completado. Logs reiniciados por seguridad.');

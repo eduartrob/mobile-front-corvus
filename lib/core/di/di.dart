@@ -69,7 +69,7 @@ import 'package:mobile/core/theme/theme_provider.dart';
 final sl = GetIt.instance;
 
 void setupDependencies() {
-  // ── HTTP Client (ApiClient) ───────────────────────────────────────────
+  // http client apiclient 
   sl.registerLazySingleton<AuthInterceptorClient>(() => AuthInterceptorClient(
     storage: SecureStorageService(),
     onUnauthenticated: () {
@@ -106,7 +106,7 @@ void setupDependencies() {
     },
   ));
 
-  // ── Auth ──────────────────────────────────────────────────────────────
+  // auth 
   sl.registerLazySingleton<AuthRemoteDataSource>(
     () => AuthRemoteDataSourceImpl(),
   );
@@ -128,7 +128,7 @@ void setupDependencies() {
     signOutFromGoogleUseCase: sl(),
   ));
 
-  // ── Sync / Prof Profile ──────────────────────────────────────────────
+  // sync prof profile 
   sl.registerLazySingleton<SyncRemoteDataSource>(
     () => SyncRemoteDataSourceImpl(),
   );
@@ -138,7 +138,7 @@ void setupDependencies() {
   sl.registerLazySingleton(() => SyncDriveFolderUseCase(sl()));
   sl.registerLazySingleton(() => GetDriveFoldersUseCase(sl()));
 
-  // ── Search ────────────────────────────────────────────────────────────
+  // search 
   sl.registerLazySingleton<SearchRemoteDataSource>(
     () => SearchRemoteDataSourceImpl(client: sl<AuthInterceptorClient>()),
   );
@@ -148,7 +148,7 @@ void setupDependencies() {
   sl.registerLazySingleton(() => SmartSearchUseCase(sl()));
   sl.registerFactory(() => SearchProvider(sl()));
 
-  // ── MyProject ─────────────────────────────────────────────────────────
+  // myproject 
   sl.registerLazySingleton<MyProjectRemoteDataSource>(
     () => MyProjectRemoteDataSource(client: sl<AuthInterceptorClient>()),
   );
@@ -163,7 +163,7 @@ void setupDependencies() {
   );
   sl.registerFactory(() => MyProjectProvider(repository: sl()));
 
-  // ── Teams ─────────────────────────────────────────────────────────────
+  // teams 
   sl.registerLazySingleton<TeamsRemoteDataSource>(
     () => TeamsRemoteDataSource(client: sl<AuthInterceptorClient>()),
   );
@@ -172,13 +172,13 @@ void setupDependencies() {
   );
   sl.registerFactory(() => TeamsProvider(repository: sl()));
 
-  // ── Projects (gestión) ───────────────────────────────────────────────
+  // projects gestión 
   sl.registerLazySingleton<ProjectManagementRepository>(
     () => ProjectManagementRepositoryImpl(),
   );
   sl.registerFactory(() => ProjectProvider(repository: sl()));
 
-  // ── Prof Dashboard ───────────────────────────────────────────────────
+  // prof dashboard 
   sl.registerLazySingleton<DashboardRemoteDataSource>(
     () => DashboardRemoteDataSource(client: sl<AuthInterceptorClient>()),
   );
@@ -190,13 +190,13 @@ void setupDependencies() {
     repository: sl(),
   ));
 
-  // ── Prof Rules ───────────────────────────────────────────────────────
+  // prof rules 
   sl.registerLazySingleton<ProfRulesRemoteDataSource>(
     () => ProfRulesRemoteDataSource(client: sl<AuthInterceptorClient>()),
   );
   sl.registerFactory(() => ProfRulesProvider(remoteDataSource: sl()));
 
-  // ── Providers simples (sin dependencias complejas) ───────────────────
+  // providers simples sin dependencias complejas 
   sl.registerFactory(() => LinkedFoldersProvider());
   sl.registerFactory(() => ThemeProvider());
   sl.registerFactory(() => InspirationProvider());
@@ -208,17 +208,17 @@ void setupDependencies() {
   sl.registerFactory(() => ClusteringProvider());
   sl.registerFactory(() => RegistrationProvider());
 
-  // ── SavedProjects (requiere SharedPreferences async) ─────────────────
-  // Se registra como lazy singleton porque SharedPreferences es async
-  // y se inicializa en main() antes de usarlo.
+  // savedprojects requiere sharedpreferences async 
+  // se registra como lazy singleton porque sharedpreferences es async
+  // y se inicializa en main antes de usarlo 
   sl.registerLazySingleton<SavedProjectsRepository>(
     () => SavedProjectsRepository(sl<SharedPreferences>()),
   );
   sl.registerFactory(() => SavedProjectsProvider(sl()));
 }
 
-/// Inicializa las dependencias que requieren async (SharedPreferences).
-/// Debe llamarse después de `SharedPreferences.getInstance()` en main().
+/// inicializa las dependencias que requieren async sharedpreferences 
+/// debe llamarse después de sharedpreferences getinstance en main 
 void setupAsyncDependencies(SharedPreferences prefs) {
   sl.registerLazySingleton<SharedPreferences>(() => prefs);
 }

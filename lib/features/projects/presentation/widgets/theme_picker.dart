@@ -16,23 +16,23 @@ class ThemePicker extends StatelessWidget {
   });
 
   static const List<Color> availableColors = [
-    Color(0xFF4A90E2), // Blue
-    Color(0xFF50E3C2), // Teal
-    Color(0xFFB8E986), // Light Green
-    Color(0xFF7ED321), // Green
-    Color(0xFFF8E71C), // Yellow
-    Color(0xFFF5A623), // Orange
-    Color(0xFFD0021B), // Red
-    Color(0xFFBD10E0), // Purple
-    Color(0xFF9013FE), // Deep Purple
-    Color(0xFFFF8A80), // Pink
-    Color(0xFF8D6E63), // Brown
-    Color(0xFF607D8B), // Blue Grey
-    Color(0xFF5C88DA), // Muted Blue
-    Color(0xFF9A73C9), // Muted Purple
-    Color(0xFF56A98A), // Muted Green
-    Color(0xFFD98A53), // Muted Orange
-    Color(0xFFD67389), // Muted Pink
+    Color(0xFF4A90E2), // blue
+    Color(0xFF50E3C2), // teal
+    Color(0xFFB8E986), // light green
+    Color(0xFF7ED321), // green
+    Color(0xFFF8E71C), // yellow
+    Color(0xFFF5A623), // orange
+    Color(0xFFD0021B), // red
+    Color(0xFFBD10E0), // purple
+    Color(0xFF9013FE), // deep purple
+    Color(0xFFFF8A80), // pink
+    Color(0xFF8D6E63), // brown
+    Color(0xFF607D8B), // blue grey
+    Color(0xFF5C88DA), // muted blue
+    Color(0xFF9A73C9), // muted purple
+    Color(0xFF56A98A), // muted green
+    Color(0xFFD98A53), // muted orange
+    Color(0xFFD67389), // muted pink
   ];
 
   static final List<String> availablePatterns = List.generate(15, (index) => 'pattern_${index + 1}');

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:mobile/core/theme/app_gradients.dart';
 import 'package:mobile/core/theme/app_colors.dart';
-/// anillo/borde dorado/naranja glowing de la Membresía PRO cuando `isPro` es true.
+/// anillo borde dorado naranja glowing de la membresía pro cuando ispro es true 
 class ProAvatar extends StatelessWidget {
   final String? photoUrl;
   final double radius;

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:device_preview/device_preview.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mobile/app.dart';
 import 'package:mobile/core/app/app_bootstrap.dart';
@@ -35,33 +37,33 @@ import 'package:mobile/features/projects/presentation/provider/project_provider.
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // ─── Cargar variables de entorno ────────────────────────────────────────
+  // cargar variables de entorno 
   await dotenv.load(fileName: ".env");
 
   setupDependencies();
   NetworkService().initialize(globalMessengerKey);
 
-  // ─── Dependencias async (SharedPreferences) ────────────────────────────
+  // dependencias async sharedpreferences 
   final prefs = await SharedPreferences.getInstance();
   setupAsyncDependencies(prefs);
 
-  // ─── Providers desde el contenedor DI ───────────────────────────────────
+  // providers desde el contenedor di 
   final authProvider = sl<AuthProvider>();
   final themeProvider = sl<ThemeProvider>();
 
-  // ─── Inicialización en paralelo ────────────────────────────────────────
+  // inicialización en paralelo 
   await Future.wait([
     Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform)
         .then((_) async {
       FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
       FirebaseMessaging.onMessage.listen(handleFCMMessage);
 
-      // Tap en notificación desde background
+      // tap en notificación desde background
       FirebaseMessaging.onMessageOpenedApp.listen(
         NotificationNavigationService.handle,
       );
 
-      // App terminada y abierta desde notificación
+      // app terminada y abierta desde notificación
       FirebaseMessaging.instance
           .getInitialMessage()
           .then((RemoteMessage? message) {
@@ -82,29 +84,32 @@ void main() async {
   ]);
 
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider.value(value: authProvider),
-        ChangeNotifierProvider(create: (_) => sl<LinkedFoldersProvider>()),
-        ChangeNotifierProvider(create: (_) => sl<MyProjectProvider>()),
-        ChangeNotifierProvider.value(value: themeProvider),
-        ChangeNotifierProvider(create: (_) => sl<InspirationProvider>()),
-        ChangeNotifierProvider(create: (_) => sl<ProfRulesProvider>()),
-        ChangeNotifierProvider(create: (_) => sl<TeamsProvider>()),
-        ChangeNotifierProvider(create: (_) => sl<ClusteringProvider>()),
-        ChangeNotifierProvider(create: (_) => sl<NotificationsProvider>()),
-        ChangeNotifierProvider(create: (_) => sl<ProfileProvider>()),
-        ChangeNotifierProvider(create: (_) => sl<RegistrationProvider>()),
-        ChangeNotifierProvider(create: (_) => sl<SavedProjectsProvider>()),
-        ChangeNotifierProvider(create: (_) => sl<ProfReviewsProvider>()),
-        ChangeNotifierProvider(create: (_) => sl<ProfHistoryProvider>()),
-        ChangeNotifierProvider(create: (_) => sl<ActivityHistoryProvider>()),
-        ChangeNotifierProvider(create: (_) => sl<ProfDashboardProvider>()),
-        ChangeNotifierProvider(create: (_) => sl<ProjectProvider>()),
-      ],
-      child: AppBootstrap(
-        authProvider: authProvider,
-        child: const MyApp(),
+    DevicePreview(
+      enabled: !kReleaseMode,
+      builder: (context) => MultiProvider(
+        providers: [
+          ChangeNotifierProvider.value(value: authProvider),
+          ChangeNotifierProvider(create: (_) => sl<LinkedFoldersProvider>()),
+          ChangeNotifierProvider(create: (_) => sl<MyProjectProvider>()),
+          ChangeNotifierProvider.value(value: themeProvider),
+          ChangeNotifierProvider(create: (_) => sl<InspirationProvider>()),
+          ChangeNotifierProvider(create: (_) => sl<ProfRulesProvider>()),
+          ChangeNotifierProvider(create: (_) => sl<TeamsProvider>()),
+          ChangeNotifierProvider(create: (_) => sl<ClusteringProvider>()),
+          ChangeNotifierProvider(create: (_) => sl<NotificationsProvider>()),
+          ChangeNotifierProvider(create: (_) => sl<ProfileProvider>()),
+          ChangeNotifierProvider(create: (_) => sl<RegistrationProvider>()),
+          ChangeNotifierProvider(create: (_) => sl<SavedProjectsProvider>()),
+          ChangeNotifierProvider(create: (_) => sl<ProfReviewsProvider>()),
+          ChangeNotifierProvider(create: (_) => sl<ProfHistoryProvider>()),
+          ChangeNotifierProvider(create: (_) => sl<ActivityHistoryProvider>()),
+          ChangeNotifierProvider(create: (_) => sl<ProfDashboardProvider>()),
+          ChangeNotifierProvider(create: (_) => sl<ProjectProvider>()),
+        ],
+        child: AppBootstrap(
+          authProvider: authProvider,
+          child: const MyApp(),
+        ),
       ),
     ),
   );

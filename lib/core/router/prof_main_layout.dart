@@ -32,13 +32,13 @@ class _ProfMainLayoutState extends State<ProfMainLayout> {
       onPopInvokedWithResult: (bool didPop, Object? result) async {
         if (didPop) return;
 
-        // Si no estamos en la primera pestaña (Dashboard), regresar a ella
+        // si no estamos en la primera pestaña dashboard regresar a ella
         if (widget.navigationShell.currentIndex != 0) {
           widget.navigationShell.goBranch(0);
           return;
         }
 
-        // Ya estamos en Dashboard: doble toque para salir
+        // ya estamos en dashboard doble toque para salir
         final now = DateTime.now();
         if (_lastPressedAt == null ||
             now.difference(_lastPressedAt!) > const Duration(seconds: 2)) {

@@ -94,7 +94,7 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
 
     if (userId == null || projects.isEmpty) return;
 
-    // Esperar 0.5 segundos para que la animación inicial termine y empezar precarga temprana
+    // esperar 0 5 segundos para que la animación inicial termine y empezar precarga temprana
     Future.delayed(const Duration(milliseconds: 500), () async {
       if (!mounted) return;
       for (final p in projects) {

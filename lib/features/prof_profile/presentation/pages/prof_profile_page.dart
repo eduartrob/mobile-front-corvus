@@ -102,7 +102,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
               const SizedBox(height: 24),
               const Divider(height: 1),
               
-              // Sincronizar con Google Drive
+              // sincronizar con google drive
               ListTile(
                 hoverColor: Colors.transparent,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -117,7 +117,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                 },
               ),
               
-              // Cómo cargar los proyectos
+              // cómo cargar los proyectos
               ListTile(
                 hoverColor: Colors.transparent,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -132,7 +132,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                 },
               ),
               
-              // Historial de Decisiones
+              // historial de decisiones
               ListTile(
                 hoverColor: Colors.transparent,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -144,7 +144,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                 },
               ),
               
-              // Apariencia
+              // apariencia
               ListTile(
                 hoverColor: Colors.transparent,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -156,7 +156,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                 },
               ),
               
-              // Actualización de la aplicación
+              // actualización de la aplicación
               ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 leading: Icon(Icons.system_update, color: colorScheme.onSurfaceVariant, size: 28),
@@ -168,7 +168,7 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
               
               const SizedBox(height: 24),
               
-              // Cerrar sesión
+              // cerrar sesión
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
@@ -216,10 +216,10 @@ class _ProfProfilePageState extends State<ProfProfilePage> {
                     final projectProvider = context.read<ProjectProvider>();
                     final profileProvider = context.read<ProfileProvider>();
                     
-                    // Navigate to login immediately
+                    // navigate to login immediately
                     context.go('/');
                     
-                    // Run logout logic while login screen handles the loading state
+                    // run logout logic while login screen handles the loading state
                     authProvider.logout().then((_) {
                       projectProvider.clear();
                       profileProvider.clear();

@@ -34,7 +34,7 @@ class ProfileProvider extends ChangeNotifier {
     if (_profile == null) {
       _profile = await remoteDataSource.getCachedProfile();
       if (_profile != null) {
-        notifyListeners(); // Update UI instantly with cached data
+        notifyListeners(); // update ui instantly with cached data
       }
     }
     
@@ -46,7 +46,7 @@ class ProfileProvider extends ChangeNotifier {
       final newProfile = await remoteDataSource.getPerfilCompleto(forceRefresh: forceRefresh);
 
       if (newProfile.isProcessing && _profile != null) {
-        // Retain old fields but set isProcessing to true
+        // retain old fields but set isprocessing to true
         _profile = ProfileCompletoModel(
           alumno: _profile!.alumno,
           correo: _profile!.correo,
@@ -113,7 +113,7 @@ class ProfileProvider extends ChangeNotifier {
     required List<String> skills,
     List<String>? careers,
   }) async {
-    // Optimistic Update: Actualizar la UI inmediatamente antes de ir al servidor
+    // optimistic update actualizar la ui inmediatamente antes de ir al servidor
     if (_profile != null) {
       _profile = ProfileCompletoModel(
         alumno: fullName.isNotEmpty ? fullName : _profile!.alumno,
@@ -149,7 +149,7 @@ class ProfileProvider extends ChangeNotifier {
         skills: skills,
         careers: careers,
       );
-      // Tras guardar, traemos los datos reales por si algo más cambió
+      // tras guardar traemos los datos reales por si algo más cambió
       await fetchProfile(forceRefresh: true);
     } catch (e, st) {
       _errorMessage = mapErrorToMessage(e, stackTrace: st);

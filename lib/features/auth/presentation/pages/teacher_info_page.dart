@@ -52,7 +52,7 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
       setState(() {
         _universityId = uid;
         _universityName = uname;
-        _universityIdController.text = uid ?? ''; // Utilizado internamente por el autocomplete para filtrar
+        _universityIdController.text = uid ?? ''; // utilizado internamente por el autocomplete para filtrar
       });
     }
   }
@@ -105,7 +105,7 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
     final provider = Provider.of<RegistrationProvider>(context, listen: false);
     
     try {
-      // 1. Registro
+      // 1 registro
       final Map<String, dynamic> bodyData = {
         'email': provider.email,
         'password': provider.password,
@@ -143,7 +143,7 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
         }
       }
 
-      // 2. Login
+      // 2 login
       final loginResponse = await http.post(
         Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authLogin}'),
         headers: {'Content-Type': 'application/json'},
@@ -170,9 +170,9 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
         throw Exception(l10n.noTokenReceived);
       }
 
-      // 3. Completar perfil con universidad y carrera
-      // Enviamos la primera carrera como career_id y las demás como tags/skills 
-      // (el backend las guardará como pueda según la limitación de 1 carrera por usuario).
+      // 3 completar perfil con universidad y carrera
+      // enviamos la primera carrera como career id y las demás como tags skills 
+      // el backend las guardará como pueda según la limitación de 1 carrera por usuario 
       final responseProfile = await http.put(
         Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authCompleteProfile}'), 
         headers: {

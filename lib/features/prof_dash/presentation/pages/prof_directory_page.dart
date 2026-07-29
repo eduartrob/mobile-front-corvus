@@ -254,9 +254,9 @@ class _ProfDirectoryPageViewState extends State<_ProfDirectoryPageView> with Sin
       itemCount: students.length,
       itemBuilder: (context, index) {
         final student = students[index];
-        // student.email is not available in Student model from teams_model
-        // But we can use StudentCard just passing what we have.
-        // Wait, StudentCard might require specific provider. Let's just build a custom ListTile to avoid issues.
+        // student email is not available in student model from teams model
+        // but we can use studentcard just passing what we have 
+        // wait studentcard might require specific provider let s just build a custom listtile to avoid issues 
         final hasAvatar = student.avatarUrl != null && student.avatarUrl!.trim().isNotEmpty;
         return Card(
           elevation: 0,

@@ -11,7 +11,7 @@ class StudentDirectoryRemoteDataSource {
 
   StudentDirectoryRemoteDataSource({required this.client});
 
-  // GET /clustering/teams/students
+  // get clustering teams students
   Future<List<Student>> getStudentDirectory({String? skill}) async {
     var uriString = '${ApiConfig.apiGatewayUrl}${ApiEndpoints.teamsStudents}';
     if (skill != null && skill.isNotEmpty && skill.toLowerCase() != 'all skills') {

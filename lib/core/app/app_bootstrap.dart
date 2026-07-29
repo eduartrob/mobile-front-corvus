@@ -10,11 +10,11 @@ import 'package:mobile/features/inspiration/presentation/provider/inspiration_pr
 import 'package:mobile/features/notifications/presentation/provider/notifications_provider.dart';
 import 'package:mobile/features/prof_dash/presentation/provider/prof_dash_provider.dart';
 
-/// Widget raíz que escucha cambios de autenticación y dispara la carga
-/// de datos esenciales solo cuando el usuario está autenticado.
+/// widget raíz que escucha cambios de autenticación y dispara la carga
+/// de datos esenciales solo cuando el usuario está autenticado 
 ///
-/// Este patrón evita cargar datos masivamente durante el arranque;
-/// en cambio, todo se carga on-demand después de verificar el estado de auth.
+/// este patrón evita cargar datos masivamente durante el arranque 
+/// en cambio todo se carga on demand después de verificar el estado de auth 
 class AppBootstrap extends StatefulWidget {
   final AuthProvider authProvider;
   final Widget child;
@@ -39,7 +39,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
         widget.authProvider.status == AuthStatus.authenticated;
     widget.authProvider.addListener(_onAuthChanged);
 
-    // Si ya está autenticado al arrancar (sesión persistida), cargar esenciales
+    // si ya está autenticado al arrancar sesión persistida cargar esenciales
     if (_wasAuthenticated) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _loadEssentialData());
     }
@@ -55,17 +55,17 @@ class _AppBootstrapState extends State<AppBootstrap> {
     final isAuth = widget.authProvider.status == AuthStatus.authenticated;
 
     if (isAuth && !_wasAuthenticated) {
-      // Usuario acaba de autenticarse → cargar datos esenciales
+      // usuario acaba de autenticarse cargar datos esenciales
       _wasAuthenticated = true;
       _loadEssentialData();
     } else if (!isAuth && _wasAuthenticated) {
-      // Usuario acaba de cerrar sesión → limpiar estado de todos los providers
+      // usuario acaba de cerrar sesión limpiar estado de todos los providers
       _wasAuthenticated = false;
       _clearAllProviders();
     }
   }
 
-  /// Limpia todos los providers para evitar fugas de estado entre sesiones.
+  /// limpia todos los providers para evitar fugas de estado entre sesiones 
   void _clearAllProviders() {
     if (!mounted) return;
     try { context.read<MyProjectProvider>().reset(''); } catch (_) {}
@@ -78,9 +78,9 @@ class _AppBootstrapState extends State<AppBootstrap> {
     FirebaseMessaging.instance.unsubscribeFromTopic('config_updates');
   }
 
-  /// Carga solo los datos esenciales para el primer frame autenticado.
-  /// El resto de features cargan bajo demanda cuando el usuario visita
-  /// cada pantalla (lazy loading).
+  /// carga solo los datos esenciales para el primer frame autenticado 
+  /// el resto de features cargan bajo demanda cuando el usuario visita
+  /// cada pantalla lazy loading 
   void _loadEssentialData() {
     if (!mounted) return;
     final uid = widget.authProvider.currentUser?.id;
@@ -91,7 +91,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
     final profileProvider = context.read<ProfileProvider>();
     final notificationsProvider = context.read<NotificationsProvider>();
 
-    // Teams es necesario para saber si el alumno ya tiene equipo
+    // teams es necesario para saber si el alumno ya tiene equipo
     teamsProvider.fetchMyTeam().then((_) {
       if (!mounted) return;
       final teamId = teamsProvider.myTeam?.id ?? '';
@@ -101,17 +101,17 @@ class _AppBootstrapState extends State<AppBootstrap> {
     profileProvider.fetchProfile();
     notificationsProvider.fetchNotifications(silent: true);
 
-    // Cargar proyectos silenciosamente
+    // cargar proyectos silenciosamente
     final projectProvider = context.read<ProjectProvider>();
     final token = widget.authProvider.currentUser?.token;
     if (token != null) {
       projectProvider.loadMyProjects(token, quiet: true, userId: uid);
     }
 
-    // Namespacear SharedPreferences por usuario
+    // namespacear sharedpreferences por usuario
     context.read<InspirationProvider>().setUserId(uid);
 
-    // Suscribir a FCM topics globalmente (ahora todos escuchan config_updates)
+    // suscribir a fcm topics globalmente ahora todos escuchan config updates 
     FirebaseMessaging.instance.subscribeToTopic('config_updates');
   }
 

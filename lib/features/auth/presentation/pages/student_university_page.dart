@@ -146,7 +146,7 @@ class _StudentUniversityPageState extends State<StudentUniversityPage> {
         provider.setUniversityData(
           fullName: name,
           matricula: matricula,
-          universityId: _universityController.text, // El backend lo resuelve usando el nombre si no es un UUID
+          universityId: _universityController.text, // el backend lo resuelve usando el nombre si no es un uuid
           universityName: _universityController.text,
           periodName: _selectedPeriod,
           periodNumber: _periodNumberController.text.trim().isEmpty ? '1' : _periodNumberController.text.trim(),

@@ -20,7 +20,7 @@ class ProfRulesProvider extends ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
-  // Backend state
+  // backend state
   List<String> _allowedExtensions = ['.pdf', '.docx'];
   String _llmProvider = 'ollama';
   String _driveFolderId = '';
@@ -42,7 +42,7 @@ class ProfRulesProvider extends ChangeNotifier {
 
   String? _lastProjectId;
   
-  // In-memory cache for instantaneous project switching
+  // in memory cache for instantaneous project switching
   final Map<String, Map<String, dynamic>> _memoryConfigCache = {};
   final Map<String, Map<String, dynamic>> _memoryStatsCache = {};
 
@@ -51,11 +51,11 @@ class ProfRulesProvider extends ChangeNotifier {
     
     if (projectId != null && projectId != _lastProjectId) {
       if (_memoryConfigCache.containsKey(pId) && _memoryStatsCache.containsKey(pId)) {
-        // Synchronously load from memory cache so first frame is correct
+        // synchronously load from memory cache so first frame is correct
         _updateState(_memoryConfigCache[pId]!, _memoryStatsCache[pId]!);
         _lastProjectId = projectId;
       } else {
-        // Clear UI and show skeleton only if we have NO memory cache
+        // clear ui and show skeleton only if we have no memory cache
         _projectSections = [];
         _clusterStats = [];
         _exclusionRules = [];
@@ -64,32 +64,32 @@ class ProfRulesProvider extends ChangeNotifier {
       }
     }
 
-    // 1. Intentar cargar desde el caché rápido de disco
+    // 1 intentar cargar desde el caché rápido de disco
     try {
       final config = await remoteDataSource.getConfig(forceRefresh: false, projectId: projectId);
       final statsData = await remoteDataSource.getClusterStats(forceRefresh: false, projectId: projectId);
       
-      // Guardar en memoria
+      // guardar en memoria
       _memoryConfigCache[pId] = config;
       _memoryStatsCache[pId] = statsData;
       
       _updateState(config, statsData);
     } catch (e, st) {
-      // Ignoramos errores de caché
+      // ignoramos errores de caché
     }
 
-    // Si no hay datos cacheados en absoluto, mostramos el Skeleton completo
+    // si no hay datos cacheados en absoluto mostramos el skeleton completo
     if (_projectSections.isEmpty && _clusterStats.isEmpty) {
       _isLoading = true;
       notifyListeners();
     }
 
-    // 2. Traer datos frescos de la red en segundo plano
+    // 2 traer datos frescos de la red en segundo plano
     try {
       final config = await remoteDataSource.getConfig(forceRefresh: true, projectId: projectId);
       final statsData = await remoteDataSource.getClusterStats(forceRefresh: true, projectId: projectId);
       
-      // Guardar en memoria
+      // guardar en memoria
       _memoryConfigCache[pId] = config;
       _memoryStatsCache[pId] = statsData;
       

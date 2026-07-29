@@ -43,7 +43,7 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Tarjeta de Estado de Suscripción Actual
+            // tarjeta de estado de suscripción actual
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(24),
@@ -146,7 +146,7 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
 
             const SizedBox(height: 28),
 
-            // Título Beneficios de tu plan
+            // título beneficios de tu plan
             Text(
               'Lo que incluye tu plan actual:',
               style: TextStyle(
@@ -158,7 +158,7 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
 
             const SizedBox(height: 14),
 
-            // Lista de Beneficios del Plan Actual
+            // lista de beneficios del plan actual
             if (hasPro) ...[
               _buildFeatureRow(
                 context,
@@ -245,7 +245,7 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
 
             const SizedBox(height: 32),
 
-            // Botón de Acción Principal (Mejorar / Cambiar Plan)
+            // botón de acción principal mejorar cambiar plan 
             SizedBox(
               width: double.infinity,
               height: 52,

@@ -1,10 +1,10 @@
-// ignore: unused_import
+// ignore unused import
 import 'package:intl/intl.dart' as intl;
 import 'app_localizations.dart';
 
-// ignore_for_file: type=lint
+// ignore for file type lint
 
-/// The translations for Spanish Castilian (`es`).
+/// the translations for spanish castilian es 
 class AppLocalizationsEs extends AppLocalizations {
   AppLocalizationsEs([String locale = 'es']) : super(locale);
 

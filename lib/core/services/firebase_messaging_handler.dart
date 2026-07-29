@@ -23,7 +23,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   } catch (e) {}
 }
 
-/// Extrae la ruta actual del router para logica WhatsApp-like
+/// extrae la ruta actual del router para logica whatsapp like
 String? _getCurrentRoute() {
   try {
     final context = rootNavigatorKey.currentContext;
@@ -34,7 +34,7 @@ String? _getCurrentRoute() {
   }
 }
 
-/// Navega al deep-link dado si hay contexto disponible
+/// navega al deep link dado si hay contexto disponible
 void _navigateToDeepLink(String? deepLink) {
   if (deepLink == null || deepLink.isEmpty) return;
   final context = rootNavigatorKey.currentContext;
@@ -54,20 +54,20 @@ Future<void> handleFCMMessage(RemoteMessage message) async {
     final storage = SecureStorageService();
     final role = await storage.read(key: 'auth_role');
 
-    // -- Lógica WhatsApp-like: determinar si la pantalla actual coincide --
+    // lógica whatsapp like determinar si la pantalla actual coincide 
     bool skipHeadsUp = false;
     final currentRoute = _getCurrentRoute();
 
-    // Si estamos en /notifications suprimir siempre
+    // si estamos en notifications suprimir siempre
     if (NotificationsPage.isOpen) skipHeadsUp = true;
 
-    // Suprimir notificaciones si el autor es el usuario actual
+    // suprimir notificaciones si el autor es el usuario actual
     final currentUserId = await storage.read(key: 'auth_id');
     if (data['authorId'] != null && data['authorId'] == currentUserId) {
       skipHeadsUp = true;
     }
 
-    // Intentar inferir la ruta destino si no viene deepLink
+    // intentar inferir la ruta destino si no viene deeplink
     String? expectedRoute = deepLink;
     if (expectedRoute == null) {
       if (notifType == 'CLASSROOM_UPDATE' || notifType == 'PROJECT_UPDATE') expectedRoute = '/my-project';
@@ -76,7 +76,7 @@ Future<void> handleFCMMessage(RemoteMessage message) async {
       else if (notifType == 'SECURITY_DEVICE' || notifType == 'SUBSCRIPTION_CHANGE') expectedRoute = '/profile';
     }
 
-    // Si la ruta base coincide, suprimimos alerta y marcamos como leída
+    // si la ruta base coincide suprimimos alerta y marcamos como leída
     if (expectedRoute != null && currentRoute != null) {
       final expectedBase = expectedRoute.split('?').first;
       final currentBase = currentRoute.split('?').first;
@@ -84,7 +84,7 @@ Future<void> handleFCMMessage(RemoteMessage message) async {
       if (currentBase.startsWith(expectedBase)) {
         skipHeadsUp = true;
       } else {
-        // Extra check for project IDs
+        // extra check for project ids
         final expProjectMatch = RegExp(r'/(?:project|prof-project)/([^/]+)').firstMatch(expectedBase);
         final curProjectMatch = RegExp(r'/(?:project|prof-project)/([^/]+)').firstMatch(currentBase);
         if (expProjectMatch != null && curProjectMatch != null && expProjectMatch.group(1) == curProjectMatch.group(1)) {
@@ -94,7 +94,7 @@ Future<void> handleFCMMessage(RemoteMessage message) async {
     }
 
     if (message.notification != null) {
-      // Guardar en SQLite con el estado isRead dinámico
+      // guardar en sqlite con el estado isread dinámico
       final String notificationId = data['notificationId'] ?? 'temp_${DateTime.now().millisecondsSinceEpoch}';
       String? finalDeepLink = deepLink;
       if (finalDeepLink == null && data['projectId'] != null && data['projectId'].toString().isNotEmpty) {
@@ -118,7 +118,7 @@ Future<void> handleFCMMessage(RemoteMessage message) async {
         try {
           context.read<NotificationsProvider>().fetchNotifications(silent: true);
 
-          // Reactividad: actualizar providers según tipo
+          // reactividad actualizar providers según tipo
           if (notifType.startsWith('team_') || notifType.startsWith('TEAM_')) {
             context.read<TeamsProvider>().fetchMyTeam();
             context.read<TeamsProvider>().fetchRequests();
@@ -145,7 +145,7 @@ Future<void> handleFCMMessage(RemoteMessage message) async {
       }
     }
 
-  // -- Handlers especiales por tipo --
+  // handlers especiales por tipo 
 
   if (notifType == 'sync_progress') {
     final progress = int.tryParse(data['progress']?.toString() ?? '0') ?? 0;
@@ -175,10 +175,10 @@ Future<void> handleFCMMessage(RemoteMessage message) async {
         await storage.delete(key: key);
       }
     } catch (e) {
-      // Ignorar error
+      // ignorar error
     }
   } else if (notifType == 'security_new_device') {
-    // Navegar a la pantalla interactiva de seguridad
+    // navegar a la pantalla interactiva de seguridad
     _navigateToDeepLink('/security-alert');
   }
 }

@@ -6,7 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 class InAppBrowserPage extends StatefulWidget {
   final String initialUrl;
   final String? title;
-  // URL fragment that signals payment is complete (e.g. "/pagos/resultado")
+  // url fragment that signals payment is complete e g pagos resultado 
   final String? completionUrlFragment;
 
   const InAppBrowserPage({
@@ -52,7 +52,7 @@ class _InAppBrowserPageState extends State<InAppBrowserPage> {
                 _loadingProgress = 10;
               });
             }
-            // Auto-close when MercadoPago redirects back to our resultado endpoint
+            // auto close when mercadopago redirects back to our resultado endpoint
             _checkForCompletion(url);
           },
           onPageFinished: (String url) {
@@ -75,7 +75,7 @@ class _InAppBrowserPageState extends State<InAppBrowserPage> {
   void _checkForCompletion(String url) {
     final fragment = widget.completionUrlFragment;
     if (fragment != null && url.contains(fragment)) {
-      // Extract payment state from URL query params
+      // extract payment state from url query params
       final uri = Uri.tryParse(url);
       final estado = uri?.queryParameters['estado'];
       if (mounted) {

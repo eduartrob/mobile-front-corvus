@@ -19,7 +19,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
   void initState() {
     super.initState();
     NotificationsPage.isOpen = true;
-    // Mark all as read when the page opens
+    // mark all as read when the page opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<NotificationsProvider>().markAllAsReadOnOpen();
     });
@@ -28,7 +28,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
   @override
   void dispose() {
     NotificationsPage.isOpen = false;
-    // Exit selection mode if user leaves via back/navigation
+    // exit selection mode if user leaves via back navigation
     context.read<NotificationsProvider>().exitSelectionMode();
     super.dispose();
   }
@@ -55,7 +55,7 @@ class _NotificationsView extends StatelessWidget {
     final isSelecting = provider.isSelectionMode;
 
     return PopScope(
-      // When in selection mode, intercept back to exit selection — not navigate away
+      // when in selection mode intercept back to exit selection not navigate away
       canPop: !isSelecting,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) return;
@@ -89,7 +89,7 @@ class _NotificationsView extends StatelessWidget {
           ),
           actions: [
             if (isSelecting) ...[
-              // Select / deselect all
+              // select deselect all
               if (provider.selectedIds.length < notifications.length)
                 TextButton(
                   onPressed: () {
@@ -188,12 +188,12 @@ class _NotificationsView extends StatelessWidget {
                   ),
                 )
               : CustomRefreshIndicator(
-                  // Disable pull-to-refresh while in selection mode
+                  // disable pull to refresh while in selection mode
                   triggerMode: isSelecting
                       ? IndicatorTriggerMode.onEdge
                       : IndicatorTriggerMode.onEdge,
                   notificationPredicate: isSelecting
-                      ? (_) => false  // block scroll notifications → no refresh
+                      ? (_) => false  // block scroll notifications no refresh
                       : defaultScrollNotificationPredicate,
                   builder: (BuildContext context, Widget child,
                       IndicatorController controller) {

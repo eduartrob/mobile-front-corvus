@@ -9,23 +9,23 @@ class PushSyncService {
   factory PushSyncService() => _instance;
   PushSyncService._internal();
 
-  /// Inicializa la sincronización por push silenciosos
+  /// inicializa la sincronización por push silenciosos
   Future<void> initialize(BuildContext context) async {
     final messaging = FirebaseMessaging.instance;
 
-    // Solicitar permisos en caso de iOS
+    // solicitar permisos en caso de ios
     await messaging.requestPermission();
 
-    // Se quita la suscripción global. Ahora se suscribe solo si el usuario es alumno en main.dart
+    // se quita la suscripción global ahora se suscribe solo si el usuario es alumno en main dart
     
-    // Escuchar mensajes en primer plano (Foreground)
+    // escuchar mensajes en primer plano foreground 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       if (message.data['type'] == 'CONFIG_UPDATED') {
         _triggerSilentReload(context);
       }
     });
 
-    // Escuchar mensajes al abrir la app desde segundo plano
+    // escuchar mensajes al abrir la app desde segundo plano
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       if (message.data['type'] == 'CONFIG_UPDATED') {
         _triggerSilentReload(context);
@@ -34,11 +34,11 @@ class PushSyncService {
   }
 
   void _triggerSilentReload(BuildContext context) {
-    // Llamar a los providers para forzar una recarga
-    // Si la vista está activa, se actualizará instantáneamente.
+    // llamar a los providers para forzar una recarga
+    // si la vista está activa se actualizará instantáneamente 
     try {
       context.read<ProfRulesProvider>().fetchData();
-      // context.read<MyProjectProvider>().loadUserAndProject(); // revisar nombre del metodo
+      // context read myprojectprovider loaduserandproject revisar nombre del metodo
       debugPrint('🔄 Push Silencioso: Caché invalidado y datos recargados.');
     } catch (e) {
       debugPrint('Error en recarga por push: $e');

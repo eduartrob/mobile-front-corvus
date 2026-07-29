@@ -64,7 +64,7 @@ class _ProfHistoryPageState extends State<ProfHistoryPage> {
                 
                 const SizedBox(height: 24),
                 
-                // Search Bar
+                // search bar
                 TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
@@ -101,7 +101,7 @@ class _ProfHistoryPageState extends State<ProfHistoryPage> {
                 
                 const SizedBox(height: 8),
                 
-                // Filter Chips
+                // filter chips
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(

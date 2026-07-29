@@ -1,7 +1,7 @@
 class ApiEndpoints {
-  // ---------------------------------------------------------------------------
-  // AUTHENTICATION
-  // ---------------------------------------------------------------------------
+  // 
+  // authentication
+  // 
   static const String authLogin = '/auth/login';
   static const String authRegister = '/auth/register';
   static const String authMe = '/auth/me';
@@ -13,14 +13,14 @@ class ApiEndpoints {
   static const String authCareers = '/auth/careers';
   static const String authFolders = '/auth/folders';
 
-  // ---------------------------------------------------------------------------
-  // NOTIFICATIONS
-  // ---------------------------------------------------------------------------
+  // 
+  // notifications
+  // 
   static const String notificationsDevice = '/notifications/device';
 
-  // ---------------------------------------------------------------------------
-  // PROJECTS
-  // ---------------------------------------------------------------------------
+  // 
+  // projects
+  // 
   static const String projects = '/projects';
   static const String projectsJoin = '/projects/join';
   static const String projectsMyProjects = '/projects/my-projects';
@@ -33,9 +33,9 @@ class ApiEndpoints {
   static String projectCollaboratorsAccept(String id) => '/projects/$id/collaborators/accept';
   static String projectCollaboratorsReject(String id) => '/projects/$id/collaborators/reject';
 
-  // ---------------------------------------------------------------------------
-  // TEAMS
-  // ---------------------------------------------------------------------------
+  // 
+  // teams
+  // 
   static const String teamsMyTeam = '/teams/my-team';
   static const String teamsMyTeamLeave = '/teams/my-team/leave';
   static String teamMemberById(String id) => '/teams/my-team/members/$id';
@@ -49,30 +49,30 @@ class ApiEndpoints {
 
   static const String teamsProfDirectory = '/teams/prof/directory';
 
-  // ---------------------------------------------------------------------------
-  // FINAL REVIEWS
-  // ---------------------------------------------------------------------------
+  // 
+  // final reviews
+  // 
   static const String finalReviews = '/final-reviews';
   static String finalReviewByTeam(String teamId) => '/final-reviews/team/$teamId';
 
-  // ---------------------------------------------------------------------------
-  // PROFESSORS
-  // ---------------------------------------------------------------------------
-  // ---------------------------------------------------------------------------
+  // 
+  // professors
+  // 
+  // 
   static const String professorsDashboard = '/professors/dashboard';
   static const String professorsHistory = '/professors/history';
   static const String professorsSearch = '/professors/search';
 
-  // ---------------------------------------------------------------------------
-  // LLM SESSIONS
-  // ---------------------------------------------------------------------------
+  // 
+  // llm sessions
+  // 
   static const String llmSessionStart = '/llm/session/start';
   static const String llmSessionMessage = '/llm/session/message';
   static String llmSessionMessages(String sessionId) => '/llm/session/$sessionId/messages';
 
-  // ---------------------------------------------------------------------------
-  // CLUSTERING / INTEGRATOR
-  // ---------------------------------------------------------------------------
+  // 
+  // clustering integrator
+  // 
   static const String clusteringSubjectSearchSmart = '/clustering/subject/search-smart';
   static const String clusteringSubjectIngest = '/clustering/subject/ingest';
   
@@ -88,7 +88,7 @@ class ApiEndpoints {
   static String integratorCancelAnalysis(String teamId) => '/clustering/integrator/cancel-analysis/$teamId';
   static String mobileProjectSummary(String teamId) => '/mobile/project-summary/$teamId';
 
-  // Clustering / Groups
+  // clustering groups
   static const String clusteringGroupsLogin = '/clustering/groups/login';
   static const String clusteringGroupsCourses = '/clustering/groups/courses';
   static const String clusteringGroupsSyncPerfil = '/clustering/groups/sync-perfil';
@@ -96,9 +96,9 @@ class ApiEndpoints {
   static String clusteringGroupsCluster(String courseId) => '/clustering/groups/cluster/$courseId';
   static String clusteringGroupsClusterSummary(String courseId) => '/clustering/groups/cluster/$courseId/summary';
 
-  // ---------------------------------------------------------------------------
-  // PAGOS
-  // ---------------------------------------------------------------------------
+  // 
+  // pagos
+  // 
   static const String pagosPlanes  = '/pagos/planes';
   static const String pagosCrear   = '/pagos/crear';
   static String pagoById(String id) => '/pagos/$id';

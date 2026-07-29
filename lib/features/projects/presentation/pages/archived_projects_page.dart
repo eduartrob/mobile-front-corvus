@@ -62,7 +62,7 @@ class _ArchivedProjectsPageState extends State<ArchivedProjectsPage> {
         if (provider.archivedProjects.isEmpty) {
           provider.loadArchivedProjects(token);
         } else {
-          // Load quietly in background if already has data
+          // load quietly in background if already has data
           provider.loadArchivedProjects(token, quiet: true);
         }
       }
@@ -196,7 +196,7 @@ class _ArchivedProjectsPageState extends State<ArchivedProjectsPage> {
 
                 final bool isSelected = _selectedProjectIds.contains(project['id']);
                 
-                // Hacemos que se vea "desactivado" al reducir la opacidad
+                // hacemos que se vea desactivado al reducir la opacidad
                 return Opacity(
                   opacity: isSelected ? 1.0 : 0.7,
                   child: Padding(

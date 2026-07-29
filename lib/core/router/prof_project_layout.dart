@@ -45,7 +45,7 @@ class _ProfProjectLayoutState extends State<ProfProjectLayout> {
   void _onItemTapped(int index) {
     if (index == _currentIndex) return;
     setState(() => _currentIndex = index);
-    // When switching to the Revisiones tab, silently refresh the list
+    // when switching to the revisiones tab silently refresh the list
     if (index == 1) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
@@ -79,7 +79,7 @@ class _ProfProjectLayoutState extends State<ProfProjectLayout> {
               projectId: widget.projectId,
               onSwitchToReviews: () {
                 setState(() => _currentIndex = 1);
-                // Also refresh reviews when switching from the dashboard shortcut
+                // also refresh reviews when switching from the dashboard shortcut
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   if (mounted) {
                     context.read<ProfReviewsProvider>().fetchReviews(projectId: widget.projectId);

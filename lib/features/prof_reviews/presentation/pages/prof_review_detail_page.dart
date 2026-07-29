@@ -350,7 +350,7 @@ class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
     final ollamaAnalysis = aiAnalysis['ollama_analysis'] as Map<String, dynamic>? ?? {};
     final teamInfo = data['team_info'] as Map<String, dynamic>? ?? {};
     
-    // Try to extract project name from verdict or explanation (e.g. "El proyecto 'Pulmones Urbanos'...")
+    // try to extract project name from verdict or explanation e g el proyecto pulmones urbanos 
     String? extractedProjectName = ollamaAnalysis['projectName'] ?? ollamaAnalysis['title'];
     if (extractedProjectName == null) {
       final List<String> textsToSearch = [];
@@ -434,7 +434,7 @@ class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
                 ),
                 const SizedBox(height: 16),
                 
-                // Mostrar nombre del equipo e integrantes
+                // mostrar nombre del equipo e integrantes
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -511,7 +511,7 @@ class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
                 ],
                 const SizedBox(height: 16),
                 
-                // Mostrar archivo subido
+                // mostrar archivo subido
                 Material(
                   color: Colors.transparent,
                   child: InkWell(

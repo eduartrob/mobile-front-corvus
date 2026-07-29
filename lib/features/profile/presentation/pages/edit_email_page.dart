@@ -187,7 +187,7 @@ class _EditEmailPageState extends State<EditEmailPage> {
     _secondaryController.text = profile.correoSecundario ?? '';
 
     final bool hasSecondary = profile.correoSecundario != null && profile.correoSecundario!.isNotEmpty;
-    final bool canDelete = hasSecondary; // Puede borrar uno si hay dos
+    final bool canDelete = hasSecondary; // puede borrar uno si hay dos
     
     final bool isPrimaryGoogle = profile.correo == profile.googleEmail && profile.googleEmail != null;
     final bool isSecondaryGoogle = profile.correoSecundario == profile.googleEmail && profile.googleEmail != null;

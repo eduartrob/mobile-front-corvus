@@ -1,4 +1,4 @@
-/// Entidad de dominio pura para los datos del dashboard del profesor.
+/// entidad de dominio pura para los datos del dashboard del profesor 
 class DashboardEntity {
   final int totalTeams;
   final int readyProposals;
