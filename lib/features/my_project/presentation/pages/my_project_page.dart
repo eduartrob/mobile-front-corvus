@@ -511,7 +511,10 @@ class _ProjectPageBody extends StatelessWidget {
     final isUnderReview = finalReviewStatus != null && finalReviewStatus['status'] != 'REJECTED';
     final auth = context.read<AuthProvider>();
     final isLeader = teamsProvider.myTeam != null && teamsProvider.myTeam!.members.isNotEmpty && 
-                    (teamsProvider.myTeam!.members[0].id == userId || teamsProvider.myTeam!.members[0].email == auth.currentUser?.email);
+                    teamsProvider.myTeam!.members.any((m) => 
+                      (m.id == userId || m.email == auth.currentUser?.email) && 
+                      (m.role == 'LEADER' || teamsProvider.myTeam!.members.indexOf(m) == 0)
+                    );
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 500),
