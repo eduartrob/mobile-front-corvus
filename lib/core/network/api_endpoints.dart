@@ -58,9 +58,17 @@ class ApiEndpoints {
   // ---------------------------------------------------------------------------
   // PROFESSORS
   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
   static const String professorsDashboard = '/professors/dashboard';
   static const String professorsHistory = '/professors/history';
   static const String professorsSearch = '/professors/search';
+
+  // ---------------------------------------------------------------------------
+  // LLM SESSIONS
+  // ---------------------------------------------------------------------------
+  static const String llmSessionStart = '/llm/session/start';
+  static const String llmSessionMessage = '/llm/session/message';
+  static String llmSessionMessages(String sessionId) => '/llm/session/$sessionId/messages';
 
   // ---------------------------------------------------------------------------
   // CLUSTERING / INTEGRATOR
@@ -89,9 +97,10 @@ class ApiEndpoints {
   static String clusteringGroupsClusterSummary(String courseId) => '/clustering/groups/cluster/$courseId/summary';
 
   // ---------------------------------------------------------------------------
-  // LLM / CHAT
+  // PAGOS
   // ---------------------------------------------------------------------------
-  static const String llmSessionStart = '/llm/session/start';
-  static const String llmSessionMessage = '/llm/session/message';
-  static String llmSessionMessages(String sessionId) => '/llm/session/$sessionId/messages';
+  static const String pagosPlanes  = '/pagos/planes';
+  static const String pagosCrear   = '/pagos/crear';
+  static String pagoById(String id) => '/pagos/$id';
+  static String pagoSuscripcion(String email) => '/pagos/suscripcion/$email';
 }

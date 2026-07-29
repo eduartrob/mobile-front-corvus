@@ -27,13 +27,8 @@ class AuthInterceptorClient extends http.BaseClient {
 
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
-    // 1. SSL/TLS Pinning Check (Anti-MitM)
-    // El fingerprint se obtiene de Firebase Remote Config para poder
-    // actualizarlo remotamente cuando Let's Encrypt renueve el certificado
-    // (cada ~90 días) sin necesidad de publicar una nueva versión de la app.
     try {
       if (request.url.host == 'corvus.eduartrob.site') {
-        // Fallback: fingerprint quemado como último recurso
         const fallbackFingerprint =
             "6C:E2:90:D1:16:D6:2F:85:E3:1E:66:3C:34:F7:1A:93:16:46:17:B8:A0:82:75:EC:CD:1A:D5:B1:30:03:05:43";
 

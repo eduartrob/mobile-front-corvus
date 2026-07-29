@@ -62,7 +62,13 @@ class AppUpdatePage extends StatelessWidget {
                   const SizedBox(height: 16),
                   _buildVersionItem(
                     context, 
-                    'v2.7.2 (Actual)', 
+                    'v2.8.0 (Actual)', 
+                    'Implementación del nuevo flujo de suscripciones PRO, checkout dedicado para métodos de pago y cancelación de planes en tiempo real. Optimización de animaciones y rendimiento de perfil.',
+                  ),
+                  const Divider(),
+                  _buildVersionItem(
+                    context, 
+                    'v2.7.2', 
                     'Optimización de rendimiento (caché local) en el Dashboard de profesores y fix visual para desplazamiento ultra-fluido en la lista de proyectos.',
                   ),
                   const Divider(),

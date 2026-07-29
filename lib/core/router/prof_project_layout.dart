@@ -71,7 +71,7 @@ class _ProfProjectLayoutState extends State<ProfProjectLayout> {
       },
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        body: LazyIndexedStack(
+        body: IndexedStack(
           index: _currentIndex,
           children: [
             ProfDashPage(
