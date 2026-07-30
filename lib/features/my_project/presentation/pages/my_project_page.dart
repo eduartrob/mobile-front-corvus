@@ -510,11 +510,18 @@ class _ProjectPageBody extends StatelessWidget {
     final finalReviewStatus = teamsProvider.finalReviewStatus;
     final isUnderReview = finalReviewStatus != null && finalReviewStatus['status'] != 'REJECTED';
     final auth = context.read<AuthProvider>();
-    final isLeader = teamsProvider.myTeam != null && teamsProvider.myTeam!.members.isNotEmpty && 
-                    teamsProvider.myTeam!.members.any((m) => 
-                      (m.id == userId || m.email == auth.currentUser?.email) && 
-                      (m.role == 'LEADER' || teamsProvider.myTeam!.members.indexOf(m) == 0)
-                    );
+    final String? activeProjectId = teamsProvider.activeProjectId ??
+        teamsProvider.myTeam?.project?['id']?.toString() ??
+        teamsProvider.myTeam?.project?['id_proyecto']?.toString();
+    final myTeam = (activeProjectId != null ? teamsProvider.getTeamForProject(activeProjectId) : null) ?? teamsProvider.myTeam;
+    final isLeader = myTeam == null || myTeam.members.isEmpty || 
+        myTeam.members.any((m) {
+          final isCurrentUser = m.id == userId || 
+              (auth.currentUser?.id != null && m.id == auth.currentUser!.id) ||
+              (auth.currentUser?.email != null && m.email.toLowerCase() == auth.currentUser!.email.toLowerCase());
+          final isLeaderRole = m.role == 'LEADER' || m.role == 'leader' || myTeam.members.indexOf(m) == 0;
+          return isCurrentUser && isLeaderRole;
+        });
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 500),

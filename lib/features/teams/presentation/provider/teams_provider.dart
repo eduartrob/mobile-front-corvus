@@ -314,8 +314,9 @@ class TeamsProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      final targetProjectId = projectId ?? _activeProjectId;
       final results = await _repository.getSuggestions(
-          skill: skill, search: search, showAll: showAll, projectId: projectId);
+          skill: skill, search: search, showAll: showAll, projectId: targetProjectId);
       _current.suggestions = results.where((s) => s.id != null).toList();
     } catch (e, st) {
       _current.errorMessage = mapErrorToMessage(e, stackTrace: st);
@@ -331,10 +332,11 @@ class TeamsProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      final targetProjectId = projectId ?? _activeProjectId;
       final filterStr = _current.selectedFilter == SolicitudFilter.recibidas
           ? 'recibidas'
           : 'enviadas';
-      _current.requests = await _repository.getRequests(filterStr, projectId: projectId);
+      _current.requests = await _repository.getRequests(filterStr, projectId: targetProjectId);
     } catch (e, st) {
       _current.errorMessage = mapErrorToMessage(e, stackTrace: st);
     } finally {
