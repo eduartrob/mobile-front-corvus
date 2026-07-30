@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/shared/widgets/corvus_top_bar.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_top_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 import 'package:mobile/features/projects/presentation/widgets/theme_picker.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:flutter/services.dart';
@@ -42,7 +42,7 @@ class _ProfProjectConfigPageState extends State<ProfProjectConfigPage> {
     final provider = context.read<ProjectProvider>();
     final token = context.read<AuthProvider>().currentUser?.token;
     
-    // Find project to get name and code
+    // find project to get name and code
     final project = provider.myProjects.firstWhere(
       (p) => p['id'] == widget.projectId,
       orElse: () => null,
@@ -109,7 +109,7 @@ class _ProfProjectConfigPageState extends State<ProfProjectConfigPage> {
   void _showQrDialog() {
     if (_projectCode == null) return;
     
-    // Deep link structure for scanning:
+    // deep link structure for scanning 
     final qrData = 'corvus-join:$_projectCode';
 
     showDialog(
@@ -185,7 +185,7 @@ class _ProfProjectConfigPageState extends State<ProfProjectConfigPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Change Name Section
+                  // change name section
                   Text(
                     'Nombre del Proyecto',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -231,7 +231,7 @@ class _ProfProjectConfigPageState extends State<ProfProjectConfigPage> {
                   ),
                   const SizedBox(height: 32),
 
-                  // QR Code Section
+                  // qr code section
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(20),
@@ -271,7 +271,7 @@ class _ProfProjectConfigPageState extends State<ProfProjectConfigPage> {
                   ),
                   const SizedBox(height: 32),
 
-                  // Students List
+                  // students list
                   Text(
                     'Alumnos Inscritos',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(

@@ -161,8 +161,8 @@ class _NotificationItemCardState extends State<NotificationItemCard> with Single
       );
     }
 
-    // Dividimos el mensaje en título (primera línea) y cuerpo (resto),
-    // asumiendo que el backend los manda separados por \n (nuestro provider hace eso).
+    // dividimos el mensaje en título primera línea y cuerpo resto 
+    // asumiendo que el backend los manda separados por n nuestro provider hace eso 
     final parts = notification.message.split('\n');
     final title = parts.isNotEmpty ? parts.first : '';
     final body = parts.length > 1 ? parts.sublist(1).join('\n') : '';
@@ -194,7 +194,7 @@ class _NotificationItemCardState extends State<NotificationItemCard> with Single
                 provider.toggleSelection(notification.id);
                 return;
               }
-              // Si tiene deepLink o rawType, intentar navegar
+              // si tiene deeplink o rawtype intentar navegar
               if ((notification.deepLink != null && notification.deepLink!.isNotEmpty) ||
                   (notification.rawType != null && notification.rawType!.isNotEmpty)) {
                 
@@ -210,13 +210,13 @@ class _NotificationItemCardState extends State<NotificationItemCard> with Single
                     context.go(notification.deepLink!);
                   }
                 } else {
-                  // Fallback a navegación por tipo
+                  // fallback a navegación por tipo
                   NotificationNavigationService.handleByType(context, notification.rawType!, {});
                 }
                 return;
               }
 
-              // Si no tiene a donde ir, solo expandir
+              // si no tiene a donde ir solo expandir
               setState(() {
                 _isExpanded = !_isExpanded;
               });
@@ -307,7 +307,7 @@ class _NotificationItemCardState extends State<NotificationItemCard> with Single
                         shape: BoxShape.circle,
                       ),
                     ),
-                  // Flecha indicando que al tocar navega a algún lugar
+                  // flecha indicando que al tocar navega a algún lugar
                   if (notification.deepLink != null && notification.deepLink!.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(left: 4, top: 2),

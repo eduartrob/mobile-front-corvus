@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class AppColors {
   const AppColors._();
 
-  // Colores pastel sólidos para el dashboard de profesor
+  // colores pastel sólidos para el dashboard de profesor
   static const List<Color> dashboardPastels = [
     Color(0xFF5C88DA),
     Color(0xFF9A73C9),
@@ -12,9 +12,9 @@ class AppColors {
     Color(0xFFD67389),
   ];
 
-  // Colores de la insignia PRO
+  // colores de la insignia pro
   static const Color proBadgeOrange = Color(0xFFFFA500);
 
-  // Colores fijos de texto no adaptables al modo oscuro
+  // colores fijos de texto no adaptables al modo oscuro
   static const Color textDark = Color(0xFF3B3B3B);
 }

@@ -32,7 +32,7 @@ class MyProjectRemoteDataSource {
       }
       request.files.add(await http.MultipartFile.fromPath('file', filePath));
       
-      // Do NOT addAll(ApiConfig.defaultHeaders) because it overwrites the multipart boundary Content-Type
+      // do not addall apiconfig defaultheaders because it overwrites the multipart boundary content type
       request.headers['Accept'] = 'application/json';
 
       final streamedResponse = await client.send(request).timeout(const Duration(seconds: 120));

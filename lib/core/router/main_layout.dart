@@ -2,7 +2,7 @@
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/l10n/app_localizations.dart';
-import 'package:mobile/shared/widgets/corvus_bottom_nav_bar.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/inspiration/presentation/provider/inspiration_provider.dart';
 import 'package:mobile/l10n/app_localizations.dart';
@@ -42,13 +42,13 @@ class _MainLayoutState extends State<MainLayout> {
       onPopInvokedWithResult: (bool didPop, Object? result) async {
         if (didPop) return;
 
-        // Si no estamos en la primera pestaña (Inspiración), regresar a ella
+        // si no estamos en la primera pestaña inspiración regresar a ella
         if (widget.navigationShell.currentIndex != 0) {
           widget.navigationShell.goBranch(0);
           return;
         }
 
-        // Ya estamos en Inspiración: doble toque para salir
+        // ya estamos en inspiración doble toque para salir
         final now = DateTime.now();
         if (_lastPressedAt == null ||
             now.difference(_lastPressedAt!) > const Duration(seconds: 2)) {

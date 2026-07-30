@@ -30,7 +30,7 @@ class AuthScaffold extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // ── Diseño NUEVO: card blanca hasta el fondo + logo en círculo ──
+    // diseño nuevo card blanca hasta el fondo logo en círculo 
     if (showLogo) {
       final topPad = MediaQuery.of(context).padding.top;
       const headerHeight = 160.0;
@@ -40,7 +40,7 @@ class AuthScaffold extends StatelessWidget {
         backgroundColor: Colors.transparent,
         body: Stack(
           children: [
-            // Fondo degradado pantalla completa
+            // fondo degradado pantalla completa
             AnimatedContainer(
               duration: const Duration(milliseconds: 500),
               width: double.infinity,
@@ -75,7 +75,7 @@ class AuthScaffold extends StatelessWidget {
                               ),
               ),
             ),
-            // Painter animado de fondo (aislado para no contaminar repaints)
+            // painter animado de fondo aislado para no contaminar repaints 
             if (backgroundPainter != null)
               Positioned.fill(
                 child: RepaintBoundary(
@@ -220,7 +220,7 @@ class AuthScaffold extends StatelessWidget {
       );
     }
 
-    // ── Diseño ORIGINAL: fondo + contenido scrollable (sin card fija) ──
+    // diseño original fondo contenido scrollable sin card fija 
     return Scaffold(
       body: AnimatedContainer(
         duration: const Duration(milliseconds: 500),
@@ -285,7 +285,7 @@ class AuthScaffold extends StatelessWidget {
                     : colors.primary.withValues(alpha: isDark ? 0.20 : 0.40),
               ),
             ),
-            // Painter animado de fondo (aislado)
+            // painter animado de fondo aislado 
             if (backgroundPainter != null)
               Positioned.fill(
                 child: RepaintBoundary(

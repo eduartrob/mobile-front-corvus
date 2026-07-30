@@ -6,12 +6,12 @@ import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile/core/network/api_config.dart';
-import 'package:mobile/shared/widgets/auth_scaffold.dart';
-import 'package:mobile/shared/widgets/corvus_input_completed.dart';
-import 'package:mobile/shared/widgets/corvus_button.dart';
+import 'package:mobile/shared/presentation/widgets/auth_scaffold.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_input_completed.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_button.dart';
 import 'package:mobile/features/auth/presentation/provider/registration_provider.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
-import 'package:mobile/shared/widgets/career_autocomplete_field.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/widgets/career_autocomplete_field.dart';
 import 'package:mobile/core/services/security_service.dart';
 import 'package:mobile/core/error/error_handler.dart';
 import 'package:mobile/core/error/app_exception.dart';
@@ -52,7 +52,7 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
       setState(() {
         _universityId = uid;
         _universityName = uname;
-        _universityIdController.text = uid ?? ''; // Utilizado internamente por el autocomplete para filtrar
+        _universityIdController.text = uid ?? ''; // utilizado internamente por el autocomplete para filtrar
       });
     }
   }
@@ -105,7 +105,7 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
     final provider = Provider.of<RegistrationProvider>(context, listen: false);
     
     try {
-      // 1. Registro
+      // 1 registro
       final Map<String, dynamic> bodyData = {
         'email': provider.email,
         'password': provider.password,
@@ -143,7 +143,7 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
         }
       }
 
-      // 2. Login
+      // 2 login
       final loginResponse = await http.post(
         Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authLogin}'),
         headers: {'Content-Type': 'application/json'},
@@ -170,9 +170,9 @@ class _TeacherInfoPageState extends State<TeacherInfoPage> {
         throw Exception(l10n.noTokenReceived);
       }
 
-      // 3. Completar perfil con universidad y carrera
-      // Enviamos la primera carrera como career_id y las demás como tags/skills 
-      // (el backend las guardará como pueda según la limitación de 1 carrera por usuario).
+      // 3 completar perfil con universidad y carrera
+      // enviamos la primera carrera como career id y las demás como tags skills 
+      // el backend las guardará como pueda según la limitación de 1 carrera por usuario 
       final responseProfile = await http.put(
         Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authCompleteProfile}'), 
         headers: {

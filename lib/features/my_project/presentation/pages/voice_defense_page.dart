@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/core/network/api_config.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
@@ -12,10 +12,10 @@ import 'package:audioplayers/audioplayers.dart';
 import '../provider/my_project_provider.dart';
 
 class DefenseMessage {
-  final String sender; // 'sinodal' | 'student'
+  final String sender; // sinodal student 
   final String text;
   final DateTime timestamp;
-  final String type; // 'voice' | 'text'
+  final String type; // voice text 
 
   DefenseMessage({
     required this.sender,
@@ -802,7 +802,7 @@ class _VoiceDefensePageState extends State<VoiceDefensePage> {
       body: SafeArea(
         child: Column(
           children: [
-            // Cabecera Jurado Evaluador
+            // cabecera jurado evaluador
             Container(
               padding: const EdgeInsets.all(14),
               margin: const EdgeInsets.fromLTRB(16, 10, 16, 6),
@@ -872,7 +872,7 @@ class _VoiceDefensePageState extends State<VoiceDefensePage> {
               ),
             ),
 
-            // Historial de Mensajes de Conversación
+            // historial de mensajes de conversación
             Expanded(
               child: _messages.isEmpty
                   ? Center(
@@ -968,7 +968,7 @@ class _VoiceDefensePageState extends State<VoiceDefensePage> {
                     ),
             ),
 
-            // Captura de Voz en Tiempo Real
+            // captura de voz en tiempo real
             if (_isListening && _liveSpokenText.isNotEmpty)
               Container(
                 width: double.infinity,
@@ -1011,7 +1011,7 @@ class _VoiceDefensePageState extends State<VoiceDefensePage> {
                 ),
               ),
 
-            // PANEL MULTIMODAL PREMIUM DE INTERACCIÓN (VOZ + TECLADO TEXTO)
+            // panel multimodal premium de interacción voz teclado texto 
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               decoration: BoxDecoration(
@@ -1030,7 +1030,7 @@ class _VoiceDefensePageState extends State<VoiceDefensePage> {
                 children: [
                   Row(
                     children: [
-                      // Botón Conmutador de Teclado Texto vs Micrófono
+                      // botón conmutador de teclado texto vs micrófono
                       IconButton(
                         style: IconButton.styleFrom(
                           backgroundColor: _showTextInput

@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/profile/presentation/provider/profile_provider.dart';
 import 'package:mobile/features/prof_profile/presentation/pages/prof_edit_careers_page.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'dart:convert';
@@ -223,7 +223,7 @@ class _ProfEditProfilePageState extends State<ProfEditProfilePage> {
             ),
             const SizedBox(height: 32),
             
-            // Nombre
+            // nombre
             ListTile(
               leading: Icon(Icons.person_outline, color: colorScheme.onSurfaceVariant),
               title: Text('Nombre', style: TextStyle(color: colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.w400)),
@@ -245,7 +245,7 @@ class _ProfEditProfilePageState extends State<ProfEditProfilePage> {
             ),
             const Divider(indent: 72, endIndent: 16),
             
-            // Universidad (Not editable)
+            // universidad not editable 
             ListTile(
               leading: Icon(Icons.account_balance_outlined, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
               title: Text('Universidad', style: TextStyle(color: colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.w400)),
@@ -256,7 +256,7 @@ class _ProfEditProfilePageState extends State<ProfEditProfilePage> {
             ),
             const Divider(indent: 72, endIndent: 16),
             
-            // Correo electrónico
+            // correo electrónico
             ListTile(
               leading: Icon(Icons.email_outlined, color: colorScheme.onSurfaceVariant),
               title: Text('Correo electrónico', style: TextStyle(color: colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.w400)),
@@ -290,7 +290,7 @@ class _ProfEditProfilePageState extends State<ProfEditProfilePage> {
             ),
             const Divider(indent: 72, endIndent: 16),
             
-            // Carreras adicionales (mapped as skills)
+            // carreras adicionales mapped as skills 
             ListTile(
               leading: Icon(Icons.school_outlined, color: colorScheme.onSurfaceVariant),
               title: Text('Carreras', style: TextStyle(color: colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.w400)),
@@ -338,7 +338,7 @@ class _ProfEditProfilePageState extends State<ProfEditProfilePage> {
             
             const SizedBox(height: 16),
             
-            // Borrar cuenta
+            // borrar cuenta
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: SizedBox(
@@ -393,7 +393,7 @@ class _ProfEditProfilePageState extends State<ProfEditProfilePage> {
                                             foregroundColor: Colors.white,
                                           ),
                                           onPressed: () async {
-                                            Navigator.of(context).pop(); // Close dialog
+                                            Navigator.of(context).pop(); // close dialog
                                             showDialog(
                                               context: context,
                                               barrierDismissible: false,
@@ -405,7 +405,7 @@ class _ProfEditProfilePageState extends State<ProfEditProfilePage> {
                                             final success = await context.read<AuthProvider>().deleteAccount();
                                             
                                             if (context.mounted) {
-                                              Navigator.of(context).pop(); // Close loading
+                                              Navigator.of(context).pop(); // close loading
                                               if (success) {
                                                 context.go('/');
                                               } else {

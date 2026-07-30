@@ -4,10 +4,10 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
-import 'package:mobile/shared/widgets/corvus_top_bar.dart';
-import 'package:mobile/shared/widgets/corvus_skeleton.dart';
-import 'package:mobile/shared/widgets/corvus_button.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_top_bar.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_skeleton.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_button.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class ProfProjectsDashboardPage extends StatefulWidget {
@@ -71,7 +71,7 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
       if (token != null) {
         context.read<ProjectProvider>().loadMyProjects(token);
         
-        // Configurar polling automático cada 10 segundos
+        // configurar polling automático cada 10 segundos
         _pollTimer = Timer.periodic(const Duration(seconds: 10), (_) {
           if (mounted) {
             final currentToken = context.read<AuthProvider>().currentUser?.token;
@@ -169,7 +169,7 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
               onPressed: () => context.push('/join-project'),
               icon: const Icon(Icons.qr_code_scanner),
               label: const Text('Unirse'),
-              elevation: 1, // Reduced shadow
+              elevation: 1, // reduced shadow
               backgroundColor: Theme.of(
                 context,
               ).colorScheme.tertiaryContainer,
@@ -367,11 +367,11 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
 
   Widget _buildProjectCard(BuildContext context, dynamic project) {
     final pastelColors = const [
-      Color(0xFF5C88DA), // Muted Blue
-      Color(0xFF9A73C9), // Muted Purple
-      Color(0xFF56A98A), // Muted Green
-      Color(0xFFD98A53), // Muted Orange
-      Color(0xFFD67389), // Muted Pink
+      Color(0xFF5C88DA), // muted blue
+      Color(0xFF9A73C9), // muted purple
+      Color(0xFF56A98A), // muted green
+      Color(0xFFD98A53), // muted orange
+      Color(0xFFD67389), // muted pink
     ];
     Color bgColor;
     if (project['theme_color'] != null) {
@@ -510,9 +510,9 @@ class _ProfProjectsDashboardPageState extends State<ProfProjectsDashboardPage> {
     ProjectProvider provider,
   ) {
     final cardColors = [
-      const Color(0xFFFDE4C3), // Peach
-      const Color(0xFFE4F0ED), // Mint
-      const Color(0xFFE1DDF6), // Lavender
+      const Color(0xFFFDE4C3), // peach
+      const Color(0xFFE4F0ED), // mint
+      const Color(0xFFE1DDF6), // lavender
     ];
     final cardColor = cardColors[project['id'].hashCode.abs() % cardColors.length];
 

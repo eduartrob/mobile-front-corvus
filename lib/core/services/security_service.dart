@@ -6,17 +6,17 @@ class SecurityService {
   static const MethodChannel _channel = MethodChannel('app.security.channel');
 
   Future<void> preventScreenshots(bool prevent) async {
-    // Desactivado temporalmente para facilitar pruebas y capturas de pantalla.
-    // Para reactivar, descomentar el bloque de abajo.
+    // desactivado temporalmente para facilitar pruebas y capturas de pantalla 
+    // para reactivar descomentar el bloque de abajo 
     if (kIsWeb) return;
 
-    // if (Platform.isAndroid) {
-    //   try {
-    //     await _channel.invokeMethod('preventScreenshots', {'prevent': prevent});
-    //   } catch (e) {
-    //     debugPrint("Error configuring screen protection: '${e.toString()}'.");
-    //   }
-    // }
+    // if platform isandroid 
+    // try 
+    // await channel invokemethod preventscreenshots prevent prevent 
+    // catch e 
+    // debugprint error configuring screen protection e tostring 
+    // 
+    // 
   }
 
   Future<bool> isUsbDebuggingEnabled() async {

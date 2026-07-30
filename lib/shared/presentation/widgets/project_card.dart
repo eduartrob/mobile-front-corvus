@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/l10n/app_localizations.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 import 'package:mobile/shared/domain/entities/project_entity.dart';
 import 'package:mobile/features/inspiration/presentation/provider/inspiration_provider.dart';
 import 'package:mobile/features/inspiration/presentation/pages/blue_ocean_detail_page.dart';
 import 'package:mobile/core/theme/app_gradients.dart';
 
-/// Tarjeta reutilizable para mostrar proyectos de inspiración/inexplorados.
-/// Usada en Inspiration y SavedProjects.
+/// tarjeta reutilizable para mostrar proyectos de inspiración inexplorados 
+/// usada en inspiration y savedprojects 
 class ProjectCard extends StatelessWidget {
   final ProjectEntity project;
 
@@ -106,7 +106,7 @@ class ProjectCard extends StatelessWidget {
         ? ((analysis['sugerencias_en'] as List<dynamic>?) ?? (analysis['sugerencias'] as List<dynamic>?) ?? [])
         : ((analysis['sugerencias_es'] as List<dynamic>?) ?? (analysis['sugerencias'] as List<dynamic>?) ?? []);
 
-    // Seleccionamos un gradiente basado en el ID del proyecto para que sea consistente
+    // seleccionamos un gradiente basado en el id del proyecto para que sea consistente
     final int colorIndex = project.id.hashCode.abs() % AppGradients.pastelGradients.length;
     final gradientColors = AppGradients.pastelGradients[colorIndex];
 
@@ -240,7 +240,7 @@ class ProjectCard extends StatelessWidget {
   }
 }
 
-/// Mini-card de sugerencia metodológica usada dentro de [ProjectCard].
+/// mini card de sugerencia metodológica usada dentro de projectcard 
 class ProjectSuggestionMiniCard extends StatelessWidget {
   final dynamic suggestion;
 
@@ -304,7 +304,7 @@ class ProjectSuggestionMiniCard extends StatelessWidget {
   }
 }
 
-/// Botón cuadrado de "explorar" usado dentro de [ProjectCard].
+/// botón cuadrado de explorar usado dentro de projectcard 
 class ProjectExploreButton extends StatelessWidget {
   final bool isPending;
 
@@ -332,7 +332,7 @@ class ProjectExploreButton extends StatelessWidget {
   }
 }
 
-/// Badge "Trending" usado dentro de [ProjectCard].
+/// badge trending usado dentro de projectcard 
 class ProjectTrendingBadge extends StatelessWidget {
   final int viewCount;
 
@@ -382,7 +382,7 @@ class ProjectTrendingBadge extends StatelessWidget {
   }
 }
 
-/// Wrapper animado reutilizable para tarjetas interactivas.
+/// wrapper animado reutilizable para tarjetas interactivas 
 class CorvusAnimatedCard extends StatefulWidget {
   final Widget child;
   final VoidCallback onTap;
@@ -456,7 +456,7 @@ class _CorvusAnimatedCardState extends State<CorvusAnimatedCard> with SingleTick
   }
 }
 
-/// Icono animado de fuego que palpita suavemente
+/// icono animado de fuego que palpita suavemente
 class AnimatedFireIcon extends StatefulWidget {
   const AnimatedFireIcon({super.key});
 

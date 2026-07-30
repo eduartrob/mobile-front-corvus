@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:mobile/shared/widgets/corvus_top_bar.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_top_bar.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/core/theme/app_colors.dart';
-import 'package:mobile/shared/widgets/corvus_metric_card.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_metric_card.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/features/prof_dash/presentation/provider/prof_dash_provider.dart';
 import 'package:mobile/features/prof_dash/presentation/pages/prof_directory_page.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
-import 'package:mobile/shared/widgets/corvus_skeleton.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_skeleton.dart';
 
 class ProfDashPage extends StatefulWidget {
   final String projectId;

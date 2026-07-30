@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
-import 'package:mobile/shared/widgets/corvus_top_bar.dart';
-import 'package:mobile/shared/widgets/corvus_button.dart';
-import 'package:mobile/shared/widgets/corvus_input_completed.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_top_bar.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_button.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_input_completed.dart';
 
 class StudentJoinProjectPage extends StatefulWidget {
   const StudentJoinProjectPage({super.key});
@@ -83,7 +83,7 @@ class _StudentJoinProjectPageState extends State<StudentJoinProjectPage> {
       if (isProfessor) {
         context.go('/prof-dash');
       } else {
-        context.go('/project/$projectId?tab=0'); // Ir directamente al dashboard del equipo
+        context.go('/project/$projectId?tab=0'); // ir directamente al dashboard del equipo
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

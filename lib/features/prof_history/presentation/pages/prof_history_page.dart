@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:mobile/shared/widgets/corvus_top_bar.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_top_bar.dart';
 import 'package:mobile/features/prof_history/presentation/provider/prof_history_provider.dart';
 import 'package:intl/intl.dart';
 
@@ -64,7 +64,7 @@ class _ProfHistoryPageState extends State<ProfHistoryPage> {
                 
                 const SizedBox(height: 24),
                 
-                // Search Bar
+                // search bar
                 TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
@@ -101,7 +101,7 @@ class _ProfHistoryPageState extends State<ProfHistoryPage> {
                 
                 const SizedBox(height: 8),
                 
-                // Filter Chips
+                // filter chips
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(

@@ -1,4 +1,4 @@
-import 'package:mobile/core/domain/entities/user_entity.dart';
+import 'package:mobile/shared/domain/entities/user_entity.dart';
 import 'package:mobile/features/auth/domain/repositories/auth_repository.dart';
 
 class LoginWithEmailUseCase {

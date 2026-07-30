@@ -16,7 +16,7 @@ class InspirationProvider extends ChangeNotifier {
   List<ProjectEntity> _projects = [];
   List<ProjectEntity> get projects => _projects;
   
-  // Timer for auto-refresh
+  // timer for auto refresh
   Timer? _refreshTimer;
 
   bool _isLoading = true;
@@ -44,7 +44,7 @@ class InspirationProvider extends ChangeNotifier {
 
   Future<void> _init() async {
     await checkWelcomeStatus();
-    // Permitir que use el cache local primero para una carga instantánea (Offline-first)
+    // permitir que use el cache local primero para una carga instantánea offline first 
     await loadProjects(forceRefresh: false);
   }
 

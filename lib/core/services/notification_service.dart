@@ -28,7 +28,7 @@ class NotificationService {
       defaultActionName: 'Open notification',
     );
     
-    // -# para ios y otras plataformas se configura aqui se omite por brevedad para centrarse en android
+    // para ios y otras plataformas se configura aqui se omite por brevedad para centrarse en android
     const InitializationSettings initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
       linux: initializationSettingsLinux,

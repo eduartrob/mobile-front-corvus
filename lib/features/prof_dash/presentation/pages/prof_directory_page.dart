@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:mobile/shared/widgets/corvus_top_bar.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_top_bar.dart';
 import 'package:mobile/features/prof_dash/presentation/provider/prof_directory_provider.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 import 'package:mobile/shared/data/models/team_model.dart';
 import 'package:mobile/shared/domain/entities/student.dart';
-import 'package:mobile/shared/widgets/student_card.dart';
-import 'package:mobile/shared/widgets/corvus_skeleton.dart';
+import 'package:mobile/shared/presentation/widgets/student_card.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_skeleton.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class ProfDirectoryPage extends StatelessWidget {
@@ -254,9 +254,9 @@ class _ProfDirectoryPageViewState extends State<_ProfDirectoryPageView> with Sin
       itemCount: students.length,
       itemBuilder: (context, index) {
         final student = students[index];
-        // student.email is not available in Student model from teams_model
-        // But we can use StudentCard just passing what we have.
-        // Wait, StudentCard might require specific provider. Let's just build a custom ListTile to avoid issues.
+        // student email is not available in student model from teams model
+        // but we can use studentcard just passing what we have 
+        // wait studentcard might require specific provider let s just build a custom listtile to avoid issues 
         final hasAvatar = student.avatarUrl != null && student.avatarUrl!.trim().isNotEmpty;
         return Card(
           elevation: 0,

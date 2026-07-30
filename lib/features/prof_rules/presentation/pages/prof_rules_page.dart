@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:mobile/shared/widgets/corvus_top_bar.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_top_bar.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/features/prof_rules/presentation/provider/prof_rules_provider.dart';
 import 'package:mobile/features/prof_rules/data/data_source/prof_rules_remote_data_source.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
 import 'package:animated_list_plus/animated_list_plus.dart';
 import 'package:animated_list_plus/transitions.dart';
 import 'package:http/http.dart' as http;
-import 'package:mobile/shared/widgets/corvus_skeleton.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_skeleton.dart';
 import 'package:mobile/core/error/error_handler.dart';
 import 'package:mobile/core/error/app_exception.dart';
 
@@ -90,7 +90,7 @@ Future<bool> handleUnsavedChangesGuard(BuildContext context, String projectId) a
     }
   } else if (result == UnsavedChangesResult.discard) {
     await provider.fetchData(projectId: projectId);
-    return false; // Se queda en la vista (refrescada)
+    return false; // se queda en la vista refrescada 
   } else {
     return false;
   }
@@ -127,7 +127,7 @@ class _ProfRulesPageViewState extends State<_ProfRulesPageView> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
-    // Usar context.select para evitar rebuilds innecesarios de toda la página
+    // usar context select para evitar rebuilds innecesarios de toda la página
     final isLoading = context.select<ProfRulesProvider, bool>((p) => p.isLoading);
     final clusterStatsEmpty = context.select<ProfRulesProvider, bool>((p) => p.clusterStats.isEmpty);
     final projectSectionsEmpty = context.select<ProfRulesProvider, bool>((p) => p.projectSections.isEmpty);
@@ -175,7 +175,7 @@ class _ProfRulesPageViewState extends State<_ProfRulesPageView> {
               : Builder(
                   builder: (context) {
                     final tabController = DefaultTabController.of(context);
-                    // Necesitamos el provider completo para el FAB
+                    // necesitamos el provider completo para el fab
                     final fabProvider = context.watch<ProfRulesProvider>();
                     return AnimatedBuilder(
                       animation: tabController,
@@ -308,7 +308,7 @@ class _ExclusionRulesTab extends StatelessWidget {
                 textStyle: TextStyle(color: colorScheme.onInverseSurface, fontSize: 14),
                 child: IconButton(
                   icon: Icon(Icons.info_outline, color: colorScheme.onSurfaceVariant),
-                  onPressed: () {}, // Tooltip handles tap
+                  onPressed: () {}, // tooltip handles tap
                 ),
               ),
             ],
@@ -387,7 +387,7 @@ class _ExclusionRulesTab extends StatelessWidget {
                             final scheme = Theme.of(context).colorScheme;
                             final user = context.read<AuthProvider>().currentUser;
                             provider.toggleExclusionRule(clusterName);
-                            // Auto-save removed to prevent duplicate push notifications
+                            // auto save removed to prevent duplicate push notifications
                             
                             messenger.hideCurrentSnackBar();
                             messenger.showSnackBar(
@@ -466,7 +466,7 @@ class _ProjectStructureTab extends StatelessWidget {
                 textStyle: TextStyle(color: colorScheme.onInverseSurface, fontSize: 14),
                 child: IconButton(
                   icon: Icon(Icons.info_outline, color: colorScheme.onSurfaceVariant),
-                  onPressed: () {}, // Tooltip handles tap
+                  onPressed: () {}, // tooltip handles tap
                 ),
               ),
             ],
@@ -577,7 +577,7 @@ class _ProjectStructureTab extends StatelessWidget {
                 );
               },
             ),
-          const SizedBox(height: 80), // Space for FAB
+          const SizedBox(height: 80), // space for fab
         ],
       ),
       ),
@@ -609,7 +609,7 @@ void _showAddSectionDialog(BuildContext context, ProfRulesProvider provider, {Ma
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Titulo con Icono
+                    // titulo con icono
                     Row(
                       children: [
                         Container(
@@ -635,7 +635,7 @@ void _showAddSectionDialog(BuildContext context, ProfRulesProvider provider, {Ma
                     ),
                     const SizedBox(height: 28),
                     
-                    // TextField de Nombre
+                    // textfield de nombre
                     TextField(
                       controller: nameController,
                       decoration: InputDecoration(
@@ -656,7 +656,7 @@ void _showAddSectionDialog(BuildContext context, ProfRulesProvider provider, {Ma
                     ),
                     const SizedBox(height: 16),
 
-                    // TextField de Descripción
+                    // textfield de descripción
                     TextField(
                       controller: descController,
                       maxLines: 2,
@@ -678,7 +678,7 @@ void _showAddSectionDialog(BuildContext context, ProfRulesProvider provider, {Ma
                     ),
                     const SizedBox(height: 16),
                     
-                    // Toggle de Obligatoria
+                    // toggle de obligatoria
                     Container(
                       decoration: BoxDecoration(
                         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
@@ -699,7 +699,7 @@ void _showAddSectionDialog(BuildContext context, ProfRulesProvider provider, {Ma
                     ),
                     const SizedBox(height: 32),
                     
-                    // Botones
+                    // botones
                     Row(
                       children: [
                         Expanded(

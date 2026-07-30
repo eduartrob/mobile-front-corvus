@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:mobile/shared/widgets/corvus_top_bar.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_top_bar.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/features/prof_reviews/presentation/provider/prof_reviews_provider.dart';
 import 'package:mobile/features/prof_reviews/data/models/final_review_model.dart';
 import 'package:intl/intl.dart';
-import 'package:mobile/shared/widgets/detailed_analysis_widget.dart';
+import 'package:mobile/shared/presentation/widgets/detailed_analysis_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ProfReviewDetailPage extends StatefulWidget {
@@ -350,7 +350,7 @@ class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
     final ollamaAnalysis = aiAnalysis['ollama_analysis'] as Map<String, dynamic>? ?? {};
     final teamInfo = data['team_info'] as Map<String, dynamic>? ?? {};
     
-    // Try to extract project name from verdict or explanation (e.g. "El proyecto 'Pulmones Urbanos'...")
+    // try to extract project name from verdict or explanation e g el proyecto pulmones urbanos 
     String? extractedProjectName = ollamaAnalysis['projectName'] ?? ollamaAnalysis['title'];
     if (extractedProjectName == null) {
       final List<String> textsToSearch = [];
@@ -434,7 +434,7 @@ class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
                 ),
                 const SizedBox(height: 16),
                 
-                // Mostrar nombre del equipo e integrantes
+                // mostrar nombre del equipo e integrantes
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -511,7 +511,7 @@ class _ProfReviewDetailPageState extends State<ProfReviewDetailPage> {
                 ],
                 const SizedBox(height: 16),
                 
-                // Mostrar archivo subido
+                // mostrar archivo subido
                 Material(
                   color: Colors.transparent,
                   child: InkWell(

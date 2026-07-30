@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/features/profile/presentation/pages/edit_profile_page.dart' as mobile;
 import 'package:mobile/features/profile/presentation/pages/settings_page.dart' as mobile;
 import 'package:provider/provider.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
 import 'package:mobile/core/theme/theme_provider.dart';
 import 'package:mobile/l10n/app_localizations.dart';
@@ -16,7 +16,7 @@ import 'package:mobile/features/profile/presentation/pages/activity_history_page
 import 'package:mobile/features/profile/presentation/pages/app_update_page.dart' as mobile;
 import 'package:mobile/features/profile/presentation/pages/pro_plan_page.dart';
 import 'package:mobile/features/profile/presentation/pages/my_subscription_page.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 import 'package:go_router/go_router.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -108,7 +108,7 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 24),
               const Divider(height: 1),
               
-              // Habilidades
+              // habilidades
               ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 leading: Icon(Icons.code, color: colorScheme.onSurfaceVariant, size: 28),
@@ -122,7 +122,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 },
               ),
               
-              // Actividad Reciente
+              // actividad reciente
               ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 leading: Icon(Icons.history, color: colorScheme.onSurfaceVariant, size: 28),
@@ -135,7 +135,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 },
               ),
               
-              // Guardados
+              // guardados
               ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 leading: Icon(Icons.bookmark, color: colorScheme.onSurfaceVariant, size: 28),
@@ -149,7 +149,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 },
               ),
               
-              // Unirse a Proyecto
+              // unirse a proyecto
               ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 leading: Icon(Icons.group_add, color: colorScheme.primary, size: 28),
@@ -160,7 +160,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 },
               ),
               
-              // Apariencia
+              // apariencia
               ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 leading: Icon(Icons.palette_outlined, color: colorScheme.onSurfaceVariant, size: 28),
@@ -174,7 +174,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 },
               ),
               
-              // Actualización de la aplicación
+              // actualización de la aplicación
               ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 leading: Icon(Icons.system_update, color: colorScheme.onSurfaceVariant, size: 28),
@@ -187,7 +187,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 },
               ),
               
-              // Plan Pro
+              // plan pro
               ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 leading: const Icon(Icons.workspace_premium, color: Color(0xFF315BD5), size: 28),
@@ -217,7 +217,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
               const SizedBox(height: 24),
 
-              // Cerrar sesión
+              // cerrar sesión
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
@@ -265,10 +265,10 @@ class _ProfilePageState extends State<ProfilePage> {
                     final projectProvider = context.read<ProjectProvider>();
                     final profileProvider = context.read<ProfileProvider>();
                     
-                    // Navigate to login immediately
+                    // navigate to login immediately
                     context.go('/');
                     
-                    // Run logout logic while login screen handles the loading state
+                    // run logout logic while login screen handles the loading state
                     authProvider.logout().then((_) {
                       projectProvider.clear();
                       profileProvider.clear();

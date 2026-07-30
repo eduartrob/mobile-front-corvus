@@ -2,7 +2,7 @@ import 'package:mobile/shared/data/models/team_model.dart';
 import 'package:mobile/shared/data/models/solicitud_model.dart';
 import 'package:mobile/shared/domain/entities/student.dart';
 
-/// Contrato de dominio para operaciones de equipos.
+/// contrato de dominio para operaciones de equipos 
 abstract class TeamsRepository {
   Future<TeamModel?> getMyTeam({String? projectId});
   Future<Map<String, dynamic>?> getFinalReviewStatus(String teamId);

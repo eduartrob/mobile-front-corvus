@@ -10,7 +10,7 @@ class InspirationRemoteDataSource {
   final http.Client client;
   static const String _cacheKey = 'cached_blue_oceans';
   static const String _cacheTimestampKey = 'cached_blue_oceans_timestamp';
-  static const int _cacheTtlMinutes = 60; // Mostrar cache hasta por 60 min para offline-first
+  static const int _cacheTtlMinutes = 60; // mostrar cache hasta por 60 min para offline first
 
   bool reachedProLimit = false;
   int proLockedCount = 0;
@@ -24,14 +24,14 @@ class InspirationRemoteDataSource {
   }) async {
     final prefs = await SharedPreferences.getInstance();
 
-    // Only use cache for the first page
+    // only use cache for the first page
     if (!forceRefresh && page == 1) {
       final cachedStr = prefs.getString(_cacheKey);
       final cachedTimestamp = prefs.getInt(_cacheTimestampKey) ?? 0;
       final now = DateTime.now().millisecondsSinceEpoch;
       final ageMinutes = (now - cachedTimestamp) / 60000;
 
-      // Purga automática si la caché local del teléfono contiene textos viejos
+      // purga automática si la caché local del teléfono contiene textos viejos
       if (cachedStr != null && cachedStr.toLowerCase().contains('colisión semántica')) {
         await prefs.remove(_cacheKey);
         await prefs.remove(_cacheTimestampKey);
@@ -67,7 +67,7 @@ class InspirationRemoteDataSource {
         final List<dynamic> nichesJson = data['niches'] ?? [];
         final models = nichesJson.map((niche) => ProjectModel.fromJson(niche)).toList();
         
-        // Only update cache if fetching the first page
+        // only update cache if fetching the first page
         if (page == 1) {
           prefs.setString(_cacheKey, json.encode(models.map((m) => m.toJson()).toList()));
           prefs.setInt(_cacheTimestampKey, DateTime.now().millisecondsSinceEpoch);
@@ -78,7 +78,7 @@ class InspirationRemoteDataSource {
       debugPrint('InspirationRemoteDataSource: HTTP ${response.statusCode}');
     } catch (e) {
       debugPrint('InspirationRemoteDataSource Error: $e');
-      // Si falla la red, intentar devolver cache aunque sea antigua, pero solo para la primera pagina
+      // si falla la red intentar devolver cache aunque sea antigua pero solo para la primera pagina
       if (page == 1) {
         final cachedStr = prefs.getString(_cacheKey);
         if (cachedStr != null) {

@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:mobile/shared/widgets/corvus_skeleton.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_skeleton.dart';
 import 'package:mobile/l10n/app_localizations.dart';
-import 'package:mobile/shared/widgets/corvus_top_bar.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_top_bar.dart';
 import 'package:mobile/features/my_project/presentation/provider/my_project_provider.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
 import 'package:mobile/features/profile/presentation/provider/profile_provider.dart';
-import 'package:mobile/shared/widgets/innovation_card.dart';
+import 'package:mobile/shared/presentation/widgets/innovation_card.dart';
 import 'package:mobile/features/my_project/presentation/pages/project_defense_chat_page.dart';
 import 'package:mobile/features/my_project/presentation/pages/voice_defense_page.dart';
 import 'package:mobile/features/my_project/presentation/widgets/upload_zone_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/uploaded_file_item_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/fast_rag_analysis_widget.dart';
-import 'package:mobile/shared/widgets/detailed_analysis_widget.dart';
+import 'package:mobile/shared/presentation/widgets/detailed_analysis_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/animated_loading_text_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/invalid_document_widget.dart';
 import 'package:mobile/features/my_project/presentation/widgets/document_preview_banner_widget.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
 
 import 'package:go_router/go_router.dart';
-import 'package:mobile/shared/widgets/corvus_button.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_button.dart';
 import 'package:mobile/core/theme/app_dimens.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile/l10n/app_localizations.dart';
@@ -76,9 +76,9 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
     final myTeam = teamsProvider.getTeamForProject(projectId) ?? teamsProvider.myTeam;
     final teamId = myTeam?.id;
 
-    if (teamId == null) return; // Not ready yet
+    if (teamId == null) return; // not ready yet
 
-    // Si ya inicializamos este proyecto en particular, no lo volvemos a hacer
+    // si ya inicializamos este proyecto en particular no lo volvemos a hacer
     if (_currentProjectId == projectId && projectId != null) return;
     
     _currentProjectId = projectId;
@@ -93,7 +93,7 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Re-attempt init in case teamId was not ready during initState
+    // re attempt init in case teamid was not ready during initstate
     _tryInit();
   }
 
@@ -191,7 +191,7 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
               final currentTeamId = currentTeam?.id;
 
               final myProjectProvider = context.read<MyProjectProvider>();
-              // Si acabamos de cargar el equipo pero el provider sigue initial, o si cambió el proyecto, iniciarlo
+              // si acabamos de cargar el equipo pero el provider sigue initial o si cambió el proyecto iniciarlo
               if (currentTeamId != null && (myProjectProvider.state == ProjectState.initial || myProjectProvider.projectId != activeProjectId)) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   myProjectProvider.init(userId, currentTeamId, projectId: activeProjectId);
@@ -228,7 +228,7 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
                 );
               }
 
-              // Show skeleton ONLY if this specific project's data has never been loaded
+              // show skeleton only if this specific project s data has never been loaded
               final myProjectProviderForCheck = context.watch<MyProjectProvider>();
               if (!myProjectProviderForCheck.hasLoadedOnce && currentTeamId != null) {
                 return const _ProjectLoadingSkeleton();
@@ -261,7 +261,7 @@ class _MyProjectPageContentState extends State<_MyProjectPageContent> with Widge
   }
 }
 
-// -# 
+// 
 class _ProjectPageHeader extends StatelessWidget {
   final String userId;
   const _ProjectPageHeader({required this.userId});
@@ -303,7 +303,7 @@ class _ProjectPageHeader extends StatelessWidget {
               textStyle: TextStyle(color: colorScheme.onInverseSurface, fontSize: 14),
               child: IconButton(
                 icon: Icon(Icons.info_outline, color: colorScheme.onSurfaceVariant, size: 20),
-                onPressed: () {}, // Tooltip handles tap
+                onPressed: () {}, // tooltip handles tap
               ),
             ),
           ],
@@ -320,7 +320,7 @@ class _ProjectPageHeader extends StatelessWidget {
   }
 }
 
-// Skeleton shown while MyProjectProvider initializes in background
+// skeleton shown while myprojectprovider initializes in background
 class _ProjectLoadingSkeleton extends StatelessWidget {
   const _ProjectLoadingSkeleton();
 
@@ -332,7 +332,7 @@ class _ProjectLoadingSkeleton extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-        // Innovation card skeleton
+        // innovation card skeleton
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(24),
@@ -351,7 +351,7 @@ class _ProjectLoadingSkeleton extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        // Metrics skeleton
+        // metrics skeleton
         Container(
           padding: const EdgeInsets.symmetric(vertical: 24),
           child: Column(
@@ -368,7 +368,7 @@ class _ProjectLoadingSkeleton extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        // Recommendations skeleton
+        // recommendations skeleton
         const CorvusSkeleton(width: 180, height: 18, borderRadius: BorderRadius.all(Radius.circular(6))),
         const SizedBox(height: 16),
         for (int i = 0; i < 3; i++) ...[
@@ -396,7 +396,7 @@ class _ProjectLoadingSkeleton extends StatelessWidget {
   );
 }
 }
-// -# 
+// 
 class _ProjectPageBody extends StatelessWidget {
   final String userId;
   const _ProjectPageBody({required this.userId});
@@ -510,11 +510,18 @@ class _ProjectPageBody extends StatelessWidget {
     final finalReviewStatus = teamsProvider.finalReviewStatus;
     final isUnderReview = finalReviewStatus != null && finalReviewStatus['status'] != 'REJECTED';
     final auth = context.read<AuthProvider>();
-    final isLeader = teamsProvider.myTeam != null && teamsProvider.myTeam!.members.isNotEmpty && 
-                    teamsProvider.myTeam!.members.any((m) => 
-                      (m.id == userId || m.email == auth.currentUser?.email) && 
-                      (m.role == 'LEADER' || teamsProvider.myTeam!.members.indexOf(m) == 0)
-                    );
+    final String? activeProjectId = teamsProvider.activeProjectId ??
+        teamsProvider.myTeam?.project?['id']?.toString() ??
+        teamsProvider.myTeam?.project?['id_proyecto']?.toString();
+    final myTeam = (activeProjectId != null ? teamsProvider.getTeamForProject(activeProjectId) : null) ?? teamsProvider.myTeam;
+    final isLeader = myTeam == null || myTeam.members.isEmpty || 
+        myTeam.members.any((m) {
+          final isCurrentUser = m.id == userId || 
+              (auth.currentUser?.id != null && m.id == auth.currentUser!.id) ||
+              (auth.currentUser?.email != null && m.email.toLowerCase() == auth.currentUser!.email.toLowerCase());
+          final isLeaderRole = m.role == 'LEADER' || m.role == 'leader' || myTeam.members.indexOf(m) == 0;
+          return isCurrentUser && isLeaderRole;
+        });
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 500),
@@ -567,7 +574,7 @@ class _ProjectPageBody extends StatelessWidget {
             ),
           ),
 
-          // Show skeleton while loading initial state (provider is initializing in background)
+          // show skeleton while loading initial state provider is initializing in background 
           if (provider.state == ProjectState.initial)
             const _ProjectLoadingSkeleton(),
 
@@ -582,7 +589,7 @@ class _ProjectPageBody extends StatelessWidget {
             specificError: provider.documentTypeError!,
           ),
         ]
-        // Show upload zone only after init resolved AND there's an error (no analysis found)
+        // show upload zone only after init resolved and there s an error no analysis found 
         else if (provider.state == ProjectState.error)
           if (isLeader)
             UploadZoneWidget(provider: provider)

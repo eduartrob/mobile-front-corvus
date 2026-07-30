@@ -59,7 +59,7 @@ class ProfileRemoteDataSource {
     List<String>? careers,
   }) async {
     try {
-      // 1. Actualizar nombre/matrícula/cuatrimestre en auth service
+      // 1 actualizar nombre matrícula cuatrimestre en auth service
       final authUrl = Uri.parse('${ApiConfig.apiGatewayUrl}/auth/profile');
       
       final Map<String, dynamic> bodyData = {

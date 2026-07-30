@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../provider/student_directory_provider.dart';
 import '../widgets/student_search_bar.dart';
 import '../widgets/skill_filter_chips.dart';
-import 'package:mobile/shared/widgets/student_card.dart';
+import 'package:mobile/shared/presentation/widgets/student_card.dart';
 import 'package:mobile/core/network/auth_interceptor_client.dart';
 import 'package:mobile/features/student_directory/data/data_source/student_directory_remote_data_source.dart';
 import 'package:mobile/core/di/di.dart';
@@ -43,7 +43,7 @@ class _StudentDirectoryView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header / Description Section
+            // header description section
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
               child: Column(
@@ -70,7 +70,7 @@ class _StudentDirectoryView extends StatelessWidget {
               ),
             ),
             
-            // Search Bar
+            // search bar
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
               child: StudentSearchBar(),
@@ -78,13 +78,13 @@ class _StudentDirectoryView extends StatelessWidget {
             
             const SizedBox(height: 12),
             
-            // Filter Chips Section
+            // filter chips section
             const Padding(
               padding: EdgeInsets.only(left: 20.0, bottom: 16.0),
               child: SkillFilterChips(),
             ),
             
-            // Student List
+            // student list
             Expanded(
               child: context.watch<StudentDirectoryProvider>().isLoading 
                   ? const Center(child: CircularProgressIndicator())

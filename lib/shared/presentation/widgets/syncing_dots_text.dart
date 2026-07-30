@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-// -# interno  no crea ningun stream no genera trafico de eventos externos
+// interno no crea ningun stream no genera trafico de eventos externos
 class SyncingDotsText extends StatefulWidget {
   final String label;
   final TextStyle? style;

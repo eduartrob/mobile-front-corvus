@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 import 'package:mobile/features/prof_dash/domain/entities/dashboard_entity.dart';
 import 'package:mobile/features/prof_dash/domain/repositories/dashboard_repository.dart';
 
@@ -41,18 +41,18 @@ class ProfDashboardProvider extends ChangeNotifier {
       _errorMessage = null;
       _isLoading = true;
 
-      // 1. Carga optimista desde memoria RAM (Caché instantáneo)
+      // 1 carga optimista desde memoria ram caché instantáneo 
       if (_cache.containsKey(pId)) {
         _dashboardData = _cache[pId];
         _isLoading = false;
         notifyListeners();
       } else {
-        notifyListeners(); // Mostrar loading mientras revisamos SharedPreferences
+        notifyListeners(); // mostrar loading mientras revisamos sharedpreferences
       }
 
-      // 2. Carga optimista desde SharedPreferences (Caché persistente)
+      // 2 carga optimista desde sharedpreferences caché persistente 
       try {
-        // Pequeño retraso de 350ms para asegurar que la animación de la página terminó antes de bloquear el hilo
+        // pequeño retraso de 350ms para asegurar que la animación de la página terminó antes de bloquear el hilo
         await Future.delayed(const Duration(milliseconds: 350));
         
         final prefs = await SharedPreferences.getInstance();
@@ -70,7 +70,7 @@ class ProfDashboardProvider extends ChangeNotifier {
       } catch (_) {}
     }
 
-    // 3. Petición silenciosa al servidor (Background Fetch)
+    // 3 petición silenciosa al servidor background fetch 
     try {
       final newData = await _repository.loadDashboardStats(
         projectId: projectId,
@@ -92,7 +92,7 @@ class ProfDashboardProvider extends ChangeNotifier {
       }
     } catch (e) {
       if (_currentProjectId == projectId) {
-        // Solo mostrar el error si no hay datos en caché, de lo contrario lo ignoramos silenciosamente
+        // solo mostrar el error si no hay datos en caché de lo contrario lo ignoramos silenciosamente
         if (_dashboardData == null) {
           _errorMessage = 'Error de conexión: $e';
         }

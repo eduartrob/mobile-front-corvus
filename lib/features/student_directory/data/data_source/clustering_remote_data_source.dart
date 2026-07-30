@@ -10,7 +10,7 @@ class ClusteringRemoteDataSource {
 
   ClusteringRemoteDataSource({required this.client});
 
-  // GET /clustering/groups/login
+  // get clustering groups login
   Future<Map<String, dynamic>> loginClassroom() async {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.clusteringGroupsLogin}');
 
@@ -28,7 +28,7 @@ class ClusteringRemoteDataSource {
     throw Exception('Error al iniciar sesión en Classroom');
   }
 
-  // GET /clustering/groups/courses
+  // get clustering groups courses
   Future<List<dynamic>> getClassroomCourses() async {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.clusteringGroupsCourses}');
 
@@ -46,7 +46,7 @@ class ClusteringRemoteDataSource {
     return [];
   }
 
-  // POST /clustering/groups/cluster/<courseId>
+  // post clustering groups cluster courseid 
   Future<Map<String, dynamic>> processClustering(String courseId) async {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.clusteringGroupsCluster(courseId)}');
 
@@ -64,7 +64,7 @@ class ClusteringRemoteDataSource {
     throw Exception('Error al procesar el agrupamiento');
   }
 
-  // GET /clustering/groups/cluster/<courseId>/summary
+  // get clustering groups cluster courseid summary
   Future<Map<String, dynamic>> getClusteringSummary(String courseId) async {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.clusteringGroupsClusterSummary(courseId)}');
 
@@ -82,7 +82,7 @@ class ClusteringRemoteDataSource {
     throw Exception('Error al obtener el resumen de grupos');
   }
 
-  // POST /clustering/groups/sync-perfil
+  // post clustering groups sync perfil
   Future<Map<String, dynamic>> syncStudentProfile() async {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.clusteringGroupsSyncPerfil}');
 
@@ -100,7 +100,7 @@ class ClusteringRemoteDataSource {
     throw Exception('Error al sincronizar el perfil del estudiante');
   }
 
-  // GET /clustering/groups/mi-perfil/completo
+  // get clustering groups mi perfil completo
   Future<Map<String, dynamic>> getFullStudentProfile() async {
     final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.clusteringGroupsMiPerfilCompleto}');
 

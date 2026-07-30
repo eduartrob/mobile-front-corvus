@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class AppGradients {
   const AppGradients._();
 
-  // Gradientes pastel para las tarjetas de proyecto (ProjectCard)
+  // gradientes pastel para las tarjetas de proyecto projectcard 
   static const List<List<Color>> pastelGradients = [
     [Color(0xFFB5F2CA), Color(0xFFFBF1B7)],
     [Color(0xFFB5E0F2), Color(0xFFC7B5F2)],
@@ -17,7 +17,7 @@ class AppGradients {
     [Color(0xFFCEF2B5), Color(0xFFB5E9F2)],
   ];
 
-  // Gradiente dorado para la insignia PRO (ProAvatar)
+  // gradiente dorado para la insignia pro proavatar 
   static const List<Color> proGradient = [
     Color(0xFFFFD700),
     Color(0xFFFFA500),

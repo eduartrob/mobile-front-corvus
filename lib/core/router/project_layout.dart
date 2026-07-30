@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/shared/widgets/corvus_bottom_nav_bar.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_bottom_nav_bar.dart';
 import 'package:mobile/features/teams/presentation/pages/teams_page.dart';
 import 'package:mobile/features/my_project/presentation/pages/my_project_page.dart';
 import 'package:mobile/features/my_project/presentation/pages/team_chat_page.dart';
@@ -27,7 +27,7 @@ class _ProjectLayoutState extends State<ProjectLayout> {
   @override
   void initState() {
     super.initState();
-    // Validamos que initialTab no exceda el número de pestañas activas (actualmente 2: index 0 y 1)
+    // validamos que initialtab no exceda el número de pestañas activas actualmente 2 index 0 y 1 
     _currentIndex = widget.initialTab.clamp(0, 1);
   }
 
@@ -74,7 +74,7 @@ class _ProjectLayoutState extends State<ProjectLayout> {
               key: ValueKey('myproject_${widget.projectId}'),
               projectId: widget.projectId,
             ),
-            // const TeamChatPage(), // Oculto temporalmente
+            // const teamchatpage oculto temporalmente
           ],
         ),
         bottomNavigationBar: CustomAnimatedBottomNavBar(
@@ -91,11 +91,11 @@ class _ProjectLayoutState extends State<ProjectLayout> {
               activeIcon: Icons.upload_file,
               label: 'Propuesta',
             ),
-            /* CustomNavItemData(
-              icon: Icons.chat_bubble_outline,
-              activeIcon: Icons.chat_bubble,
-              label: 'Chat',
-            ), */
+            /* customnavitemdata 
+ icon icons chat bubble outline 
+ activeicon icons chat bubble 
+ label chat 
+ */
           ],
         ),
       ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/shared/widgets/corvus_top_bar.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_top_bar.dart';
 
 class StudentQRScannerPage extends StatefulWidget {
   const StudentQRScannerPage({super.key});
@@ -27,15 +27,15 @@ class _StudentQRScannerPageState extends State<StudentQRScannerPage> {
     for (final barcode in barcodes) {
       if (barcode.rawValue != null) {
         final rawValue = barcode.rawValue!;
-        // Expected format: corvus-join:<CODE>
+        // expected format corvus join code 
         if (rawValue.startsWith('corvus-join:')) {
           final code = rawValue.substring('corvus-join:'.length);
           _hasScanned = true;
-          // Pop the scanner page and return the code to the caller
+          // pop the scanner page and return the code to the caller
           context.pop(code);
           break;
         } else {
-          // If the QR code is just the code
+          // if the qr code is just the code
           _hasScanned = true;
           context.pop(rawValue);
           break;
@@ -56,7 +56,7 @@ class _StudentQRScannerPageState extends State<StudentQRScannerPage> {
             controller: _scannerController,
             onDetect: _onDetect,
           ),
-          // Overlay to guide the user
+          // overlay to guide the user
           Container(
             decoration: ShapeDecoration(
               shape: _ScannerOverlayShape(
@@ -131,10 +131,10 @@ class _ScannerOverlayShape extends ShapeBorder {
       ..color = Colors.black.withOpacity(overlayOpacity)
       ..style = PaintingStyle.fill;
     
-    // Draw the dark background
+    // draw the dark background
     canvas.drawPath(getOuterPath(rect), paint);
 
-    // Draw the borders
+    // draw the borders
     final double width = rect.width;
     final double height = rect.height;
     final double size = width < height ? width * 0.7 : height * 0.7;
@@ -146,26 +146,26 @@ class _ScannerOverlayShape extends ShapeBorder {
       ..style = PaintingStyle.stroke
       ..strokeWidth = borderWidth;
     
-    // Draw corners
+    // draw corners
     final double cornerSize = size * 0.1;
     final Path cornerPath = Path();
 
-    // Top left
+    // top left
     cornerPath.moveTo(left, top + cornerSize);
     cornerPath.lineTo(left, top);
     cornerPath.lineTo(left + cornerSize, top);
 
-    // Top right
+    // top right
     cornerPath.moveTo(left + size - cornerSize, top);
     cornerPath.lineTo(left + size, top);
     cornerPath.lineTo(left + size, top + cornerSize);
 
-    // Bottom right
+    // bottom right
     cornerPath.moveTo(left + size, top + size - cornerSize);
     cornerPath.lineTo(left + size, top + size);
     cornerPath.lineTo(left + size - cornerSize, top + size);
 
-    // Bottom left
+    // bottom left
     cornerPath.moveTo(left + cornerSize, top + size);
     cornerPath.lineTo(left, top + size);
     cornerPath.lineTo(left, top + size - cornerSize);

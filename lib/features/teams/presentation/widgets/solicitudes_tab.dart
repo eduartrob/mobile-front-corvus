@@ -24,7 +24,7 @@ class SolicitudesTab extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // The filter chips were moved to teams_page.dart AppBar
+            // the filter chips were moved to teams page dart appbar
             Expanded(
               child: filteredList.isEmpty
                   ? RefreshIndicator(

@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 import 'package:mobile/features/teams/presentation/provider/teams_provider.dart';
 import 'package:mobile/features/my_project/presentation/provider/my_project_provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:mobile/shared/widgets/corvus_top_bar.dart';
-import 'package:mobile/shared/widgets/corvus_button.dart';
-import 'package:mobile/shared/widgets/corvus_skeleton.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_top_bar.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_button.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_skeleton.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 
 class MyProjectsDashboardPage extends StatefulWidget {
@@ -94,7 +94,7 @@ class _MyProjectsDashboardPageState extends State<MyProjectsDashboardPage> {
 
     if (userId == null || projects.isEmpty) return;
 
-    // Esperar 0.5 segundos para que la animación inicial termine y empezar precarga temprana
+    // esperar 0 5 segundos para que la animación inicial termine y empezar precarga temprana
     Future.delayed(const Duration(milliseconds: 500), () async {
       if (!mounted) return;
       for (final p in projects) {

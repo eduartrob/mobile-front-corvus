@@ -1,6 +1,6 @@
-/// Jerarquía de excepciones tipadas de la app.
-/// Cada tipo mapea a un mensaje amigable para el usuario final.
-/// Los data sources lanzan estas excepciones; los providers las capturan.
+/// jerarquía de excepciones tipadas de la app 
+/// cada tipo mapea a un mensaje amigable para el usuario final 
+/// los data sources lanzan estas excepciones los providers las capturan 
 library;
 
 import 'package:mobile/l10n/app_localizations.dart';
@@ -9,8 +9,8 @@ sealed class AppException implements Exception {
   final String? technicalDetail;
   const AppException([this.technicalDetail]);
 
-  /// Retorna el mensaje que el usuario debe ver.
-  /// Si no hay contexto/l10n disponible, usa el fallback en español.
+  /// retorna el mensaje que el usuario debe ver 
+  /// si no hay contexto l10n disponible usa el fallback en español 
   String userFacingMessage([AppLocalizations? l10n]) => _fallback;
 
   String get _fallback =>
@@ -20,7 +20,7 @@ sealed class AppException implements Exception {
   String toString() => '${runtimeType.toString()}: $technicalDetail';
 }
 
-/// Error de red — sin conexión, timeout de socket, DNS, etc.
+/// error de red sin conexión timeout de socket dns etc 
 class NetworkException extends AppException {
   const NetworkException([super.technicalDetail]);
 
@@ -30,7 +30,7 @@ class NetworkException extends AppException {
       'Problema de conexión a internet. Verifica tu red e inténtalo de nuevo.';
 }
 
-/// Error de timeout — la petición tardó demasiado.
+/// error de timeout la petición tardó demasiado 
 class RequestTimeoutException extends AppException {
   const RequestTimeoutException([super.technicalDetail]);
 
@@ -40,7 +40,7 @@ class RequestTimeoutException extends AppException {
       'La petición tardó demasiado. Verifica tu conexión e inténtalo de nuevo.';
 }
 
-/// Error del servidor — respuesta HTTP con código de error.
+/// error del servidor respuesta http con código de error 
 class ServerException extends AppException {
   final int statusCode;
   const ServerException(this.statusCode, [super.technicalDetail]);
@@ -79,7 +79,7 @@ class ServerException extends AppException {
   }
 }
 
-/// Error de parseo — el JSON o formato de respuesta no es el esperado.
+/// error de parseo el json o formato de respuesta no es el esperado 
 class ParseException extends AppException {
   const ParseException([super.technicalDetail]);
 
@@ -89,8 +89,8 @@ class ParseException extends AppException {
       'Error al procesar la respuesta del servidor. Por favor reintenta.';
 }
 
-/// Error de validación — el backend rechazó los datos con un mensaje legible.
-/// [userMessage] ya es un string listo para mostrar al usuario.
+/// error de validación el backend rechazó los datos con un mensaje legible 
+/// usermessage ya es un string listo para mostrar al usuario 
 class ValidationException extends AppException {
   final String userMessage;
   const ValidationException(this.userMessage) : super(userMessage);
@@ -99,7 +99,7 @@ class ValidationException extends AppException {
   String userFacingMessage([AppLocalizations? l10n]) => userMessage;
 }
 
-/// Error de tipo de archivo no soportado.
+/// error de tipo de archivo no soportado 
 class UnsupportedFileTypeException extends AppException {
   const UnsupportedFileTypeException([super.technicalDetail]);
 
@@ -108,7 +108,7 @@ class UnsupportedFileTypeException extends AppException {
       l10n?.unsupportedFileType ?? 'Tipo de archivo no soportado.';
 }
 
-/// Error de seguridad — MitM detectado.
+/// error de seguridad mitm detectado 
 class SecurityException extends AppException {
   const SecurityException([super.technicalDetail]);
 
@@ -119,7 +119,7 @@ class SecurityException extends AppException {
       'Por tu seguridad, la operación fue bloqueada.';
 }
 
-/// Error de autenticación de terceros (Google, Drive).
+/// error de autenticación de terceros google drive 
 class AuthException extends AppException {
   const AuthException([super.technicalDetail]);
 

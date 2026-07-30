@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mobile/l10n/app_localizations.dart';
-import 'package:mobile/shared/widgets/corvus_top_bar.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_top_bar.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:mobile/features/search/presentation/provider/search_provider.dart';
@@ -90,7 +90,7 @@ class _SearchPageViewState extends State<_SearchPageView>
 
   void _toggleListening() async {
     _flutterTts
-        .stop(); // Detener cualquier lectura actual al interactuar con el micrófono
+        .stop(); // detener cualquier lectura actual al interactuar con el micrófono
     if (!_isListening) {
       bool available = await _speechToText.initialize(
         onStatus: (status) {
@@ -158,7 +158,7 @@ class _SearchPageViewState extends State<_SearchPageView>
     final textColor = colorScheme.onSurface;
 
     return PopScope(
-      canPop: false, // NUNCA permitir pop nativo aquí porque destruye la rama de go_router
+      canPop: false, // nunca permitir pop nativo aquí porque destruye la rama de go router
       onPopInvokedWithResult: (didPop, dynamic result) {
         if (didPop) return;
         if (_searchFocusNode.hasFocus) {
@@ -169,7 +169,7 @@ class _SearchPageViewState extends State<_SearchPageView>
           context.read<SearchProvider>().clearSearch();
           _searchController.clear();
         } else {
-          // Si no hay resultados ni teclado, navegamos manualmente a la pestaña principal
+          // si no hay resultados ni teclado navegamos manualmente a la pestaña principal
           context.go('/inspiration');
         }
       },
@@ -276,7 +276,7 @@ class _SearchPageViewState extends State<_SearchPageView>
           ),
         ),
         body: GestureDetector(
-          behavior: HitTestBehavior.translucent, // Esto permite detectar toques en zonas transparentes (espacios vacíos)
+          behavior: HitTestBehavior.translucent, // esto permite detectar toques en zonas transparentes espacios vacíos 
           onTap: () => FocusScope.of(context).unfocus(),
           child: _hasResults
               ? _buildResultsView(textColor, colorScheme)

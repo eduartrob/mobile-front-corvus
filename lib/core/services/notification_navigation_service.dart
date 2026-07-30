@@ -5,18 +5,18 @@ import 'package:provider/provider.dart';
 import 'package:mobile/core/router/appRouter.dart';
 import 'package:mobile/features/projects/presentation/provider/project_provider.dart';
 import 'package:mobile/core/di/di.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 import 'package:mobile/core/services/secure_storage_service.dart';
 
-/// Servicio dedicado para manejar la navegación al tocar una notificación.
-/// Centraliza toda la lógica de routing por tipo de notificación y deepLink.
+/// servicio dedicado para manejar la navegación al tocar una notificación 
+/// centraliza toda la lógica de routing por tipo de notificación y deeplink 
 ///
-/// Extraído de main.dart para cumplir el principio de responsabilidad única.
+/// extraído de main dart para cumplir el principio de responsabilidad única 
 class NotificationNavigationService {
   NotificationNavigationService._();
 
-  /// Maneja el tap en una notificación cuando la app está en
-  /// background o terminada.
+  /// maneja el tap en una notificación cuando la app está en
+  /// background o terminada 
   static Future<void> handle(RemoteMessage message) async {
     final context = rootNavigatorKey.currentContext;
     if (context == null) return;
@@ -25,7 +25,7 @@ class NotificationNavigationService {
     final deepLink = data['deepLink'] as String?;
     final notifType = data['type'] ?? '';
 
-    // 1. Priorizar deepLink si viene del backend
+    // 1 priorizar deeplink si viene del backend
     if (deepLink != null && deepLink.isNotEmpty) {
       try {
         context.go(deepLink);
@@ -35,7 +35,7 @@ class NotificationNavigationService {
       }
     }
 
-    // 2. Fallback por tipo de notificación
+    // 2 fallback por tipo de notificación
     await handleByType(context, notifType, data);
   }
 
@@ -50,7 +50,7 @@ class NotificationNavigationService {
       case 'CONFIG_UPDATED':
         final projectId = _resolveProjectId(context, data);
         if (projectId != null && projectId.isNotEmpty) {
-          // Check role to route correctly using secure storage
+          // check role to route correctly using secure storage
           final storage = SecureStorageService();
           final role = await storage.read(key: 'auth_role');
           if (role == 'PROFESOR' || role == 'DOCENTE') {
@@ -81,7 +81,7 @@ class NotificationNavigationService {
       case 'review_updated':
         final projectId = _resolveProjectId(context, data);
         if (projectId != null && projectId.isNotEmpty) {
-          context.push('/project/$projectId?tab=1'); // Tab 1 is Propuesta
+          context.push('/project/$projectId?tab=1'); // tab 1 is propuesta
         } else {
           _safePushNotifications(context, highlightLatest: true);
         }
@@ -89,14 +89,14 @@ class NotificationNavigationService {
 
       case 'SECURITY_DEVICE':
       case 'security_new_device':
-        // Ideally this would go to a specific security settings page, assuming /profile for now
-        // if /security-alert doesn't exist. We will use /profile as a safe fallback.
+        // ideally this would go to a specific security settings page assuming profile for now
+        // if security alert doesn t exist we will use profile as a safe fallback 
         context.push('/profile');
         break;
 
       case 'SUBSCRIPTION_CHANGE':
       case 'payment_update':
-        context.push('/profile'); // User's billing settings usually in profile
+        context.push('/profile'); // user s billing settings usually in profile
         break;
 
       default:
@@ -105,7 +105,7 @@ class NotificationNavigationService {
   }
 
   static void _safePushNotifications(BuildContext context, {bool highlightLatest = false}) {
-    // Only push if we are NOT already on the notifications page
+    // only push if we are not already on the notifications page
     final location = GoRouterState.of(context).matchedLocation;
     if (location != '/notifications') {
       context.push('/notifications?highlightLatest=$highlightLatest');

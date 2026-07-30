@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/core/network/api_config.dart';
 import 'package:mobile/core/network/auth_interceptor_client.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 import 'package:mobile/features/projects/data/professor_api.dart';
 import 'dart:async';
-import 'package:mobile/shared/widgets/dashed_border_painter.dart';
+import 'package:mobile/shared/presentation/widgets/dashed_border_painter.dart';
 import 'package:mobile/core/di/di.dart';
 import 'package:mobile/core/network/auth_interceptor_client.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -29,7 +29,7 @@ class _ProfProjectSettingsPageState extends State<ProfProjectSettingsPage> {
   static final Map<String, List<dynamic>> _collaboratorsCache = {};
   static final Map<String, List<dynamic>> _pendingCache = {};
 
-  // Search state
+  // search state
   final ProfessorApi _professorApi = ProfessorApi();
   List<dynamic> _searchResults = [];
   bool _isSearching = false;

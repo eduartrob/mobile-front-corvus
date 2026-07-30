@@ -34,7 +34,7 @@ class ClusteringProvider extends ChangeNotifier {
 
     try {
       await remoteDataSource.loginClassroom();
-      // Handle login response redirect URL or success status if needed
+      // handle login response redirect url or success status if needed
     } catch (e, st) {
       _errorMessage = mapErrorToMessage(e, stackTrace: st);
     } finally {
@@ -65,7 +65,7 @@ class ClusteringProvider extends ChangeNotifier {
 
     try {
       await remoteDataSource.processClustering(courseId);
-      // Immediately load the summary
+      // immediately load the summary
       await fetchClusteringSummary(courseId);
     } catch (e, st) {
       _errorMessage = mapErrorToMessage(e, stackTrace: st);

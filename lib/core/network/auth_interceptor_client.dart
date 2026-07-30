@@ -7,7 +7,7 @@ import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:mobile/core/router/appRouter.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/core/di/di.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 import 'package:mobile/core/services/secure_storage_service.dart';
 import 'package:http_certificate_pinning/http_certificate_pinning.dart';
 
@@ -32,7 +32,7 @@ class AuthInterceptorClient extends http.BaseClient {
         const fallbackFingerprint =
             "6C:E2:90:D1:16:D6:2F:85:E3:1E:66:3C:34:F7:1A:93:16:46:17:B8:A0:82:75:EC:CD:1A:D5:B1:30:03:05:43";
 
-        // Intentar obtener desde Remote Config
+        // intentar obtener desde remote config
         String fingerprint = fallbackFingerprint;
         try {
           final remoteConfig = FirebaseRemoteConfig.instance;
@@ -41,7 +41,7 @@ class AuthInterceptorClient extends http.BaseClient {
             fingerprint = remoteFingerprint;
           }
         } catch (_) {
-          // Si Remote Config falla, usar el fallback hardcodeado
+          // si remote config falla usar el fallback hardcodeado
           debugPrint('SSL: Remote Config no disponible, usando fingerprint de respaldo');
         }
 
@@ -55,7 +55,7 @@ class AuthInterceptorClient extends http.BaseClient {
       }
     } catch (e) {
       final errorStr = e.toString().toLowerCase();
-      // Si el proxy se apagó pero el celular sigue intentando conectarse a él, dará error de conexión, no de MitM.
+      // si el proxy se apagó pero el celular sigue intentando conectarse a él dará error de conexión no de mitm 
       if (errorStr.contains('socket') || 
           errorStr.contains('timeout') || 
           errorStr.contains('refused') || 
@@ -64,13 +64,13 @@ class AuthInterceptorClient extends http.BaseClient {
         throw Exception('Error de conexión a internet (¿Olvidaste apagar el proxy en tu WiFi?)');
       }
 
-      // Si el pin falla, significa que el certificado fue reemplazado (ej. Charles Proxy) o el fingerprint cambió.
-      // onMitMDetected(); // DESACTIVADO TEMPORALMENTE por falsos positivos (Bug reportado por usuario)
+      // si el pin falla significa que el certificado fue reemplazado ej charles proxy o el fingerprint cambió 
+      // onmitmdetected desactivado temporalmente por falsos positivos bug reportado por usuario 
       debugPrint('Advertencia: Conexión Insegura (Posible MitM o fingerprint desactualizado). Error: $errorStr');
-      // No lanzamos la excepción para permitir que la app funcione.
+      // no lanzamos la excepción para permitir que la app funcione 
     }
 
-    // 2. Inyectar Token
+    // 2 inyectar token
     final token = await _storage.read(key: 'auth_token');
     if (token != null && !request.headers.containsKey('Authorization')) {
       request.headers['Authorization'] = 'Bearer $token';
@@ -78,7 +78,7 @@ class AuthInterceptorClient extends http.BaseClient {
 
     final response = await _inner.send(request);
     
-    // 3. Manejo de Sesión Expirada
+    // 3 manejo de sesión expirada
     if (response.statusCode == 401 && token != null) {
       onUnauthenticated();
     }
@@ -93,7 +93,7 @@ class AuthInterceptorClient extends http.BaseClient {
   }
 }
 
-// ─── NOTA: El sl<AuthInterceptorClient>() ya NO es una variable global.
-// Se registra en GetIt (di.dart) como LazySingleton y se inyecta
-// por constructor en cada data source que lo necesita.
-// Esto permite mockear el cliente en tests y sigue el principio DI.
+// nota el sl authinterceptorclient ya no es una variable global 
+// se registra en getit di dart como lazysingleton y se inyecta
+// por constructor en cada data source que lo necesita 
+// esto permite mockear el cliente en tests y sigue el principio di 

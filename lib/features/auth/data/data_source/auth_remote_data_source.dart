@@ -106,7 +106,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
                 }),
               );
               } catch (e) {
-              // ingest failed, continue
+              // ingest failed continue
             }
           }
         }
@@ -210,7 +210,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
             );
           }
         } catch(e) {
-          // FCM registration failed silently
+          // fcm registration failed silently
         }
 
         return UserModel.fromJson({
@@ -246,9 +246,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       await _googleSignIn.signOut();
     }
     
-    // IMPORTANTE: Recrear la instancia para resetear los scopes que el profe haya aceptado
-    // De lo contrario, si entra un estudiante después en la misma sesión de la app,
-    // Google SignIn seguirá recordando y pidiendo los scopes de Classroom/Drive.
+    // importante recrear la instancia para resetear los scopes que el profe haya aceptado
+    // de lo contrario si entra un estudiante después en la misma sesión de la app 
+    // google signin seguirá recordando y pidiendo los scopes de classroom drive 
     _googleSignIn = GoogleSignIn(
       serverClientId: kIsWeb ? null : '1078483343139-2fobsjceva5r60i6vrpcg4jbjddmj4uo.apps.googleusercontent.com',
       scopes: [

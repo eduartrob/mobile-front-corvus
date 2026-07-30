@@ -146,7 +146,7 @@ class StudentCard extends StatelessWidget {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1E40AF), // Dark blue like in the photo
+                  backgroundColor: const Color(0xFF1E40AF), // dark blue like in the photo
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),

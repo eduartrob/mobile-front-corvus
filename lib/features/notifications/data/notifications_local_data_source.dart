@@ -15,7 +15,7 @@ class NotificationsLocalDataSource {
   static Future<String> _getEncryptionKey() async {
     String? key = await _storage.read(key: 'db_encryption_key');
     if (key == null) {
-      // Generate a new secure key if not exists (dummy logic for simple usage)
+      // generate a new secure key if not exists dummy logic for simple usage 
       key = DateTime.now().millisecondsSinceEpoch.toString() + "CORVUS_SECURE_KEY";
       await _storage.write(key: 'db_encryption_key', value: key);
     }

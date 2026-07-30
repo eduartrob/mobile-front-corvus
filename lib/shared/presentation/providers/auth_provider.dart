@@ -2,7 +2,7 @@ import 'package:mobile/core/network/api_endpoints.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:mobile/core/services/secure_storage_service.dart';
-import 'package:mobile/core/domain/entities/user_entity.dart';
+import 'package:mobile/shared/domain/entities/user_entity.dart';
 import 'package:mobile/features/auth/domain/use_cases/sign_in_with_google_usecase.dart';
 import 'package:mobile/features/auth/domain/use_cases/request_drive_scope_usecase.dart';
 import 'package:mobile/features/auth/domain/use_cases/get_drive_access_token_usecase.dart';
@@ -104,7 +104,7 @@ class AuthProvider extends ChangeNotifier {
         _status = AuthStatus.authenticated;
         fetchProSubscriptionStatus(email: savedEmail).catchError((_) {});
         
-        // Fetch /me to update profile info silently in background
+        // fetch me to update profile info silently in background
         sl<AuthInterceptorClient>().get(Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authMe}')).then((response) {
           if (response.statusCode == 200) {
             final data = jsonDecode(response.body);
@@ -133,7 +133,7 @@ class AuthProvider extends ChangeNotifier {
           }
         }).catchError((_) {});
 
-        // Registrar FCM token silenciosamente
+        // registrar fcm token silenciosamente
         try {
           final fcmToken = await FirebaseMessaging.instance.getToken();
           if (fcmToken != null && _currentUser != null && _currentUser!.id.isNotEmpty) {
@@ -152,7 +152,7 @@ class AuthProvider extends ChangeNotifier {
             ).catchError((e) => null);
           }
         } catch(e) {
-          // FCM restore failed silently
+          // fcm restore failed silently
         }
 
       } else {
@@ -192,7 +192,7 @@ class AuthProvider extends ChangeNotifier {
       FirebaseMessaging.instance.subscribeToTopic('config_updates');
 
       try {
-        // Trigger profile parsing in background silently
+        // trigger profile parsing in background silently
         final clusteringDs = ClusteringRemoteDataSource(client: sl<AuthInterceptorClient>());
         clusteringDs.syncStudentProfile().catchError((_) => <String, dynamic>{});
       } catch (_) {}
@@ -312,7 +312,7 @@ class AuthProvider extends ChangeNotifier {
       }
       await FirebaseMessaging.instance.unsubscribeFromTopic('config_updates').timeout(const Duration(seconds: 3));
     } catch (e, st) {
-      // FCM deregister failed silently
+      // fcm deregister failed silently
     }
 
     try {
@@ -385,7 +385,7 @@ class AuthProvider extends ChangeNotifier {
         await _storage.write(key: 'auth_pro_active', value: 'false');
       }
     } catch (_) {
-      // Ignorar error de red si falla la degradación
+      // ignorar error de red si falla la degradación
     }
     notifyListeners();
   }
@@ -415,13 +415,13 @@ class AuthProvider extends ChangeNotifier {
     }
     final userId = _currentUser?.id ?? await _storage.read(key: 'auth_id');
     final uri = Uri.parse('${ApiConfig.apiGatewayUrl}/pagos/crear');
-    // El backend define el precio oficial; el monto que enviemos es ignorado.
-    // Solo se envía el concepto para que el backend identifique el plan.
+    // el backend define el precio oficial el monto que enviemos es ignorado 
+    // solo se envía el concepto para que el backend identifique el plan 
     final body = jsonEncode({
       'alumno_email': email,
       'user_id': userId,
       'concepto': 'Plan Pro mensual',
-      'monto': 0,           // ignorado por el backend; precio real = PLANES_PRECIOS en Python
+      'monto': 0,           // ignorado por el backend precio real planes precios en python
       'metodo': metodo,
     });
     final response = await sl<AuthInterceptorClient>().post(
@@ -471,7 +471,7 @@ class AuthProvider extends ChangeNotifier {
         final university = data['university'];
         
         if (university != null && university['id'] != null) {
-          // Save university ID and name in storage for future use
+          // save university id and name in storage for future use
           await _storage.write(key: 'auth_university_id', value: university['id']);
           await _storage.write(key: 'auth_university_name', value: university['name']);
           return true;
@@ -493,7 +493,7 @@ class AuthProvider extends ChangeNotifier {
       final token = await _storage.read(key: 'auth_token');
       if (token == null) return false;
 
-      // Actualizar foto en el backend usando Cloudinary
+      // actualizar foto en el backend usando cloudinary
       final response = await sl<AuthInterceptorClient>().put(
         Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.authProfilePicture}'),
         headers: {'Content-Type': 'application/json'},
@@ -502,7 +502,7 @@ class AuthProvider extends ChangeNotifier {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        // Backend returns { profile_picture: url } directly
+        // backend returns profile picture url directly
         final newPhotoUrl = data?['profile_picture'] ?? data?['user']?['profile_picture'];
         if (newPhotoUrl != null) {
           if (_currentUser != null) {

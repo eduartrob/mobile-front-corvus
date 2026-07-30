@@ -92,7 +92,7 @@ class MyProjectProvider extends ChangeNotifier {
       : _repository = repository,
         _notificationService = NotificationService();
 
-  // ── State (Entity-based Cache) ─────────────────────────────────────────
+  // state entity based cache 
   final Map<String, ProjectStateData> _projectCache = {};
   String? _currentProjectId;
 
@@ -148,7 +148,7 @@ class MyProjectProvider extends ChangeNotifier {
     _current.activeMessageCount = messageCount;
   }
 
-  // ── Voice Defense Persistent Session ─────────────────────────────────
+  // voice defense persistent session 
 
   void saveActiveVoiceSession(List<Map<String, dynamic>> messages, {Map<String, dynamic>? verdictReport}) {
     _current.activeVoiceMessages = messages;
@@ -207,7 +207,7 @@ class MyProjectProvider extends ChangeNotifier {
 
   String? get projectId => _currentProjectId;
 
-  // ── Public API ─────────────────────────────────────────────────────────
+  // public api 
 
   Future<void> refreshConfig() async {
     final config = await _repository.fetchConfig(projectId: _currentProjectId);
@@ -225,10 +225,10 @@ class MyProjectProvider extends ChangeNotifier {
 
     if (switchedContext) {
       notifyListeners();
-      // Si ya estaba inicializado el cache para este proyecto, hacemos silent fetch.
-      // Retornamos de inmediato si no hay un forceRefresh explícito.
+      // si ya estaba inicializado el cache para este proyecto hacemos silent fetch 
+      // retornamos de inmediato si no hay un forcerefresh explícito 
       if (_current.initialized && !forceRefresh) {
-        // Hacemos fetch silencioso del status
+        // hacemos fetch silencioso del status
         _silentFetchUpdates(userId, teamId, projectId);
         return;
       }
@@ -268,7 +268,7 @@ class MyProjectProvider extends ChangeNotifier {
       final summary = results[0] as Map<String, dynamic>;
       final localAnalysis = results[1] as Map<String, dynamic>?;
 
-      // 1. Aplicar Configuración desde BFF
+      // 1 aplicar configuración desde bff
       if (summary['config'] != null) {
         final configData = summary['config'] as Map;
         final configEntity = ProjectAnalysisEntity(
@@ -300,7 +300,7 @@ class MyProjectProvider extends ChangeNotifier {
         }).catchError((_) {});
       }
 
-      // 2. Si ya hay análisis local guardado, usarlo inmediatamente (0 ms)
+      // 2 si ya hay análisis local guardado usarlo inmediatamente 0 ms 
       if (localAnalysis != null) {
         data.detailedAnalysis = localAnalysis;
         data.fileName = localAnalysis['original_file_name'] ?? 'documento_analizado.pdf';
@@ -313,7 +313,7 @@ class MyProjectProvider extends ChangeNotifier {
         return;
       }
 
-      // 3. Revisar status y resultado desde el BFF
+      // 3 revisar status y resultado desde el bff
       final status = summary['analysisStatus'] as Map<String, dynamic>? ?? <String, dynamic>{'phase': 0};
       final phase = (status['phase'] as num?)?.toInt() ?? 0;
 
@@ -360,7 +360,7 @@ class MyProjectProvider extends ChangeNotifier {
         }
       }
 
-      // 4. Revisar borrador desde el BFF
+      // 4 revisar borrador desde el bff
       final draft = summary['draftProposal'] as Map<String, dynamic>? ?? await _repository.checkDraft(teamId).catchError((_) => <String, dynamic>{});
       if (draft.isNotEmpty && draft['status'] != 'not_found') {
         data.quickAnalysis = draft;
@@ -429,7 +429,7 @@ class MyProjectProvider extends ChangeNotifier {
       }
       notifyListeners();
     } catch (_) {
-      // Ignorar errores en silent fetch
+      // ignorar errores en silent fetch
     }
   }
 
@@ -462,7 +462,7 @@ class MyProjectProvider extends ChangeNotifier {
         _current.selectedFile = file;
         _current.fileName = result.files.single.name;
 
-        // Save to permanent storage to survive cache clears
+        // save to permanent storage to survive cache clears
         try {
           final directory = await getApplicationDocumentsDirectory();
           final permanentPath = '${directory.path}/draft_${teamId}.pdf';
@@ -840,7 +840,7 @@ class MyProjectProvider extends ChangeNotifier {
         } catch (_) {}
       }
 
-      // Fallback 1: Try reading saved persistent draft file path from SharedPreferences
+      // fallback 1 try reading saved persistent draft file path from sharedpreferences
       if (uploadedFileUrl == null || uploadedFileUrl.isEmpty) {
         try {
           final prefs = await SharedPreferences.getInstance();
@@ -858,7 +858,7 @@ class MyProjectProvider extends ChangeNotifier {
         } catch (_) {}
       }
 
-      // Fallback 2: Retrieve URL from existing detailed analysis or assign valid default Cloudinary/S3 reference
+      // fallback 2 retrieve url from existing detailed analysis or assign valid default cloudinary s3 reference
       if (uploadedFileUrl == null || uploadedFileUrl.isEmpty) {
         uploadedFileUrl = _current.detailedAnalysis?['file_url'] ??
             _current.detailedAnalysis?['document_url'] ??
@@ -895,7 +895,7 @@ class MyProjectProvider extends ChangeNotifier {
     }
   }
 
-  // ── Helpers ────────────────────────────────────────────────────────────
+  // helpers 
 
   void _applyConfig(ProjectAnalysisEntity config) {
     _current.allowedExtensions = config.allowedExtensions;

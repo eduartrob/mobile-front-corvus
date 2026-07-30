@@ -131,7 +131,7 @@ class _FloatingAiInputState extends State<FloatingAiInput>
     );
   }
 
-  // ─── Minimized pill button ──────────────────────────────────────────────────
+  // minimized pill button 
   Widget _buildMinimizedState(ColorScheme colorScheme) {
     const softBlue = Color(0xFF5B8DEF);
     const softBlueDark = Color(0xFF4A7DE0);
@@ -182,7 +182,7 @@ class _FloatingAiInputState extends State<FloatingAiInput>
     );
   }
 
-  // ─── Expanded floating card ─────────────────────────────────────────────────
+  // expanded floating card 
   Widget _buildExpandedState(ColorScheme colorScheme, AppLocalizations l10n) {
     return SlideTransition(
       position: _slideAnim,
@@ -217,7 +217,7 @@ class _FloatingAiInputState extends State<FloatingAiInput>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // ── Header row ──
+                  // header row 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -261,7 +261,7 @@ class _FloatingAiInputState extends State<FloatingAiInput>
                   ),
                   const SizedBox(height: 8),
                   if (_ideaResult != null) ...[
-                    // Result view
+                    // result view
                     Text(
                       "¿Mejoramos tu idea?",
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
@@ -300,7 +300,7 @@ class _FloatingAiInputState extends State<FloatingAiInput>
                       ),
                     ),
                   ] else if (_isLoading) ...[
-                    // Loading view
+                    // loading view
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 24.0),
                       child: Center(
@@ -314,7 +314,7 @@ class _FloatingAiInputState extends State<FloatingAiInput>
                       ),
                     ),
                   ] else ...[
-                    // Default input view
+                    // default input view
                     Text(
                       l10n.lookingForSomethingDifferent,
                       style: TextStyle(
@@ -327,7 +327,7 @@ class _FloatingAiInputState extends State<FloatingAiInput>
                           fontSize: 13, color: colorScheme.onSurfaceVariant),
                     ),
                     const SizedBox(height: 16),
-                    // ── Search input ──
+                    // search input 
                     Container(
                       decoration: BoxDecoration(
                         color: colorScheme.surface,

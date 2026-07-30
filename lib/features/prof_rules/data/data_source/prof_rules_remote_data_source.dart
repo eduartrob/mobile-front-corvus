@@ -139,7 +139,7 @@ class ProfRulesRemoteDataSource {
 
       await client.post(url, headers: headers).timeout(const Duration(seconds: 10));
     } catch (e) {
-      // Ignorar errores en notificación
+      // ignorar errores en notificación
     }
   }
 }

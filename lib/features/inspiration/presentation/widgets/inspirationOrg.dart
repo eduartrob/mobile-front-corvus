@@ -100,7 +100,7 @@ class InspirationOrg extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
-              // -# big title
+              // big title
               const Text(
                 'Análisis de Innovación',
                 style: TextStyle(
@@ -111,7 +111,7 @@ class InspirationOrg extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              // -# subtitle
+              // subtitle
               const Text(
                 'Evaluación estratégica de viabilidad y originalidad para un potencial tema de tesis o proyecto de investigación en la región sureste de México.',
                 style: TextStyle(

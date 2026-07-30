@@ -169,7 +169,7 @@ class _EditSkillsPageState extends State<EditSkillsPage> {
         final bSelected = _selectedSkills.contains(b);
         if (aSelected && !bSelected) return -1;
         if (!aSelected && bSelected) return 1;
-        return 0; // Mantiene el orden original para las no seleccionadas
+        return 0; // mantiene el orden original para las no seleccionadas
       });
 
     return Scaffold(

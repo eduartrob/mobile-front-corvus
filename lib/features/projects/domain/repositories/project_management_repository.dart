@@ -1,5 +1,5 @@
-/// Contrato de dominio para la gestión de proyectos (crear, unirse, listar, etc.).
-/// La capa de presentación solo conoce esta interfaz, nunca el DataSource.
+/// contrato de dominio para la gestión de proyectos crear unirse listar etc 
+/// la capa de presentación solo conoce esta interfaz nunca el datasource 
 abstract class ProjectManagementRepository {
   Future<Map<String, dynamic>> createProject({
     required String name,

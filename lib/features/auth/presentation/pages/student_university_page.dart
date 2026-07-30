@@ -3,17 +3,17 @@ import 'dart:math' as Math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/shared/widgets/corvus_input_completed.dart';
-import 'package:mobile/shared/widgets/corvus_button.dart';
-import 'package:mobile/shared/widgets/corvus_label.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_input_completed.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_button.dart';
+import 'package:mobile/shared/presentation/widgets/corvus_label.dart';
 import 'package:mobile/core/network/api_config.dart';
 import '../widgets/university_autocomplete_field.dart';
-import 'package:mobile/shared/widgets/career_autocomplete_field.dart';
+import 'package:mobile/shared/presentation/widgets/career_autocomplete_field.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/features/auth/presentation/provider/registration_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/core/services/security_service.dart';
-import 'package:mobile/shared/widgets/auth_scaffold.dart';
+import 'package:mobile/shared/presentation/widgets/auth_scaffold.dart';
 
 class StudentUniversityPage extends StatefulWidget {
   const StudentUniversityPage({super.key});
@@ -146,7 +146,7 @@ class _StudentUniversityPageState extends State<StudentUniversityPage> {
         provider.setUniversityData(
           fullName: name,
           matricula: matricula,
-          universityId: _universityController.text, // El backend lo resuelve usando el nombre si no es un UUID
+          universityId: _universityController.text, // el backend lo resuelve usando el nombre si no es un uuid
           universityName: _universityController.text,
           periodName: _selectedPeriod,
           periodNumber: _periodNumberController.text.trim().isEmpty ? '1' : _periodNumberController.text.trim(),

@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:mobile/core/domain/entities/user_entity.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/domain/entities/user_entity.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 import 'package:mobile/features/profile/presentation/pages/edit_profile_page.dart' as mobile;
 import 'package:mobile/features/profile/presentation/pages/pro_plan_page.dart';
 import 'package:provider/provider.dart';
@@ -10,7 +10,7 @@ import 'package:mobile/features/profile/presentation/provider/profile_provider.d
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:mobile/shared/widgets/pro_avatar.dart';
+import 'package:mobile/shared/presentation/widgets/pro_avatar.dart';
 
 class StudentHeaderInfo extends StatefulWidget {
   final UserEntity? user;
@@ -450,7 +450,7 @@ class _ProPromoBannerWidgetState extends State<ProPromoBannerWidget> with Ticker
   late final AnimationController _swapController;
   Timer? _timer;
   int _currentIndex = 0;
-  bool _readyToShow = true; // Status is already cached in memory, no need to delay
+  bool _readyToShow = true; // status is already cached in memory no need to delay
 
   final List<Map<String, dynamic>> _promoCards = [
     {
@@ -532,7 +532,7 @@ class _ProPromoBannerWidgetState extends State<ProPromoBannerWidget> with Ticker
                 return Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    // --- 1. TARJETA TRASERA (Asoma sutilmente en el mazo) ---
+                    // 1 tarjeta trasera asoma sutilmente en el mazo 
                     Transform.translate(
                       offset: Offset(0, -6 * (1.0 - swapVal)),
                       child: Transform.scale(
@@ -544,7 +544,7 @@ class _ProPromoBannerWidgetState extends State<ProPromoBannerWidget> with Ticker
                       ),
                     ),
 
-                    // --- 2. TARJETA FRONTAL (Se desliza hacia abajo intercambiándose) ---
+                    // 2 tarjeta frontal se desliza hacia abajo intercambiándose 
                     if (swapVal < 1.0)
                       Transform.translate(
                         offset: Offset(0, 35 * swapVal),

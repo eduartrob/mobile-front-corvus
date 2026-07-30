@@ -1,5 +1,5 @@
-/// Entidad de dominio que representa el estado del análisis de un proyecto.
-/// Totalmente independiente de la capa de datos y presentación.
+/// entidad de dominio que representa el estado del análisis de un proyecto 
+/// totalmente independiente de la capa de datos y presentación 
 class ProjectAnalysisEntity {
   final String? fileName;
   final String? fileSize;

@@ -17,8 +17,8 @@ class TeamProjectData {
   Map<String, dynamic>? finalReviewStatus;
   List<Student> suggestions = [];
   List<Solicitud> requests = [];
-  bool isLoading = false;       // sugerencias / solicitudes / acciones generales
-  bool isLoadingTeam = false;   // SOLO carga del equipo principal
+  bool isLoading = false;       // sugerencias solicitudes acciones generales
+  bool isLoadingTeam = false;   // solo carga del equipo principal
   String? errorMessage;
   SolicitudFilter selectedFilter = SolicitudFilter.recibidas;
   int maxTeamMembers = 4;
@@ -50,7 +50,7 @@ class TeamsProvider extends ChangeNotifier {
       : _repository = repository;
 
   final Map<String, TeamProjectData> _teamCache = {};
-  String? _activeProjectId; // project_id activo para todas las operaciones
+  String? _activeProjectId; // project id activo para todas las operaciones
 
   TeamProjectData get _current {
     if (_activeProjectId == null) return TeamProjectData();
@@ -112,14 +112,14 @@ class TeamsProvider extends ChangeNotifier {
       } catch (_) {}
     }
 
-    // If we already have real data for this project and it's not a forced refresh,
-    // show cached data immediately and skip the loading spinner.
+    // if we already have real data for this project and it s not a forced refresh 
+    // show cached data immediately and skip the loading spinner 
     if (_current.hasLoadedOnce && !forceRefresh) {
       if (switchedContext) notifyListeners();
       return;
     }
 
-    // Only show loading spinner on first load for this project
+    // only show loading spinner on first load for this project
     if (!_current.hasLoadedOnce) {
       _current.isLoadingTeam = true;
       if (switchedContext) {
@@ -132,7 +132,7 @@ class TeamsProvider extends ChangeNotifier {
     _current.errorMessage = null;
 
     try {
-      // Lanzar fetchConfig en paralelo con getMyTeam si ya tenemos projectId
+      // lanzar fetchconfig en paralelo con getmyteam si ya tenemos projectid
       Future<Map<String, dynamic>> configFuture = projectId != null
           ? _repository.fetchConfig(projectId: projectId).catchError((_) => <String, dynamic>{})
           : Future.value(<String, dynamic>{});
@@ -143,8 +143,8 @@ class TeamsProvider extends ChangeNotifier {
         notifyListeners();
       }
 
-      // Use resolvedProjectId only if no explicit projectId was given
-      // This keeps the cache key consistent with what was passed in
+      // use resolvedprojectid only if no explicit projectid was given
+      // this keeps the cache key consistent with what was passed in
       String? resolvedProjectId = projectId;
       if (resolvedProjectId == null) {
         if (_current.myTeam != null) {
@@ -154,7 +154,7 @@ class TeamsProvider extends ChangeNotifier {
           final projectData = await _repository.fetchProjectId();
           resolvedProjectId = projectData?['projectId']?.toString();
         }
-        // Only update _activeProjectId when we didn't have one to begin with
+        // only update activeprojectid when we didn t have one to begin with
         if (resolvedProjectId != null) {
           _activeProjectId = resolvedProjectId;
           configFuture = _repository.fetchConfig(projectId: resolvedProjectId).catchError((_) => <String, dynamic>{});
@@ -232,7 +232,7 @@ class TeamsProvider extends ChangeNotifier {
         await prefs.setString('teams_details_$pid', json.encode(data.toJson()));
       } catch (_) {}
     } catch (_) {
-      // Ignore in silent warmup
+      // ignore in silent warmup
     } finally {
       data.isLoadingTeam = false;
     }
@@ -249,7 +249,7 @@ class TeamsProvider extends ChangeNotifier {
         name,
         description,
         socialLinks,
-        projectId: _activeProjectId, // pasar siempre el projectId activo
+        projectId: _activeProjectId, // pasar siempre el projectid activo
       );
     } catch (e, st) {
       _current.errorMessage = mapErrorToMessage(e, stackTrace: st);
@@ -314,8 +314,9 @@ class TeamsProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      final targetProjectId = projectId ?? _activeProjectId;
       final results = await _repository.getSuggestions(
-          skill: skill, search: search, showAll: showAll, projectId: projectId);
+          skill: skill, search: search, showAll: showAll, projectId: targetProjectId);
       _current.suggestions = results.where((s) => s.id != null).toList();
     } catch (e, st) {
       _current.errorMessage = mapErrorToMessage(e, stackTrace: st);
@@ -331,10 +332,11 @@ class TeamsProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      final targetProjectId = projectId ?? _activeProjectId;
       final filterStr = _current.selectedFilter == SolicitudFilter.recibidas
           ? 'recibidas'
           : 'enviadas';
-      _current.requests = await _repository.getRequests(filterStr, projectId: projectId);
+      _current.requests = await _repository.getRequests(filterStr, projectId: targetProjectId);
     } catch (e, st) {
       _current.errorMessage = mapErrorToMessage(e, stackTrace: st);
     } finally {
@@ -385,7 +387,7 @@ class TeamsProvider extends ChangeNotifier {
 
     try {
       await _repository.acceptRequest(requestId, projectId: _activeProjectId);
-      // Refrescar equipo y config (número de integrantes puede haber cambiado)
+      // refrescar equipo y config número de integrantes puede haber cambiado 
       await fetchMyTeam(projectId: _activeProjectId);
       fetchRequests(projectId: _activeProjectId);
     } catch (e, st) {

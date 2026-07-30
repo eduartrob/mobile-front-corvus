@@ -26,7 +26,7 @@ class ActivityHistoryProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // The API Gateway routes /api/v1/auth to the authentication service
+      // the api gateway routes api v1 auth to the authentication service
       final url = Uri.parse('${ApiConfig.apiGatewayUrl}/auth/profile/history');
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
 

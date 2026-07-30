@@ -43,7 +43,7 @@ class _CorvusSkeletonState extends State<CorvusSkeleton> with SingleTickerProvid
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        // Animate from left to right (-2.0 to 2.0)
+        // animate from left to right 2 0 to 2 0 
         final slide = -2.0 + (_controller.value * 4.0);
         
         return Container(

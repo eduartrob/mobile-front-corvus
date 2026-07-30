@@ -3,7 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:mobile/features/my_project/presentation/provider/my_project_provider.dart';
 import 'package:mobile/features/my_project/presentation/pages/pdf_viewer_page.dart';
 
-/// Abre el archivo PDF usando la librería nativa en la pantalla PDFViewerPage.
+/// abre el archivo pdf usando la librería nativa en la pantalla pdfviewerpage 
 void openDocumentFile(BuildContext context, MyProjectProvider provider) {
   final file = provider.selectedFile;
   final fileName = provider.fileName ?? 'Propuesta_Proyecto.pdf';
@@ -23,7 +23,7 @@ void openDocumentFile(BuildContext context, MyProjectProvider provider) {
   }
 }
 
-/// Banner/Rectángulo de altura corta para previsualizar el documento completo cargado.
+/// banner rectángulo de altura corta para previsualizar el documento completo cargado 
 class DocumentPreviewBannerWidget extends StatelessWidget {
   final MyProjectProvider provider;
 
@@ -115,7 +115,7 @@ class DocumentPreviewBannerWidget extends StatelessWidget {
   }
 }
 
-/// Muestra un modal/diálogo interactivo con la previsualización y detalles del documento completo.
+/// muestra un modal diálogo interactivo con la previsualización y detalles del documento completo 
 void showDocumentViewerDialog(BuildContext context, MyProjectProvider provider) {
   final colorScheme = Theme.of(context).colorScheme;
   final fileName = provider.fileName ?? 'Propuesta_Proyecto.pdf';
@@ -153,7 +153,7 @@ void showDocumentViewerDialog(BuildContext context, MyProjectProvider provider) 
           constraints: const BoxConstraints(maxHeight: 650),
           child: Column(
             children: [
-              // Encabezado
+              // encabezado
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 decoration: BoxDecoration(
@@ -189,7 +189,7 @@ void showDocumentViewerDialog(BuildContext context, MyProjectProvider provider) 
                 ),
               ),
 
-              // Cuerpo con formato de hoja de lectura
+              // cuerpo con formato de hoja de lectura
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(20),
@@ -332,7 +332,7 @@ void showDocumentViewerDialog(BuildContext context, MyProjectProvider provider) 
                 ),
               ),
 
-              // Botones de Acción
+              // botones de acción
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(

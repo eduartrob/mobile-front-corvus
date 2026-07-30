@@ -1,13 +1,13 @@
 import 'package:flutter/foundation.dart';
 
 class RegistrationProvider extends ChangeNotifier {
-  // Step 1: RegisterPage
+  // step 1 registerpage
   String email = '';
   String password = '';
   String role = '';
-  String? googleAuthCode; // set when user registers via Google
+  String? googleAuthCode; // set when user registers via google
 
-  // Step 2: StudentUniversityPage
+  // step 2 studentuniversitypage
   String fullName = '';
   String matricula = '';
   String universityId = '';
@@ -17,7 +17,7 @@ class RegistrationProvider extends ChangeNotifier {
   String careerId = '';
   String careerName = '';
 
-  // Step 3: StudentSkillsPage
+  // step 3 studentskillspage
   List<String> selectedSkills = [];
 
   void setRegisterData({

@@ -10,12 +10,12 @@ class NetworkService {
   final Connectivity _connectivity = Connectivity();
   StreamSubscription<List<ConnectivityResult>>? _subscription;
 
-  // Track if we are currently offline to avoid spamming
+  // track if we are currently offline to avoid spamming
   bool _isOffline = false;
 
   void initialize(GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey) {
     _subscription = _connectivity.onConnectivityChanged.listen((List<ConnectivityResult> results) {
-      // connectivity_plus 7.x returns a List<ConnectivityResult>
+      // connectivity plus 7 x returns a list connectivityresult 
       bool isConnected = results.any((result) => result != ConnectivityResult.none);
 
       if (!isConnected && !_isOffline) {
@@ -41,7 +41,7 @@ class NetworkService {
         ),
         backgroundColor: Colors.red.shade800,
         behavior: SnackBarBehavior.floating,
-        duration: const Duration(days: 365), // Keeps it visible until network returns
+        duration: const Duration(days: 365), // keeps it visible until network returns
         margin: const EdgeInsets.all(16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),

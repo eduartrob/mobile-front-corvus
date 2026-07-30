@@ -99,7 +99,7 @@ class ProfReviewsProvider extends ChangeNotifier {
               'type': 'info'
             }
           })
-        ).catchError((_) => null); // Ignore if push fails
+        ).catchError((_) => null); // ignore if push fails
       } catch (_) {}
       
       return true;

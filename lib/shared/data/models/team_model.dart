@@ -29,7 +29,7 @@ class TeamMemberModel {
   final String name;
   final String email;
   final String? avatarUrl;
-  final String role; // e.g. "LEADER", "MEMBER"
+  final String role; // e g leader member 
 
   const TeamMemberModel({
     required this.id,

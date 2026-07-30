@@ -7,7 +7,7 @@ class TeamChatPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     
-    // Light blue-ish background color as in the design
+    // light blue ish background color as in the design
     final cardBgColor = Color.alphaBlend(
       colors.primary.withValues(alpha: 0.08), 
       colors.surface,
@@ -105,7 +105,7 @@ class TeamChatPage extends StatelessWidget {
                       child: FilledButton(
                         onPressed: () {},
                         style: FilledButton.styleFrom(
-                          backgroundColor: const Color(0xFF3B6CED), // Slightly more vibrant blue
+                          backgroundColor: const Color(0xFF3B6CED), // slightly more vibrant blue
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(28),
                           ),

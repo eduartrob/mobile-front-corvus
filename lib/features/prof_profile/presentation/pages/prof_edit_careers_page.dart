@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/profile/presentation/provider/profile_provider.dart';
-import 'package:mobile/shared/widgets/career_autocomplete_field.dart';
+import 'package:mobile/shared/presentation/widgets/career_autocomplete_field.dart';
 
 class ProfEditCareersPage extends StatefulWidget {
   final List<String> initialCareers;
@@ -25,7 +25,7 @@ class _ProfEditCareersPageState extends State<ProfEditCareersPage> {
     final profile = Provider.of<ProfileProvider>(context, listen: false).profile;
     _universityController = TextEditingController(text: profile?.universidad ?? '');
     
-    // Build unique list: main career first, then extra careers (skills)
+    // build unique list main career first then extra careers skills 
     final allCareers = <String>{};
     if (profile?.carrera != null && profile!.carrera!.isNotEmpty) {
       allCareers.add(profile.carrera!);

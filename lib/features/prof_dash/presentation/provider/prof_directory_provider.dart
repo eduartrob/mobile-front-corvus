@@ -5,14 +5,14 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile/core/network/api_config.dart';
 import 'package:mobile/features/prof_dash/data/models/prof_directory_model.dart';
-import 'package:mobile/core/providers/auth_provider.dart';
+import 'package:mobile/shared/presentation/providers/auth_provider.dart';
 
 class ProfDirectoryProvider extends ChangeNotifier {
   final AuthProvider authProvider;
   final http.Client client;
   final String projectId;
 
-  // Caché estático en RAM para sobrevivir a la recreación del Provider al cambiar de página
+  // caché estático en ram para sobrevivir a la recreación del provider al cambiar de página
   static final Map<String, ProfDirectoryModel> _cache = {};
 
   ProfDirectoryModel? _directoryData;
@@ -34,7 +34,7 @@ class ProfDirectoryProvider extends ChangeNotifier {
     _isLoading = true;
     _errorMessage = null;
 
-    // 1. Carga optimista desde memoria RAM
+    // 1 carga optimista desde memoria ram
     if (_cache.containsKey(projectId)) {
       _directoryData = _cache[projectId];
       _isLoading = false;
@@ -43,9 +43,9 @@ class ProfDirectoryProvider extends ChangeNotifier {
       notifyListeners();
     }
 
-    // 2. Carga optimista desde SharedPreferences
+    // 2 carga optimista desde sharedpreferences
     try {
-      // Pequeño retraso de 350ms para asegurar que la animación de la página terminó antes de bloquear el hilo
+      // pequeño retraso de 350ms para asegurar que la animación de la página terminó antes de bloquear el hilo
       await Future.delayed(const Duration(milliseconds: 350));
       
       final prefs = await SharedPreferences.getInstance();
@@ -60,7 +60,7 @@ class ProfDirectoryProvider extends ChangeNotifier {
       }
     } catch (_) {}
 
-    // 3. Petición silenciosa al servidor (Background Fetch)
+    // 3 petición silenciosa al servidor background fetch 
     try {
       final url = Uri.parse('${ApiConfig.apiGatewayUrl}${ApiEndpoints.teamsProfDirectory}?project_id=$projectId');
       final headers = Map<String, String>.from(ApiConfig.defaultHeaders);
